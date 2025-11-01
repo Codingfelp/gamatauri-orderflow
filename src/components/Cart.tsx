@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 interface CartItem {
@@ -27,16 +27,14 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       <SheetTrigger asChild>
         <Button 
           size="lg" 
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground z-50"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50"
         >
-          <div className="relative">
-            <ShoppingCart className="w-6 h-6" />
-            {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
-                {itemCount}
-              </span>
-            )}
-          </div>
+          <ShoppingBag className="w-7 h-7" />
+          {itemCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-sm w-7 h-7 rounded-full flex items-center justify-center font-bold shadow-lg animate-in">
+              {itemCount}
+            </span>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-lg">
@@ -46,7 +44,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground">
-            <ShoppingCart className="w-20 h-20 mb-4 opacity-30" />
+            <ShoppingBag className="w-20 h-20 mb-4 opacity-30" />
             <p className="text-lg">Seu carrinho está vazio</p>
             <p className="text-sm">Adicione produtos para continuar</p>
           </div>

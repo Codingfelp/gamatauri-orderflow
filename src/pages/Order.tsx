@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ProductCard } from "@/components/ProductCard";
 import { Cart } from "@/components/Cart";
+import { Header } from "@/components/Header";
+import { CategoryFilter } from "@/components/CategoryFilter";
+import { Input } from "@/components/ui/input";
+import { Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 interface Product {
   id: string;
@@ -26,6 +29,8 @@ const Order = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -110,8 +115,17 @@ const Order = () => {
     navigate('/checkout', { state: { cart } });
   };
 
-  const groupedProducts = products.reduce((acc, product) => {
-    const category = product.category || 'Outros';
+  const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean))) as string[];
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === null || product.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const groupedProducts = filteredProducts.reduce((acc, product) => {
+    const category = product.category || "Outros";
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -121,37 +135,71 @@ const Order = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-gradient-subtle">
+        <Header />
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent/20">
-      <header className="bg-card shadow-sm sticky top-0 z-40 border-b">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-primary">Faça seu Pedido</h1>
-          <p className="text-muted-foreground mt-1">Escolha seus produtos favoritos</p>
+    <div className="min-h-screen bg-gradient-subtle">
+      <Header />
+      
+      <div className="container py-8 space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-foreground">Nossos Produtos</h1>
+          <p className="text-muted-foreground">
+            Escolha seus produtos e adicione ao carrinho
+          </p>
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-8 pb-24">
-        {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
-          <section key={category} className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 text-card-foreground">{category}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {categoryProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={addToCart}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
-      </main>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+          <Input
+            type="text"
+            placeholder="Buscar produtos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12 text-lg"
+          />
+        </div>
+
+        <CategoryFilter
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
+
+        {Object.keys(groupedProducts).length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              Nenhum produto encontrado
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-12">
+            {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+              <div key={category} className="space-y-4">
+                <h2 className="text-2xl font-semibold text-foreground border-b pb-2">
+                  {category}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {categoryProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={addToCart}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <Cart
         items={cart}
