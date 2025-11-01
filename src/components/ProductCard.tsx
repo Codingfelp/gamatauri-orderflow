@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 interface Product {
   id: string;
@@ -18,40 +17,45 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-[var(--shadow-hover)] bg-card border-border">
-      <div className="aspect-square bg-accent relative overflow-hidden">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] border-border">
+      <div className="relative aspect-square overflow-hidden bg-accent/5">
         {product.image_url ? (
           <img 
             src={product.image_url} 
             alt={product.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <span className="text-6xl">🍕</span>
+            Sem imagem
           </div>
         )}
         {product.category && (
-          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-            {product.category}
-          </span>
+          <div className="absolute top-3 right-3">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/90 text-primary-foreground backdrop-blur-sm">
+              {product.category}
+            </span>
+          </div>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-lg text-card-foreground mb-1">{product.name}</h3>
+      <div className="p-5 space-y-3">
+        <h3 className="font-bold text-xl text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
+          {product.name}
+        </h3>
         {product.description && (
-          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+            {product.description}
+          </p>
         )}
-        <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-primary">
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <span className="text-3xl font-bold text-primary">
             R$ {product.price.toFixed(2)}
           </span>
-          <Button 
+          <Button
             onClick={() => onAddToCart(product)}
-            size="sm"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300 hover:shadow-lg"
           >
-            <Plus className="w-4 h-4 mr-1" />
             Adicionar
           </Button>
         </div>

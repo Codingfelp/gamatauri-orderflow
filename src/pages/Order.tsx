@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ProductCard";
 import { Cart } from "@/components/Cart";
+import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { Header } from "@/components/Header";
-import { CategoryFilter } from "@/components/CategoryFilter";
-import { Input } from "@/components/ui/input";
-import { Search, Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/hooks/use-toast";
+import { Search, Package } from "lucide-react";
 
 interface Product {
   id: string;
@@ -30,7 +32,7 @@ const Order = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -115,12 +117,10 @@ const Order = () => {
     navigate('/checkout', { state: { cart } });
   };
 
-  const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean))) as string[];
-
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           product.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === null || product.category === selectedCategory;
+    const matchesCategory = !selectedCategory || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -135,71 +135,61 @@ const Order = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-subtle">
-        <Header />
-        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-accent/10">
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
       <Header />
       
-      <div className="container py-8 space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold text-foreground">Nossos Produtos</h1>
-          <p className="text-muted-foreground">
-            Escolha seus produtos e adicione ao carrinho
-          </p>
+      <main className="container mx-auto px-4 py-6 md:py-10">
+        <div className="mb-10 space-y-8">
+          <div className="max-w-2xl mx-auto relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Buscar produtos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full text-lg py-7 pl-12 rounded-xl shadow-md border-2 focus:border-primary transition-all duration-300"
+            />
+          </div>
+          
+          <div>
+            <h2 className="text-2xl font-bold mb-6 px-4 md:px-8 text-card-foreground">Categorias</h2>
+            <CategoryCarousel 
+              onCategoryChange={setSelectedCategory}
+              selectedCategory={selectedCategory}
+            />
+          </div>
         </div>
 
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-          <Input
-            type="text"
-            placeholder="Buscar produtos..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-12 text-lg"
+        {Object.entries(groupedProducts).length === 0 ? (
+          <EmptyState
+            icon={Package}
+            title="Nenhum produto encontrado"
+            description="Tente ajustar sua busca ou explorar outras categorias"
           />
-        </div>
-
-        <CategoryFilter
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-
-        {Object.keys(groupedProducts).length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg">
-              Nenhum produto encontrado
-            </p>
-          </div>
         ) : (
-          <div className="space-y-12">
-            {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
-              <div key={category} className="space-y-4">
-                <h2 className="text-2xl font-semibold text-foreground border-b pb-2">
-                  {category}
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categoryProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={addToCart}
-                    />
-                  ))}
-                </div>
+          Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+            <div key={category} className="mb-16">
+              <h2 className="text-3xl font-bold mb-8 text-card-foreground px-4">{category}</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
+                {categoryProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={addToCart}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
-      </div>
+      </main>
 
       <Cart
         items={cart}

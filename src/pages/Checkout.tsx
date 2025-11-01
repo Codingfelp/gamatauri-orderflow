@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2 } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User } from "lucide-react";
 
 interface CartItem {
   id: string;
@@ -128,27 +128,30 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-accent/20">
-      <header className="bg-card shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
+      <header className="bg-card/95 backdrop-blur-sm shadow-lg border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-6">
           <Button
             variant="ghost"
             onClick={() => navigate('/')}
-            className="mb-4"
+            className="mb-4 hover:bg-accent transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
-          <h1 className="text-3xl font-bold text-primary">Finalizar Pedido</h1>
+          <h1 className="text-4xl font-bold text-primary">Finalizar Pedido</h1>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
+      <main className="container mx-auto px-4 py-10">
+        <div className="grid lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Dados de Contato</h2>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
+                <h2 className="text-2xl font-bold mb-6 flex items-center text-card-foreground">
+                  <User className="mr-3 h-6 w-6 text-primary" />
+                  Dados de Contato
+                </h2>
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="name">Nome Completo *</Label>
@@ -194,38 +197,38 @@ const Checkout = () => {
                 </div>
               </Card>
 
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Forma de Pagamento</h2>
+              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
+                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Forma de Pagamento</h2>
                 <RadioGroup
                   value={formData.payment_method}
                   onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
                 >
-                  <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-accent cursor-pointer">
+                  <div className="flex items-center space-x-3 p-4 rounded-xl hover:bg-accent/50 cursor-pointer border-2 border-transparent hover:border-primary/30 transition-all">
                     <RadioGroupItem value="pix" id="pix" />
-                    <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1">
-                      <Smartphone className="w-5 h-5 mr-2 text-primary" />
+                    <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1 font-medium">
+                      <Smartphone className="w-6 h-6 mr-3 text-primary" />
                       Pix
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-accent cursor-pointer">
+                  <div className="flex items-center space-x-3 p-4 rounded-xl hover:bg-accent/50 cursor-pointer border-2 border-transparent hover:border-primary/30 transition-all">
                     <RadioGroupItem value="cartao" id="cartao" />
-                    <Label htmlFor="cartao" className="flex items-center cursor-pointer flex-1">
-                      <CreditCard className="w-5 h-5 mr-2 text-primary" />
+                    <Label htmlFor="cartao" className="flex items-center cursor-pointer flex-1 font-medium">
+                      <CreditCard className="w-6 h-6 mr-3 text-primary" />
                       Cartão de Crédito
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-accent cursor-pointer">
+                  <div className="flex items-center space-x-3 p-4 rounded-xl hover:bg-accent/50 cursor-pointer border-2 border-transparent hover:border-primary/30 transition-all">
                     <RadioGroupItem value="dinheiro" id="dinheiro" />
-                    <Label htmlFor="dinheiro" className="flex items-center cursor-pointer flex-1">
-                      <Banknote className="w-5 h-5 mr-2 text-primary" />
+                    <Label htmlFor="dinheiro" className="flex items-center cursor-pointer flex-1 font-medium">
+                      <Banknote className="w-6 h-6 mr-3 text-primary" />
                       Dinheiro
                     </Label>
                   </div>
                 </RadioGroup>
               </Card>
 
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Quando Pagar?</h2>
+              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
+                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Quando Pagar?</h2>
                 <RadioGroup
                   value={formData.payment_timing}
                   onValueChange={(value) => setFormData({ ...formData, payment_timing: value })}
@@ -245,8 +248,8 @@ const Checkout = () => {
                 </RadioGroup>
               </Card>
 
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Observações</h2>
+              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
+                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Observações</h2>
                 <Textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -258,8 +261,8 @@ const Checkout = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="p-6 sticky top-6">
-              <h2 className="text-xl font-semibold mb-4">Resumo do Pedido</h2>
+            <Card className="p-8 sticky top-24 shadow-2xl border-2 border-primary/20 bg-gradient-to-br from-card to-accent/10">
+              <h2 className="text-2xl font-bold mb-6 text-card-foreground">Resumo do Pedido</h2>
               <div className="space-y-3 mb-6">
                 {cart.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm">
@@ -272,10 +275,10 @@ const Checkout = () => {
                   </div>
                 ))}
               </div>
-              <div className="border-t pt-4 mb-6">
+              <div className="border-t-2 border-primary/20 pt-6 mb-8">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold">Total:</span>
-                  <span className="text-3xl font-bold text-primary">
+                  <span className="text-xl font-bold text-card-foreground">Total:</span>
+                  <span className="text-4xl font-bold text-primary">
                     R$ {total.toFixed(2)}
                   </span>
                 </div>
@@ -284,11 +287,11 @@ const Checkout = () => {
                 onClick={handleSubmit}
                 disabled={loading}
                 size="lg"
-                className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="w-full h-16 text-xl font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    <Loader2 className="w-6 h-6 mr-3 animate-spin" />
                     Processando...
                   </>
                 ) : (
