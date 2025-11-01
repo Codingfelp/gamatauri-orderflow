@@ -20,7 +20,6 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    customer_name: "",
     customer_phone: "",
     customer_email: "",
     customer_address: "",
@@ -34,10 +33,10 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.customer_name || !formData.customer_phone || !formData.payment_method) {
+    if (!formData.customer_phone || !formData.payment_method) {
       toast({
         title: "Campos obrigatórios",
-        description: "Por favor, preencha todos os campos obrigatórios",
+        description: "Por favor, preencha o telefone e a forma de pagamento",
         variant: "destructive",
       });
       return;
@@ -47,7 +46,7 @@ const Checkout = () => {
     
     try {
       const orderResult = await submitOrder({
-        customer_name: formData.customer_name,
+        customer_name: formData.customer_email || formData.customer_phone,
         customer_phone: formData.customer_phone,
         customer_address: formData.customer_address || undefined,
         items: cart,
@@ -119,17 +118,6 @@ const Checkout = () => {
                   Dados de Contato
                 </h2>
                 <div className="space-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-base font-semibold">Nome Completo *</Label>
-                    <Input
-                      id="name"
-                      value={formData.customer_name}
-                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                      placeholder="Seu nome completo"
-                      required
-                      className="h-12 text-base border-2 focus:border-primary transition-all"
-                    />
-                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-base font-semibold">Telefone *</Label>
                     <Input

@@ -17,8 +17,8 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] border-border">
-      <div className="relative aspect-square overflow-hidden bg-accent/5">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border-border">
+      <div className="relative aspect-[4/3] overflow-hidden bg-accent/5">
         {product.image_url ? (
           <img 
             src={product.image_url} 
@@ -38,23 +38,23 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           </div>
         )}
       </div>
-      <div className="p-5 space-y-3">
-        <h3 className="font-bold text-xl text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
+      <div className="p-3 space-y-2">
+        <h3 className="font-bold text-base text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
           {product.name}
         </h3>
         {product.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+          <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed">
             {product.description}
           </p>
         )}
-        <div className="flex items-center justify-between pt-3 border-t border-border">
-          <span className="text-3xl font-bold text-primary">
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <span className="text-2xl font-bold text-primary">
             R$ {product.price.toFixed(2)}
           </span>
           <Button
             onClick={() => onAddToCart(product)}
-            size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300 hover:shadow-lg"
+            size="default"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300"
           >
             Adicionar
           </Button>

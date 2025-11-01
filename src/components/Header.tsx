@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
+import logo from "@/assets/gamatauri-logo.png";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -21,9 +22,11 @@ export const Header = () => {
           className="flex items-center gap-2 cursor-pointer group" 
           onClick={() => navigate('/')}
         >
-          <h1 className="text-3xl font-bold text-primary transition-all duration-300 group-hover:scale-105">
-            Bebidas Express
-          </h1>
+          <img 
+            src={logo} 
+            alt="Gamatauri - Distribuidora de Bebidas" 
+            className="h-10 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+          />
         </div>
 
         <div className="flex items-center gap-4">
