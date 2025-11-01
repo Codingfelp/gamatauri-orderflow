@@ -106,6 +106,7 @@ serve(async (req) => {
     // Mapear payload para formato da API Gamatauri
     const gamatauriPayload = {
       internal_order_id: internalOrderId,
+      webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`,
       customer_name: orderData.customer_name,
       customer_phone: orderData.customer_phone,
       customer_address: orderData.customer_address || undefined,

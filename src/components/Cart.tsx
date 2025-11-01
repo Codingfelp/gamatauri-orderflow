@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 interface CartItem {
@@ -29,7 +29,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
           size="lg" 
           className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50"
         >
-          <ShoppingBag className="w-7 h-7" />
+          <ShoppingCart className="w-7 h-7" />
           {itemCount > 0 && (
             <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-sm w-7 h-7 rounded-full flex items-center justify-center font-bold shadow-lg animate-in">
               {itemCount}
@@ -52,7 +52,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground">
             <div className="relative mb-6">
-              <ShoppingBag className="w-24 h-24 opacity-20" />
+              <ShoppingCart className="w-24 h-24 opacity-20" />
               <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl">
                 😊
               </span>
