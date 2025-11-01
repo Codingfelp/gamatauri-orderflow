@@ -18,7 +18,7 @@ const Success = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-primary/5 p-4 py-20">
       <div className="max-w-5xl w-full">
-        {orderNumber && <OrderTimeline orderNumber={orderNumber} />}
+        {orderNumber && orderId && <OrderTimeline orderNumber={orderNumber} orderId={orderId} />}
         
         <div className="mt-12 text-center">
           <Button

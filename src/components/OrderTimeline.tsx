@@ -1,32 +1,81 @@
 import { useEffect, useState } from "react";
 import { CheckCircle, Clock, Bike } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrderTimelineProps {
   orderNumber: string;
+  orderId: string;
 }
 
 type OrderStatus = "received" | "preparing" | "delivering";
 
-export const OrderTimeline = ({ orderNumber }: OrderTimelineProps) => {
+export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>("received");
   const [confettiShown, setConfettiShown] = useState(false);
 
+  // Buscar status inicial do banco
   useEffect(() => {
-    // Simulate status progression
-    const timer1 = setTimeout(() => setCurrentStatus("preparing"), 2000);
-    const timer2 = setTimeout(() => setCurrentStatus("delivering"), 4000);
+    const fetchInitialStatus = async () => {
+      const { data } = await supabase
+        .from('orders')
+        .select('order_status')
+        .eq('id', orderId)
+        .single();
+      
+      if (data?.order_status) {
+        const uiStatus = mapDbStatusToUI(data.order_status);
+        setCurrentStatus(uiStatus);
+      }
+    };
     
-    // Show confetti on mount
+    fetchInitialStatus();
+  }, [orderId]);
+
+  // Escutar mudanças em tempo real
+  useEffect(() => {
+    const channel = supabase
+      .channel(`order-${orderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${orderId}`
+        },
+        (payload: any) => {
+          console.log('Status atualizado:', payload.new.order_status);
+          const newStatus = payload.new.order_status;
+          const uiStatus = mapDbStatusToUI(newStatus);
+          setCurrentStatus(uiStatus);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [orderId]);
+
+  // Confetti effect
+  useEffect(() => {
     if (!confettiShown) {
       setConfettiShown(true);
       createConfetti();
     }
-
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
   }, [confettiShown]);
+
+  const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
+    switch (dbStatus) {
+      case 'preparing':
+        return 'preparing';
+      case 'awaiting_closure':
+      case 'completed':
+        return 'delivering';
+      default:
+        return 'received';
+    }
+  };
 
   const createConfetti = () => {
     const duration = 3000;
