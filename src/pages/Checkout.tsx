@@ -11,6 +11,7 @@ import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, Copy } from
 import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 
 type CartItem = OrderItem;
 
@@ -19,6 +20,7 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { setActiveOrder } = useActiveOrder();
   const cart = (location.state?.cart as CartItem[]) || [];
 
   const [loading, setLoading] = useState(false);
@@ -191,6 +193,14 @@ const Checkout = () => {
         card_number: formData.payment_method === 'cartao' ? formData.card_number : undefined,
         card_expiry: formData.payment_method === 'cartao' ? formData.card_expiry : undefined,
         card_cvv: formData.payment_method === 'cartao' ? formData.card_cvv : undefined,
+      });
+
+      // Set active order in context
+      setActiveOrder({
+        orderId: orderResult.order_id,
+        orderNumber: orderResult.order_number,
+        status: "separacao",
+        createdAt: new Date().toISOString(),
       });
 
       toast({

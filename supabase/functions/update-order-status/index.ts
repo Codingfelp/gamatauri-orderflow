@@ -16,7 +16,9 @@ serve(async (req) => {
   try {
     const webhookData = await req.json();
     
-    console.log('Received webhook data:', JSON.stringify(webhookData, null, 2));
+    console.log('=== WEBHOOK RECEIVED ===');
+    console.log('Full webhook payload:', JSON.stringify(webhookData, null, 2));
+    console.log('Headers:', JSON.stringify(Object.fromEntries(req.headers.entries()), null, 2));
 
     // Initialize Supabase client with service role
     const supabaseAdmin = createClient(
@@ -35,7 +37,9 @@ serve(async (req) => {
     // Map external status to internal status
     const internalStatus = mapExternalStatusToInternal(externalStatus);
     
-    console.log(`Mapping external status "${externalStatus}" to internal "${internalStatus}"`);
+    console.log(`=== STATUS MAPPING ===`);
+    console.log(`External status: "${externalStatus}"`);
+    console.log(`Mapped to internal: "${internalStatus}"`);
 
     // Find order by external_order_id (stored in stripe_payment_intent_id field)
     const { data: order, error: findError } = await supabaseAdmin
@@ -45,9 +49,14 @@ serve(async (req) => {
       .single();
 
     if (findError || !order) {
-      console.error('Order not found:', findError);
+      console.error('=== ORDER NOT FOUND ===');
+      console.error('Error:', findError);
+      console.error('Searched for external_order_id:', externalOrderId);
       throw new Error(`Order not found for external_id: ${externalOrderId}`);
     }
+
+    console.log(`=== ORDER FOUND ===`);
+    console.log(`Internal order ID: ${order.id}`);
 
     // Update order status
     const { error: updateError } = await supabaseAdmin
@@ -59,11 +68,13 @@ serve(async (req) => {
       .eq('id', order.id);
 
     if (updateError) {
-      console.error('Failed to update order status:', updateError);
+      console.error('=== UPDATE FAILED ===');
+      console.error('Error:', updateError);
       throw new Error('Failed to update order status');
     }
 
-    console.log(`Order ${order.id} status updated to ${internalStatus}`);
+    console.log(`=== SUCCESS ===`);
+    console.log(`Order ${order.id} status updated from previous to ${internalStatus}`);
 
     return new Response(
       JSON.stringify({
@@ -97,17 +108,41 @@ serve(async (req) => {
 
 // Map external API statuses to internal database statuses
 function mapExternalStatusToInternal(externalStatus: string): string {
-  const normalized = externalStatus.toLowerCase();
+  const normalized = externalStatus.toLowerCase().trim();
+  
   const mapping: Record<string, string> = {
+    // Preparing/Separation phase
     'pending': 'separacao',
     'preparing': 'separacao',
     'em_separacao': 'separacao',
+    'separando': 'separacao',
+    'processando': 'separacao',
+    
+    // Ready for delivery / Out for delivery
     'ready': 'awaiting_closure',
+    'ready_for_delivery': 'awaiting_closure',
+    'pronto': 'awaiting_closure',
+    'pronto_para_entrega': 'awaiting_closure',
     'em_rota_entrega': 'awaiting_closure',
+    'em_rota': 'awaiting_closure',
+    'saiu_para_entrega': 'awaiting_closure',
     'out_for_delivery': 'awaiting_closure',
+    'delivering': 'awaiting_closure',
+    
+    // Completed
     'delivered': 'completed',
     'entregue': 'completed',
     'completed': 'completed',
+    'finalizado': 'completed',
+    'concluido': 'completed',
   };
-  return mapping[normalized] || 'separacao';
+  
+  const result = mapping[normalized];
+  
+  if (!result) {
+    console.warn(`Unknown external status: "${externalStatus}" - defaulting to 'separacao'`);
+    return 'separacao';
+  }
+  
+  return result;
 }
