@@ -311,7 +311,7 @@ const Checkout = () => {
               </Card>
 
               <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
-                <h2 className="text-2xl font-bold mb-6 text-card-foreground">💳 Forma de Pagamento</h2>
+                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Forma de Pagamento</h2>
                 <RadioGroup
                   value={formData.payment_method}
                   onValueChange={(value) => {
@@ -367,7 +367,7 @@ const Checkout = () => {
                 {/* PIX Payment Details */}
                 {formData.payment_method === 'pix' && pixQRCode && (
                   <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5">
-                    <h3 className="text-lg font-bold mb-4">📱 Pagar com PIX</h3>
+                    <h3 className="text-lg font-bold mb-4">Pagar com PIX</h3>
                     
                     <div className="flex flex-col items-center mb-4">
                       <img 
@@ -433,7 +433,7 @@ const Checkout = () => {
                 {/* Credit Card Form */}
                 {formData.payment_method === 'cartao' && (
                   <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5 space-y-4">
-                    <h3 className="text-lg font-bold mb-4">💳 Dados do Cartão</h3>
+                    <h3 className="text-lg font-bold mb-4">Dados do Cartão</h3>
                     
                     <div className="space-y-2">
                       <Label htmlFor="card_holder">Nome do Titular *</Label>
@@ -509,7 +509,7 @@ const Checkout = () => {
                 {/* Cash Change Input */}
                 {formData.payment_method === 'dinheiro' && (
                   <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5">
-                    <h3 className="text-lg font-bold mb-4">💵 Pagamento em Dinheiro</h3>
+                    <h3 className="text-lg font-bold mb-4">Pagamento em Dinheiro</h3>
                     
                     <div className="space-y-2">
                       <Label htmlFor="change_for">Troco para:</Label>
@@ -584,7 +584,7 @@ const Checkout = () => {
               </Card>
 
               <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
-                <h2 className="text-2xl font-bold mb-6 text-card-foreground">📝 Observações</h2>
+                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Observações</h2>
                 <Textarea
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -598,9 +598,7 @@ const Checkout = () => {
 
           <div className="lg:col-span-1">
             <Card className="p-8 sticky top-24 shadow-2xl border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/5">
-              <h2 className="text-2xl font-bold mb-6 text-card-foreground flex items-center">
-                <span className="mr-2">📋</span> Resumo do Pedido
-              </h2>
+              <h2 className="text-2xl font-bold mb-6 text-card-foreground">Resumo do Pedido</h2>
               <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2">
                 {cart.map((item) => (
                   <div key={item.id} className="flex justify-between items-center p-3 rounded-lg bg-accent/30 border border-primary/10 hover:border-primary/30 transition-all">

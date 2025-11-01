@@ -67,6 +67,7 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
 
   const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
     switch (dbStatus) {
+      case 'separacao':
       case 'preparing':
         return 'preparing';
       case 'awaiting_closure':

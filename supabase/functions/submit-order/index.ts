@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,6 +17,12 @@ serve(async (req) => {
     const orderData = await req.json();
     
     console.log('Received order data:', JSON.stringify(orderData, null, 2));
+
+    // Initialize Supabase client with service role
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
     // Validar dados obrigatórios
     if (!orderData.customer_name || typeof orderData.customer_name !== 'string') {
@@ -48,8 +55,57 @@ serve(async (req) => {
     const deliveryFee = orderData.delivery_fee || 0;
     const totalPrice = itemsTotal + deliveryFee;
 
+    // 1. SAVE TO LOCAL DATABASE FIRST
+    console.log('Saving order to local database...');
+    
+    const { data: localOrder, error: localOrderError } = await supabaseAdmin
+      .from('orders')
+      .insert({
+        customer_name: orderData.customer_name,
+        customer_phone: orderData.customer_phone,
+        customer_email: orderData.customer_email || null,
+        customer_address: orderData.customer_address || null,
+        payment_method: mapPaymentMethod(orderData.payment_method),
+        payment_timing: orderData.payment_timing || 'entrega',
+        payment_status: 'pendente',
+        order_status: 'separacao',
+        total_amount: totalPrice,
+        notes: orderData.notes || null,
+      })
+      .select()
+      .single();
+
+    if (localOrderError || !localOrder) {
+      console.error('Failed to save order to local DB:', localOrderError);
+      throw new Error('Falha ao salvar pedido no banco de dados');
+    }
+
+    const internalOrderId = localOrder.id;
+    console.log('Order saved to local DB with ID:', internalOrderId);
+
+    // 2. SAVE ORDER ITEMS
+    const orderItemsData = orderData.items.map((item: any) => ({
+      order_id: internalOrderId,
+      product_id: item.id,
+      product_name: item.name,
+      quantity: item.quantity,
+      product_price: item.price,
+      subtotal: item.price * item.quantity,
+    }));
+
+    const { error: itemsError } = await supabaseAdmin
+      .from('order_items')
+      .insert(orderItemsData);
+
+    if (itemsError) {
+      console.error('Failed to save order items:', itemsError);
+      // Continue anyway, we have the order
+    }
+
+    // 3. SEND TO EXTERNAL API
     // Mapear payload para formato da API Gamatauri
     const gamatauriPayload = {
+      internal_order_id: internalOrderId,
       customer_name: orderData.customer_name,
       customer_phone: orderData.customer_phone,
       customer_address: orderData.customer_address || undefined,
@@ -115,12 +171,21 @@ serve(async (req) => {
 
         console.log('Order created successfully:', result);
 
+        // 4. UPDATE LOCAL ORDER WITH EXTERNAL ORDER ID
+        const externalOrderId = result.data.order_id;
+        await supabaseAdmin
+          .from('orders')
+          .update({ 
+            stripe_payment_intent_id: externalOrderId // Using this field to store external ID
+          })
+          .eq('id', internalOrderId);
+
         return new Response(
           JSON.stringify({
             success: true,
             message: 'Pedido criado com sucesso',
             data: {
-              order_id: result.data.order_id,
+              order_id: internalOrderId, // Return INTERNAL order ID for timeline
               order_number: result.data.order_number,
               status: result.data.status,
               total: result.data.total,
