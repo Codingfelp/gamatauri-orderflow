@@ -14,6 +14,10 @@ import destilados from "@/assets/categories/destilados.png";
 import vinhos from "@/assets/categories/vinhos.png";
 import bomboniere from "@/assets/categories/bomboniere.png";
 import balasDoces from "@/assets/categories/balas-doces.png";
+import chocolates from "@/assets/categories/chocolates.jpg";
+import copao from "@/assets/categories/copao.jpg";
+import cigarros from "@/assets/categories/cigarros.jpg";
+import gelos from "@/assets/categories/gelos.jpg";
 
 interface Category {
   name: string;
@@ -22,6 +26,10 @@ interface Category {
 }
 
 const categories: Category[] = [
+  { name: "Chocolates", image: chocolates, value: "Chocolates" },
+  { name: "Copão", image: copao, value: "Copão" },
+  { name: "Cigarros", image: cigarros, value: "Cigarros" },
+  { name: "Gelos", image: gelos, value: "Gelos" },
   { name: "Refrigerantes e Energéticos", image: refrigerantesEnergeticos, value: "Refrigerantes" },
   { name: "Refrigerantes Zero", image: refrigerantesZero, value: "Refrigerantes Zero" },
   { name: "Cervejas", image: cervejas, value: "Cervejas" },
