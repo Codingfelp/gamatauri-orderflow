@@ -65,7 +65,7 @@ serve(async (req) => {
         customer_phone: orderData.customer_phone,
         customer_email: orderData.customer_email || null,
         customer_address: orderData.customer_address || null,
-        payment_method: mapPaymentMethod(orderData.payment_method),
+        payment_method: orderData.payment_method, // Use original value (pix, cartao, dinheiro)
         payment_timing: orderData.payment_timing || 'entrega',
         payment_status: 'pendente',
         order_status: 'separacao',

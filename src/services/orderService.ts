@@ -71,9 +71,15 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
     customer_address: orderData.customer_address?.trim(),
     items: orderData.items,
     payment_method: orderData.payment_method,
+    payment_timing: orderData.payment_timing,
     total: orderData.total,
     delivery_fee: orderData.delivery_fee || 0,
     notes: orderData.notes?.trim(),
+    change_for: orderData.change_for,
+    card_holder: orderData.card_holder,
+    card_number: orderData.card_number,
+    card_expiry: orderData.card_expiry,
+    card_cvv: orderData.card_cvv,
   };
 
   const { data, error } = await supabase.functions.invoke('submit-order', {
