@@ -27,7 +27,9 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       <SheetTrigger asChild>
         <Button 
           size="lg" 
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50"
+          className={`fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50 ${
+            itemCount > 0 ? 'animate-pulse' : ''
+          }`}
         >
           <ShoppingBag className="w-7 h-7" />
           {itemCount > 0 && (
@@ -38,22 +40,37 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle className="text-2xl">Seu Carrinho</SheetTitle>
+        <SheetHeader className="border-b pb-4 bg-gradient-to-r from-primary/5 to-transparent rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <SheetTitle className="text-2xl font-bold">🛒 Seu Carrinho</SheetTitle>
+            {itemCount > 0 && (
+              <span className="text-sm font-medium text-muted-foreground bg-primary/10 px-3 py-1 rounded-full">
+                {itemCount} {itemCount === 1 ? 'item' : 'itens'}
+              </span>
+            )}
+          </div>
         </SheetHeader>
         
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground">
-            <ShoppingBag className="w-20 h-20 mb-4 opacity-30" />
-            <p className="text-lg">Seu carrinho está vazio</p>
-            <p className="text-sm">Adicione produtos para continuar</p>
+            <div className="relative mb-6">
+              <ShoppingBag className="w-24 h-24 opacity-20" />
+              <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl">
+                😊
+              </span>
+            </div>
+            <p className="text-xl font-semibold mb-2 text-card-foreground">Seu carrinho está vazio</p>
+            <p className="text-sm text-muted-foreground">Adicione produtos para começar</p>
           </div>
         ) : (
           <div className="flex flex-col h-full">
             <ScrollArea className="flex-1 -mx-6 px-6 my-6">
               <div className="space-y-4">
                 {items.map((item) => (
-                  <Card key={item.id} className="p-4">
+                  <Card 
+                    key={item.id} 
+                    className="p-4 border-l-4 border-l-primary hover:shadow-md transition-all hover:scale-[1.02] bg-gradient-to-r from-card to-accent/10"
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h4 className="font-semibold text-card-foreground">{item.name}</h4>
@@ -97,18 +114,19 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               </div>
             </ScrollArea>
             
-            <div className="border-t pt-4 space-y-4">
+            <div className="border-t pt-4 space-y-4 bg-gradient-to-t from-accent/5 to-transparent -mx-6 px-6 pb-2">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold">Total:</span>
-                <span className="text-3xl font-bold text-primary">
+                <span className="text-3xl font-bold text-primary animate-in slide-in-from-right">
                   R$ {total.toFixed(2)}
                 </span>
               </div>
               <Button 
                 onClick={onCheckout}
                 size="lg" 
-                className="w-full h-14 text-lg bg-primary hover:bg-primary/90 text-primary-foreground"
+                className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
               >
+                <span className="mr-2">✓</span>
                 Finalizar Pedido
               </Button>
             </div>

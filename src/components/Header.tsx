@@ -22,11 +22,11 @@ export const Header = () => {
           className="flex items-center gap-2 cursor-pointer group" 
           onClick={() => navigate('/')}
         >
-          <img 
-            src={logo} 
-            alt="Gamatauri - Distribuidora de Bebidas" 
-            className="h-10 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-          />
+        <img 
+          src={logo} 
+          alt="Gamatauri - Distribuidora de Bebidas" 
+          className="h-6 md:h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+        />
         </div>
 
         <div className="flex items-center gap-4">

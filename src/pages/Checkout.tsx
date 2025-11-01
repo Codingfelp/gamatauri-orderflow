@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User } from "lucide-react";
 import { submitOrder, type OrderItem } from "@/services/orderService";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 type CartItem = OrderItem;
 
@@ -16,10 +18,13 @@ const Checkout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const cart = (location.state?.cart as CartItem[]) || [];
 
   const [loading, setLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [formData, setFormData] = useState({
+    customer_name: "",
     customer_phone: "",
     customer_email: "",
     customer_address: "",
@@ -28,15 +33,37 @@ const Checkout = () => {
     notes: "",
   });
 
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (data) {
+          setUserProfile(data);
+          setFormData(prev => ({
+            ...prev,
+            customer_name: data.name || '',
+            customer_email: user.email || '',
+          }));
+        }
+      };
+      fetchProfile();
+    }
+  }, [user]);
+
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.customer_phone || !formData.payment_method) {
+    if ((!formData.customer_name && !userProfile) || !formData.customer_phone || !formData.payment_method) {
       toast({
         title: "Campos obrigatórios",
-        description: "Por favor, preencha o telefone e a forma de pagamento",
+        description: "Por favor, preencha seu nome, telefone e forma de pagamento",
         variant: "destructive",
       });
       return;
@@ -46,7 +73,7 @@ const Checkout = () => {
     
     try {
       const orderResult = await submitOrder({
-        customer_name: formData.customer_email || formData.customer_phone,
+        customer_name: formData.customer_name || userProfile?.name || formData.customer_email || formData.customer_phone,
         customer_phone: formData.customer_phone,
         customer_address: formData.customer_address || undefined,
         items: cart,
@@ -118,6 +145,25 @@ const Checkout = () => {
                   Dados de Contato
                 </h2>
                 <div className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-base font-semibold">
+                      Nome {userProfile ? '(opcional)' : '*'}
+                    </Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={formData.customer_name}
+                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+                      placeholder="Seu nome completo"
+                      required={!userProfile}
+                      className="h-12 text-base border-2 focus:border-primary transition-all"
+                    />
+                    {userProfile && formData.customer_name && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <span className="text-primary">✓</span> Usando nome do perfil
+                      </p>
+                    )}
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-base font-semibold">Telefone *</Label>
                     <Input
