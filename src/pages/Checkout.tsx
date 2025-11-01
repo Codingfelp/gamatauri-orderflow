@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, Copy } from "lucide-react";
 import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,6 +23,8 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [pixQRCode, setPixQRCode] = useState<string>("");
+  const [pixPayload, setPixPayload] = useState<string>("");
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -31,6 +33,11 @@ const Checkout = () => {
     payment_method: "pix",
     payment_timing: "entrega",
     notes: "",
+    change_for: "",
+    card_holder: "",
+    card_number: "",
+    card_expiry: "",
+    card_cvv: "",
   });
 
   useEffect(() => {
@@ -57,6 +64,81 @@ const Checkout = () => {
 
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
+  // Generate PIX QR Code when payment method is PIX
+  useEffect(() => {
+    if (formData.payment_method === 'pix' && total > 0) {
+      const generatePixQRCode = async () => {
+        try {
+          const QRCode = (await import('qrcode')).default;
+          
+          // Generate PIX payload (EMV format)
+          const pixPayloadData = generatePixPayload(total);
+          
+          // Generate QR Code as base64
+          const qrCodeBase64 = await QRCode.toDataURL(pixPayloadData, {
+            width: 300,
+            margin: 2,
+            color: {
+              dark: '#000000',
+              light: '#FFFFFF'
+            }
+          });
+          
+          setPixPayload(pixPayloadData);
+          setPixQRCode(qrCodeBase64);
+        } catch (error) {
+          console.error('Error generating PIX QR Code:', error);
+        }
+      };
+      
+      generatePixQRCode();
+    }
+  }, [formData.payment_method, total]);
+
+  // Generate PIX EMV payload
+  const generatePixPayload = (value: number) => {
+    const pixKey = '54339140000118';
+    const merchantName = 'Gamatauri';
+    const merchantCity = 'SAO PAULO';
+    const txid = `PED${Date.now()}`;
+    
+    // EMV format for PIX
+    const payload = [
+      '00020126',
+      '360014BR.GOV.BCB.PIX',
+      `0114${pixKey}`,
+      `52040000`,
+      `5303986`,
+      `5402${value.toFixed(2)}`,
+      `5802BR`,
+      `59${String(merchantName.length).padStart(2, '0')}${merchantName}`,
+      `60${String(merchantCity.length).padStart(2, '0')}${merchantCity}`,
+      `62${String(txid.length + 8).padStart(2, '0')}05${String(txid.length).padStart(2, '0')}${txid}`,
+      '6304'
+    ].join('');
+    
+    // Calculate CRC16
+    const crc = calculateCRC16(payload);
+    return payload + crc;
+  };
+
+  // CRC16 calculation for PIX
+  const calculateCRC16 = (payload: string) => {
+    let crc = 0xFFFF;
+    for (let i = 0; i < payload.length; i++) {
+      crc ^= payload.charCodeAt(i) << 8;
+      for (let j = 0; j < 8; j++) {
+        if ((crc & 0x8000) !== 0) {
+          crc = (crc << 1) ^ 0x1021;
+        } else {
+          crc = crc << 1;
+        }
+      }
+    }
+    crc = crc & 0xFFFF;
+    return crc.toString(16).toUpperCase().padStart(4, '0');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -67,6 +149,28 @@ const Checkout = () => {
         variant: "destructive",
       });
       return;
+    }
+
+    // Validate credit card fields
+    if (formData.payment_method === 'cartao') {
+      if (!formData.card_holder || !formData.card_number || !formData.card_expiry || !formData.card_cvv) {
+        toast({
+          title: "Dados do cartão incompletos",
+          description: "Preencha todos os campos do cartão",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const cardNumber = formData.card_number.replace(/\s/g, '');
+      if (cardNumber.length < 13 || cardNumber.length > 19) {
+        toast({
+          title: "Cartão inválido",
+          description: "Número do cartão deve ter entre 13 e 19 dígitos",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -82,6 +186,11 @@ const Checkout = () => {
         total: total,
         delivery_fee: 0,
         notes: formData.notes || undefined,
+        change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
+        card_holder: formData.payment_method === 'cartao' ? formData.card_holder : undefined,
+        card_number: formData.payment_method === 'cartao' ? formData.card_number : undefined,
+        card_expiry: formData.payment_method === 'cartao' ? formData.card_expiry : undefined,
+        card_cvv: formData.payment_method === 'cartao' ? formData.card_cvv : undefined,
       });
 
       toast({
@@ -205,7 +314,13 @@ const Checkout = () => {
                 <h2 className="text-2xl font-bold mb-6 text-card-foreground">💳 Forma de Pagamento</h2>
                 <RadioGroup
                   value={formData.payment_method}
-                  onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
+                  onValueChange={(value) => {
+                    setFormData({ 
+                      ...formData, 
+                      payment_method: value,
+                      payment_timing: value === 'dinheiro' ? 'entrega' : formData.payment_timing
+                    });
+                  }}
                   className="space-y-3"
                 >
                   <div className={`
@@ -248,6 +363,179 @@ const Checkout = () => {
                     </Label>
                   </div>
                 </RadioGroup>
+
+                {/* PIX Payment Details */}
+                {formData.payment_method === 'pix' && pixQRCode && (
+                  <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5">
+                    <h3 className="text-lg font-bold mb-4">📱 Pagar com PIX</h3>
+                    
+                    <div className="flex flex-col items-center mb-4">
+                      <img 
+                        src={pixQRCode} 
+                        alt="QR Code PIX" 
+                        className="w-48 h-48 border-4 border-background rounded-lg shadow-lg"
+                      />
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Escaneie o QR Code ou copie a chave PIX
+                      </p>
+                    </div>
+
+                    <div className="bg-background p-4 rounded-lg mb-4">
+                      <Label className="text-xs font-semibold text-muted-foreground">
+                        Chave PIX (CNPJ)
+                      </Label>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Input 
+                          value="54339140000118" 
+                          readOnly 
+                          className="font-mono text-center"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText('54339140000118');
+                            toast({ title: "Chave PIX copiada!" });
+                          }}
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="bg-background p-4 rounded-lg">
+                      <Label className="text-xs font-semibold text-muted-foreground">
+                        PIX Copia e Cola
+                      </Label>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Input 
+                          value={pixPayload} 
+                          readOnly 
+                          className="font-mono text-xs"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            navigator.clipboard.writeText(pixPayload);
+                            toast({ title: "Código PIX copiado!" });
+                          }}
+                        >
+                          <Copy className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Credit Card Form */}
+                {formData.payment_method === 'cartao' && (
+                  <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5 space-y-4">
+                    <h3 className="text-lg font-bold mb-4">💳 Dados do Cartão</h3>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="card_holder">Nome do Titular *</Label>
+                      <Input
+                        id="card_holder"
+                        type="text"
+                        placeholder="NOME COMO NO CARTÃO"
+                        value={formData.card_holder}
+                        onChange={(e) => setFormData({ ...formData, card_holder: e.target.value.toUpperCase() })}
+                        required
+                        className="h-12 font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="card_number">Número do Cartão *</Label>
+                      <Input
+                        id="card_number"
+                        type="text"
+                        placeholder="0000 0000 0000 0000"
+                        value={formData.card_number}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+                          setFormData({ ...formData, card_number: value });
+                        }}
+                        maxLength={19}
+                        required
+                        className="h-12 font-mono text-lg"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="card_expiry">Validade *</Label>
+                        <Input
+                          id="card_expiry"
+                          type="text"
+                          placeholder="MM/AA"
+                          value={formData.card_expiry}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, '');
+                            if (value.length >= 2) {
+                              value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                            }
+                            setFormData({ ...formData, card_expiry: value });
+                          }}
+                          maxLength={5}
+                          required
+                          className="h-12 font-mono text-center"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="card_cvv">CVV *</Label>
+                        <Input
+                          id="card_cvv"
+                          type="text"
+                          placeholder="123"
+                          value={formData.card_cvv}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            setFormData({ ...formData, card_cvv: value });
+                          }}
+                          maxLength={4}
+                          required
+                          className="h-12 font-mono text-center"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Cash Change Input */}
+                {formData.payment_method === 'dinheiro' && (
+                  <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5">
+                    <h3 className="text-lg font-bold mb-4">💵 Pagamento em Dinheiro</h3>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="change_for">Troco para:</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
+                          R$
+                        </span>
+                        <Input
+                          id="change_for"
+                          type="text"
+                          placeholder="0,00"
+                          value={formData.change_for}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, '');
+                            value = (Number(value) / 100).toFixed(2).replace('.', ',');
+                            setFormData({ ...formData, change_for: value });
+                          }}
+                          className="h-12 pl-10 text-lg font-bold"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Deixe vazio se não precisar de troco
+                      </p>
+                    </div>
+                  </div>
+                )}
               </Card>
 
               <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
@@ -262,10 +550,34 @@ const Checkout = () => {
                       Pagar na Entrega
                     </Label>
                   </div>
-                  <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-accent cursor-pointer">
-                    <RadioGroupItem value="agora" id="agora" />
-                    <Label htmlFor="agora" className="cursor-pointer flex-1">
+                  <div 
+                    className={`
+                      flex items-center space-x-2 p-3 rounded-lg 
+                      ${formData.payment_method === 'dinheiro' 
+                        ? 'opacity-50 cursor-not-allowed' 
+                        : 'hover:bg-accent cursor-pointer'
+                      }
+                    `}
+                  >
+                    <RadioGroupItem 
+                      value="agora" 
+                      id="agora" 
+                      disabled={formData.payment_method === 'dinheiro'}
+                    />
+                    <Label 
+                      htmlFor="agora" 
+                      className={`flex-1 ${
+                        formData.payment_method === 'dinheiro' 
+                          ? 'cursor-not-allowed text-muted-foreground' 
+                          : 'cursor-pointer'
+                      }`}
+                    >
                       Pagar Agora (Online)
+                      {formData.payment_method === 'dinheiro' && (
+                        <span className="block text-xs text-red-500 mt-1">
+                          Não disponível para dinheiro
+                        </span>
+                      )}
                     </Label>
                   </div>
                 </RadioGroup>

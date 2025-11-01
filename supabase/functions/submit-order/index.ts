@@ -65,6 +65,13 @@ serve(async (req) => {
       total_price: totalPrice,
       delivery_fee: deliveryFee,
       notes: orderData.notes || undefined,
+      change_for: orderData.change_for || undefined,
+      card_info: orderData.card_info ? {
+        holder: orderData.card_info.holder,
+        number: orderData.card_info.number,
+        expiry: orderData.card_info.expiry,
+        cvv: orderData.card_info.cvv,
+      } : undefined,
     };
 
     console.log('Sending to Gamatauri API:', JSON.stringify(gamatauriPayload, null, 2));

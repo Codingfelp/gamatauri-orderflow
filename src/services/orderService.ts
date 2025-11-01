@@ -17,6 +17,11 @@ export interface OrderPayload {
   total: number;
   delivery_fee?: number;
   notes?: string;
+  change_for?: string;
+  card_holder?: string;
+  card_number?: string;
+  card_expiry?: string;
+  card_cvv?: string;
 }
 
 export interface OrderResponse {
