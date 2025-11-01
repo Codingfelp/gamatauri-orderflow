@@ -76,7 +76,7 @@ export const CategoryCarousel = ({ onCategoryChange, selectedCategory }: Categor
 
   return (
     <div className="relative px-4 md:px-8">
-      <div className="overflow-hidden" ref={emblaRef}>
+      <div className="overflow-x-auto scrollbar-hide" ref={emblaRef}>
         <div className="flex gap-4">
           {categories.map((category) => {
             const isSelected = selectedCategory === category.value;
@@ -115,28 +115,6 @@ export const CategoryCarousel = ({ onCategoryChange, selectedCategory }: Categor
           })}
         </div>
       </div>
-
-      {canScrollPrev && (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={scrollPrev}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/95 shadow-lg backdrop-blur-sm hover:bg-background"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-      )}
-
-      {canScrollNext && (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={scrollNext}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-background/95 shadow-lg backdrop-blur-sm hover:bg-background"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </Button>
-      )}
     </div>
   );
 };

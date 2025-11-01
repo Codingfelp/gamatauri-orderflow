@@ -27,9 +27,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       <SheetTrigger asChild>
         <Button 
           size="lg" 
-          className={`fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50 ${
-            itemCount > 0 ? 'animate-pulse' : ''
-          }`}
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50"
         >
           <ShoppingBag className="w-7 h-7" />
           {itemCount > 0 && (
