@@ -181,7 +181,7 @@ const Checkout = () => {
       const orderResult = await submitOrder({
         customer_name: formData.customer_name || userProfile?.name || formData.customer_email || formData.customer_phone,
         customer_phone: formData.customer_phone,
-        customer_address: formData.customer_address || undefined,
+        customer_address: formData.customer_address?.trim() || null,
         items: cart,
         payment_method: formData.payment_method,
         payment_timing: formData.payment_timing,

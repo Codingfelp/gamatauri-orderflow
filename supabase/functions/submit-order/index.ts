@@ -109,7 +109,7 @@ serve(async (req) => {
       webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`,
       customer_name: orderData.customer_name,
       customer_phone: orderData.customer_phone,
-      customer_address: orderData.customer_address || undefined,
+      customer_address: orderData.customer_address || null,
       items: orderData.items.map((item: any) => ({
         product_id: item.id,
         product_name: item.name,
