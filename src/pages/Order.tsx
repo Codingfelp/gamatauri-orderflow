@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ProductCard";
 import { Cart } from "@/components/Cart";
@@ -10,15 +9,8 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
+import { fetchProducts, type Product } from "@/services/productsService";
 
-interface Product {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  image_url: string | null;
-  category: string | null;
-}
 
 interface CartItem {
   id: string;
@@ -37,20 +29,23 @@ const Order = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchProducts();
+    loadProducts();
   }, []);
 
-  const fetchProducts = async () => {
+  const loadProducts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('available', true)
-        .order('category', { ascending: true });
-
-      if (error) throw error;
-      setProducts(data || []);
+      setLoading(true);
+      const productsData = await fetchProducts();
+      setProducts(productsData);
+      
+      if (productsData.length === 0) {
+        toast({
+          title: "Nenhum produto disponível",
+          description: "Produtos serão carregados em breve",
+        });
+      }
     } catch (error: any) {
+      console.error('Error loading products:', error);
       toast({
         title: "Erro ao carregar produtos",
         description: error.message,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,13 +7,14 @@ import { CheckCircle } from "lucide-react";
 const Success = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const orderNumber = location.state?.orderNumber;
   const orderId = location.state?.orderId;
 
   useEffect(() => {
-    if (!orderId) {
+    if (!orderNumber && !orderId) {
       navigate('/');
     }
-  }, [orderId, navigate]);
+  }, [orderNumber, orderId, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-primary/5 p-4">
@@ -32,10 +33,13 @@ const Success = () => {
           Seu pedido foi recebido com sucesso e está sendo preparado.
         </p>
         
-        {orderId && (
-          <div className="mb-8 p-4 bg-accent/30 rounded-xl border border-primary/20">
-            <p className="text-sm text-muted-foreground mb-1">Número do pedido</p>
-            <p className="text-2xl font-mono font-bold text-primary">{orderId.slice(0, 8)}</p>
+        {orderNumber && (
+          <div className="mb-8 p-6 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl border-2 border-primary/30 shadow-lg">
+            <p className="text-sm text-muted-foreground mb-2">Número do Pedido</p>
+            <p className="text-3xl font-mono font-bold text-primary mb-1">{orderNumber}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Enviado para o sistema Gamatauri
+            </p>
           </div>
         )}
         

@@ -6,16 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User } from "lucide-react";
+import { submitOrder, type OrderItem } from "@/services/orderService";
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
+type CartItem = OrderItem;
 
 const Checkout = () => {
   const location = useLocation();
@@ -39,74 +34,45 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.customer_name || !formData.customer_phone) {
+    if (!formData.customer_name || !formData.customer_phone || !formData.payment_method) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha nome e telefone",
+        description: "Por favor, preencha todos os campos obrigatórios",
         variant: "destructive",
       });
       return;
     }
 
     setLoading(true);
-
+    
     try {
-      // Criar o pedido
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          customer_name: formData.customer_name,
-          customer_phone: formData.customer_phone,
-          customer_email: formData.customer_email || null,
-          customer_address: formData.customer_address || null,
-          payment_method: formData.payment_method,
-          payment_timing: formData.payment_timing,
-          payment_status: formData.payment_timing === 'agora' ? 'pendente' : 'pendente',
-          total_amount: total,
-          notes: formData.notes || null,
-        })
-        .select()
-        .single();
+      const orderResult = await submitOrder({
+        customer_name: formData.customer_name,
+        customer_phone: formData.customer_phone,
+        customer_address: formData.customer_address || undefined,
+        items: cart,
+        payment_method: formData.payment_method,
+        payment_timing: formData.payment_timing,
+        total: total,
+        delivery_fee: 0,
+        notes: formData.notes || undefined,
+      });
 
-      if (orderError) throw orderError;
-
-      // Criar os itens do pedido
-      const orderItems = cart.map(item => ({
-        order_id: order.id,
-        product_id: item.id,
-        product_name: item.name,
-        product_price: item.price,
-        quantity: item.quantity,
-        subtotal: item.price * item.quantity,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // Se for pagamento na hora, redirecionar para checkout Stripe
-      if (formData.payment_timing === 'agora') {
-        toast({
-          title: "Redirecionando para pagamento",
-          description: "Você será redirecionado para o checkout",
-        });
-        // TODO: Integrar com Stripe
-        setTimeout(() => {
-          navigate('/success', { state: { orderId: order.id } });
-        }, 2000);
-      } else {
-        toast({
-          title: "Pedido realizado!",
-          description: "Seu pedido foi enviado com sucesso",
-        });
-        navigate('/success', { state: { orderId: order.id } });
-      }
-    } catch (error: any) {
-      console.error('Erro ao criar pedido:', error);
       toast({
-        title: "Erro ao criar pedido",
+        title: "Pedido realizado com sucesso!",
+        description: `Pedido ${orderResult.order_number} criado`,
+      });
+      
+      navigate('/success', { 
+        state: { 
+          orderNumber: orderResult.order_number,
+          orderId: orderResult.order_id,
+        } 
+      });
+    } catch (error: any) {
+      console.error('Error submitting order:', error);
+      toast({
+        title: "Erro ao processar pedido",
         description: error.message,
         variant: "destructive",
       });
