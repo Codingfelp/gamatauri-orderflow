@@ -21,7 +21,14 @@ const Checkout = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { setActiveOrder } = useActiveOrder();
-  const cart = (location.state?.cart as CartItem[]) || [];
+  const cart = (location.state?.cart as CartItem[]) || (() => {
+    try {
+      const saved = localStorage.getItem('gamatauri-cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  })();
 
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -203,6 +210,9 @@ const Checkout = () => {
         status: "separacao",
         createdAt: new Date().toISOString(),
       });
+
+      // Clear cart from localStorage after successful order
+      localStorage.removeItem('gamatauri-cart');
 
       toast({
         title: "Pedido realizado com sucesso!",

@@ -21,9 +21,32 @@ interface CartItem {
   quantity: number;
 }
 
+// Hook for persisting cart to localStorage
+const usePersistedCart = (key: string, initialValue: CartItem[]) => {
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error('Error loading cart from localStorage:', error);
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(cart));
+    } catch (error) {
+      console.error('Error saving cart to localStorage:', error);
+    }
+  }, [key, cart]);
+
+  return [cart, setCart] as const;
+};
+
 const Order = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = usePersistedCart('gamatauri-cart', []);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -121,11 +144,11 @@ const Order = () => {
         description: "Faça login para finalizar seu pedido",
         variant: "destructive",
       });
-      navigate('/auth', { state: { from: location.pathname, cart } });
+      navigate('/auth', { state: { from: location.pathname } });
       return;
     }
 
-    navigate('/checkout', { state: { cart } });
+    navigate('/checkout');
   };
 
   const filteredProducts = products.filter((product) => {
@@ -193,7 +216,7 @@ const Order = () => {
           Object.entries(groupedProducts).map(([category, categoryProducts]) => (
             <div key={category} className="mb-16">
               <h2 className="text-3xl font-bold mb-8 text-card-foreground px-4">{category}</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6 px-4">
                 {categoryProducts.map((product) => (
                   <ProductCard
                     key={product.id}
