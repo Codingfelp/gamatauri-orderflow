@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Header } from "@/components/Header";
 import { Loader2 } from "lucide-react";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
+import { useAuth } from "@/hooks/useAuth";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -24,6 +26,21 @@ export default function Auth() {
   const location = useLocation();
   const { toast } = useToast();
   const { signInWithGoogle } = useFirebaseAuth();
+  const { user, loading: authLoading } = useAuth();
+
+  // Monitor authentication state changes (for OAuth redirect)
+  useEffect(() => {
+    // Only execute after auth loading is complete and user just logged in
+    if (!authLoading && user && !showProfileModal) {
+      checkProfileComplete(user).then(isComplete => {
+        if (isComplete) {
+          const from = (location.state as any)?.from || "/";
+          const cart = (location.state as any)?.cart;
+          navigate(from, { state: cart ? { cart } : undefined });
+        }
+      });
+    }
+  }, [user, authLoading]);
 
   const checkProfileComplete = async (user: any) => {
     const { data: profile } = await supabase
@@ -43,12 +60,12 @@ export default function Auth() {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
-      const { error, user } = await signInWithGoogle();
+      const { error } = await signInWithGoogle();
       if (error) {
         throw error;
       }
 
-      // OAuth redirects automatically, user check happens after redirect
+      // OAuth redirects automatically, profile check happens in useEffect after redirect
       toast({
         title: "Aguarde...",
         description: "Abrindo autorização do Google",
@@ -75,7 +92,7 @@ export default function Auth() {
         variant: "destructive",
         title,
         description,
-        duration: 10000, // 10 seconds for user to read instructions
+        duration: 10000,
       });
       setGoogleLoading(false);
     }
@@ -162,6 +179,18 @@ export default function Auth() {
       setLoading(false);
     }
   };
+
+  // Show loading spinner while checking auth state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-primary/5">
+        <Header />
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <LoadingSpinner size="lg" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-primary/5">
