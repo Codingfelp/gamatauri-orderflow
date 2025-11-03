@@ -62,6 +62,7 @@ export type Database = {
           customer_email: string | null
           customer_name: string
           customer_phone: string
+          external_order_number: string | null
           id: string
           notes: string | null
           order_status: string | null
@@ -78,6 +79,7 @@ export type Database = {
           customer_email?: string | null
           customer_name: string
           customer_phone: string
+          external_order_number?: string | null
           id?: string
           notes?: string | null
           order_status?: string | null
@@ -94,6 +96,7 @@ export type Database = {
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string
+          external_order_number?: string | null
           id?: string
           notes?: string | null
           order_status?: string | null
@@ -141,6 +144,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
           created_at: string
           email: string | null
@@ -151,6 +155,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null
@@ -161,6 +166,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
           created_at?: string
           email?: string | null

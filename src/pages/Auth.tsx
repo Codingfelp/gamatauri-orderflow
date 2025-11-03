@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/Header";
 import { Loader2 } from "lucide-react";
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -17,28 +18,45 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [userId, setUserId] = useState<string>("");
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { signInWithGoogle } = useFirebaseAuth();
+
+  const checkProfileComplete = async (user: any) => {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('phone, address')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile || !profile.phone) {
+      setUserId(user.id);
+      setShowProfileModal(true);
+      return false;
+    }
+    return true;
+  };
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
-      const { error } = await signInWithGoogle();
+      const { error, user } = await signInWithGoogle();
       if (error) throw error;
 
+      // OAuth redirects automatically, user check happens after redirect
       toast({
-        title: "Bem-vindo!",
-        description: "Login com Google realizado com sucesso.",
+        title: "Redirecionando...",
+        description: "Você será redirecionado para o Google.",
       });
-      navigate("/");
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Erro ao fazer login com Google",
         description: error.message,
       });
-    } finally {
       setGoogleLoading(false);
     }
   };
@@ -65,13 +83,21 @@ export default function Auth() {
         description: "Você já pode fazer login.",
       });
       
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (signInError) throw signInError;
-      navigate("/");
+      
+      if (data?.user) {
+        const isComplete = await checkProfileComplete(data.user);
+        if (isComplete) {
+          const from = (location.state as any)?.from || "/";
+          const cart = (location.state as any)?.cart;
+          navigate(from, { state: cart ? { cart } : undefined });
+        }
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -87,18 +113,25 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Bem-vindo!",
-        description: "Login realizado com sucesso.",
-      });
-      navigate("/");
+      if (data?.user) {
+        const isComplete = await checkProfileComplete(data.user);
+        if (isComplete) {
+          toast({
+            title: "Bem-vindo!",
+            description: "Login realizado com sucesso.",
+          });
+          const from = (location.state as any)?.from || "/";
+          const cart = (location.state as any)?.cart;
+          navigate(from, { state: cart ? { cart } : undefined });
+        }
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -293,6 +326,16 @@ export default function Auth() {
           </Tabs>
         </Card>
       </div>
+      <ProfileSetupModal
+        open={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false);
+          const from = (location.state as any)?.from || "/";
+          const cart = (location.state as any)?.cart;
+          navigate(from, { state: cart ? { cart } : undefined });
+        }}
+        userId={userId}
+      />
     </div>
   );
 }

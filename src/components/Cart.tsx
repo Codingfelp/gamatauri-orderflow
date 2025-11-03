@@ -112,7 +112,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               </div>
             </ScrollArea>
             
-            <div className="border-t pt-4 space-y-4 bg-gradient-to-t from-accent/5 to-transparent -mx-6 px-6 pb-2">
+            <div className="border-t pt-6 pb-6 space-y-6 bg-gradient-to-t from-accent/5 to-transparent -mx-6 px-6 min-h-[140px]">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold">Total:</span>
                 <span className="text-3xl font-bold text-primary animate-in slide-in-from-right">

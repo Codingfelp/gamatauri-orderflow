@@ -121,8 +121,8 @@ serve(async (req) => {
       payment_status: 'pending',
       total_price: totalPrice,
       delivery_fee: deliveryFee,
-      notes: orderData.notes || undefined,
-      change_for: orderData.change_for || undefined,
+      notes: orderData.notes?.trim() || null,
+      change_for: orderData.change_for || null,
       card_info: orderData.card_info ? {
         holder: orderData.card_info.holder,
         number: orderData.card_info.number,
@@ -172,12 +172,14 @@ serve(async (req) => {
 
         console.log('Order created successfully:', result);
 
-        // 4. UPDATE LOCAL ORDER WITH EXTERNAL ORDER ID
+        // 4. UPDATE LOCAL ORDER WITH EXTERNAL ORDER ID AND ORDER NUMBER
         const externalOrderId = result.data.order_id;
+        const externalOrderNumber = result.data.order_number;
         await supabaseAdmin
           .from('orders')
           .update({ 
-            stripe_payment_intent_id: externalOrderId // Using this field to store external ID
+            stripe_payment_intent_id: externalOrderId, // Using this field to store external ID
+            external_order_number: externalOrderNumber // Store the external order number (e.g., "EXT-20251103-001")
           })
           .eq('id', internalOrderId);
 

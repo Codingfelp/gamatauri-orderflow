@@ -41,12 +41,14 @@ serve(async (req) => {
     console.log(`External status: "${externalStatus}"`);
     console.log(`Mapped to internal: "${internalStatus}"`);
 
-    // Find order by external_order_id (stored in stripe_payment_intent_id field)
+    // Find order by external_order_number (preferred) or stripe_payment_intent_id (fallback)
+    console.log(`Searching for order with external_order_number: ${externalOrderId}`);
+    
     const { data: order, error: findError } = await supabaseAdmin
       .from('orders')
       .select('id')
-      .eq('stripe_payment_intent_id', externalOrderId)
-      .single();
+      .or(`external_order_number.eq.${externalOrderId},stripe_payment_intent_id.eq.${externalOrderId}`)
+      .maybeSingle();
 
     if (findError || !order) {
       console.error('=== ORDER NOT FOUND ===');

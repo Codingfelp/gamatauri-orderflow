@@ -56,7 +56,8 @@ const Checkout = () => {
           setFormData(prev => ({
             ...prev,
             customer_name: data.name || '',
-            customer_email: user.email || '',
+            customer_phone: data.phone || '',
+            customer_address: data.address || '',
           }));
         }
       };
@@ -292,17 +293,6 @@ const Checkout = () => {
                       onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
                       placeholder="(00) 00000-0000"
                       required
-                      className="h-12 text-base border-2 focus:border-primary transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base font-semibold">E-mail</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.customer_email}
-                      onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
-                      placeholder="seu@email.com"
                       className="h-12 text-base border-2 focus:border-primary transition-all"
                     />
                   </div>

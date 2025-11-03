@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ProductCard";
 import { Cart } from "@/components/Cart";
@@ -28,6 +29,8 @@ const Order = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
     loadProducts();
@@ -110,6 +113,18 @@ const Order = () => {
       });
       return;
     }
+
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Login necessário",
+        description: "Faça login para finalizar seu pedido",
+        variant: "destructive",
+      });
+      navigate('/auth', { state: { from: location.pathname, cart } });
+      return;
+    }
+
     navigate('/checkout', { state: { cart } });
   };
 
