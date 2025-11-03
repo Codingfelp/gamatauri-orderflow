@@ -34,7 +34,7 @@ All colors MUST be HSL.
     --pix-foreground: 0 0% 100%;
     --card-payment: 217 91% 60%;
     --card-payment-foreground: 0 0% 100%;
-    --cash: 38 92% 50%;
+    --cash: 142 70% 35%;
     --cash-foreground: 0 0% 100%;
     
     /* Status Colors */
@@ -97,7 +97,7 @@ All colors MUST be HSL.
     --pix-foreground: 0 0% 100%;
     --card-payment: 217 91% 60%;
     --card-payment-foreground: 0 0% 100%;
-    --cash: 38 92% 50%;
+    --cash: 142 70% 35%;
     --cash-foreground: 0 0% 100%;
     
     /* Status Colors - Dark Mode */
