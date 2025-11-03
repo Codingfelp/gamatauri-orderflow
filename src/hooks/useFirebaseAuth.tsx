@@ -10,7 +10,13 @@ export const useFirebaseAuth = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Enhanced error handling for OAuth
+        if (error.message.includes('403') || error.message.includes('Forbidden')) {
+          throw new Error('Erro de autenticação do Google. Verifique se o OAuth está configurado corretamente no painel do Lovable Cloud.');
+        }
+        throw error;
+      }
       
       // OAuth redirects automatically, no user returned here
       return { user: null, error: null };

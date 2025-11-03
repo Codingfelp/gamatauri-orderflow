@@ -26,17 +26,18 @@ const Success = () => {
   }, [orderNumber, orderId, navigate, setActiveOrder]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-primary/5 p-4 py-20">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-primary/5 p-4 py-20 animate-fade-in">
       <div className="max-w-5xl w-full">
         {orderNumber && orderId && <OrderTimeline orderNumber={orderNumber} orderId={orderId} />}
         
-        <div className="mt-12 text-center">
+        <div className="mt-12 text-center animate-fade-in" style={{ animationDelay: '600ms' }}>
           <Button
             onClick={() => navigate('/')}
             size="lg"
-            className="px-12 h-14 text-lg font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            className="px-12 h-14 text-lg font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
           >
-            🛒 Fazer Novo Pedido
+            <span className="mr-2 text-xl group-hover:animate-bounce inline-block">←</span>
+            Fazer Novo Pedido
           </Button>
         </div>
       </div>

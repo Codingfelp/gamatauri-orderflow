@@ -112,31 +112,39 @@ serve(async (req) => {
 function mapExternalStatusToInternal(externalStatus: string): string {
   const normalized = externalStatus.toLowerCase().trim();
   
+  // Valid statuses in DB: 'separacao', 'preparando', 'saiu_entrega', 'entregue', 'cancelado'
   const mapping: Record<string, string> = {
-    // Preparing/Separation phase
+    // Separation/Preparing phase
     'pending': 'separacao',
-    'preparing': 'separacao',
+    'preparing': 'preparando',
     'em_separacao': 'separacao',
     'separando': 'separacao',
     'processando': 'separacao',
+    'preparando': 'preparando',
     
-    // Ready for delivery / Out for delivery
-    'ready': 'awaiting_closure',
-    'ready_for_delivery': 'awaiting_closure',
-    'pronto': 'awaiting_closure',
-    'pronto_para_entrega': 'awaiting_closure',
-    'em_rota_entrega': 'awaiting_closure',
-    'em_rota': 'awaiting_closure',
-    'saiu_para_entrega': 'awaiting_closure',
-    'out_for_delivery': 'awaiting_closure',
-    'delivering': 'awaiting_closure',
+    // Out for delivery / In route
+    'ready': 'saiu_entrega',
+    'ready_for_delivery': 'saiu_entrega',
+    'pronto': 'saiu_entrega',
+    'pronto_para_entrega': 'saiu_entrega',
+    'em_rota_entrega': 'saiu_entrega',
+    'em_rota': 'saiu_entrega',
+    'saiu_para_entrega': 'saiu_entrega',
+    'out_for_delivery': 'saiu_entrega',
+    'delivering': 'saiu_entrega',
+    'awaiting_closure': 'saiu_entrega',
     
-    // Completed
-    'delivered': 'completed',
-    'entregue': 'completed',
-    'completed': 'completed',
-    'finalizado': 'completed',
-    'concluido': 'completed',
+    // Delivered/Completed
+    'delivered': 'entregue',
+    'entregue': 'entregue',
+    'completed': 'entregue',
+    'finalizado': 'entregue',
+    'concluido': 'entregue',
+    
+    // Cancelled
+    'cancelled': 'cancelado',
+    'cancelado': 'cancelado',
+    'canceled': 'cancelado',
   };
   
   const result = mapping[normalized];
@@ -146,5 +154,6 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     return 'separacao';
   }
   
+  console.log(`Mapped "${externalStatus}" -> "${result}"`);
   return result;
 }

@@ -325,11 +325,13 @@ const Checkout = () => {
                 >
                   <div className={`
                     relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'pix' ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' : 'bg-accent/30 border-transparent hover:border-primary/40 hover:bg-accent/50'}
+                    ${formData.payment_method === 'pix' 
+                      ? 'bg-[hsl(var(--pix))]/10 border-[hsl(var(--pix))] shadow-lg scale-[1.02]' 
+                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--pix))]/40 hover:bg-[hsl(var(--pix))]/5'}
                   `}>
                     <RadioGroupItem value="pix" id="pix" className="scale-125" />
                     <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <Smartphone className="w-7 h-7 mr-4 text-primary" />
+                      <Smartphone className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'pix' ? 'text-[hsl(var(--pix))]' : 'text-muted-foreground'}`} />
                       <div>
                         <div className="font-bold">Pix</div>
                         <div className="text-xs text-muted-foreground">Instantâneo e gratuito</div>
@@ -338,11 +340,13 @@ const Checkout = () => {
                   </div>
                   <div className={`
                     relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'cartao' ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' : 'bg-accent/30 border-transparent hover:border-primary/40 hover:bg-accent/50'}
+                    ${formData.payment_method === 'cartao' 
+                      ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-lg scale-[1.02]' 
+                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40 hover:bg-[hsl(var(--card-payment))]/5'}
                   `}>
                     <RadioGroupItem value="cartao" id="cartao" className="scale-125" />
                     <Label htmlFor="cartao" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <CreditCard className="w-7 h-7 mr-4 text-primary" />
+                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'cartao' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
                       <div>
                         <div className="font-bold">Cartão de Crédito</div>
                         <div className="text-xs text-muted-foreground">Débito ou crédito</div>
@@ -351,11 +355,13 @@ const Checkout = () => {
                   </div>
                   <div className={`
                     relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'dinheiro' ? 'bg-primary/10 border-primary shadow-lg scale-[1.02]' : 'bg-accent/30 border-transparent hover:border-primary/40 hover:bg-accent/50'}
+                    ${formData.payment_method === 'dinheiro' 
+                      ? 'bg-[hsl(var(--cash))]/10 border-[hsl(var(--cash))] shadow-lg scale-[1.02]' 
+                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--cash))]/40 hover:bg-[hsl(var(--cash))]/5'}
                   `}>
                     <RadioGroupItem value="dinheiro" id="dinheiro" className="scale-125" />
                     <Label htmlFor="dinheiro" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <Banknote className="w-7 h-7 mr-4 text-primary" />
+                      <Banknote className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'dinheiro' ? 'text-[hsl(var(--cash))]' : 'text-muted-foreground'}`} />
                       <div>
                         <div className="font-bold">Dinheiro</div>
                         <div className="text-xs text-muted-foreground">Pagamento em espécie</div>

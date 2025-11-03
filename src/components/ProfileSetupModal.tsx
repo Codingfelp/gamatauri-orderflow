@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Package } from "lucide-react";
 
 interface ProfileSetupModalProps {
   open: boolean;
@@ -64,17 +64,21 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
 
   return (
     <Dialog open={open} onOpenChange={(open) => !loading && !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Complete seu perfil</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-md animate-scale-in">
+        <DialogHeader className="space-y-3">
+          <div className="mx-auto w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <Package className="w-6 h-6 text-primary" />
+          </div>
+          <DialogTitle className="text-2xl font-bold text-center">Complete seu perfil</DialogTitle>
+          <DialogDescription className="text-center">
             Precisamos de algumas informações para finalizar seu cadastro
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="phone" className="text-base font-semibold">
-              Telefone *
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-base font-semibold flex items-center gap-2">
+              <span>Telefone</span>
+              <span className="text-primary">*</span>
             </Label>
             <Input
               id="phone"
@@ -82,11 +86,11 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
               value={formData.phone}
               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
               placeholder="(31) 98765-4321"
-              className="h-12 text-base"
+              className="h-12 text-base border-2 focus:border-primary transition-all"
               required
             />
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="address" className="text-base font-semibold">
               Endereço (opcional)
             </Label>
@@ -95,13 +99,13 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
               value={formData.address}
               onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
               placeholder="Rua, número, bairro"
-              className="min-h-[80px] text-base"
+              className="min-h-[80px] text-base border-2 focus:border-primary transition-all resize-none"
               rows={3}
             />
           </div>
           <Button
             type="submit"
-            className="w-full h-12 text-base font-bold"
+            className="w-full h-12 text-base font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300"
             disabled={loading}
           >
             {loading ? (

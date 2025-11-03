@@ -44,7 +44,18 @@ export default function Auth() {
     setGoogleLoading(true);
     try {
       const { error, user } = await signInWithGoogle();
-      if (error) throw error;
+      if (error) {
+        // Enhanced error message for OAuth issues
+        let errorMessage = error.message;
+        let errorTitle = "Erro ao fazer login com Google";
+        
+        if (error.message.includes('403') || error.message.includes('Forbidden') || error.message.includes('OAuth')) {
+          errorTitle = "Erro de Configuração OAuth";
+          errorMessage = "O login com Google não está configurado corretamente. Por favor, acesse as configurações de autenticação no painel do Lovable Cloud e verifique as credenciais do Google (Client ID e Secret).";
+        }
+        
+        throw { title: errorTitle, message: errorMessage };
+      }
 
       // OAuth redirects automatically, user check happens after redirect
       toast({
@@ -54,8 +65,8 @@ export default function Auth() {
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Erro ao fazer login com Google",
-        description: error.message,
+        title: error.title || "Erro ao fazer login com Google",
+        description: error.message || "Tente novamente ou use email/senha.",
       });
       setGoogleLoading(false);
     }
