@@ -240,33 +240,35 @@ const Checkout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
-      <header className="bg-card/95 backdrop-blur-sm shadow-lg border-b sticky top-0 z-10">
+    <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10 animate-fade-in">
+      <header className="bg-card/95 backdrop-blur-md shadow-lg border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-6">
           <Button
             variant="ghost"
             onClick={() => navigate('/')}
-            className="mb-4 hover:bg-accent transition-colors"
+            className="mb-4 hover:bg-accent/60 transition-all duration-300"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
-          <h1 className="text-4xl font-bold text-primary">Finalizar Pedido</h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            Finalizar Pedido
+          </h1>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-10">
         <div className="grid lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
-                <h2 className="text-2xl font-bold mb-6 flex items-center text-card-foreground">
+            <form onSubmit={handleSubmit} className="space-y-10 animate-fade-in">
+              <Card className="p-8 shadow-xl backdrop-blur-sm bg-card/80 border-2 border-border hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+                <h2 className="text-2xl font-bold mb-6 flex items-center text-foreground">
                   <User className="mr-3 h-6 w-6 text-primary" />
                   Dados de Contato
                 </h2>
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-base font-semibold">
+                    <Label htmlFor="name" className="text-base font-semibold text-foreground">
                       Nome {userProfile ? '(opcional)' : '*'}
                     </Label>
                     <Input
@@ -276,7 +278,7 @@ const Checkout = () => {
                       onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
                       placeholder="Seu nome completo"
                       required={!userProfile}
-                      className="h-12 text-base border-2 focus:border-primary transition-all"
+                      className="h-12 text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 bg-background"
                     />
                     {userProfile && formData.customer_name && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -285,7 +287,7 @@ const Checkout = () => {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-base font-semibold">Telefone *</Label>
+                    <Label htmlFor="phone" className="text-base font-semibold text-foreground">Telefone *</Label>
                     <Input
                       id="phone"
                       type="tel"
@@ -293,25 +295,25 @@ const Checkout = () => {
                       onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
                       placeholder="(00) 00000-0000"
                       required
-                      className="h-12 text-base border-2 focus:border-primary transition-all"
+                      className="h-12 text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 bg-background"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address" className="text-base font-semibold">Endereço de Entrega</Label>
+                    <Label htmlFor="address" className="text-base font-semibold text-foreground">Endereço de Entrega</Label>
                     <Textarea
                       id="address"
                       value={formData.customer_address}
                       onChange={(e) => setFormData({ ...formData, customer_address: e.target.value })}
                       placeholder="Rua, número, bairro, cidade"
                       rows={3}
-                      className="text-base border-2 focus:border-primary transition-all resize-none"
+                      className="text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none bg-background"
                     />
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
-                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Forma de Pagamento</h2>
+              <Card className="p-8 shadow-xl backdrop-blur-sm bg-card/80 border-2 border-border hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
+                <h2 className="text-2xl font-bold mb-6 text-foreground">Forma de Pagamento</h2>
                 <RadioGroup
                   value={formData.payment_method}
                   onValueChange={(value) => {
@@ -372,62 +374,65 @@ const Checkout = () => {
 
                 {/* PIX Payment Details */}
                 {formData.payment_method === 'pix' && pixQRCode && (
-                  <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5">
-                    <h3 className="text-lg font-bold mb-4">Pagar com PIX</h3>
+                  <div className="mt-8 p-6 border-2 border-[hsl(var(--pix))]/30 rounded-2xl bg-gradient-to-br from-[hsl(var(--pix))]/5 to-[hsl(var(--pix))]/10 animate-fade-in backdrop-blur-sm">
+                    <h3 className="text-lg font-bold mb-4 text-[hsl(var(--pix))]">Pagar com PIX</h3>
                     
-                    <div className="flex flex-col items-center mb-4">
-                      <img 
-                        src={pixQRCode} 
-                        alt="QR Code PIX" 
-                        className="w-48 h-48 border-4 border-background rounded-lg shadow-lg"
-                      />
-                      <p className="text-sm text-muted-foreground mt-2">
+                    <div className="flex flex-col items-center mb-6">
+                      <div className="relative group">
+                        <div className="absolute inset-0 bg-[hsl(var(--pix))]/20 rounded-2xl blur-xl group-hover:bg-[hsl(var(--pix))]/30 transition-all duration-500" />
+                        <img 
+                          src={pixQRCode} 
+                          alt="QR Code PIX" 
+                          className="relative w-52 h-52 border-4 border-background rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-4 text-center">
                         Escaneie o QR Code ou copie a chave PIX
                       </p>
                     </div>
 
-                    <div className="bg-background p-4 rounded-lg mb-4">
-                      <Label className="text-xs font-semibold text-muted-foreground">
+                    <div className="bg-background/60 backdrop-blur-sm p-4 rounded-xl mb-4 border border-border/50">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         Chave PIX (CNPJ)
                       </Label>
                       <div className="flex items-center gap-2 mt-2">
                         <Input 
                           value="54339140000118" 
                           readOnly 
-                          className="font-mono text-center"
+                          className="font-mono text-center bg-background border-2 text-foreground font-semibold"
                         />
                         <Button
                           type="button"
-                          variant="outline"
                           size="sm"
                           onClick={() => {
                             navigator.clipboard.writeText('54339140000118');
-                            toast({ title: "Chave PIX copiada!" });
+                            toast({ title: "✓ Chave PIX copiada!" });
                           }}
+                          className="bg-[hsl(var(--pix))] hover:bg-[hsl(var(--pix))]/90 text-white transition-all duration-300 hover:scale-105"
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
 
-                    <div className="bg-background p-4 rounded-lg">
-                      <Label className="text-xs font-semibold text-muted-foreground">
+                    <div className="bg-background/60 backdrop-blur-sm p-4 rounded-xl border border-border/50">
+                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         PIX Copia e Cola
                       </Label>
                       <div className="flex items-center gap-2 mt-2">
                         <Input 
                           value={pixPayload} 
                           readOnly 
-                          className="font-mono text-xs"
+                          className="font-mono text-xs bg-background border-2"
                         />
                         <Button
                           type="button"
-                          variant="outline"
                           size="sm"
                           onClick={() => {
                             navigator.clipboard.writeText(pixPayload);
-                            toast({ title: "Código PIX copiado!" });
+                            toast({ title: "✓ Código PIX copiado!" });
                           }}
+                          className="bg-[hsl(var(--pix))] hover:bg-[hsl(var(--pix))]/90 text-white transition-all duration-300 hover:scale-105"
                         >
                           <Copy className="w-4 h-4" />
                         </Button>
@@ -438,11 +443,11 @@ const Checkout = () => {
 
                 {/* Credit Card Form */}
                 {formData.payment_method === 'cartao' && (
-                  <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5 space-y-4">
-                    <h3 className="text-lg font-bold mb-4">Dados do Cartão</h3>
+                  <div className="mt-8 p-6 border-2 border-[hsl(var(--card-payment))]/30 rounded-2xl bg-gradient-to-br from-[hsl(var(--card-payment))]/5 to-[hsl(var(--card-payment))]/10 animate-fade-in backdrop-blur-sm space-y-6">
+                    <h3 className="text-lg font-bold text-[hsl(var(--card-payment))]">Dados do Cartão</h3>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="card_holder">Nome do Titular *</Label>
+                      <Label htmlFor="card_holder" className="text-base font-semibold text-foreground">Nome do Titular *</Label>
                       <Input
                         id="card_holder"
                         type="text"
@@ -450,12 +455,12 @@ const Checkout = () => {
                         value={formData.card_holder}
                         onChange={(e) => setFormData({ ...formData, card_holder: e.target.value.toUpperCase() })}
                         required
-                        className="h-12 font-semibold"
+                        className="h-12 font-semibold bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="card_number">Número do Cartão *</Label>
+                      <Label htmlFor="card_number" className="text-base font-semibold text-foreground">Número do Cartão *</Label>
                       <Input
                         id="card_number"
                         type="text"
@@ -467,13 +472,13 @@ const Checkout = () => {
                         }}
                         maxLength={19}
                         required
-                        className="h-12 font-mono text-lg"
+                        className="h-12 font-mono text-lg bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="card_expiry">Validade *</Label>
+                        <Label htmlFor="card_expiry" className="text-base font-semibold text-foreground">Validade *</Label>
                         <Input
                           id="card_expiry"
                           type="text"
@@ -488,12 +493,12 @@ const Checkout = () => {
                           }}
                           maxLength={5}
                           required
-                          className="h-12 font-mono text-center"
+                          className="h-12 font-mono text-center bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="card_cvv">CVV *</Label>
+                        <Label htmlFor="card_cvv" className="text-base font-semibold text-foreground">CVV *</Label>
                         <Input
                           id="card_cvv"
                           type="text"
@@ -505,7 +510,7 @@ const Checkout = () => {
                           }}
                           maxLength={4}
                           required
-                          className="h-12 font-mono text-center"
+                          className="h-12 font-mono text-center bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
                         />
                       </div>
                     </div>
@@ -514,11 +519,11 @@ const Checkout = () => {
 
                 {/* Cash Change Input */}
                 {formData.payment_method === 'dinheiro' && (
-                  <div className="mt-6 p-6 border-2 border-primary/30 rounded-xl bg-primary/5">
-                    <h3 className="text-lg font-bold mb-4">Pagamento em Dinheiro</h3>
+                  <div className="mt-8 p-6 border-2 border-[hsl(var(--cash))]/30 rounded-2xl bg-gradient-to-br from-[hsl(var(--cash))]/5 to-[hsl(var(--cash))]/10 animate-fade-in backdrop-blur-sm">
+                    <h3 className="text-lg font-bold mb-4 text-[hsl(var(--cash))]">Pagamento em Dinheiro</h3>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="change_for">Troco para:</Label>
+                      <Label htmlFor="change_for" className="text-base font-semibold text-foreground">Troco para:</Label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
                           R$
@@ -533,7 +538,7 @@ const Checkout = () => {
                             value = (Number(value) / 100).toFixed(2).replace('.', ',');
                             setFormData({ ...formData, change_for: value });
                           }}
-                          className="h-12 pl-10 text-lg font-bold"
+                          className="h-12 pl-10 text-lg font-bold bg-background border-2 focus:border-[hsl(var(--cash))] focus:ring-2 focus:ring-[hsl(var(--cash))]/20 transition-all duration-300"
                         />
                       </div>
                       <p className="text-xs text-muted-foreground">

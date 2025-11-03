@@ -45,28 +45,37 @@ export default function Auth() {
     try {
       const { error, user } = await signInWithGoogle();
       if (error) {
-        // Enhanced error message for OAuth issues
-        let errorMessage = error.message;
-        let errorTitle = "Erro ao fazer login com Google";
-        
-        if (error.message.includes('403') || error.message.includes('Forbidden') || error.message.includes('OAuth')) {
-          errorTitle = "Erro de Configuração OAuth";
-          errorMessage = "O login com Google não está configurado corretamente. Por favor, acesse as configurações de autenticação no painel do Lovable Cloud e verifique as credenciais do Google (Client ID e Secret).";
-        }
-        
-        throw { title: errorTitle, message: errorMessage };
+        throw error;
       }
 
       // OAuth redirects automatically, user check happens after redirect
       toast({
-        title: "Redirecionando...",
-        description: "Você será redirecionado para o Google.",
+        title: "Aguarde...",
+        description: "Abrindo autorização do Google",
+        duration: 3000,
       });
     } catch (error: any) {
+      // Determine error type and provide detailed instructions
+      const errorMessage = error.message || '';
+      let title = "Erro ao fazer login com Google";
+      let description = errorMessage;
+      
+      if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
+        title = "⚠️ Configuração OAuth Necessária";
+        description = errorMessage;
+      } else if (errorMessage.includes('redirect_uri_mismatch')) {
+        title = "⚠️ URI de Redirecionamento Inválida";
+        description = errorMessage;
+      } else if (errorMessage.includes('invalid_client')) {
+        title = "⚠️ Credenciais OAuth Inválidas";
+        description = errorMessage;
+      }
+      
       toast({
         variant: "destructive",
-        title: error.title || "Erro ao fazer login com Google",
-        description: error.message || "Tente novamente ou use email/senha.",
+        title,
+        description,
+        duration: 10000, // 10 seconds for user to read instructions
       });
       setGoogleLoading(false);
     }
