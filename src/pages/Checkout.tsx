@@ -32,8 +32,6 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [pixQRCode, setPixQRCode] = useState<string>("");
-  const [pixPayload, setPixPayload] = useState<string>("");
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -43,10 +41,6 @@ const Checkout = () => {
     payment_timing: "entrega",
     notes: "",
     change_for: "",
-    card_holder: "",
-    card_number: "",
-    card_expiry: "",
-    card_cvv: "",
   });
 
   useEffect(() => {
@@ -74,81 +68,6 @@ const Checkout = () => {
 
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  // Generate PIX QR Code when payment method is PIX
-  useEffect(() => {
-    if (formData.payment_method === 'pix' && total > 0) {
-      const generatePixQRCode = async () => {
-        try {
-          const QRCode = (await import('qrcode')).default;
-          
-          // Generate PIX payload (EMV format)
-          const pixPayloadData = generatePixPayload(total);
-          
-          // Generate QR Code as base64
-          const qrCodeBase64 = await QRCode.toDataURL(pixPayloadData, {
-            width: 300,
-            margin: 2,
-            color: {
-              dark: '#000000',
-              light: '#FFFFFF'
-            }
-          });
-          
-          setPixPayload(pixPayloadData);
-          setPixQRCode(qrCodeBase64);
-        } catch (error) {
-          console.error('Error generating PIX QR Code:', error);
-        }
-      };
-      
-      generatePixQRCode();
-    }
-  }, [formData.payment_method, total]);
-
-  // Generate PIX EMV payload
-  const generatePixPayload = (value: number) => {
-    const pixKey = '54339140000118';
-    const merchantName = 'Gamatauri';
-    const merchantCity = 'SAO PAULO';
-    const txid = `PED${Date.now()}`;
-    
-    // EMV format for PIX
-    const payload = [
-      '00020126',
-      '360014BR.GOV.BCB.PIX',
-      `0114${pixKey}`,
-      `52040000`,
-      `5303986`,
-      `5402${value.toFixed(2)}`,
-      `5802BR`,
-      `59${String(merchantName.length).padStart(2, '0')}${merchantName}`,
-      `60${String(merchantCity.length).padStart(2, '0')}${merchantCity}`,
-      `62${String(txid.length + 8).padStart(2, '0')}05${String(txid.length).padStart(2, '0')}${txid}`,
-      '6304'
-    ].join('');
-    
-    // Calculate CRC16
-    const crc = calculateCRC16(payload);
-    return payload + crc;
-  };
-
-  // CRC16 calculation for PIX
-  const calculateCRC16 = (payload: string) => {
-    let crc = 0xFFFF;
-    for (let i = 0; i < payload.length; i++) {
-      crc ^= payload.charCodeAt(i) << 8;
-      for (let j = 0; j < 8; j++) {
-        if ((crc & 0x8000) !== 0) {
-          crc = (crc << 1) ^ 0x1021;
-        } else {
-          crc = crc << 1;
-        }
-      }
-    }
-    crc = crc & 0xFFFF;
-    return crc.toString(16).toUpperCase().padStart(4, '0');
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -159,28 +78,6 @@ const Checkout = () => {
         variant: "destructive",
       });
       return;
-    }
-
-    // Validate credit card fields
-    if (formData.payment_method === 'cartao') {
-      if (!formData.card_holder || !formData.card_number || !formData.card_expiry || !formData.card_cvv) {
-        toast({
-          title: "Dados do cartão incompletos",
-          description: "Preencha todos os campos do cartão",
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      const cardNumber = formData.card_number.replace(/\s/g, '');
-      if (cardNumber.length < 13 || cardNumber.length > 19) {
-        toast({
-          title: "Cartão inválido",
-          description: "Número do cartão deve ter entre 13 e 19 dígitos",
-          variant: "destructive",
-        });
-        return;
-      }
     }
 
     setLoading(true);
@@ -197,10 +94,6 @@ const Checkout = () => {
         delivery_fee: 0,
         notes: formData.notes || undefined,
         change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
-        card_holder: formData.payment_method === 'cartao' ? formData.card_holder : undefined,
-        card_number: formData.payment_method === 'cartao' ? formData.card_number : undefined,
-        card_expiry: formData.payment_method === 'cartao' ? formData.card_expiry : undefined,
-        card_cvv: formData.payment_method === 'cartao' ? formData.card_cvv : undefined,
       });
 
       // Set active order in context
@@ -323,14 +216,13 @@ const Checkout = () => {
               </Card>
 
               <Card className="p-8 shadow-xl backdrop-blur-sm bg-card/80 border-2 border-border hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-                <h2 className="text-2xl font-bold mb-6 text-foreground">Forma de Pagamento</h2>
+                <h2 className="text-2xl font-bold mb-6 text-foreground">Forma de Pagamento (na entrega)</h2>
                 <RadioGroup
                   value={formData.payment_method}
                   onValueChange={(value) => {
                     setFormData({ 
                       ...formData, 
-                      payment_method: value,
-                      payment_timing: value === 'dinheiro' ? 'entrega' : formData.payment_timing
+                      payment_method: value
                     });
                   }}
                   className="space-y-3"
@@ -345,23 +237,38 @@ const Checkout = () => {
                     <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
                       <Smartphone className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'pix' ? 'text-[hsl(var(--pix))]' : 'text-muted-foreground'}`} />
                       <div>
-                        <div className="font-bold">Pix</div>
+                        <div className="font-bold">Pagar na entrega com PIX</div>
                         <div className="text-xs text-muted-foreground">Instantâneo e gratuito</div>
                       </div>
                     </Label>
                   </div>
                   <div className={`
                     relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'cartao' 
+                    ${formData.payment_method === 'credito' 
                       ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-lg scale-[1.02]' 
                       : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40 hover:bg-[hsl(var(--card-payment))]/5'}
                   `}>
-                    <RadioGroupItem value="cartao" id="cartao" className="scale-125" />
-                    <Label htmlFor="cartao" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'cartao' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
+                    <RadioGroupItem value="credito" id="credito" className="scale-125" />
+                    <Label htmlFor="credito" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
+                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'credito' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
                       <div>
-                        <div className="font-bold">Cartão de Crédito</div>
+                        <div className="font-bold">Pagar na entrega com Cartão de Crédito</div>
                         <div className="text-xs text-muted-foreground">Débito ou crédito</div>
+                      </div>
+                    </Label>
+                  </div>
+                  <div className={`
+                    relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
+                    ${formData.payment_method === 'debito' 
+                      ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-lg scale-[1.02]' 
+                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40 hover:bg-[hsl(var(--card-payment))]/5'}
+                  `}>
+                    <RadioGroupItem value="debito" id="debito" className="scale-125" />
+                    <Label htmlFor="debito" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
+                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'debito' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
+                      <div>
+                        <div className="font-bold">Pagar na entrega com Cartão de Débito</div>
+                        <div className="text-xs text-muted-foreground">Débito</div>
                       </div>
                     </Label>
                   </div>
@@ -375,157 +282,12 @@ const Checkout = () => {
                     <Label htmlFor="dinheiro" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
                       <Banknote className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'dinheiro' ? 'text-[hsl(var(--cash))]' : 'text-muted-foreground'}`} />
                       <div>
-                        <div className="font-bold">Dinheiro</div>
+                        <div className="font-bold">Pagar na entrega com Dinheiro</div>
                         <div className="text-xs text-muted-foreground">Pagamento em espécie</div>
                       </div>
                     </Label>
                   </div>
                 </RadioGroup>
-
-                {/* PIX Payment Details */}
-                {formData.payment_method === 'pix' && pixQRCode && (
-                  <div className="mt-8 p-6 border-2 border-[hsl(var(--pix))]/30 rounded-2xl bg-gradient-to-br from-[hsl(var(--pix))]/5 to-[hsl(var(--pix))]/10 animate-fade-in backdrop-blur-sm">
-                    <h3 className="text-lg font-bold mb-4 text-[hsl(var(--pix))]">Pagar com PIX</h3>
-                    
-                    <div className="flex flex-col items-center mb-6">
-                      <div className="relative group">
-                        <div className="absolute inset-0 bg-[hsl(var(--pix))]/20 rounded-2xl blur-xl group-hover:bg-[hsl(var(--pix))]/30 transition-all duration-500" />
-                        <img 
-                          src={pixQRCode} 
-                          alt="QR Code PIX" 
-                          className="relative w-52 h-52 border-4 border-background rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-4 text-center">
-                        Escaneie o QR Code ou copie a chave PIX
-                      </p>
-                    </div>
-
-                    <div className="bg-background/60 backdrop-blur-sm p-4 rounded-xl mb-4 border border-border/50">
-                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        Chave PIX (CNPJ)
-                      </Label>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Input 
-                          value="54339140000118" 
-                          readOnly 
-                          className="font-mono text-center bg-background border-2 text-foreground font-semibold"
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText('54339140000118');
-                            toast({ title: "✓ Chave PIX copiada!" });
-                          }}
-                          className="bg-[hsl(var(--pix))] hover:bg-[hsl(var(--pix))]/90 text-white transition-all duration-300 hover:scale-105"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="bg-background/60 backdrop-blur-sm p-4 rounded-xl border border-border/50">
-                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                        PIX Copia e Cola
-                      </Label>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Input 
-                          value={pixPayload} 
-                          readOnly 
-                          className="font-mono text-xs bg-background border-2"
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={() => {
-                            navigator.clipboard.writeText(pixPayload);
-                            toast({ title: "✓ Código PIX copiado!" });
-                          }}
-                          className="bg-[hsl(var(--pix))] hover:bg-[hsl(var(--pix))]/90 text-white transition-all duration-300 hover:scale-105"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Credit Card Form */}
-                {formData.payment_method === 'cartao' && (
-                  <div className="mt-8 p-6 border-2 border-[hsl(var(--card-payment))]/30 rounded-2xl bg-gradient-to-br from-[hsl(var(--card-payment))]/5 to-[hsl(var(--card-payment))]/10 animate-fade-in backdrop-blur-sm space-y-6">
-                    <h3 className="text-lg font-bold text-[hsl(var(--card-payment))]">Dados do Cartão</h3>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="card_holder" className="text-base font-semibold text-foreground">Nome do Titular *</Label>
-                      <Input
-                        id="card_holder"
-                        type="text"
-                        placeholder="NOME COMO NO CARTÃO"
-                        value={formData.card_holder}
-                        onChange={(e) => setFormData({ ...formData, card_holder: e.target.value.toUpperCase() })}
-                        required
-                        className="h-12 font-semibold bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="card_number" className="text-base font-semibold text-foreground">Número do Cartão *</Label>
-                      <Input
-                        id="card_number"
-                        type="text"
-                        placeholder="0000 0000 0000 0000"
-                        value={formData.card_number}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
-                          setFormData({ ...formData, card_number: value });
-                        }}
-                        maxLength={19}
-                        required
-                        className="h-12 font-mono text-lg bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="card_expiry" className="text-base font-semibold text-foreground">Validade *</Label>
-                        <Input
-                          id="card_expiry"
-                          type="text"
-                          placeholder="MM/AA"
-                          value={formData.card_expiry}
-                          onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, '');
-                            if (value.length >= 2) {
-                              value = value.slice(0, 2) + '/' + value.slice(2, 4);
-                            }
-                            setFormData({ ...formData, card_expiry: value });
-                          }}
-                          maxLength={5}
-                          required
-                          className="h-12 font-mono text-center bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="card_cvv" className="text-base font-semibold text-foreground">CVV *</Label>
-                        <Input
-                          id="card_cvv"
-                          type="text"
-                          placeholder="123"
-                          value={formData.card_cvv}
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '');
-                            setFormData({ ...formData, card_cvv: value });
-                          }}
-                          maxLength={4}
-                          required
-                          className="h-12 font-mono text-center bg-background border-2 focus:border-[hsl(var(--card-payment))] focus:ring-2 focus:ring-[hsl(var(--card-payment))]/20 transition-all duration-300"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* Cash Change Input */}
                 {formData.payment_method === 'dinheiro' && (
@@ -557,51 +319,6 @@ const Checkout = () => {
                     </div>
                   </div>
                 )}
-              </Card>
-
-              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
-                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Quando Pagar?</h2>
-                <RadioGroup
-                  value={formData.payment_timing}
-                  onValueChange={(value) => setFormData({ ...formData, payment_timing: value })}
-                >
-                  <div className="flex items-center space-x-2 p-3 rounded-lg hover:bg-accent cursor-pointer">
-                    <RadioGroupItem value="entrega" id="entrega" />
-                    <Label htmlFor="entrega" className="cursor-pointer flex-1">
-                      Pagar na Entrega
-                    </Label>
-                  </div>
-                  <div 
-                    className={`
-                      flex items-center space-x-2 p-3 rounded-lg 
-                      ${formData.payment_method === 'dinheiro' 
-                        ? 'opacity-50 cursor-not-allowed' 
-                        : 'hover:bg-accent cursor-pointer'
-                      }
-                    `}
-                  >
-                    <RadioGroupItem 
-                      value="agora" 
-                      id="agora" 
-                      disabled={formData.payment_method === 'dinheiro'}
-                    />
-                    <Label 
-                      htmlFor="agora" 
-                      className={`flex-1 ${
-                        formData.payment_method === 'dinheiro' 
-                          ? 'cursor-not-allowed text-muted-foreground' 
-                          : 'cursor-pointer'
-                      }`}
-                    >
-                      Pagar Agora (Online)
-                      {formData.payment_method === 'dinheiro' && (
-                        <span className="block text-xs text-red-500 mt-1">
-                          Não disponível para dinheiro
-                        </span>
-                      )}
-                    </Label>
-                  </div>
-                </RadioGroup>
               </Card>
 
               <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">

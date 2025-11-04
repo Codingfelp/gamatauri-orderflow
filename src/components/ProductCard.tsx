@@ -30,13 +30,6 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
             Sem imagem
           </div>
         )}
-        {product.category && (
-          <div className="absolute top-3 right-3">
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/90 text-primary-foreground backdrop-blur-sm">
-              {product.category}
-            </span>
-          </div>
-        )}
       </div>
       <div className="p-2 md:p-2.5 space-y-1 md:space-y-1.5">
         <h3 className="font-bold text-xs md:text-sm text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
