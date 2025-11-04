@@ -9,6 +9,7 @@ export const ActiveOrderBanner = () => {
   const { activeOrder, clearActiveOrder } = useActiveOrder();
   const [elapsedTime, setElapsedTime] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     if (!activeOrder) return;
@@ -34,6 +35,13 @@ export const ActiveOrderBanner = () => {
     return () => clearInterval(interval);
   }, [activeOrder]);
 
+  useEffect(() => {
+    if (activeOrder) {
+      setIsTransitioning(true);
+      setTimeout(() => setIsTransitioning(false), 500);
+    }
+  }, [activeOrder?.status]);
+
   if (!activeOrder) return null;
 
   const getStatusInfo = () => {
@@ -56,7 +64,7 @@ export const ActiveOrderBanner = () => {
 
   return (
     <>
-      <div className="sticky top-20 z-40 w-full bg-red-500/90 backdrop-blur-sm shadow-lg">
+      <div className={`sticky top-20 z-40 w-full bg-red-500/90 backdrop-blur-sm shadow-lg transition-all duration-500 ${isTransitioning ? 'scale-105' : 'scale-100'}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-14 gap-4">
             <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle } from "lucide-react";
 
+type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
+
 const Success = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -16,18 +18,31 @@ const Success = () => {
   const [orderStatus, setOrderStatus] = useState<string>('preparing');
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
 
+  // Mapear status do banco para tipo esperado pelo contexto
+  const mapDbStatusToContextStatus = (dbStatus: string): OrderStatus => {
+    switch (dbStatus) {
+      case 'preparing':
+      case 'separacao':
+        return 'preparing';
+      case 'in_route':
+      case 'em_rota':
+        return 'in_route';
+      case 'delivered':
+      case 'entregue':
+        return 'delivered';
+      case 'cancelled':
+      case 'cancelado':
+        return 'cancelled';
+      default:
+        return 'preparing';
+    }
+  };
+
   useEffect(() => {
     if (!orderNumber && !orderId) {
       navigate('/');
-    } else if (orderNumber && orderId) {
-      setActiveOrder({
-        orderId,
-        orderNumber,
-        status: "preparing",
-        createdAt: new Date().toISOString(),
-      });
     }
-  }, [orderNumber, orderId, navigate, setActiveOrder]);
+  }, [orderNumber, orderId, navigate]);
 
   useEffect(() => {
     if (!orderId) return;
@@ -42,6 +57,14 @@ const Success = () => {
       if (data) {
         setOrderStatus(data.order_status);
         setCreatedAt(data.created_at);
+        
+        // Atualizar contexto com status real do banco
+        setActiveOrder({
+          orderId,
+          orderNumber: orderNumber || '',
+          status: mapDbStatusToContextStatus(data.order_status),
+          createdAt: data.created_at,
+        });
       }
     };
     
@@ -59,7 +82,16 @@ const Success = () => {
         },
         (payload: any) => {
           console.log('Status atualizado em Success:', payload.new.order_status);
-          setOrderStatus(payload.new.order_status);
+          const newStatus = payload.new.order_status;
+          setOrderStatus(newStatus);
+          
+          // Atualizar contexto quando status mudar via realtime
+          setActiveOrder({
+            orderId,
+            orderNumber: orderNumber || '',
+            status: mapDbStatusToContextStatus(newStatus),
+            createdAt: payload.new.created_at || createdAt,
+          });
         }
       )
       .subscribe();
@@ -67,7 +99,7 @@ const Success = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [orderId]);
+  }, [orderId, orderNumber, setActiveOrder]);
 
   const markAsDelivered = async () => {
     if (!orderId) return;
@@ -84,6 +116,15 @@ const Success = () => {
       if (error) throw error;
       
       setOrderStatus('delivered');
+      
+      // Atualizar contexto
+      setActiveOrder({
+        orderId,
+        orderNumber: orderNumber || '',
+        status: 'delivered',
+        createdAt,
+      });
+      
       toast.success('Pedido marcado como entregue! 🎉');
     } catch (error) {
       console.error('Error marking as delivered:', error);
