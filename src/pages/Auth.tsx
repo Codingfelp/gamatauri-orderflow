@@ -66,17 +66,17 @@ export default function Auth() {
     }
   }, [user, authLoading]);
 
-  const checkProfileComplete = async (user: any) => {
+  const checkProfileComplete = async (user: any, retryCount = 0): Promise<boolean> => {
     try {
-      console.log('🔍 [PROFILE CHECK] Iniciando verificação de perfil para usuário:', user.id);
+      console.log('🔍 [PROFILE CHECK] Tentativa', retryCount + 1, '- Verificando perfil para:', user.id);
       
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('phone, address, name, user_id, email')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      console.log('📊 [PROFILE CHECK] Resultado da query:', { profile, error });
+      console.log('📊 [PROFILE CHECK] Resultado da query:', { profile, error, retryCount });
 
       if (error) {
         console.error('❌ [PROFILE CHECK] Erro ao buscar perfil:', {
@@ -86,11 +86,6 @@ export default function Auth() {
           hint: error.hint
         });
         
-        // Se o perfil não existir (PGRST116 = no rows returned)
-        if (error.code === 'PGRST116') {
-          console.warn('⚠️ [PROFILE CHECK] Perfil não encontrado, deveria ter sido criado pelo trigger');
-        }
-        
         // Abrir modal para completar perfil
         setUserId(user.id);
         setShowProfileModal(true);
@@ -98,7 +93,14 @@ export default function Auth() {
       }
 
       if (!profile) {
-        console.warn('⚠️ [PROFILE CHECK] Query bem-sucedida mas profile está null');
+        // Perfil não existe ainda - pode ser que o trigger ainda não executou
+        if (retryCount < 3) {
+          console.warn(`⏳ [PROFILE CHECK] Perfil não encontrado, tentando novamente em 1s... (${retryCount + 1}/3)`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return checkProfileComplete(user, retryCount + 1);
+        }
+        
+        console.warn('⚠️ [PROFILE CHECK] Perfil não criado após 3 tentativas, abrindo modal');
         setUserId(user.id);
         setShowProfileModal(true);
         return false;
@@ -117,6 +119,12 @@ export default function Auth() {
       return true;
     } catch (error) {
       console.error('❌ [PROFILE CHECK] Exceção inesperada:', error);
+      // Em caso de exceção, tentar novamente se ainda tiver tentativas
+      if (retryCount < 3) {
+        console.log(`🔄 [PROFILE CHECK] Tentando novamente após exceção... (${retryCount + 1}/3)`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return checkProfileComplete(user, retryCount + 1);
+      }
       return false;
     }
   };
