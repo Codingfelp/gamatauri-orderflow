@@ -210,10 +210,13 @@ const Checkout = () => {
                       id="address"
                       value={formData.customer_address}
                       onChange={(e) => setFormData({ ...formData, customer_address: e.target.value })}
-                      placeholder="Rua, número, bairro, cidade"
+                      placeholder="Ex: Rua Arauá, 220 - São Paulo (bairro), Belo Horizonte - MG"
                       rows={3}
                       className="text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none bg-background"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      💡 Inclua rua, número, bairro e cidade para cálculo correto do frete
+                    </p>
                   </div>
                 </div>
               </Card>

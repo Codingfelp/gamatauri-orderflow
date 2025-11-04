@@ -40,8 +40,17 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     setShippingError('');
 
     try {
+      // Normalizar endereço: adicionar ", Belo Horizonte - MG" se não estiver presente
+      let normalizedAddress = deliveryAddress.trim();
+      const hasCityMention = /Belo Horizonte|BH|Contagem|Betim/i.test(normalizedAddress);
+      
+      if (!hasCityMention) {
+        normalizedAddress += ', Belo Horizonte - MG';
+        console.log('📍 Endereço normalizado:', normalizedAddress);
+      }
+
       const { data, error } = await supabase.functions.invoke('calculate-shipping', {
-        body: { destination: deliveryAddress }
+        body: { destination: normalizedAddress }
       });
 
       if (error) throw error;
@@ -163,12 +172,15 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               </Label>
               <Textarea
                 id="delivery-address"
-                placeholder="Digite seu endereço completo (rua, número, bairro, cidade)"
+                placeholder="Ex: Rua Arauá, 220 - São Paulo (bairro)"
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
                 rows={3}
                 className="text-sm"
               />
+              <p className="text-xs text-muted-foreground">
+                💡 Digite apenas rua, número e bairro. Se não mencionar a cidade, assumiremos Belo Horizonte - MG.
+              </p>
               {shippingError && (
                 <p className="text-sm text-destructive">{shippingError}</p>
               )}

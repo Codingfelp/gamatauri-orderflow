@@ -45,15 +45,24 @@ serve(async (req) => {
       );
     }
 
+    // Normalizar endereço de destino (fallback de segurança)
+    let normalizedDestination = destination.trim();
+    const hasCityMention = /Belo Horizonte|BH|Contagem|Betim/i.test(normalizedDestination);
+    
+    if (!hasCityMention) {
+      normalizedDestination += ', Belo Horizonte - MG';
+      console.log('🔧 Endereço normalizado no backend:', normalizedDestination);
+    }
+
     // Montar URL da API
     const url = new URL('https://maps.googleapis.com/maps/api/distancematrix/json');
     url.searchParams.append('units', 'metric');
     url.searchParams.append('origins', STORE_ADDRESS);
-    url.searchParams.append('destinations', destination);
+    url.searchParams.append('destinations', normalizedDestination);
     url.searchParams.append('key', API_KEY);
 
     console.log('📍 Calculando distância de:', STORE_ADDRESS);
-    console.log('📍 Para:', destination);
+    console.log('📍 Para:', normalizedDestination);
 
     // Chamar Google Distance Matrix API
     const response = await fetch(url.toString());
