@@ -41,33 +41,33 @@ serve(async (req) => {
     console.log(`External status: "${externalStatus}"`);
     console.log(`Mapped to internal: "${internalStatus}"`);
 
-    // Find order by external_order_number (preferred) or stripe_payment_intent_id (fallback)
-    console.log(`Searching for order with external_order_number: ${externalOrderId}`);
+    // Find and update all orders with matching external_order_number or stripe_payment_intent_id
+    console.log(`Searching for orders with external_order_number: ${externalOrderId}`);
     
-    const { data: order, error: findError } = await supabaseAdmin
+    const { data: orders, error: findError } = await supabaseAdmin
       .from('orders')
       .select('id')
-      .or(`external_order_number.eq.${externalOrderId},stripe_payment_intent_id.eq.${externalOrderId}`)
-      .maybeSingle();
+      .or(`external_order_number.eq.${externalOrderId},stripe_payment_intent_id.eq.${externalOrderId}`);
 
-    if (findError || !order) {
+    if (findError || !orders || orders.length === 0) {
       console.error('=== ORDER NOT FOUND ===');
       console.error('Error:', findError);
       console.error('Searched for external_order_id:', externalOrderId);
       throw new Error(`Order not found for external_id: ${externalOrderId}`);
     }
 
-    console.log(`=== ORDER FOUND ===`);
-    console.log(`Internal order ID: ${order.id}`);
+    console.log(`=== ORDERS FOUND ===`);
+    console.log(`Found ${orders.length} order(s) with external_order_number: ${externalOrderId}`);
+    console.log(`Order IDs: ${orders.map(o => o.id).join(', ')}`);
 
-    // Update order status
+    // Update all matching orders
     const { error: updateError } = await supabaseAdmin
       .from('orders')
       .update({ 
         order_status: internalStatus,
         updated_at: new Date().toISOString()
       })
-      .eq('id', order.id);
+      .or(`external_order_number.eq.${externalOrderId},stripe_payment_intent_id.eq.${externalOrderId}`);
 
     if (updateError) {
       console.error('=== UPDATE FAILED ===');
@@ -76,13 +76,14 @@ serve(async (req) => {
     }
 
     console.log(`=== SUCCESS ===`);
-    console.log(`Order ${order.id} status updated from previous to ${internalStatus}`);
+    console.log(`Updated ${orders.length} order(s) to status: ${internalStatus}`);
 
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Order status updated successfully',
-        order_id: order.id,
+        order_ids: orders.map(o => o.id),
+        orders_updated: orders.length,
         new_status: internalStatus
       }),
       {
