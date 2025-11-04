@@ -30,13 +30,16 @@ const Checkout = () => {
     }
   })();
 
+  const shippingFee = location.state?.shippingFee || 0;
+  const preFilledAddress = location.state?.deliveryAddress || '';
+
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
     customer_email: "",
-    customer_address: "",
+    customer_address: preFilledAddress || "",
     payment_method: "pix",
     payment_timing: "entrega",
     notes: "",
@@ -58,15 +61,15 @@ const Checkout = () => {
             ...prev,
             customer_name: data.name || '',
             customer_phone: data.phone || '',
-            customer_address: data.address || '',
+            customer_address: preFilledAddress || data.address || '',
           }));
         }
       };
       fetchProfile();
     }
-  }, [user]);
+  }, [user, preFilledAddress]);
 
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + shippingFee;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +94,7 @@ const Checkout = () => {
         payment_method: formData.payment_method,
         payment_timing: formData.payment_timing,
         total: total,
-        delivery_fee: 0,
+        delivery_fee: shippingFee,
         notes: formData.notes || undefined,
         change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
       });
@@ -358,10 +361,18 @@ const Checkout = () => {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-lg font-semibold text-muted-foreground">Subtotal:</span>
                   <span className="text-xl font-bold text-card-foreground">
-                    R$ {total.toFixed(2)}
+                    R$ {cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
+                {shippingFee > 0 && (
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-lg font-semibold text-muted-foreground">Frete:</span>
+                    <span className="text-xl font-bold text-primary">
+                      R$ {shippingFee.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center pt-2 border-t">
                   <span className="text-2xl font-bold text-card-foreground">Total:</span>
                   <span className="text-4xl font-bold text-primary animate-pulse">
                     R$ {total.toFixed(2)}

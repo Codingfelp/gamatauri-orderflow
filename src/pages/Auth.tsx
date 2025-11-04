@@ -30,31 +30,49 @@ export default function Auth() {
 
   // Monitor authentication state changes (for OAuth redirect)
   useEffect(() => {
-    // Only execute after auth loading is complete and user just logged in
     if (!authLoading && user && !showProfileModal) {
+      console.log('🔍 Verificando perfil do usuário:', user.id);
       checkProfileComplete(user).then(isComplete => {
+        console.log('✅ Perfil completo:', isComplete);
         if (isComplete) {
           const from = (location.state as any)?.from || "/";
           const cart = (location.state as any)?.cart;
           navigate(from, { state: cart ? { cart } : undefined });
+        } else {
+          console.log('⚠️ Perfil incompleto, abrindo modal de setup');
         }
       });
     }
   }, [user, authLoading]);
 
   const checkProfileComplete = async (user: any) => {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('phone, address')
-      .eq('user_id', user.id)
-      .single();
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('phone, address, name')
+        .eq('user_id', user.id)
+        .single();
 
-    if (!profile || !profile.phone) {
-      setUserId(user.id);
-      setShowProfileModal(true);
+      if (error) {
+        console.error('❌ Erro ao buscar perfil:', error);
+        // Se o perfil não existir, abrir modal
+        setUserId(user.id);
+        setShowProfileModal(true);
+        return false;
+      }
+
+      if (!profile || !profile.phone) {
+        console.log('⚠️ Perfil incompleto:', profile);
+        setUserId(user.id);
+        setShowProfileModal(true);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Erro inesperado ao verificar perfil:', error);
       return false;
     }
-    return true;
   };
 
   const handleGoogleSignIn = async () => {

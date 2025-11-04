@@ -1,8 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 
 interface CartItem {
   id: string;
@@ -15,11 +20,51 @@ interface CartProps {
   items: CartItem[];
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemove: (id: string) => void;
-  onCheckout: () => void;
+  onCheckout: (shippingFee: number, deliveryAddress: string) => void;
 }
 
 export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProps) => {
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const { toast } = useToast();
+  const [shippingFee, setShippingFee] = useState<number>(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [shippingError, setShippingError] = useState('');
+  
+  const calculateShipping = async () => {
+    if (!deliveryAddress || deliveryAddress.trim().length < 10) {
+      setShippingError('Digite um endereço válido');
+      return;
+    }
+
+    setShippingLoading(true);
+    setShippingError('');
+
+    try {
+      const { data, error } = await supabase.functions.invoke('calculate-shipping', {
+        body: { destination: deliveryAddress }
+      });
+
+      if (error) throw error;
+
+      setShippingFee(data.shipping_fee);
+      toast({
+        title: "Frete calculado!",
+        description: `${data.distance_km} km - R$ ${data.shipping_fee.toFixed(2)}`,
+      });
+    } catch (error: any) {
+      console.error('Erro ao calcular frete:', error);
+      setShippingError('Não foi possível calcular o frete');
+      toast({
+        variant: "destructive",
+        title: "Erro ao calcular frete",
+        description: error.message || 'Tente novamente',
+      });
+    } finally {
+      setShippingLoading(false);
+    }
+  };
+  
+  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + shippingFee;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -112,15 +157,70 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               </div>
             </ScrollArea>
             
-            <div className="border-t pt-6 pb-6 space-y-6 bg-gradient-to-t from-accent/5 to-transparent -mx-6 px-6 min-h-[140px]">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Total:</span>
-                <span className="text-3xl font-bold text-primary animate-in slide-in-from-right">
-                  R$ {total.toFixed(2)}
+            <div className="border-t pt-4 space-y-3 -mx-6 px-6">
+              <Label htmlFor="delivery-address" className="font-semibold">
+                Endereço de Entrega
+              </Label>
+              <Textarea
+                id="delivery-address"
+                placeholder="Digite seu endereço completo (rua, número, bairro, cidade)"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                rows={3}
+                className="text-sm"
+              />
+              {shippingError && (
+                <p className="text-sm text-destructive">{shippingError}</p>
+              )}
+              <Button
+                onClick={calculateShipping}
+                disabled={shippingLoading || !deliveryAddress}
+                className="w-full"
+                variant="outline"
+              >
+                {shippingLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Calculando...
+                  </>
+                ) : (
+                  '📍 Calcular Frete'
+                )}
+              </Button>
+              {shippingFee > 0 && (
+                <div className="bg-primary/10 p-3 rounded-lg">
+                  <div className="flex justify-between text-sm">
+                    <span>Frete:</span>
+                    <span className="font-bold text-primary">
+                      R$ {shippingFee.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t-2 border-primary/20 pt-6 pb-6 space-y-2 bg-gradient-to-t from-accent/5 to-transparent -mx-6 px-6">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal:</span>
+                <span className="font-semibold">
+                  R$ {items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
                 </span>
               </div>
+              {shippingFee > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Frete:</span>
+                  <span className="font-semibold text-primary">
+                    R$ {shippingFee.toFixed(2)}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                <span>Total:</span>
+                <span className="text-primary">R$ {total.toFixed(2)}</span>
+              </div>
               <Button 
-                onClick={onCheckout}
+                onClick={() => onCheckout(shippingFee, deliveryAddress)}
+                disabled={items.length === 0}
                 size="lg" 
                 className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
               >

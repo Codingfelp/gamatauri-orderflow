@@ -127,28 +127,12 @@ const Order = () => {
     });
   };
 
-  const handleCheckout = () => {
-    if (cart.length === 0) {
-      toast({
-        title: "Carrinho vazio",
-        description: "Adicione produtos para continuar",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check if user is authenticated
+  const handleCheckout = (shippingFee: number = 0, deliveryAddress: string = '') => {
     if (!user) {
-      toast({
-        title: "Login necessário",
-        description: "Faça login para finalizar seu pedido",
-        variant: "destructive",
-      });
-      navigate('/auth', { state: { from: location.pathname } });
+      navigate('/auth', { state: { from: '/checkout', cart } });
       return;
     }
-
-    navigate('/checkout');
+    navigate('/checkout', { state: { cart, shippingFee, deliveryAddress } });
   };
 
   const filteredProducts = products.filter((product) => {
