@@ -50,6 +50,7 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [displayCount, setDisplayCount] = useState(50);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -146,7 +147,7 @@ const Order = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const groupedProducts = filteredProducts.reduce((acc, product) => {
+  const groupedProducts = filteredProducts.slice(0, displayCount).reduce((acc, product) => {
     // Use intelligent category detection
     const category = getCategoryForProduct(product.name) || "Outros";
     if (!acc[category]) {
@@ -155,6 +156,8 @@ const Order = () => {
     acc[category].push(product);
     return acc;
   }, {} as Record<string, Product[]>);
+
+  const hasMore = filteredProducts.length > displayCount;
 
   if (loading) {
     return (
@@ -197,20 +200,32 @@ const Order = () => {
             description="Tente ajustar sua busca ou explorar outras categorias"
           />
         ) : (
-          Object.entries(groupedProducts).map(([category, categoryProducts]) => (
-            <div key={category} className="mb-16">
-              <h2 className="text-3xl font-bold mb-8 text-card-foreground px-4">{category}</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6 px-4">
-                {categoryProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onAddToCart={addToCart}
-                  />
-                ))}
+          <>
+            {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
+              <div key={category} className="mb-16">
+                <h2 className="text-3xl font-bold mb-8 text-card-foreground px-4">{category}</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6 px-4">
+                  {categoryProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onAddToCart={addToCart}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+            {hasMore && (
+              <div className="flex justify-center mt-8 mb-16">
+                <button
+                  onClick={() => setDisplayCount(prev => prev + 50)}
+                  className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
+                >
+                  Carregar mais produtos
+                </button>
+              </div>
+            )}
+          </>
         )}
       </main>
 

@@ -93,6 +93,7 @@ export const CategoryCarousel = ({ onCategoryChange, selectedCategory }: Categor
                   <img
                     src={category.image}
                     alt={category.name}
+                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                   <div 

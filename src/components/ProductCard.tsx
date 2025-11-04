@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -15,7 +16,7 @@ interface ProductCardProps {
   onAddToCart: (product: Product) => void;
 }
 
-export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
+export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border-border">
       <div className="relative aspect-[4/3] md:aspect-square overflow-hidden bg-accent/5">
@@ -23,6 +24,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           <img 
             src={product.image_url} 
             alt={product.name}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (
@@ -55,4 +57,4 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
       </div>
     </Card>
   );
-};
+});

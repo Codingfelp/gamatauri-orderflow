@@ -94,13 +94,13 @@ export default function Auth() {
 
       if (!profile) {
         // Perfil não existe ainda - pode ser que o trigger ainda não executou
-        if (retryCount < 3) {
-          console.warn(`⏳ [PROFILE CHECK] Perfil não encontrado, tentando novamente em 1s... (${retryCount + 1}/3)`);
-          await new Promise(resolve => setTimeout(resolve, 1000));
+        if (retryCount < 2) {
+          console.warn(`⏳ [PROFILE CHECK] Perfil não encontrado, tentando novamente em 300ms... (${retryCount + 1}/2)`);
+          await new Promise(resolve => setTimeout(resolve, 300));
           return checkProfileComplete(user, retryCount + 1);
         }
         
-        console.warn('⚠️ [PROFILE CHECK] Perfil não criado após 3 tentativas, abrindo modal');
+        console.warn('⚠️ [PROFILE CHECK] Perfil não criado após 2 tentativas, abrindo modal');
         setUserId(user.id);
         setShowProfileModal(true);
         return false;
@@ -120,9 +120,9 @@ export default function Auth() {
     } catch (error) {
       console.error('❌ [PROFILE CHECK] Exceção inesperada:', error);
       // Em caso de exceção, tentar novamente se ainda tiver tentativas
-      if (retryCount < 3) {
-        console.log(`🔄 [PROFILE CHECK] Tentando novamente após exceção... (${retryCount + 1}/3)`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      if (retryCount < 2) {
+        console.log(`🔄 [PROFILE CHECK] Tentando novamente após exceção... (${retryCount + 1}/2)`);
+        await new Promise(resolve => setTimeout(resolve, 300));
         return checkProfileComplete(user, retryCount + 1);
       }
       return false;
