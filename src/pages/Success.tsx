@@ -19,7 +19,7 @@ const Success = () => {
       setActiveOrder({
         orderId,
         orderNumber,
-        status: "separacao",
+        status: "preparing",
         createdAt: new Date().toISOString(),
       });
     }

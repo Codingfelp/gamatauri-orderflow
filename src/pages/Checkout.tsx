@@ -103,7 +103,7 @@ const Checkout = () => {
       setActiveOrder({
         orderId: orderResult.order_id,
         orderNumber: orderResult.order_number,
-        status: "separacao",
+        status: "preparing",
         createdAt: new Date().toISOString(),
       });
 

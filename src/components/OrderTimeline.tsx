@@ -67,15 +67,42 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
 
   const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
     console.log('Mapping DB status to UI:', dbStatus);
+    
     switch (dbStatus) {
+      // Novo status padrão do banco
+      case 'preparing':
+        return 'preparing';
+      
+      // Em rota de entrega
+      case 'in_route':
+        return 'delivering';
+      
+      // Entregue (mostrar como delivering, ou poderia adicionar 4º estado)
+      case 'delivered':
+        return 'delivering';
+      
+      // Cancelado (mostrar como received por enquanto)
+      case 'cancelled':
+        return 'received';
+      
+      // Status antigos (fallback para compatibilidade)
       case 'separacao':
       case 'preparando':
         return 'preparing';
+      
       case 'saiu_entrega':
+      case 'rota':
+      case 'em_rota':
         return 'delivering';
+      
       case 'entregue':
-        return 'delivering'; // Show as delivering even when delivered (could add a 4th step later)
+        return 'delivering';
+      
+      case 'cancelado':
+        return 'received';
+      
       default:
+        console.warn(`Status desconhecido: "${dbStatus}" - usando 'received' como padrão`);
         return 'received';
     }
   };

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-type OrderStatus = "separacao" | "awaiting_closure" | "completed";
+type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
 interface ActiveOrder {
   orderId: string;
@@ -58,8 +58,8 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
             status: newStatus,
           });
 
-          // Auto-clear if completed
-          if (newStatus === "completed") {
+          // Auto-clear if delivered
+          if (newStatus === "delivered") {
             setTimeout(() => {
               clearActiveOrder();
             }, 5000);

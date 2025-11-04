@@ -38,12 +38,14 @@ export const ActiveOrderBanner = () => {
 
   const getStatusInfo = () => {
     switch (activeOrder.status) {
-      case "separacao":
+      case "preparing":
         return { label: "Preparando Pedido", icon: Package, color: "text-white" };
-      case "awaiting_closure":
+      case "in_route":
         return { label: "Saiu para Entrega", icon: Package, color: "text-white" };
-      case "completed":
+      case "delivered":
         return { label: "Entregue", icon: CheckCircle, color: "text-white" };
+      case "cancelled":
+        return { label: "Cancelado", icon: X, color: "text-white" };
       default:
         return { label: "Processando", icon: Package, color: "text-white" };
     }
