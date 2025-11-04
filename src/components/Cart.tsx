@@ -1,15 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, Loader2 } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2, Save, MapPin, Info } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
+import { Input } from "./ui/input";
 import { useAuth } from "@/hooks/useAuth";
-import { Save } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CartItem {
   id: string;
@@ -213,71 +212,74 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               </div>
             </ScrollArea>
             
-            <div className="border-t pt-4 space-y-3 -mx-6 px-6">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="delivery-address" className="font-semibold">
-                  Endereço de Entrega
-                </Label>
+            <div className="border-t pt-4 space-y-2 -mx-6 px-6">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium">Endereço de Entrega</span>
                 {addressFromProfile && (
-                  <span className="text-xs text-primary flex items-center gap-1">
-                    <span>✓</span> Do perfil
-                  </span>
+                  <span className="text-xs text-primary">✓ Do perfil</span>
                 )}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[250px]">
+                      <p className="text-xs">Digite rua, número e bairro. Se não mencionar a cidade, assumiremos BH-MG.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
-              <Textarea
-                id="delivery-address"
-                placeholder="Ex: Rua Arauá, 220 - São Paulo (bairro)"
-                value={deliveryAddress}
-                onChange={(e) => {
-                  setDeliveryAddress(e.target.value);
-                  setAddressFromProfile(false);
-                }}
-                rows={3}
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                💡 Digite apenas rua, número e bairro. Se não mencionar a cidade, assumiremos Belo Horizonte - MG.
-              </p>
-              {shippingError && (
-                <p className="text-sm text-destructive">{shippingError}</p>
-              )}
+              
               <div className="flex gap-2">
-                <Button
-                  onClick={calculateShipping}
-                  disabled={shippingLoading || !deliveryAddress}
-                  className="flex-1"
-                  variant="outline"
-                >
-                  {shippingLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Calculando...
-                    </>
-                  ) : (
-                    '📍 Calcular Frete'
-                  )}
-                </Button>
+                <div className="relative flex-1">
+                  <Input
+                    id="delivery-address"
+                    placeholder="📍 Rua, número e bairro (BH)"
+                    value={deliveryAddress}
+                    onChange={(e) => {
+                      setDeliveryAddress(e.target.value);
+                      setAddressFromProfile(false);
+                      setShippingError('');
+                    }}
+                    className={`pr-24 text-sm ${shippingError ? 'border-destructive' : ''}`}
+                  />
+                  <Button
+                    onClick={calculateShipping}
+                    disabled={shippingLoading || !deliveryAddress}
+                    size="sm"
+                    variant="ghost"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2"
+                  >
+                    {shippingLoading ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <MapPin className="h-3 w-3" />
+                    )}
+                    <span className="ml-1 text-xs">Calcular</span>
+                  </Button>
+                </div>
+                
                 {user && !addressFromProfile && deliveryAddress && (
                   <Button
                     onClick={saveAddressToProfile}
-                    variant="ghost"
+                    variant="outline"
                     size="icon"
                     title="Salvar endereço no perfil"
-                    className="shrink-0"
+                    className="shrink-0 h-9 w-9"
                   >
                     <Save className="h-4 w-4" />
                   </Button>
                 )}
               </div>
+              
+              {shippingError && (
+                <p className="text-xs text-destructive">{shippingError}</p>
+              )}
+              
               {shippingFee > 0 && (
-                <div className="bg-primary/10 p-3 rounded-lg">
-                  <div className="flex justify-between text-sm">
-                    <span>Frete:</span>
-                    <span className="font-bold text-primary">
-                      R$ {shippingFee.toFixed(2)}
-                    </span>
-                  </div>
-                </div>
+                <p className="text-xs text-primary font-medium">
+                  ✓ Frete: R$ {shippingFee.toFixed(2)}
+                </p>
               )}
             </div>
 
