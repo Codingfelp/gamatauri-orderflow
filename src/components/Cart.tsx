@@ -5,9 +5,11 @@ import { Minus, Plus, ShoppingCart, Trash2, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
+import { useAuth } from "@/hooks/useAuth";
+import { Save } from "lucide-react";
 
 interface CartItem {
   id: string;
@@ -25,10 +27,55 @@ interface CartProps {
 
 export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [shippingFee, setShippingFee] = useState<number>(0);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [shippingError, setShippingError] = useState('');
+  const [addressFromProfile, setAddressFromProfile] = useState(false);
+  
+  // Carregar endereço do perfil automaticamente
+  useEffect(() => {
+    if (user) {
+      const fetchProfile = async () => {
+        const { data } = await supabase
+          .from('profiles')
+          .select('address')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (data?.address) {
+          setUserProfile(data);
+          setDeliveryAddress(data.address);
+          setAddressFromProfile(true);
+        }
+      };
+      fetchProfile();
+    }
+  }, [user]);
+  
+  const saveAddressToProfile = async () => {
+    if (!user) return;
+    
+    try {
+      await supabase
+        .from('profiles')
+        .update({ address: deliveryAddress.trim() })
+        .eq('user_id', user.id);
+      
+      setAddressFromProfile(true);
+      toast({
+        title: "Endereço salvo!",
+        description: "Será usado automaticamente nos próximos pedidos.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao salvar endereço",
+      });
+    }
+  };
   
   const calculateShipping = async () => {
     if (!deliveryAddress || deliveryAddress.trim().length < 10) {
@@ -167,14 +214,24 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
             </ScrollArea>
             
             <div className="border-t pt-4 space-y-3 -mx-6 px-6">
-              <Label htmlFor="delivery-address" className="font-semibold">
-                Endereço de Entrega
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="delivery-address" className="font-semibold">
+                  Endereço de Entrega
+                </Label>
+                {addressFromProfile && (
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    <span>✓</span> Do perfil
+                  </span>
+                )}
+              </div>
               <Textarea
                 id="delivery-address"
                 placeholder="Ex: Rua Arauá, 220 - São Paulo (bairro)"
                 value={deliveryAddress}
-                onChange={(e) => setDeliveryAddress(e.target.value)}
+                onChange={(e) => {
+                  setDeliveryAddress(e.target.value);
+                  setAddressFromProfile(false);
+                }}
                 rows={3}
                 className="text-sm"
               />
@@ -184,21 +241,34 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               {shippingError && (
                 <p className="text-sm text-destructive">{shippingError}</p>
               )}
-              <Button
-                onClick={calculateShipping}
-                disabled={shippingLoading || !deliveryAddress}
-                className="w-full"
-                variant="outline"
-              >
-                {shippingLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Calculando...
-                  </>
-                ) : (
-                  '📍 Calcular Frete'
+              <div className="flex gap-2">
+                <Button
+                  onClick={calculateShipping}
+                  disabled={shippingLoading || !deliveryAddress}
+                  className="flex-1"
+                  variant="outline"
+                >
+                  {shippingLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Calculando...
+                    </>
+                  ) : (
+                    '📍 Calcular Frete'
+                  )}
+                </Button>
+                {user && !addressFromProfile && deliveryAddress && (
+                  <Button
+                    onClick={saveAddressToProfile}
+                    variant="ghost"
+                    size="icon"
+                    title="Salvar endereço no perfil"
+                    className="shrink-0"
+                  >
+                    <Save className="h-4 w-4" />
+                  </Button>
                 )}
-              </Button>
+              </div>
               {shippingFee > 0 && (
                 <div className="bg-primary/10 p-3 rounded-lg">
                   <div className="flex justify-between text-sm">
