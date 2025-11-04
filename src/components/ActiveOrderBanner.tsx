@@ -108,7 +108,11 @@ export const ActiveOrderBanner = () => {
           <DialogHeader>
             <DialogTitle>Detalhes do Pedido</DialogTitle>
           </DialogHeader>
-          <OrderTimeline orderNumber={activeOrder.orderNumber} orderId={activeOrder.orderId} />
+          <OrderTimeline 
+            orderNumber={activeOrder.orderNumber} 
+            orderId={activeOrder.orderId} 
+            createdAt={activeOrder.createdAt} 
+          />
         </DialogContent>
       </Dialog>
     </>

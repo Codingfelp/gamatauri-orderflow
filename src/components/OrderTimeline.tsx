@@ -5,13 +5,15 @@ import { supabase } from "@/integrations/supabase/client";
 interface OrderTimelineProps {
   orderNumber: string;
   orderId: string;
+  createdAt: string;
 }
 
-type OrderStatus = "received" | "preparing" | "delivering";
+type OrderStatus = "received" | "preparing" | "delivering" | "delivered";
 
-export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
+export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimelineProps) => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>("received");
   const [confettiShown, setConfettiShown] = useState(false);
+  const [, setTick] = useState(0);
 
   // Buscar status inicial do banco
   useEffect(() => {
@@ -65,6 +67,15 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
     }
   }, [confettiShown]);
 
+  // Atualizar a cada minuto para mudança de cor das bordas
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick(prev => prev + 1);
+    }, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
     console.log('Mapping DB status to UI:', dbStatus);
     
@@ -77,9 +88,9 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
       case 'in_route':
         return 'delivering';
       
-      // Entregue (mostrar como delivering, ou poderia adicionar 4º estado)
+      // Entregue
       case 'delivered':
-        return 'delivering';
+        return 'delivered';
       
       // Cancelado (mostrar como received por enquanto)
       case 'cancelled':
@@ -96,7 +107,7 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
         return 'delivering';
       
       case 'entregue':
-        return 'delivering';
+        return 'delivered';
       
       case 'cancelado':
         return 'received';
@@ -158,11 +169,34 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
     frame();
   };
 
+  const getBorderColor = (statusKey: OrderStatus, createdAtTime: string) => {
+    if (currentStatus !== statusKey) return 'transparent';
+    
+    const now = Date.now();
+    const created = new Date(createdAtTime).getTime();
+    const elapsed = Math.floor((now - created) / 1000 / 60);
+    
+    if (statusKey === 'preparing') {
+      if (elapsed < 5) return '#10b981';
+      if (elapsed < 8) return '#f59e0b';
+      return '#ef4444';
+    }
+    
+    if (statusKey === 'delivering') {
+      if (elapsed < 20) return '#10b981';
+      if (elapsed < 30) return '#f59e0b';
+      return '#ef4444';
+    }
+    
+    return '#10b981';
+  };
+
   const getStatusInfo = (status: OrderStatus) => {
     const isActive = currentStatus === status;
     const isPast = 
       (status === "received") ||
-      (status === "preparing" && currentStatus === "delivering");
+      (status === "preparing" && (currentStatus === "delivering" || currentStatus === "delivered")) ||
+      (status === "delivering" && currentStatus === "delivered");
 
     return {
       isActive,
@@ -173,8 +207,9 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
 
   const statuses: { key: OrderStatus; label: string; icon: any; time: string }[] = [
     { key: "received", label: "Pedido Recebido", icon: Package, time: "Agora" },
-    { key: "preparing", label: "Preparando", icon: Clock, time: "~5 min" },
-    { key: "delivering", label: "Em Rota", icon: Bike, time: "~15 min" },
+    { key: "preparing", label: "Preparando", icon: Clock, time: "~10 min" },
+    { key: "delivering", label: "Em Rota", icon: Bike, time: "~35 min" },
+    { key: "delivered", label: "Entregue", icon: CheckCircle, time: "Concluído" },
   ];
 
   return (
@@ -197,13 +232,14 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
         <div className="absolute top-8 left-0 right-0 h-2 bg-muted/30 rounded-full overflow-hidden">
           {/* Animated Progress */}
           <div 
-            className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary/80 transition-all duration-1000 ease-out relative"
+            className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary/80 transition-all duration-1000 ease-out"
             style={{
-              width: currentStatus === "received" ? "5%" : currentStatus === "preparing" ? "50%" : "100%"
+              width: currentStatus === "received" ? "5%" 
+                : currentStatus === "preparing" ? "33%" 
+                : currentStatus === "delivering" ? "66%" 
+                : "100%"
             }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
-          </div>
+          />
         </div>
 
         {/* Status Points */}
@@ -220,25 +256,38 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
               >
                 {/* Icon Circle */}
                 <div
-                  className={`
-                    relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center
-                    transition-all duration-500 
-                    ${isComplete 
-                      ? 'bg-gradient-to-br from-primary to-primary/80 shadow-[0_0_20px_rgba(220,38,38,0.3)]' 
+                  className="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-500"
+                  style={{
+                    background: isComplete 
+                      ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%)'
                       : isActive 
-                        ? 'bg-gradient-to-br from-primary/80 to-primary/60 animate-pulse shadow-lg' 
-                        : 'bg-gradient-to-br from-muted to-muted/80'
-                    }
-                  `}
+                        ? 'linear-gradient(135deg, hsl(var(--primary) / 0.8) 0%, hsl(var(--primary) / 0.6) 100%)'
+                        : 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.8) 100%)',
+                    boxShadow: isActive 
+                      ? `0 0 0 4px ${getBorderColor(status.key, createdAt)}, 0 4px 12px rgba(0,0,0,0.15)`
+                      : isComplete 
+                        ? '0 0 20px rgba(220, 38, 38, 0.3)'
+                        : 'none'
+                  }}
                 >
+                  {isActive && (
+                    <div 
+                      className="absolute inset-0 rounded-full animate-ping"
+                      style={{ 
+                        border: `3px solid ${getBorderColor(status.key, createdAt)}`,
+                        opacity: 0.5 
+                      }}
+                    />
+                  )}
+                  
                   {status.key === "delivering" && isActive ? (
-                    <Bike className={`w-8 h-8 md:w-10 md:h-10 ${isComplete || isActive ? 'text-primary-foreground' : 'text-muted-foreground'} animate-bounce`} />
+                    <Bike className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground animate-bounce" />
                   ) : (
-                    <Icon className={`w-8 h-8 md:w-10 md:h-10 ${isComplete || isActive ? 'text-primary-foreground' : 'text-muted-foreground'} transition-all`} />
+                    <Icon className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground" />
                   )}
                   
                   {isComplete && (
-                    <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-to-br from-[hsl(var(--success))] to-[hsl(var(--success))]/80 rounded-full flex items-center justify-center shadow-lg animate-scale-in">
+                    <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-to-br from-[hsl(var(--success))] to-[hsl(var(--success))]/80 rounded-full flex items-center justify-center shadow-lg">
                       <CheckCircle className="w-4 h-4 text-white" />
                     </div>
                   )}
@@ -263,6 +312,7 @@ export const OrderTimeline = ({ orderNumber, orderId }: OrderTimelineProps) => {
           {currentStatus === "received" && "Seu pedido foi recebido com sucesso!"}
           {currentStatus === "preparing" && "Seu pedido está sendo preparado com carinho!"}
           {currentStatus === "delivering" && "Pedido saiu para entrega! Aguarde a chegada!"}
+          {currentStatus === "delivered" && "Pedido entregue com sucesso! Obrigado pela preferência! 🎉"}
         </p>
       </div>
     </div>

@@ -6,12 +6,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
 import { Package, Clock, Truck, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { normalizePhone } from "@/utils/phoneUtils";
+import { toast } from "sonner";
 
 interface OrderItem {
   product_name: string;
@@ -107,6 +109,61 @@ export default function Orders() {
     }
   }, [user, userProfile]);
 
+  useEffect(() => {
+    if (!user) return;
+    
+    const channel = supabase
+      .channel('orders-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders'
+        },
+        (payload: any) => {
+          console.log('Pedido atualizado:', payload.new);
+          setOrders(prevOrders => 
+            prevOrders.map(order => 
+              order.id === payload.new.id 
+                ? { ...order, order_status: payload.new.order_status }
+                : order
+            )
+          );
+        }
+      )
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const markAsDelivered = async (orderId: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ 
+          order_status: 'delivered',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (error) throw error;
+      
+      setOrders(orders.map(order => 
+        order.id === orderId 
+          ? { ...order, order_status: 'delivered' }
+          : order
+      ));
+      
+      toast.success('Pedido marcado como entregue! 🎉');
+    } catch (error) {
+      console.error('Error marking as delivered:', error);
+      toast.error('Erro ao marcar pedido como entregue');
+    }
+  };
+
   const getPaymentMethodLabel = (method: string) => {
     const methods: Record<string, string> = {
       pix: "PIX",
@@ -184,6 +241,19 @@ export default function Orders() {
           R$ {order.total_amount.toFixed(2)}
         </span>
       </div>
+
+      {order.order_status === 'in_route' && (
+        <div className="border-t pt-3">
+          <Button
+            onClick={() => markAsDelivered(order.id)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white"
+            size="sm"
+          >
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Confirmar Entrega
+          </Button>
+        </div>
+      )}
     </Card>
   );
 
@@ -230,14 +300,18 @@ export default function Orders() {
         </div>
 
         <Tabs defaultValue="preparing" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="preparing" className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
               Em Preparação
             </TabsTrigger>
             <TabsTrigger value="in_route" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
-              Em Rota de Entrega
+              Em Rota
+            </TabsTrigger>
+            <TabsTrigger value="delivered" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Entregues
             </TabsTrigger>
           </TabsList>
 
@@ -254,6 +328,14 @@ export default function Orders() {
               status="in_route"
               emptyIcon={Truck}
               emptyMessage="Você não tem pedidos em rota de entrega"
+            />
+          </TabsContent>
+
+          <TabsContent value="delivered" className="mt-6">
+            <OrderList
+              status="delivered"
+              emptyIcon={CheckCircle}
+              emptyMessage="Nenhum pedido entregue ainda"
             />
           </TabsContent>
         </Tabs>
