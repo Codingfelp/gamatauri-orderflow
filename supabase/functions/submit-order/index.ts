@@ -108,10 +108,10 @@ serve(async (req) => {
     // 3. SEND TO EXTERNAL API
     // Mapear payload para formato da API Gamatauri
     const gamatauriPayload = {
-      internal_order_id: internalOrderId,
-      webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`,
+      external_order_id: internalOrderId,
+      external_webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`,
       customer_name: orderData.customer_name,
-      customer_phone: orderData.customer_phone,
+      customer_phone: normalizedPhone,
       customer_address: orderData.customer_address || null,
       items: orderData.items.map((item: any) => ({
         product_id: item.id,
