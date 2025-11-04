@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { Package, Clock, Truck, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { normalizePhone } from "@/utils/phoneUtils";
 
 interface OrderItem {
   product_name: string;
@@ -65,6 +66,15 @@ export default function Orders() {
       if (!user || !userProfile) return;
 
       try {
+        // Normalizar telefone do perfil para comparação
+        const normalizedProfilePhone = normalizePhone(userProfile.phone);
+        
+        console.log('Fetching orders for user:', {
+          email: user.email,
+          profilePhone: userProfile.phone,
+          normalizedPhone: normalizedProfilePhone
+        });
+
         const { data, error } = await supabase
           .from("orders")
           .select(`
@@ -76,10 +86,14 @@ export default function Orders() {
               subtotal
             )
           `)
-          .or(`customer_phone.eq.${userProfile.phone},customer_email.eq.${user.email}`)
+          .or(`customer_phone.eq.${normalizedProfilePhone},customer_email.eq.${user.email}`)
           .order("created_at", { ascending: false });
 
         if (error) throw error;
+        
+        console.log('Orders fetched:', data?.length || 0);
+        console.log('Orders:', data);
+        
         setOrders(data || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -120,7 +134,9 @@ export default function Orders() {
   };
 
   const filterOrdersByStatus = (status: string) => {
-    return orders.filter((order) => order.order_status === status);
+    const filtered = orders.filter((order) => order.order_status === status);
+    console.log(`Filtering orders by status "${status}":`, filtered.length);
+    return filtered;
   };
 
   const OrderCard = ({ order }: { order: Order }) => (

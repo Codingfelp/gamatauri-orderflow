@@ -33,6 +33,9 @@ serve(async (req) => {
       throw new Error('Telefone do cliente é obrigatório');
     }
 
+    // Normalizar telefone (remover espaços, parênteses, hífens)
+    const normalizedPhone = orderData.customer_phone.replace(/\D/g, '');
+
     if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
       throw new Error('Carrinho está vazio');
     }
@@ -62,7 +65,7 @@ serve(async (req) => {
       .from('orders')
       .insert({
         customer_name: orderData.customer_name,
-        customer_phone: orderData.customer_phone,
+        customer_phone: normalizedPhone, // Use normalized phone
         customer_email: orderData.customer_email || null,
         customer_address: orderData.customer_address || null,
         payment_method: orderData.payment_method, // Use original value (pix, cartao, dinheiro)
