@@ -68,7 +68,7 @@ serve(async (req) => {
         payment_method: orderData.payment_method, // Use original value (pix, cartao, dinheiro)
         payment_timing: orderData.payment_timing || 'entrega',
         payment_status: 'pendente',
-        order_status: 'separacao',
+        order_status: 'preparing',
         total_amount: totalPrice,
         notes: orderData.notes || null,
       })

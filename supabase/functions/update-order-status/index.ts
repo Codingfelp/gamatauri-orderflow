@@ -112,46 +112,49 @@ serve(async (req) => {
 function mapExternalStatusToInternal(externalStatus: string): string {
   const normalized = externalStatus.toLowerCase().trim();
   
-  // Valid statuses in DB: 'separacao', 'preparando', 'saiu_entrega', 'entregue', 'cancelado'
+  // Valid statuses in DB: 'preparing', 'in_route', 'delivered', 'cancelled'
   const mapping: Record<string, string> = {
-    // Separation/Preparing phase
-    'pending': 'separacao',
-    'preparing': 'preparando',
-    'em_separacao': 'separacao',
-    'separando': 'separacao',
-    'processando': 'separacao',
-    'preparando': 'preparando',
+    // Preparing phase (status inicial)
+    'pending': 'preparing',
+    'preparing': 'preparing',
+    'em_separacao': 'preparing',
+    'separando': 'preparing',
+    'processando': 'preparing',
+    'preparando': 'preparing',
+    'confirmed': 'preparing',
+    'confirmado': 'preparing',
     
-    // Out for delivery / In route
-    'ready': 'saiu_entrega',
-    'ready_for_delivery': 'saiu_entrega',
-    'pronto': 'saiu_entrega',
-    'pronto_para_entrega': 'saiu_entrega',
-    'em_rota_entrega': 'saiu_entrega',
-    'em_rota': 'saiu_entrega',
-    'saiu_para_entrega': 'saiu_entrega',
-    'out_for_delivery': 'saiu_entrega',
-    'delivering': 'saiu_entrega',
-    'awaiting_closure': 'saiu_entrega',
+    // In route / Out for delivery
+    'ready': 'in_route',
+    'ready_for_delivery': 'in_route',
+    'in_route': 'in_route',
+    'em_rota': 'in_route',
+    'em_rota_entrega': 'in_route',
+    'saiu_para_entrega': 'in_route',
+    'out_for_delivery': 'in_route',
+    'delivering': 'in_route',
+    'awaiting_closure': 'in_route',
+    'pronto': 'in_route',
+    'pronto_para_entrega': 'in_route',
     
     // Delivered/Completed
-    'delivered': 'entregue',
-    'entregue': 'entregue',
-    'completed': 'entregue',
-    'finalizado': 'entregue',
-    'concluido': 'entregue',
+    'delivered': 'delivered',
+    'entregue': 'delivered',
+    'completed': 'delivered',
+    'finalizado': 'delivered',
+    'concluido': 'delivered',
     
     // Cancelled
-    'cancelled': 'cancelado',
-    'cancelado': 'cancelado',
-    'canceled': 'cancelado',
+    'cancelled': 'cancelled',
+    'cancelado': 'cancelled',
+    'canceled': 'cancelled',
   };
   
   const result = mapping[normalized];
   
   if (!result) {
-    console.warn(`Unknown external status: "${externalStatus}" - defaulting to 'separacao'`);
-    return 'separacao';
+    console.warn(`Unknown external status: "${externalStatus}" - defaulting to 'preparing'`);
+    return 'preparing';
   }
   
   console.log(`Mapped "${externalStatus}" -> "${result}"`);

@@ -213,43 +213,31 @@ export default function Orders() {
           <p className="text-muted-foreground">Acompanhe o status dos seus pedidos</p>
         </div>
 
-        <Tabs defaultValue="separacao" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="separacao" className="flex items-center gap-2">
+        <Tabs defaultValue="preparing" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="preparing" className="flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Em Separação
+              Em Preparação
             </TabsTrigger>
-            <TabsTrigger value="rota" className="flex items-center gap-2">
+            <TabsTrigger value="in_route" className="flex items-center gap-2">
               <Truck className="h-4 w-4" />
-              Em Rota
-            </TabsTrigger>
-            <TabsTrigger value="entregue" className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              Entregue
+              Em Rota de Entrega
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="separacao" className="mt-6">
+          <TabsContent value="preparing" className="mt-6">
             <OrderList
-              status="separacao"
+              status="preparing"
               emptyIcon={Clock}
-              emptyMessage="Você não tem pedidos em separação"
+              emptyMessage="Você não tem pedidos em preparação"
             />
           </TabsContent>
 
-          <TabsContent value="rota" className="mt-6">
+          <TabsContent value="in_route" className="mt-6">
             <OrderList
-              status="rota"
+              status="in_route"
               emptyIcon={Truck}
-              emptyMessage="Você não tem pedidos em rota"
-            />
-          </TabsContent>
-
-          <TabsContent value="entregue" className="mt-6">
-            <OrderList
-              status="entregue"
-              emptyIcon={CheckCircle}
-              emptyMessage="Você ainda não tem pedidos entregues"
+              emptyMessage="Você não tem pedidos em rota de entrega"
             />
           </TabsContent>
         </Tabs>
