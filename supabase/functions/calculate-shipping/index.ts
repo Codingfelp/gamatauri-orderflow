@@ -32,7 +32,7 @@ serve(async (req) => {
     }
 
     // Endereço da loja (origem)
-    const STORE_ADDRESS = 'Rua Arauá, 220, São Paulo, SP, Brasil';
+    const STORE_ADDRESS = 'R. Aiuruoca, 192, Fernão Dias, Belo Horizonte - MG, 31910-444';
     
     // API Key do Google (armazenada como secret)
     const API_KEY = Deno.env.get('GOOGLE_DISTANCE_MATRIX_API_KEY');
