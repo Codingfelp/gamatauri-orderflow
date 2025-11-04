@@ -36,7 +36,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
   // Escutar mudanças em tempo real
   useEffect(() => {
     const channel = supabase
-      .channel(`order-${orderId}`)
+      .channel(`order-timeline-${orderId}`)
       .on(
         'postgres_changes',
         {
@@ -46,15 +46,19 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
           filter: `id=eq.${orderId}`
         },
         (payload: any) => {
-          console.log('Status atualizado:', payload.new.order_status);
+          console.log('[OrderTimeline] Status atualizado:', payload.new.order_status);
           const newStatus = payload.new.order_status;
           const uiStatus = mapDbStatusToUI(newStatus);
+          console.log('[OrderTimeline] UI Status:', uiStatus);
           setCurrentStatus(uiStatus);
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[OrderTimeline] Subscription status:', status);
+      });
 
     return () => {
+      console.log('[OrderTimeline] Unsubscribing channel');
       supabase.removeChannel(channel);
     };
   }, [orderId]);

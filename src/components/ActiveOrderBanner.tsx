@@ -4,6 +4,8 @@ import { Clock, Package, CheckCircle, X, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { OrderTimeline } from "@/components/OrderTimeline";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const ActiveOrderBanner = () => {
   const { activeOrder, clearActiveOrder } = useActiveOrder();
@@ -41,6 +43,28 @@ export const ActiveOrderBanner = () => {
       setTimeout(() => setIsTransitioning(false), 500);
     }
   }, [activeOrder?.status]);
+
+  const markAsDelivered = async () => {
+    if (!activeOrder) return;
+    
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ 
+          order_status: 'delivered',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', activeOrder.orderId);
+
+      if (error) throw error;
+      
+      toast.success('Pedido marcado como entregue! 🎉');
+      setShowDetails(false);
+    } catch (error) {
+      console.error('Error marking as delivered:', error);
+      toast.error('Erro ao marcar pedido como entregue');
+    }
+  };
 
   if (!activeOrder) return null;
 
@@ -121,6 +145,19 @@ export const ActiveOrderBanner = () => {
             orderId={activeOrder.orderId} 
             createdAt={activeOrder.createdAt} 
           />
+          
+          {activeOrder.status !== 'delivered' && (
+            <div className="flex justify-center gap-4 mt-6 pt-6 border-t">
+              <Button
+                onClick={markAsDelivered}
+                size="lg"
+                className="px-8 h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <CheckCircle className="mr-2 h-5 w-5" />
+                Confirmar Entrega
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>

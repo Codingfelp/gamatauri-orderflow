@@ -71,7 +71,7 @@ const Success = () => {
     fetchOrderStatus();
     
     const channel = supabase
-      .channel(`success-order-${orderId}`)
+      .channel(`success-page-${orderId}`)
       .on(
         'postgres_changes',
         {
@@ -81,7 +81,7 @@ const Success = () => {
           filter: `id=eq.${orderId}`
         },
         (payload: any) => {
-          console.log('Status atualizado em Success:', payload.new.order_status);
+          console.log('[Success] Status atualizado em Success:', payload.new.order_status);
           const newStatus = payload.new.order_status;
           setOrderStatus(newStatus);
           
@@ -94,7 +94,9 @@ const Success = () => {
           });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('[Success] Subscription status:', status);
+      });
     
     return () => {
       supabase.removeChannel(channel);
