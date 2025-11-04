@@ -30,66 +30,120 @@ export default function Auth() {
 
   // Monitor authentication state changes (for OAuth redirect)
   useEffect(() => {
+    console.log('🔄 [AUTH PAGE] useEffect triggered:', { 
+      authLoading, 
+      hasUser: !!user, 
+      userId: user?.id,
+      userEmail: user?.email,
+      showProfileModal 
+    });
+    
     if (!authLoading && user && !showProfileModal) {
-      console.log('🔍 Verificando perfil do usuário:', user.id);
+      console.log('🔍 [AUTH PAGE] Usuário autenticado detectado, verificando perfil...');
+      console.log('👤 [AUTH PAGE] Dados do usuário:', {
+        id: user.id,
+        email: user.email,
+        created_at: user.created_at,
+        app_metadata: user.app_metadata,
+        user_metadata: user.user_metadata
+      });
+      
       checkProfileComplete(user).then(isComplete => {
-        console.log('✅ Perfil completo:', isComplete);
+        console.log('✅ [AUTH PAGE] Resultado verificação perfil:', isComplete);
         if (isComplete) {
           const from = (location.state as any)?.from || "/";
           const cart = (location.state as any)?.cart;
+          console.log('✅ [AUTH PAGE] Perfil completo, redirecionando para:', from);
           navigate(from, { state: cart ? { cart } : undefined });
         } else {
-          console.log('⚠️ Perfil incompleto, abrindo modal de setup');
+          console.log('⚠️ [AUTH PAGE] Perfil incompleto, abrindo modal de setup');
         }
+      }).catch(err => {
+        console.error('❌ [AUTH PAGE] Erro ao verificar perfil:', err);
       });
+    } else if (!authLoading && !user) {
+      console.log('⚠️ [AUTH PAGE] Nenhum usuário autenticado detectado');
     }
   }, [user, authLoading]);
 
   const checkProfileComplete = async (user: any) => {
     try {
+      console.log('🔍 [PROFILE CHECK] Iniciando verificação de perfil para usuário:', user.id);
+      
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('phone, address, name')
+        .select('phone, address, name, user_id, email')
         .eq('user_id', user.id)
         .single();
 
+      console.log('📊 [PROFILE CHECK] Resultado da query:', { profile, error });
+
       if (error) {
-        console.error('❌ Erro ao buscar perfil:', error);
-        // Se o perfil não existir, abrir modal
+        console.error('❌ [PROFILE CHECK] Erro ao buscar perfil:', {
+          message: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint
+        });
+        
+        // Se o perfil não existir (PGRST116 = no rows returned)
+        if (error.code === 'PGRST116') {
+          console.warn('⚠️ [PROFILE CHECK] Perfil não encontrado, deveria ter sido criado pelo trigger');
+        }
+        
+        // Abrir modal para completar perfil
         setUserId(user.id);
         setShowProfileModal(true);
         return false;
       }
 
-      if (!profile || !profile.phone) {
-        console.log('⚠️ Perfil incompleto:', profile);
+      if (!profile) {
+        console.warn('⚠️ [PROFILE CHECK] Query bem-sucedida mas profile está null');
+        setUserId(user.id);
+        setShowProfileModal(true);
+        return false;
+      }
+
+      console.log('📋 [PROFILE CHECK] Perfil encontrado:', profile);
+
+      if (!profile.phone) {
+        console.log('⚠️ [PROFILE CHECK] Perfil incompleto - falta telefone');
         setUserId(user.id);
         setShowProfileModal(true);
         return false;
       }
       
+      console.log('✅ [PROFILE CHECK] Perfil completo!');
       return true;
     } catch (error) {
-      console.error('❌ Erro inesperado ao verificar perfil:', error);
+      console.error('❌ [PROFILE CHECK] Exceção inesperada:', error);
       return false;
     }
   };
 
   const handleGoogleSignIn = async () => {
+    console.log('🔵 [HANDLE GOOGLE] Botão Google clicado');
     setGoogleLoading(true);
     try {
+      console.log('🔵 [HANDLE GOOGLE] Chamando signInWithGoogle...');
       const { error } = await signInWithGoogle();
+      
+      console.log('🔵 [HANDLE GOOGLE] Retorno de signInWithGoogle:', { error });
+      
       if (error) {
+        console.error('❌ [HANDLE GOOGLE] Erro retornado:', error);
         throw error;
       }
 
       // OAuth redirects automatically, profile check happens in useEffect after redirect
+      console.log('✅ [HANDLE GOOGLE] Sem erros, aguardando redirecionamento...');
       toast({
         title: "Aguarde...",
         description: "Abrindo autorização do Google",
         duration: 3000,
       });
     } catch (error: any) {
+      console.error('❌ [HANDLE GOOGLE] Exceção capturada:', error);
       // Determine error type and provide detailed instructions
       const errorMessage = error.message || '';
       let title = "Erro ao fazer login com Google";

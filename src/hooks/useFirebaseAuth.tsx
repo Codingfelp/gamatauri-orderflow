@@ -3,7 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 export const useFirebaseAuth = () => {
   const signInWithGoogle = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('🚀 [GOOGLE AUTH] Iniciando fluxo de autenticação OAuth');
+      console.log('📍 [GOOGLE AUTH] Redirect URL configurada:', `${window.location.origin}/`);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/`,
@@ -15,7 +18,10 @@ export const useFirebaseAuth = () => {
         },
       });
 
+      console.log('📊 [GOOGLE AUTH] Resposta OAuth:', { data, error });
+
       if (error) {
+        console.error('❌ [GOOGLE AUTH] Erro na chamada OAuth:', error);
         // Enhanced error handling for OAuth
         if (error.message.includes('403') || error.message.includes('Forbidden')) {
           throw new Error('Erro 403: Configuração OAuth incorreta.\n\n' +
@@ -41,10 +47,12 @@ export const useFirebaseAuth = () => {
         throw error;
       }
       
+      console.log('✅ [GOOGLE AUTH] OAuth iniciado com sucesso, aguardando redirecionamento...');
       // OAuth redirects automatically, no user returned here
       return { user: null, error: null };
     } catch (error: any) {
-      console.error('Google sign-in error:', error);
+      console.error('❌ [GOOGLE AUTH] Exceção capturada:', error);
+      console.error('❌ [GOOGLE AUTH] Stack trace:', error.stack);
       return { user: null, error };
     }
   };
