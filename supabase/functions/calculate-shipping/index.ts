@@ -97,10 +97,10 @@ serve(async (req) => {
     const distanceInKm = distanceInMeters / 1000; // converter para KM
     const durationText = element.duration.text;
 
-    // Regra de negócio: R$ 3,00 base + R$ 3,00 por KM
-    const BASE_FEE = 3.00;
+    // Regra de negócio: R$ 3,00 por KM, mínimo R$ 3,00
     const PRICE_PER_KM = 3.00;
-    const shippingFee = BASE_FEE + (distanceInKm * PRICE_PER_KM);
+    const MIN_FEE = 3.00;
+    const shippingFee = Math.max(MIN_FEE, distanceInKm * PRICE_PER_KM);
 
     console.log('✅ Distância calculada:', distanceInKm, 'km');
     console.log('✅ Frete calculado:', shippingFee);

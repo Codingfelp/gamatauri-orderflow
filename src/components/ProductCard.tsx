@@ -25,6 +25,9 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             src={product.image_url} 
             alt={product.name}
             loading="lazy"
+            decoding="async"
+            width="300"
+            height="300"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         ) : (

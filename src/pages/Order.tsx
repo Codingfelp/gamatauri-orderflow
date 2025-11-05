@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -50,7 +50,8 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [displayCount, setDisplayCount] = useState(50);
+  const [displayCount, setDisplayCount] = useState(20);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -159,6 +160,23 @@ const Order = () => {
 
   const hasMore = filteredProducts.length > displayCount;
 
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setDisplayCount(prev => prev + 20);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(loadMoreRef.current);
+    
+    return () => observer.disconnect();
+  }, [hasMore]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-accent/10">
@@ -216,13 +234,8 @@ const Order = () => {
               </div>
             ))}
             {hasMore && (
-              <div className="flex justify-center mt-8 mb-16">
-                <button
-                  onClick={() => setDisplayCount(prev => prev + 50)}
-                  className="px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl"
-                >
-                  Carregar mais produtos
-                </button>
+              <div ref={loadMoreRef} className="flex justify-center mt-8 mb-16">
+                <LoadingSpinner size="md" />
               </div>
             )}
           </>
