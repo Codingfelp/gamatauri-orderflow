@@ -151,7 +151,7 @@ const Order = () => {
 
   const groupedProducts = useMemo(() => {
     return filteredProducts.slice(0, displayCount).reduce((acc, product) => {
-      const category = getCategoryForProduct(product.name) || "Outros";
+      const category = getCategoryForProduct(product.name);
       if (!acc[category]) {
         acc[category] = [];
       }

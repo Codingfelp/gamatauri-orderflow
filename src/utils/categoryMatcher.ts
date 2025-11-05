@@ -25,9 +25,9 @@ export function matchProductToCategory(productName: string, category: string): b
 
 /**
  * Gets the best matching category for a product
- * Returns the category name or null if no match found
+ * Always returns a category name, defaulting to "Outros" if no match found
  */
-export function getCategoryForProduct(productName: string): string | null {
+export function getCategoryForProduct(productName: string): string {
   // Priority order for overlapping categories
   const priorityCategories = [
     'Cervejas Zero',
@@ -52,5 +52,5 @@ export function getCategoryForProduct(productName: string): string | null {
     }
   }
 
-  return null;
+  return "Outros";
 }
