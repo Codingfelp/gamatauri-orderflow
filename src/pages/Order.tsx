@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
 import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMapping";
-import { Button } from "@/components/ui/button";
+import { CategoryProductRow } from "@/components/CategoryProductRow";
 
 
 
@@ -52,8 +52,6 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [displayCount, setDisplayCount] = useState(400);
-  const loadMoreRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -149,7 +147,7 @@ const Order = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const groupedProducts = filteredProducts.slice(0, displayCount).reduce((acc, product) => {
+  const groupedProducts = filteredProducts.reduce((acc, product) => {
     const category = normalizeCategory(product.category);
     if (!acc[category]) {
       acc[category] = [];
@@ -157,25 +155,6 @@ const Order = () => {
     acc[category].push(product);
     return acc;
   }, {} as Record<string, Product[]>);
-
-  const hasMore = filteredProducts.length > displayCount;
-
-  useEffect(() => {
-    if (!loadMoreRef.current) return;
-    
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setDisplayCount(prev => prev + 100);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    
-    observer.observe(loadMoreRef.current);
-    
-    return () => observer.disconnect();
-  }, [hasMore]);
 
   if (loading) {
     return (
@@ -209,13 +188,6 @@ const Order = () => {
               selectedCategory={selectedCategory}
             />
           </div>
-
-          {filteredProducts.length > 0 && (
-            <div className="text-center text-sm text-muted-foreground">
-              Mostrando {Math.min(displayCount, filteredProducts.length)} de {filteredProducts.length} produtos
-              {selectedCategory && ` em ${selectedCategory}`}
-            </div>
-          )}
         </div>
 
         {Object.entries(groupedProducts).length === 0 ? (
@@ -227,37 +199,13 @@ const Order = () => {
         ) : (
           <>
             {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
-              <div key={category} className="mb-16">
-                <h2 className="text-3xl font-bold mb-8 text-card-foreground px-4">{category}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6 px-4">
-                  {categoryProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAddToCart={addToCart}
-                    />
-                  ))}
-                </div>
-              </div>
+              <CategoryProductRow
+                key={category}
+                category={category}
+                products={categoryProducts}
+                onAddToCart={addToCart}
+              />
             ))}
-            {hasMore && (
-              <>
-                <div className="flex justify-center mb-8">
-                  <Button 
-                    onClick={() => setDisplayCount(filteredProducts.length)}
-                    variant="outline"
-                    size="lg"
-                    className="gap-2"
-                  >
-                    <Package className="h-5 w-5" />
-                    Mostrar Todos os {filteredProducts.length} Produtos
-                  </Button>
-                </div>
-                <div ref={loadMoreRef} className="flex justify-center mt-8 mb-16">
-                  <LoadingSpinner size="md" />
-                </div>
-              </>
-            )}
           </>
         )}
       </main>

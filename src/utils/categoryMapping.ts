@@ -20,9 +20,12 @@ export const CATEGORY_MAPPING: Record<string, string[]> = {
     "Drink", "Ice", "Smirnoff Ice", "Catuaba", "Skol Beats",
     "TNT", "Corote"
   ],
+  "Águas": [
+    "Agua", "Água", "Water", "Mineral"
+  ],
   "Sucos": [
-    "Suco", "Agua", "Água", "Isotônico", "Isotónico", 
-    "H2OH", "Del Valle", "Gatorade", "Powerade"
+    "Suco", "Juice", "Isotônico", "Isotónico", 
+    "H2OH", "Del Valle", "Gatorade", "Powerade", "Tial", "Maguary"
   ],
   "Destilados": [
     "Vodka", "Whisky", "Whiskey", "Gin", "Rum", 
