@@ -6,7 +6,6 @@ import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle } from "lucide-react";
-import { usePrefetchRoute } from "@/utils/routePrefetch";
 
 type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
@@ -18,8 +17,6 @@ const Success = () => {
   const orderId = location.state?.orderId;
   const [orderStatus, setOrderStatus] = useState<string>('preparing');
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
-  
-  usePrefetchRoute('/');
 
   // Mapear status do banco para tipo esperado pelo contexto
   const mapDbStatusToContextStatus = (dbStatus: string): OrderStatus => {
@@ -161,15 +158,7 @@ const Success = () => {
           )}
           
           <Button
-            onClick={() => {
-              if ('startViewTransition' in document) {
-                (document as any).startViewTransition(() => {
-                  navigate('/');
-                });
-              } else {
-                navigate('/');
-              }
-            }}
+            onClick={() => navigate('/')}
             size="lg"
             variant={orderStatus === 'delivered' ? 'default' : 'outline'}
             className="px-12 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"

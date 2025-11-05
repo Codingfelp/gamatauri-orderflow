@@ -88,7 +88,7 @@ export const ActiveOrderBanner = () => {
 
   return (
     <>
-      <div className={`sticky top-0 z-40 w-full bg-red-500/90 backdrop-blur-sm shadow-lg transition-all duration-500 ${isTransitioning ? 'scale-105' : 'scale-100'}`}>
+      <div className={`sticky top-20 z-40 w-full bg-red-500/90 backdrop-blur-sm shadow-lg transition-all duration-500 ${isTransitioning ? 'scale-105' : 'scale-100'}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-14 gap-4">
             <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -303,15 +303,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                 <span className="text-primary">R$ {total.toFixed(2)}</span>
               </div>
               <Button 
-                onClick={() => {
-                  if ('startViewTransition' in document) {
-                    (document as any).startViewTransition(() => {
-                      onCheckout(shippingFee, deliveryAddress);
-                    });
-                  } else {
-                    onCheckout(shippingFee, deliveryAddress);
-                  }
-                }}
+                onClick={() => onCheckout(shippingFee, deliveryAddress)}
                 disabled={items.length === 0}
                 size="lg" 
                 className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"

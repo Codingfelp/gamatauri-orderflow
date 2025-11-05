@@ -4,8 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
-import { OrderSkeleton } from "@/components/OrderSkeleton";
-import { ActiveOrderBanner } from "@/components/ActiveOrderBanner";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 const Order = lazy(() => import("./pages/Order"));
 const Checkout = lazy(() => import("./pages/Checkout"));
@@ -30,8 +29,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <ActiveOrderBanner />
-        <Suspense fallback={<OrderSkeleton />}>
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <LoadingSpinner size="lg" />
+          </div>
+        }>
           <Routes>
             <Route path="/" element={<Order />} />
             <Route path="/checkout" element={<Checkout />} />
