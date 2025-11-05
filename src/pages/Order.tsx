@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
+import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMapping";
 
 
 
@@ -50,7 +51,7 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [displayCount, setDisplayCount] = useState(20);
+  const [displayCount, setDisplayCount] = useState(100);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -143,12 +144,12 @@ const Order = () => {
     
     if (!selectedCategory) return matchesSearch;
     
-    const matchesCategory = product.category === selectedCategory;
+    const matchesCategory = categoryMatchesFilter(product.category || "", selectedCategory);
     return matchesSearch && matchesCategory;
   });
 
   const groupedProducts = filteredProducts.slice(0, displayCount).reduce((acc, product) => {
-    const category = product.category || "Outros";
+    const category = normalizeCategory(product.category);
     if (!acc[category]) {
       acc[category] = [];
     }
@@ -164,7 +165,7 @@ const Order = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setDisplayCount(prev => prev + 20);
+          setDisplayCount(prev => prev + 50);
         }
       },
       { threshold: 0.1 }
