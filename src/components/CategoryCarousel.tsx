@@ -30,7 +30,7 @@ const categories: Category[] = [
   { name: "Copão", image: copao, value: "Copão" },
   { name: "Cigarros", image: cigarros, value: "Cigarros" },
   { name: "Gelos", image: gelos, value: "Gelos" },
-  { name: "Refrigerantes e Energéticos", image: refrigerantesEnergeticos, value: "Refrigerantes" },
+  { name: "Refrigerantes", image: refrigerantesEnergeticos, value: "Refrigerantes" },
   { name: "Refrigerantes Zero", image: refrigerantesZero, value: "Refrigerantes Zero" },
   { name: "Cervejas", image: cervejas, value: "Cervejas" },
   { name: "Cervejas Zero", image: cervejasZero, value: "Cervejas Zero" },

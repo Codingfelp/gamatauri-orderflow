@@ -1,8 +1,11 @@
 // Mapeia o valor do botão de categoria para as categorias reais da API
 export const CATEGORY_MAPPING: Record<string, string[]> = {
   "Refrigerantes": [
-    "Refrigerante", "Energetico", "Red Bull", "Monster", 
-    "Coca-Cola", "Pepsi", "Guaraná", "Fanta", "Sprite"
+    "Refrigerante", "Coca-Cola", "Pepsi", "Guaraná", "Fanta", "Sprite"
+  ],
+  "Energéticos": [
+    "Energetico", "Energético", "Energy", "Red Bull", "Monster", 
+    "TNT Energy", "Fusion"
   ],
   "Refrigerantes Zero": [
     "Refrigerante Zero", "Coca Zero", "Pepsi Zero", 
