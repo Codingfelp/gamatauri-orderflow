@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
-import { matchProductToCategory, getCategoryForProduct } from "@/utils/categoryMatcher";
+
 
 
 interface CartItem {
@@ -141,16 +141,14 @@ const Order = () => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           product.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Use intelligent category matching
     if (!selectedCategory) return matchesSearch;
     
-    const matchesCategory = matchProductToCategory(product.name, selectedCategory);
+    const matchesCategory = product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const groupedProducts = filteredProducts.slice(0, displayCount).reduce((acc, product) => {
-    // Use intelligent category detection
-    const category = getCategoryForProduct(product.name) || "Outros";
+    const category = product.category || "Outros";
     if (!acc[category]) {
       acc[category] = [];
     }
