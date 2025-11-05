@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -137,26 +137,28 @@ const Order = () => {
     navigate('/checkout', { state: { cart, shippingFee, deliveryAddress } });
   };
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Use intelligent category matching
-    if (!selectedCategory) return matchesSearch;
-    
-    const matchesCategory = matchProductToCategory(product.name, selectedCategory);
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!selectedCategory) return matchesSearch;
+      
+      const matchesCategory = matchProductToCategory(product.name, selectedCategory);
+      return matchesSearch && matchesCategory;
+    });
+  }, [products, searchQuery, selectedCategory]);
 
-  const groupedProducts = filteredProducts.slice(0, displayCount).reduce((acc, product) => {
-    // Use intelligent category detection
-    const category = getCategoryForProduct(product.name) || "Outros";
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(product);
-    return acc;
-  }, {} as Record<string, Product[]>);
+  const groupedProducts = useMemo(() => {
+    return filteredProducts.slice(0, displayCount).reduce((acc, product) => {
+      const category = getCategoryForProduct(product.name) || "Outros";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(product);
+      return acc;
+    }, {} as Record<string, Product[]>);
+  }, [filteredProducts, displayCount]);
 
   const hasMore = filteredProducts.length > displayCount;
 

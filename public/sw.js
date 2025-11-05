@@ -1,4 +1,5 @@
-const CACHE_NAME = 'gamatauri-v1';
+const CACHE_NAME = 'gamatauri-v2';
+const RUNTIME_CACHE = 'gamatauri-runtime-v2';
 const CACHE_URLS = [
   '/',
   '/index.html',
@@ -16,7 +17,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE) {
             return caches.delete(cacheName);
           }
         })
@@ -27,6 +28,38 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Cache-first for images
+  if (event.request.destination === 'image') {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request).then((fetchResponse) => {
+          return caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(event.request, fetchResponse.clone());
+            return fetchResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+
+  // Network-first for API calls
+  if (event.request.url.includes('supabase.co')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache-first for other resources
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request).then((fetchResponse) => {
@@ -38,7 +71,6 @@ self.addEventListener('fetch', (event) => {
         });
       });
     }).catch(() => {
-      // Return a fallback if both cache and network fail
       return caches.match('/index.html');
     })
   );

@@ -13,6 +13,7 @@ import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { usePrefetchRoute } from "@/utils/routePrefetch";
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,8 @@ export default function Auth() {
   const { toast } = useToast();
   const { signInWithGoogle } = useFirebaseAuth();
   const { user, loading: authLoading } = useAuth();
+  
+  usePrefetchRoute('/');
 
   // Monitor authentication state changes (for OAuth redirect)
   useEffect(() => {
@@ -54,7 +57,13 @@ export default function Auth() {
           const from = (location.state as any)?.from || "/";
           const cart = (location.state as any)?.cart;
           console.log('✅ [AUTH PAGE] Perfil completo, redirecionando para:', from);
-          navigate(from, { state: cart ? { cart } : undefined });
+          if ('startViewTransition' in document) {
+            (document as any).startViewTransition(() => {
+              navigate(from, { state: cart ? { cart } : undefined });
+            });
+          } else {
+            navigate(from, { state: cart ? { cart } : undefined });
+          }
         } else {
           console.log('⚠️ [AUTH PAGE] Perfil incompleto, abrindo modal de setup');
         }
@@ -212,7 +221,13 @@ export default function Auth() {
         if (isComplete) {
           const from = (location.state as any)?.from || "/";
           const cart = (location.state as any)?.cart;
-          navigate(from, { state: cart ? { cart } : undefined });
+          if ('startViewTransition' in document) {
+            (document as any).startViewTransition(() => {
+              navigate(from, { state: cart ? { cart } : undefined });
+            });
+          } else {
+            navigate(from, { state: cart ? { cart } : undefined });
+          }
         }
       }
     } catch (error: any) {
@@ -246,7 +261,13 @@ export default function Auth() {
           });
           const from = (location.state as any)?.from || "/";
           const cart = (location.state as any)?.cart;
-          navigate(from, { state: cart ? { cart } : undefined });
+          if ('startViewTransition' in document) {
+            (document as any).startViewTransition(() => {
+              navigate(from, { state: cart ? { cart } : undefined });
+            });
+          } else {
+            navigate(from, { state: cart ? { cart } : undefined });
+          }
         }
       }
     } catch (error: any) {
