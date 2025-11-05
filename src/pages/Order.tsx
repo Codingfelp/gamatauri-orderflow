@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
 import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMapping";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -51,7 +52,7 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [displayCount, setDisplayCount] = useState(100);
+  const [displayCount, setDisplayCount] = useState(400);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -165,7 +166,7 @@ const Order = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setDisplayCount(prev => prev + 50);
+          setDisplayCount(prev => prev + 100);
         }
       },
       { threshold: 0.1 }
@@ -208,6 +209,13 @@ const Order = () => {
               selectedCategory={selectedCategory}
             />
           </div>
+
+          {filteredProducts.length > 0 && (
+            <div className="text-center text-sm text-muted-foreground">
+              Mostrando {Math.min(displayCount, filteredProducts.length)} de {filteredProducts.length} produtos
+              {selectedCategory && ` em ${selectedCategory}`}
+            </div>
+          )}
         </div>
 
         {Object.entries(groupedProducts).length === 0 ? (
@@ -233,9 +241,22 @@ const Order = () => {
               </div>
             ))}
             {hasMore && (
-              <div ref={loadMoreRef} className="flex justify-center mt-8 mb-16">
-                <LoadingSpinner size="md" />
-              </div>
+              <>
+                <div className="flex justify-center mb-8">
+                  <Button 
+                    onClick={() => setDisplayCount(filteredProducts.length)}
+                    variant="outline"
+                    size="lg"
+                    className="gap-2"
+                  >
+                    <Package className="h-5 w-5" />
+                    Mostrar Todos os {filteredProducts.length} Produtos
+                  </Button>
+                </div>
+                <div ref={loadMoreRef} className="flex justify-center mt-8 mb-16">
+                  <LoadingSpinner size="md" />
+                </div>
+              </>
             )}
           </>
         )}

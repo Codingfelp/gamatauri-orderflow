@@ -1,19 +1,57 @@
 // Mapeia o valor do botão de categoria para as categorias reais da API
 export const CATEGORY_MAPPING: Record<string, string[]> = {
-  "Refrigerantes": ["Refrigerante", "Energetico", "Red Bull", "Monster"],
-  "Refrigerantes Zero": ["Refrigerante Zero", "Coca Zero", "Pepsi Zero"],
-  "Cervejas": ["Cerveja", "Heineken", "Skol", "Brahma", "Corona", "Budweiser"],
-  "Cervejas Zero": ["Cerveja Zero", "Heineken Zero"],
-  "Drinks": ["Drink", "Ice", "Smirnoff Ice"],
-  "Sucos": ["Suco", "Agua", "Isotônico", "H2OH", "Del Valle"],
-  "Destilados": ["Vodka", "Whisky", "Gin", "Rum", "Cachaça", "Tequila", "Licor"],
-  "Vinhos": ["Vinho"],
-  "Snacks": ["Snack", "Salgadinho", "Amendoim", "Batata"],
-  "Doces": ["Doce", "Bala", "Chiclete", "Pirulito"],
-  "Chocolates": ["Chocolate"],
-  "Copão": ["Copão", "Copao"],
-  "Cigarros": ["Cigarro"],
-  "Gelos": ["Gelo"],
+  "Refrigerantes": [
+    "Refrigerante", "Energetico", "Red Bull", "Monster", 
+    "Coca-Cola", "Pepsi", "Guaraná", "Fanta", "Sprite"
+  ],
+  "Refrigerantes Zero": [
+    "Refrigerante Zero", "Coca Zero", "Pepsi Zero", 
+    "Zero Açúcar", "Diet"
+  ],
+  "Cervejas": [
+    "Cerveja", "Beer", "Heineken", "Skol", "Brahma", 
+    "Corona", "Budweiser", "Stella", "Original", "Itaipava"
+  ],
+  "Cervejas Zero": [
+    "Cerveja Zero", "Heineken Zero", "Heineken 0.0",
+    "Sem Álcool", "Non Alcoholic"
+  ],
+  "Drinks": [
+    "Drink", "Ice", "Smirnoff Ice", "Catuaba", "Skol Beats",
+    "TNT", "Corote"
+  ],
+  "Sucos": [
+    "Suco", "Agua", "Água", "Isotônico", "Isotónico", 
+    "H2OH", "Del Valle", "Gatorade", "Powerade"
+  ],
+  "Destilados": [
+    "Vodka", "Whisky", "Whiskey", "Gin", "Rum", 
+    "Cachaça", "Tequila", "Licor", "Conhaque", "Pisco"
+  ],
+  "Vinhos": [
+    "Vinho", "Wine", "Espumante", "Champagne"
+  ],
+  "Snacks": [
+    "Snack", "Salgadinho", "Amendoim", "Batata", 
+    "Doritos", "Ruffles", "Cheetos"
+  ],
+  "Doces": [
+    "Doce", "Bala", "Chiclete", "Pirulito", "Jujuba",
+    "Drops", "Mentos"
+  ],
+  "Chocolates": [
+    "Chocolate", "Bis", "KitKat", "Lacta", "Garoto",
+    "Nestlé", "Ferrero"
+  ],
+  "Copão": [
+    "Copão", "Copao", "Copo"
+  ],
+  "Cigarros": [
+    "Cigarro", "Cigarette", "Marlboro", "Derby"
+  ],
+  "Gelos": [
+    "Gelo", "Ice", "Gela"
+  ],
 };
 
 // Verifica se uma categoria de produto pertence a uma categoria do carousel
