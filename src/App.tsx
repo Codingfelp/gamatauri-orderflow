@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { OnlineStatus } from "@/components/OnlineStatus";
 
 const Order = lazy(() => import("./pages/Order"));
 const Checkout = lazy(() => import("./pages/Checkout"));
@@ -12,6 +13,7 @@ const Success = lazy(() => import("./pages/Success"));
 const Tasks = lazy(() => import("./pages/Tasks"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Orders = lazy(() => import("./pages/Orders"));
+const Install = lazy(() => import("./pages/Install"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -26,6 +28,7 @@ const queryClient = new QueryClient({
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <OnlineStatus />
       <Toaster />
       <Sonner />
       <BrowserRouter>
@@ -40,6 +43,7 @@ const App = () => (
             <Route path="/success" element={<Success />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/install" element={<Install />} />
             <Route path="/tasks" element={<Tasks />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
