@@ -25,7 +25,7 @@ const brands: Brand[] = [
     id: "1", 
     name: "Heineken", 
     searchTerm: "heineken",
-    logo: "https://www.caviarcriativo.com/storage/2025/01/Significados-da-Marca-Heineken-.jpg"
+    logo: "https://i.pinimg.com/474x/ef/37/02/ef370240d9d98d42c197e5d6461c5033.jpg"
   },
   { 
     id: "2", 
@@ -61,7 +61,7 @@ const brands: Brand[] = [
     id: "6", 
     name: "Coca-Cola", 
     searchTerm: "coca",
-    logo: "https://png.pngtree.com/thumb_back/fh260/background/20220502/pngtree-coca--cola-logo-cold-trademark-up-photo-image_2850629.jpg"
+    logo: "https://pbs.twimg.com/profile_images/1744786283531059200/lrggJynL_400x400.jpg"
   },
   { 
     id: "7", 
@@ -83,7 +83,7 @@ const brands: Brand[] = [
     id: "9", 
     name: "Red Bull", 
     searchTerm: "red bull",
-    logo: "https://focalizando.com.br/sites/default/files/inline-images/ecd1bf4aa8781e0e4761106cebffce16.webp"
+    logo: "https://cdn.escharts.com/uploads/public/600/1be/d7d/6001bed7ded2a618223398.jpg"
   },
   { 
     id: "10", 
@@ -118,14 +118,14 @@ const brands: Brand[] = [
     id: "14", 
     name: "Doritos", 
     searchTerm: "doritos",
-    logo: "https://thumbs.dreamstime.com/b/logo-doritos-american-brand-flavored-tortilla-chips-produced-frito-lay-red-background-logo-doritos-377582209.jpg",
+    logo: "https://pbs.twimg.com/profile_images/1214557821749972992/OXfyImwY.jpg",
     filterLogic: (name) => name.toLowerCase().includes("doritos")
   },
   { 
     id: "15", 
     name: "Lays", 
     searchTerm: "lays",
-    logo: "https://1000logos.net/wp-content/uploads/2020/06/Lays-Logo.png",
+    logo: "https://pbs.twimg.com/profile_images/1174678997374033920/5_6IucF8_400x400.png",
     filterLogic: (name) => {
       const normalized = name.toLowerCase();
       return normalized.includes("lays") || normalized.includes("lay's");

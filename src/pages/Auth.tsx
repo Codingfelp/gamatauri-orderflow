@@ -108,8 +108,11 @@ export default function Auth() {
 
       console.log('📋 [PROFILE CHECK] Perfil encontrado:', profile);
 
-      if (!profile.phone) {
-        console.log('⚠️ [PROFILE CHECK] Perfil incompleto - falta telefone');
+      if (!profile.phone || !profile.address) {
+        console.log('⚠️ [PROFILE CHECK] Perfil incompleto - falta:', {
+          phone: !profile.phone,
+          address: !profile.address
+        });
         setUserId(user.id);
         setShowProfileModal(true);
         return false;

@@ -10,6 +10,9 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
 import { PromotionsCarousel } from "@/components/PromotionsCarousel";
 import { BrandsSection, brands } from "@/components/BrandsSection";
+import { UserAddressDisplay } from "@/components/UserAddressDisplay";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
@@ -55,6 +58,7 @@ const Order = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,6 +67,15 @@ const Order = () => {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      const timer = setTimeout(() => {
+        setShowAuthDialog(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading, user]);
 
   const loadProducts = async () => {
     try {
@@ -182,6 +195,11 @@ const Order = () => {
       <Header />
       
       <main className="container mx-auto px-0 py-6 md:py-10">
+        {/* ENDEREÇO DO CLIENTE */}
+        <div className="mb-4 px-4 flex justify-center md:justify-start">
+          <UserAddressDisplay />
+        </div>
+
         {/* 1. PROMOÇÕES */}
         <div className="mb-8 px-4">
           <PromotionsCarousel />
@@ -248,6 +266,34 @@ const Order = () => {
         onRemove={removeFromCart}
         onCheckout={handleCheckout}
       />
+
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center">
+              Bem-vindo ao Gamatauri! 🍺
+            </DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Faça login para continuar e aproveitar promoções exclusivas
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 pt-4">
+            <Button
+              onClick={() => navigate('/auth')}
+              className="w-full h-12 text-base font-bold"
+            >
+              Entrar ou Cadastrar
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setShowAuthDialog(false)}
+              className="w-full"
+            >
+              Continuar navegando sem login
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

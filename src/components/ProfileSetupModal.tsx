@@ -34,13 +34,22 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
       return;
     }
 
+    if (!formData.address.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha seu endereço completo",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase
         .from('profiles')
         .update({
           phone: formData.phone.trim(),
-          address: formData.address.trim() || null,
+          address: formData.address.trim(),
         })
         .eq('user_id', userId);
 
@@ -91,16 +100,18 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="address" className="text-base font-semibold">
-              Endereço (opcional)
+            <Label htmlFor="address" className="text-base font-semibold flex items-center gap-2">
+              <span>Endereço completo</span>
+              <span className="text-primary">*</span>
             </Label>
             <Textarea
               id="address"
               value={formData.address}
               onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-              placeholder="Rua, número, bairro"
+              placeholder="R. Nome da Rua, 123, Bairro"
               className="min-h-[80px] text-base border-2 focus:border-primary transition-all resize-none"
               rows={3}
+              required
             />
           </div>
           <Button
