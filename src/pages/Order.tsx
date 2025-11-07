@@ -182,13 +182,13 @@ const Order = () => {
 
         {/* 2. BUSCA */}
         <div className="mb-8 px-4 max-w-2xl mx-auto relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
           <Input
             type="text"
             placeholder="Buscar produtos..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-lg py-7 pl-12 rounded-xl shadow-md border-2 focus:border-primary transition-all duration-300"
+            className="w-full text-lg py-7 pl-14 pr-4 rounded-xl bg-white shadow-sm border border-border/50 focus:shadow-lg focus:shadow-primary/20 focus:border-primary/50 transition-all duration-300 focus-visible:outline-none focus-visible:ring-0"
           />
         </div>
         
