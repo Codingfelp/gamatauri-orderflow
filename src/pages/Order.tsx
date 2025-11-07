@@ -8,6 +8,8 @@ import { CategoryCarousel } from "@/components/CategoryCarousel";
 import { Header } from "@/components/Header";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
+import { PromotionsCarousel } from "@/components/PromotionsCarousel";
+import { BrandsSection } from "@/components/BrandsSection";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
@@ -52,6 +54,7 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedBrand, setSelectedBrand] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -141,10 +144,13 @@ const Order = () => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           product.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    if (!selectedCategory) return matchesSearch;
+    const matchesBrand = !selectedBrand || 
+                         product.name.toLowerCase().includes(selectedBrand.toLowerCase());
+    
+    if (!selectedCategory) return matchesSearch && matchesBrand;
     
     const matchesCategory = categoryMatchesFilter(product.category || "", selectedCategory);
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesBrand;
   });
 
   const groupedProducts = filteredProducts.reduce((acc, product) => {
@@ -168,27 +174,46 @@ const Order = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
       <Header />
       
-      <main className="container mx-auto px-4 py-6 md:py-10">
-        <div className="mb-10 space-y-8">
-          <div className="max-w-2xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Buscar produtos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-lg py-7 pl-12 rounded-xl shadow-md border-2 focus:border-primary transition-all duration-300"
-            />
-          </div>
-          
-          <div>
-            <h2 className="text-2xl font-bold mb-6 px-4 md:px-8 text-card-foreground">Categorias</h2>
-            <CategoryCarousel 
-              onCategoryChange={setSelectedCategory}
-              selectedCategory={selectedCategory}
-            />
-          </div>
+      <main className="container mx-auto px-0 py-6 md:py-10">
+        {/* 1. PROMOÇÕES */}
+        <div className="mb-8 px-4">
+          <PromotionsCarousel />
         </div>
+
+        {/* 2. BUSCA */}
+        <div className="mb-8 px-4 max-w-2xl mx-auto relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Buscar produtos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full text-lg py-7 pl-12 rounded-xl shadow-md border-2 focus:border-primary transition-all duration-300"
+          />
+        </div>
+        
+        {/* 3. CATEGORIAS */}
+        <div className="mb-8">
+          <h2 className="text-xl md:text-2xl font-bold mb-4 px-4 md:px-8 text-card-foreground">Categorias</h2>
+          <CategoryCarousel 
+            onCategoryChange={(cat) => {
+              setSelectedCategory(cat);
+              setSelectedBrand("");
+            }}
+            selectedCategory={selectedCategory}
+          />
+        </div>
+
+        {/* 4. MARCAS */}
+        <BrandsSection 
+          onBrandClick={(brand) => {
+            setSelectedBrand(brand);
+            setSelectedCategory("");
+          }}
+          selectedBrand={selectedBrand}
+        />
+
+        {/* 5. PRODUTOS */}
 
         {Object.entries(groupedProducts).length === 0 ? (
           <EmptyState

@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/Header";
 import { Loader2 } from "lucide-react";
-import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -25,7 +25,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { signInWithGoogle } = useFirebaseAuth();
+  const { signInWithGoogle } = useGoogleAuth();
   const { user, loading: authLoading } = useAuth();
 
   // Monitor authentication state changes (for OAuth redirect)

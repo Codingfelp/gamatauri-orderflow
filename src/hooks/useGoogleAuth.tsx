@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const useFirebaseAuth = () => {
+export const useGoogleAuth = () => {
   const signInWithGoogle = async () => {
     try {
       console.log('🚀 [GOOGLE AUTH] Iniciando fluxo de autenticação OAuth');

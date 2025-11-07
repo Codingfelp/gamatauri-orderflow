@@ -86,11 +86,11 @@ export const CategoryCarousel = ({ onCategoryChange, selectedCategory }: Categor
                 key={category.value}
                 onClick={() => onCategoryChange(isSelected ? "" : category.value)}
                 className={cn(
-                  "flex-[0_0_280px] md:flex-[0_0_320px] group relative overflow-hidden rounded-xl transition-all duration-300",
+                  "flex-[0_0_160px] md:flex-[0_0_180px] group relative overflow-hidden rounded-xl transition-all duration-300",
                   isSelected && "ring-4 ring-primary shadow-xl scale-[1.02]"
                 )}
               >
-                <div className="relative h-40 md:h-48 w-full">
+                <div className="relative h-32 md:h-36 w-full">
                   <img
                     src={category.image}
                     alt={category.name}
