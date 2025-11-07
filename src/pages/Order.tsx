@@ -145,12 +145,25 @@ const Order = () => {
     });
   };
 
-  const handleCheckout = (shippingFee: number = 0, deliveryAddress: string = '') => {
+  const handleCheckout = (
+    shippingFee: number = 0, 
+    deliveryAddress: string = '', 
+    couponId: string | null = null,
+    discountAmount: number = 0
+  ) => {
     if (!user) {
       navigate('/auth', { state: { from: '/checkout', cart } });
       return;
     }
-    navigate('/checkout', { state: { cart, shippingFee, deliveryAddress } });
+    navigate('/checkout', { 
+      state: { 
+        cart, 
+        shippingFee, 
+        deliveryAddress,
+        couponId,
+        discountAmount
+      } 
+    });
   };
 
   const filteredProducts = products.filter((product) => {

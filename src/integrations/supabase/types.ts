@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      coupon_usage: {
+        Row: {
+          coupon_id: string | null
+          discount_applied: number
+          id: string
+          order_id: string | null
+          used_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          coupon_id?: string | null
+          discount_applied: number
+          id?: string
+          order_id?: string | null
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          coupon_id?: string | null
+          discount_applied?: number
+          id?: string
+          order_id?: string | null
+          used_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_usage_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_usage_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          updated_at: string | null
+          used_count: number | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          discount_type: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string | null
+          used_count?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string | null
+          used_count?: number | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -57,11 +144,13 @@ export type Database = {
       }
       orders: {
         Row: {
+          coupon_id: string | null
           created_at: string
           customer_address: string | null
           customer_email: string | null
           customer_name: string
           customer_phone: string
+          discount_amount: number | null
           external_order_number: string | null
           id: string
           notes: string | null
@@ -74,11 +163,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          coupon_id?: string | null
           created_at?: string
           customer_address?: string | null
           customer_email?: string | null
           customer_name: string
           customer_phone: string
+          discount_amount?: number | null
           external_order_number?: string | null
           id?: string
           notes?: string | null
@@ -91,11 +182,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          coupon_id?: string | null
           created_at?: string
           customer_address?: string | null
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string
+          discount_amount?: number | null
           external_order_number?: string | null
           id?: string
           notes?: string | null
@@ -107,7 +200,15 @@ export type Database = {
           total_amount?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -146,6 +247,7 @@ export type Database = {
         Row: {
           address: string | null
           avatar_url: string | null
+          cpf: string | null
           created_at: string
           email: string | null
           id: string
@@ -157,6 +259,7 @@ export type Database = {
         Insert: {
           address?: string | null
           avatar_url?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -168,6 +271,7 @@ export type Database = {
         Update: {
           address?: string | null
           avatar_url?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -210,6 +314,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      validate_coupon: {
+        Args: { p_code: string; p_shipping_fee: number; p_user_id: string }
+        Returns: Json
       }
     }
     Enums: {

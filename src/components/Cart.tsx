@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -21,7 +22,7 @@ interface CartProps {
   items: CartItem[];
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemove: (id: string) => void;
-  onCheckout: (shippingFee: number, deliveryAddress: string) => void;
+  onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number) => void;
 }
 
 export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProps) => {
@@ -33,6 +34,11 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [shippingError, setShippingError] = useState('');
   const [addressFromProfile, setAddressFromProfile] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState('');
   
   // Carregar endereço do perfil automaticamente
   useEffect(() => {
@@ -118,8 +124,64 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       setShippingLoading(false);
     }
   };
+
+  const applyCoupon = async () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Faça login para usar cupom",
+      });
+      return;
+    }
+
+    if (!couponCode.trim()) {
+      setCouponError('Digite um código de cupom');
+      return;
+    }
+
+    setCouponLoading(true);
+    setCouponError('');
+
+    try {
+      const { data, error } = await supabase.rpc('validate_coupon', {
+        p_code: couponCode.toUpperCase(),
+        p_user_id: user.id,
+        p_shipping_fee: shippingFee
+      });
+
+      if (error) throw error;
+
+      const result = data as any;
+      if (!result.valid) {
+        setCouponError(result.error);
+        toast({
+          variant: "destructive",
+          title: result.error,
+        });
+        return;
+      }
+
+      setAppliedCoupon(result);
+      setCouponDiscount(result.discount);
+      toast({
+        title: "Cupom aplicado! 🎉",
+        description: result.description,
+      });
+    } catch (error: any) {
+      console.error('Erro ao aplicar cupom:', error);
+      setCouponError('Erro ao validar cupom');
+      toast({
+        variant: "destructive",
+        title: "Erro ao aplicar cupom",
+        description: error.message,
+      });
+    } finally {
+      setCouponLoading(false);
+    }
+  };
   
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + shippingFee;
+  const finalShippingFee = Math.max(0, shippingFee - couponDiscount);
+  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + finalShippingFee;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -281,6 +343,66 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                   ✓ Frete: R$ {shippingFee.toFixed(2)}
                 </p>
               )}
+
+              {shippingFee > 0 && (
+                <div className="border-t pt-3 space-y-2">
+                  <Label htmlFor="coupon" className="text-sm font-medium">
+                    Cupom de desconto
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="coupon"
+                      placeholder="Digite o código"
+                      value={couponCode}
+                      onChange={(e) => {
+                        setCouponCode(e.target.value.toUpperCase());
+                        setCouponError('');
+                      }}
+                      className={`text-sm ${couponError ? 'border-destructive' : ''}`}
+                      disabled={!!appliedCoupon}
+                    />
+                    <Button
+                      onClick={applyCoupon}
+                      disabled={couponLoading || !couponCode || !!appliedCoupon}
+                      size="sm"
+                      variant="outline"
+                      className="shrink-0"
+                    >
+                      {couponLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : appliedCoupon ? (
+                        '✓'
+                      ) : (
+                        'Aplicar'
+                      )}
+                    </Button>
+                  </div>
+                  
+                  {couponError && (
+                    <p className="text-xs text-destructive">{couponError}</p>
+                  )}
+                  
+                  {appliedCoupon && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-primary font-medium">
+                        ✓ {appliedCoupon.description}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setAppliedCoupon(null);
+                          setCouponDiscount(0);
+                          setCouponCode('');
+                        }}
+                        className="h-6 text-xs"
+                      >
+                        Remover
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="border-t-2 border-primary/20 pt-6 pb-6 space-y-2 bg-gradient-to-t from-accent/5 to-transparent -mx-6 px-6">
@@ -293,8 +415,23 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               {shippingFee > 0 && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Frete:</span>
+                  <div className="text-right">
+                    {couponDiscount > 0 && (
+                      <span className="line-through text-muted-foreground text-sm mr-2">
+                        R$ {shippingFee.toFixed(2)}
+                      </span>
+                    )}
+                    <span className={couponDiscount > 0 ? "font-semibold text-primary" : "font-semibold text-primary"}>
+                      R$ {finalShippingFee.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {couponDiscount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-primary">Desconto do cupom:</span>
                   <span className="font-semibold text-primary">
-                    R$ {shippingFee.toFixed(2)}
+                    - R$ {couponDiscount.toFixed(2)}
                   </span>
                 </div>
               )}
@@ -303,7 +440,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                 <span className="text-primary">R$ {total.toFixed(2)}</span>
               </div>
               <Button 
-                onClick={() => onCheckout(shippingFee, deliveryAddress)}
+                onClick={() => onCheckout(finalShippingFee, deliveryAddress, appliedCoupon?.coupon_id || null, couponDiscount)}
                 disabled={items.length === 0}
                 size="lg" 
                 className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"

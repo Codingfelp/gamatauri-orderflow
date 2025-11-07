@@ -108,15 +108,18 @@ export default function Auth() {
 
       console.log('📋 [PROFILE CHECK] Perfil encontrado:', profile);
 
-      if (!profile.phone || !profile.address) {
-        console.log('⚠️ [PROFILE CHECK] Perfil incompleto - falta:', {
-          phone: !profile.phone,
-          address: !profile.address
-        });
-        setUserId(user.id);
-        setShowProfileModal(true);
-        return false;
-      }
+    // ✅ Perfil completo: verificar campos obrigatórios
+    if (!profile.name || !(profile as any).cpf || !profile.phone || !profile.address) {
+      console.log('⚠️ [PROFILE CHECK] Perfil incompleto - falta:', {
+        name: !profile.name,
+        cpf: !(profile as any).cpf,
+        phone: !profile.phone,
+        address: !profile.address
+      });
+      setUserId(user.id);
+      setShowProfileModal(true);
+      return false;
+    }
       
       console.log('✅ [PROFILE CHECK] Perfil completo!');
       return true;

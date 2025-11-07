@@ -32,6 +32,8 @@ const Checkout = () => {
 
   const shippingFee = location.state?.shippingFee || 0;
   const preFilledAddress = location.state?.deliveryAddress || '';
+  const couponId = location.state?.couponId || null;
+  const discountAmount = location.state?.discountAmount || 0;
 
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -98,6 +100,23 @@ const Checkout = () => {
         notes: formData.notes || undefined,
         change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
       });
+
+      // Save coupon usage if coupon was applied
+      if (couponId && user) {
+        // Update order with coupon info first
+        await supabase.from('orders').update({
+          coupon_id: couponId,
+          discount_amount: discountAmount
+        }).eq('id', orderResult.order_id);
+
+        // Register coupon usage
+        await supabase.from('coupon_usage').insert({
+          coupon_id: couponId,
+          user_id: user.id,
+          order_id: orderResult.order_id,
+          discount_applied: discountAmount
+        });
+      }
 
       // Set active order in context
       setActiveOrder({

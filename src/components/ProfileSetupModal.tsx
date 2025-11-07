@@ -17,6 +17,8 @@ interface ProfileSetupModalProps {
 export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalProps) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    name: "",
+    cpf: "",
     phone: "",
     address: "",
   });
@@ -25,6 +27,34 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!formData.name.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha seu nome completo",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.cpf.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha seu CPF",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const cpfDigits = formData.cpf.replace(/\D/g, '');
+    if (cpfDigits.length !== 11) {
+      toast({
+        title: "CPF inválido",
+        description: "O CPF deve conter 11 dígitos",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!formData.phone.trim()) {
       toast({
         title: "Campo obrigatório",
@@ -48,6 +78,8 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
       const { error } = await supabase
         .from('profiles')
         .update({
+          name: formData.name.trim(),
+          cpf: cpfDigits,
           phone: formData.phone.trim(),
           address: formData.address.trim(),
         })
@@ -83,7 +115,45 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
             Precisamos de algumas informações para finalizar seu cadastro
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-base font-semibold flex items-center gap-2">
+              <span>Nome Completo</span>
+              <span className="text-primary">*</span>
+            </Label>
+            <Input
+              id="name"
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="João Silva"
+              className="h-12 text-base border-2 focus:border-primary transition-all"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="cpf" className="text-base font-semibold flex items-center gap-2">
+              <span>CPF</span>
+              <span className="text-primary">*</span>
+            </Label>
+            <Input
+              id="cpf"
+              type="text"
+              value={formData.cpf}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, '');
+                let formatted = value;
+                if (value.length > 3) formatted = value.slice(0, 3) + '.' + value.slice(3);
+                if (value.length > 6) formatted = formatted.slice(0, 7) + '.' + value.slice(6);
+                if (value.length > 9) formatted = formatted.slice(0, 11) + '-' + value.slice(9, 11);
+                setFormData(prev => ({ ...prev, cpf: formatted }));
+              }}
+              placeholder="123.456.789-01"
+              maxLength={14}
+              className="h-12 text-base border-2 focus:border-primary transition-all"
+              required
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="phone" className="text-base font-semibold flex items-center gap-2">
               <span>Telefone</span>
