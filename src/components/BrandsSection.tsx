@@ -6,7 +6,19 @@ interface Brand {
   name: string;
   searchTerm: string;
   logo: string;
+  filterLogic?: (productName: string, productCategory: string) => boolean;
 }
+
+const getLogoClasses = (brandName: string) => {
+  const needsContain = [
+    'Heineken', 'Original', 'Coca-Cola', 'Red Bull', 
+    'Corona', 'Tial', 'Doritos', 'Lays'
+  ];
+  
+  return needsContain.includes(brandName)
+    ? "w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-110"
+    : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-110";
+};
 
 const brands: Brand[] = [
   { 
@@ -31,7 +43,13 @@ const brands: Brand[] = [
     id: "4", 
     name: "Original",
     searchTerm: "original",
-    logo: "https://www.caite.com.br/jan/prod/cerveja/imagensCerveja/AntarcticaOriginallogo.jpg"
+    logo: "https://www.caite.com.br/jan/prod/cerveja/imagensCerveja/AntarcticaOriginallogo.jpg",
+    filterLogic: (name, category) => {
+      const hasOriginal = name.toLowerCase().includes("original");
+      const isBeer = category?.toLowerCase().includes("cerveja") || 
+                     category?.toLowerCase().includes("beer");
+      return hasOriginal && isBeer;
+    }
   },
   { 
     id: "5", 
@@ -55,7 +73,11 @@ const brands: Brand[] = [
     id: "8", 
     name: "Guaraná", 
     searchTerm: "guarana",
-    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnChHQIW0jGXOYBgzUtGLYOkBBDg9Ge2jO2A&s"
+    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQnChHQIW0jGXOYBgzUtGLYOkBBDg9Ge2jO2A&s",
+    filterLogic: (name) => {
+      const normalized = name.toLowerCase();
+      return normalized.includes("guarana") && !normalized.includes("fanta");
+    }
   },
   { 
     id: "9", 
@@ -73,13 +95,41 @@ const brands: Brand[] = [
     id: "11", 
     name: "Corona", 
     searchTerm: "corona",
-    logo: "https://cdn.cookielaw.org/logos/11821760-d248-4745-b43e-10d85e89e988/9886c9d8-a55a-4da5-96ac-b35949fd330c/9ac9dee6-b5d3-462a-acfe-99369a84480f/Corona_Logo12.jpg"
+    logo: "https://cdn.cookielaw.org/logos/11821760-d248-4745-b43e-10d85e89e988/9886c9d8-a55a-4da5-96ac-b35949fd330c/9ac9dee6-b5d3-462a-acfe-99369a84480f/Corona_Logo12.jpg",
+    filterLogic: (name) => {
+      const normalized = name.toLowerCase();
+      return normalized.includes("corona") || normalized.includes("coronita");
+    }
   },
   { 
     id: "12", 
     name: "Laut",
     searchTerm: "laut",
     logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1XWm7F9O3V8debMSWC9iSV4yJQCOvw5rdRQ&s"
+  },
+  { 
+    id: "13", 
+    name: "Tial", 
+    searchTerm: "tial",
+    logo: "https://d3p2amk7tvag7f.cloudfront.net/brands/e823404ef2b4737dd3e61b11ce924b3298e46360.png",
+    filterLogic: (name) => name.toLowerCase().includes("tial")
+  },
+  { 
+    id: "14", 
+    name: "Doritos", 
+    searchTerm: "doritos",
+    logo: "https://thumbs.dreamstime.com/b/logo-doritos-american-brand-flavored-tortilla-chips-produced-frito-lay-red-background-logo-doritos-377582209.jpg",
+    filterLogic: (name) => name.toLowerCase().includes("doritos")
+  },
+  { 
+    id: "15", 
+    name: "Lays", 
+    searchTerm: "lays",
+    logo: "https://1000logos.net/wp-content/uploads/2020/06/Lays-Logo.png",
+    filterLogic: (name) => {
+      const normalized = name.toLowerCase();
+      return normalized.includes("lays") || normalized.includes("lay's");
+    }
   },
 ];
 
@@ -117,7 +167,7 @@ export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProp
                   className={cn(
                     "w-20 h-20 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden",
                     "border-2 transition-all duration-300",
-                    "hover:shadow-lg hover:scale-105",
+                    "hover:shadow-xl hover:shadow-primary/20 hover:scale-105 active:scale-95",
                     isSelected
                       ? "border-primary ring-2 ring-primary scale-105"
                       : "border-border group-hover:border-primary/50"
@@ -126,7 +176,7 @@ export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProp
                   <img 
                     src={brand.logo} 
                     alt={`Logo ${brand.name}`}
-                    className="w-full h-full object-cover"
+                    className={getLogoClasses(brand.name)}
                     loading="lazy"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
@@ -163,7 +213,7 @@ export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProp
                 className={cn(
                   "w-20 h-20 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden",
                   "border-2 transition-all duration-300",
-                  "hover:shadow-lg hover:scale-105",
+                  "hover:shadow-xl hover:shadow-primary/20 hover:scale-105 active:scale-95",
                   isSelected
                     ? "border-primary ring-2 ring-primary scale-105"
                     : "border-border group-hover:border-primary/50"
@@ -172,7 +222,7 @@ export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProp
                 <img 
                   src={brand.logo} 
                   alt={`Logo ${brand.name}`}
-                  className="w-full h-full object-cover"
+                  className={getLogoClasses(brand.name)}
                   loading="lazy"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
@@ -196,3 +246,5 @@ export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProp
     </div>
   );
 };
+
+export { brands };

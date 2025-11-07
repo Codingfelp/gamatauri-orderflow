@@ -9,7 +9,7 @@ import { Header } from "@/components/Header";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
 import { PromotionsCarousel } from "@/components/PromotionsCarousel";
-import { BrandsSection } from "@/components/BrandsSection";
+import { BrandsSection, brands } from "@/components/BrandsSection";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
@@ -144,8 +144,15 @@ const Order = () => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           product.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesBrand = !selectedBrand || 
-                         product.name.toLowerCase().includes(selectedBrand.toLowerCase());
+    let matchesBrand = !selectedBrand;
+    if (selectedBrand) {
+      const brand = brands.find(b => b.searchTerm === selectedBrand);
+      if (brand?.filterLogic) {
+        matchesBrand = brand.filterLogic(product.name, product.category || "");
+      } else {
+        matchesBrand = product.name.toLowerCase().includes(selectedBrand.toLowerCase());
+      }
+    }
     
     if (!selectedCategory) return matchesSearch && matchesBrand;
     

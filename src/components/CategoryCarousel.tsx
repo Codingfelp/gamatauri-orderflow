@@ -87,6 +87,7 @@ export const CategoryCarousel = ({ onCategoryChange, selectedCategory }: Categor
                 onClick={() => onCategoryChange(isSelected ? "" : category.value)}
                 className={cn(
                   "flex-[0_0_160px] md:flex-[0_0_180px] group relative overflow-hidden rounded-xl transition-all duration-300",
+                  "hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 active:scale-95",
                   isSelected && "ring-4 ring-primary shadow-xl scale-[1.02]"
                 )}
               >
