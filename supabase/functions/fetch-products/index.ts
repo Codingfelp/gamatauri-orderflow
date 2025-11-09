@@ -79,7 +79,7 @@ serve(async (req) => {
     console.log('API Key present:', !!Deno.env.get('PRODUCTS_API_KEY'));
     
     const response = await fetch(
-      'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api?all=true',
+      'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api?limit=10000',
       {
         method: 'GET',
         headers: {
