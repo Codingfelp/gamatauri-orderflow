@@ -53,9 +53,9 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
         <h3 className="font-bold text-xs md:text-sm text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
           {product.name}
         </h3>
-        {product.description && (
+        {product.description && product.description.length < 200 && (
           <p className="hidden md:block text-[10px] text-muted-foreground line-clamp-1 leading-relaxed">
-            {product.description}
+            {product.description.substring(0, 100)}
           </p>
         )}
         <div className="flex items-center justify-between pt-1 md:pt-1.5 border-t border-border mt-auto">

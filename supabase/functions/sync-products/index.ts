@@ -6,6 +6,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
 };
 
+// Validate and clean description to prevent corrupted data
+const cleanDescription = (desc: string | null): string | null => {
+  if (!desc) return null;
+  
+  // Reject base64/binary data (WEBP images start with 'UklGR')
+  if (desc.startsWith('UklGR') || desc.startsWith('data:')) return null;
+  
+  // Limit size to prevent performance issues
+  if (desc.length > 500) return desc.substring(0, 497) + '...';
+  
+  return desc;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -89,7 +102,7 @@ serve(async (req) => {
 
           // Prepare update data
           const updateData: any = {
-            description: product.description,
+            description: cleanDescription(product.description),
             price: product.price,
             category: product.category,
             available: product.available,
@@ -129,7 +142,7 @@ serve(async (req) => {
             .from('products')
             .insert({
               name: product.name,
-              description: product.description,
+              description: cleanDescription(product.description),
               price: product.price,
               category: product.category,
               image_url: cleanImageUrl,
