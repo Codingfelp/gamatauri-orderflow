@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Package } from "lucide-react";
+import { Loader2, Package, Search } from "lucide-react";
+import { formatCPF, validateCPF } from "@/utils/cpfValidator";
+import { useAddressByCEP } from "@/hooks/useAddressByCEP";
 
 interface ProfileSetupModalProps {
   open: boolean;
@@ -25,6 +27,27 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
   });
   const { toast } = useToast();
   const { fetchAddress, loading: cepLoading, error: cepError } = useAddressByCEP();
+
+  const handleCEPSearch = async () => {
+    if (formData.cep.length < 8) return;
+    
+    const addressData = await fetchAddress(formData.cep);
+    
+    if (addressData) {
+      const fullAddress = `${addressData.logradouro}, ${addressData.bairro}, ${addressData.localidade} - ${addressData.uf}`;
+      setFormData(prev => ({ ...prev, address: fullAddress }));
+      toast({
+        title: "Endereço encontrado!",
+        description: "Complete com número e complemento se necessário",
+      });
+    } else if (cepError) {
+      toast({
+        title: "CEP não encontrado",
+        description: cepError,
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,14 +167,7 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
               id="cpf"
               type="text"
               value={formData.cpf}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, '');
-                let formatted = value;
-                if (value.length > 3) formatted = value.slice(0, 3) + '.' + value.slice(3);
-                if (value.length > 6) formatted = formatted.slice(0, 7) + '.' + value.slice(6);
-                if (value.length > 9) formatted = formatted.slice(0, 11) + '-' + value.slice(9, 11);
-                setFormData(prev => ({ ...prev, cpf: formatted }));
-              }}
+              onChange={(e) => setFormData(prev => ({ ...prev, cpf: formatCPF(e.target.value) }))}
               placeholder="123.456.789-01"
               maxLength={14}
               className="h-12 text-base border-2 focus:border-primary transition-all"
@@ -174,6 +190,36 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="cep" className="text-base font-semibold">
+              CEP
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="cep"
+                type="text"
+                value={formData.cep}
+                onChange={(e) => {
+                  const formatted = e.target.value.replace(/\D/g, '').slice(0, 8);
+                  setFormData(prev => ({ ...prev, cep: formatted }));
+                }}
+                onBlur={handleCEPSearch}
+                placeholder="00000-000"
+                maxLength={9}
+                className="flex-1 h-12 text-base border-2 focus:border-primary transition-all"
+              />
+              <Button
+                type="button"
+                onClick={handleCEPSearch}
+                disabled={cepLoading || formData.cep.length !== 8}
+                variant="outline"
+                size="icon"
+                className="h-12 w-12"
+              >
+                {cepLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="address" className="text-base font-semibold flex items-center gap-2">
               <span>Endereço completo</span>
               <span className="text-primary">*</span>
@@ -182,7 +228,7 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
               id="address"
               value={formData.address}
               onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-              placeholder="R. Nome da Rua, 123, Bairro"
+              placeholder="R. Nome da Rua, 123, Bairro, Cidade - UF"
               className="min-h-[80px] text-base border-2 focus:border-primary transition-all resize-none"
               rows={3}
               required

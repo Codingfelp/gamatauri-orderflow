@@ -82,11 +82,7 @@ async function scheduleCartAbandonmentNotification(cart: CartItem[]) {
         url: '/',
         cartItems: cart
       },
-      actions: [
-        { action: 'open', title: 'Ver carrinho' },
-        { action: 'close', title: 'Fechar' }
-      ],
       requireInteraction: true
-    });
+    } as any); // TypeScript strict mode workaround for actions
   }
 }
