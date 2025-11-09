@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
       }
 
       const price = parseFloat(priceStr);
-      if (isNaN(price) || price <= 0) {
+      if (isNaN(price) || price < 0) {
         console.warn(`Skipping row ${i + 1}: invalid price "${priceStr}"`);
         skippedRows++;
         continue;
