@@ -34,7 +34,7 @@ serve(async (req) => {
     console.log('Fetching products from external API');
     
     const response = await fetch(
-      'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api?limit=10000',
+      'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api?limit=1000',
       {
         method: 'GET',
         headers: {
