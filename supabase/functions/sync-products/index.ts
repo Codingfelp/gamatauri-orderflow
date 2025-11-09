@@ -61,6 +61,7 @@ serve(async (req) => {
 
     let inserted = 0;
     let updated = 0;
+    let deleted = 0;
     let errors = 0;
 
     console.log('Syncing products to local database...');
@@ -120,7 +121,46 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Sync completed: ${inserted} inserted, ${updated} updated, ${errors} errors`);
+    console.log('Detecting deleted products...');
+
+    // Detect products that exist locally but not in external API anymore
+    const { data: localProducts } = await supabase
+      .from('products')
+      .select('name')
+      .eq('available', true);
+
+    if (localProducts) {
+      // Create Set with external product names for faster lookup
+      const externalProductNames = new Set(
+        externalProducts.map((p: any) => p.name)
+      );
+
+      // Find products that are no longer in external API
+      const deletedProducts = localProducts.filter(
+        (p) => !externalProductNames.has(p.name)
+      );
+
+      // Soft delete by marking as unavailable
+      if (deletedProducts.length > 0) {
+        console.log(`Found ${deletedProducts.length} products to mark as deleted`);
+        
+        const { error: deleteError } = await supabase
+          .from('products')
+          .update({ 
+            available: false,
+            deleted_at: new Date().toISOString(),
+          })
+          .in('name', deletedProducts.map((p) => p.name));
+
+        if (deleteError) {
+          console.error('Error marking products as deleted:', deleteError);
+        } else {
+          deleted = deletedProducts.length;
+        }
+      }
+    }
+
+    console.log(`Sync completed: ${inserted} inserted, ${updated} updated, ${deleted} deleted, ${errors} errors`);
 
     // Return sync statistics
     return new Response(
@@ -130,6 +170,7 @@ serve(async (req) => {
           total_external: externalProducts.length,
           inserted,
           updated,
+          deleted,
           errors,
         },
         timestamp: new Date().toISOString(),

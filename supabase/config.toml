@@ -15,5 +15,8 @@ verify_jwt = false
 [functions.sync-products]
 verify_jwt = false
 
+[functions.product-webhook]
+verify_jwt = false
+
 [functions.import-products-csv]
 verify_jwt = false
