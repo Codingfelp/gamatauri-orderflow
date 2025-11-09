@@ -1,5 +1,8 @@
 // Mapeia o valor do botão de categoria para as categorias reais da API
 export const CATEGORY_MAPPING: Record<string, string[]> = {
+  "Águas": [
+    "Agua", "Água", "Water", "Mineral"
+  ],
   "Refrigerantes": [
     "Refrigerante", "Coca-Cola", "Pepsi", "Guaraná", "Fanta", "Sprite"
   ],
@@ -23,11 +26,8 @@ export const CATEGORY_MAPPING: Record<string, string[]> = {
     "Drink", "Ice", "Smirnoff Ice", "Catuaba", "Skol Beats",
     "TNT", "Corote"
   ],
-  "Águas": [
-    "Agua", "Água", "Water", "Mineral"
-  ],
   "Sucos": [
-    "Suco", "Juice", "Isotônico", "Isotónico", 
+    "Suco", "Juice", "Isotônico", "Isotonico", "Isotónico", 
     "H2OH", "Del Valle", "Gatorade", "Powerade", "Tial", "Maguary"
   ],
   "Destilados": [

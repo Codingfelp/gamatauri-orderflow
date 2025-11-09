@@ -19,8 +19,11 @@ interface ProductCardProps {
 export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => {
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border-border">
-      <div className="relative aspect-[4/3] md:aspect-square overflow-hidden bg-accent/5">
-        {product.image_url ? (
+      <div className="relative aspect-[4/3] md:aspect-square overflow-hidden bg-accent/10">
+        {product.image_url && 
+         product.image_url !== 'SIM' && 
+         !product.image_url.startsWith('data:image') && 
+         product.image_url.length > 10 ? (
           <img 
             src={product.image_url} 
             alt={product.name}
@@ -29,10 +32,20 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             width="300"
             height="300"
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+              const parent = (e.target as HTMLImageElement).parentElement;
+              if (parent) {
+                parent.innerHTML = '<div class="w-full h-full flex flex-col items-center justify-center text-muted-foreground"><svg class="w-16 h-16 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-xs">Imagem indisponível</span></div>';
+              }
+            }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            Sem imagem
+          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
+            <svg className="w-16 h-16 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span className="text-xs">Imagem indisponível</span>
           </div>
         )}
       </div>
