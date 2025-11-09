@@ -82,17 +82,17 @@ export const PromotionsCarousel = () => {
                   <img
                     src={promo.image}
                     alt={promo.title}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ) : (
                 <div
                   className={`relative w-full h-48 md:h-64 bg-gradient-to-br ${promo.gradient} p-8 md:p-12 flex flex-col justify-center`}
                 >
-                  <h3 className={`text-3xl md:text-5xl font-bold ${promo.textColor} mb-3 drop-shadow-lg`}>
+                  <h3 className={`text-3xl md:text-6xl font-bold ${promo.textColor} mb-3 drop-shadow-lg`}>
                     {promo.title}
                   </h3>
-                  <p className={`text-lg md:text-2xl ${promo.textColor} drop-shadow-md`}>
+                  <p className={`text-lg md:text-3xl font-medium ${promo.textColor} drop-shadow-md`}>
                     {promo.description}
                   </p>
                 </div>

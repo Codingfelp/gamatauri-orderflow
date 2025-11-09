@@ -9,6 +9,7 @@ import { ActiveOrderBanner } from "@/components/ActiveOrderBanner";
 import { AddressSelector } from "@/components/AddressSelector";
 import { ProfileIncompleteAlert } from "@/components/ProfileIncompleteAlert";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/gamatauri-logo.png";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -80,30 +81,42 @@ export const Header = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-card shadow-md backdrop-blur-sm bg-card/95">
         <div className="container mx-auto px-4 flex h-20 items-center justify-between">
-          <div className="flex-1" />
+          {/* LOGO À ESQUERDA (apenas desktop) */}
+          <div className="hidden md:flex items-center cursor-pointer" onClick={() => navigate('/')}>
+            <img 
+              src={logo} 
+              alt="Gamatauri - Distribuidora de Bebidas" 
+              className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
+            />
+          </div>
 
-          {user && (
-            <div 
-              onClick={() => setShowAddressSelector(true)}
-              className="flex items-center gap-2 cursor-pointer hover:bg-accent/50 px-4 py-2 rounded-lg transition-colors"
-            >
-              <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
-              <div>
-                <p className="text-xs text-muted-foreground text-center">Entregar em</p>
-                <p className="font-semibold text-sm text-center">
-                  {userAddress || "Selecione o endereço"} ▼
-                </p>
+          {/* ESPAÇO VAZIO MOBILE */}
+          <div className="flex-1 md:hidden" />
+
+          {/* ENDEREÇO + AVATAR AGRUPADOS À DIREITA */}
+          <div className="flex items-center gap-4">
+            {user && (
+              <div 
+                onClick={() => setShowAddressSelector(true)}
+                className="flex items-center gap-2 cursor-pointer hover:bg-accent/50 px-4 py-2 rounded-lg transition-colors"
+              >
+                <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Entregar em</p>
+                  <p className="font-semibold text-sm md:text-base">
+                    {userAddress || "Selecione o endereço"} ▼
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div className="flex-1 flex justify-end items-center gap-4">
+            {/* AVATAR/LOGIN */}
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-12 w-12 rounded-full hover:bg-accent transition-colors">
-                    <Avatar className="h-12 w-12">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-lg font-bold">
+                  <Button variant="ghost" className="relative h-12 w-12 md:h-14 md:w-14 rounded-full hover:bg-accent transition-colors">
+                    <Avatar className="h-12 w-12 md:h-14 md:w-14">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-lg md:text-xl font-bold">
                         {user.email?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
