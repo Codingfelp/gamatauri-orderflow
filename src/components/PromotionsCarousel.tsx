@@ -78,30 +78,32 @@ export const PromotionsCarousel = () => {
 
   return (
     <div className="relative w-full">
-      <div className="overflow-hidden rounded-2xl shadow-lg" ref={emblaRef}>
-        <div className="flex gap-4">
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex -ml-4 pl-4">
           {promotions.map((promo) => (
-            <div key={promo.id} className="flex-[0_0_100%] md:flex-[0_0_396px] min-w-0">
-              {promo.type === 'image' ? (
-                <div className="relative w-full h-36 md:h-[136px] bg-gradient-to-br from-red-50 to-red-100">
-                  <img
-                    src={promo.image}
-                    alt={promo.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div
-                  className={`relative w-full h-36 md:h-[136px] bg-gradient-to-br ${promo.gradient} p-6 md:p-8 flex flex-col justify-center`}
-                >
-                  <h3 className={`text-2xl md:text-3xl font-bold ${promo.textColor} mb-2 drop-shadow-lg`}>
-                    {promo.title}
-                  </h3>
-                  <p className={`text-sm md:text-base font-medium ${promo.textColor} drop-shadow-md`}>
-                    {promo.description}
-                  </p>
-                </div>
-              )}
+            <div key={promo.id} className="flex-[0_0_100%] md:flex-[0_0_396px] min-w-0 pl-4">
+              <div className="rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                {promo.type === 'image' ? (
+                  <div className="relative w-full h-40 md:h-[160px] bg-gradient-to-br from-red-50 to-red-100">
+                    <img
+                      src={promo.image}
+                      alt={promo.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={`relative w-full h-40 md:h-[160px] bg-gradient-to-br ${promo.gradient} p-6 md:p-8 flex flex-col justify-center`}
+                  >
+                    <h3 className={`text-2xl md:text-3xl font-bold ${promo.textColor} mb-2 drop-shadow-lg`}>
+                      {promo.title}
+                    </h3>
+                    <p className={`text-sm md:text-base font-medium ${promo.textColor} drop-shadow-md`}>
+                      {promo.description}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
