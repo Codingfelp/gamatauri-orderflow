@@ -77,6 +77,16 @@ serve(async (req) => {
           .maybeSingle();
 
         if (existing) {
+          // Validate and clean image_url
+          let cleanImageUrl = product.image_url;
+          if (cleanImageUrl && (
+            cleanImageUrl === 'SIM' || 
+            cleanImageUrl.startsWith('data:image') ||
+            cleanImageUrl.length < 10
+          )) {
+            cleanImageUrl = null;
+          }
+
           // Update existing product
           const { error: updateError } = await supabase
             .from('products')
@@ -84,7 +94,7 @@ serve(async (req) => {
               description: product.description,
               price: product.price,
               category: product.category,
-              image_url: product.image_url,
+              image_url: cleanImageUrl,
               available: product.available,
             })
             .eq('id', existing.id);
@@ -96,6 +106,16 @@ serve(async (req) => {
             updated++;
           }
         } else {
+          // Validate and clean image_url
+          let cleanImageUrl = product.image_url;
+          if (cleanImageUrl && (
+            cleanImageUrl === 'SIM' || 
+            cleanImageUrl.startsWith('data:image') ||
+            cleanImageUrl.length < 10
+          )) {
+            cleanImageUrl = null;
+          }
+
           // Insert new product
           const { error: insertError } = await supabase
             .from('products')
@@ -104,7 +124,7 @@ serve(async (req) => {
               description: product.description,
               price: product.price,
               category: product.category,
-              image_url: product.image_url,
+              image_url: cleanImageUrl,
               available: product.available,
             });
 

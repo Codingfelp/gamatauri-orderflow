@@ -30,6 +30,7 @@ export function matchProductToCategory(productName: string, category: string): b
 export function getCategoryForProduct(productName: string): string | null {
   // Priority order for overlapping categories
   const priorityCategories = [
+    'Águas',           // PRIORIDADE MÁXIMA
     'Cervejas Zero',
     'Refrigerantes Zero',
     'Copão',
@@ -41,7 +42,7 @@ export function getCategoryForProduct(productName: string): string | null {
     'Vinhos',
     'Destilados',
     'Refrigerantes',
-    'Sucos',
+    'Sucos',           // Depois de Águas
     'Snacks',
     'Doces'
   ];

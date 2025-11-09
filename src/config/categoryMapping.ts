@@ -4,6 +4,12 @@
  */
 
 export const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  // Águas (PRIORIDADE - verificar primeiro)
+  "Águas": [
+    "crystal", "acquissima", "minalba", "lindoya", "pureza vital", 
+    "bonafont", "agua", "água", "water", "mineral"
+  ],
+
   // Chocolates
   "Chocolates": [
     "bis", "oreo", "lacta", "diamante negro", "sonho de valsa", "amaro", "trento", 
@@ -58,10 +64,10 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     "mansao maromba", "ice syn", "xa de cana", "equilibrista", "vanfall", "brutal fruit"
   ],
 
-  // Águas, Sucos e Isotônicos
+  // Sucos e Isotônicos (SEM água aqui)
   "Sucos": [
-    "crystal", "acquissima", "agua", "minalba", "lindoya", "pureza vital",
-    "gatorade", "tial", "kero coco", "maguary", "suco", "isoton"
+    "gatorade", "tial", "kero coco", "maguary", "suco", "isoton",
+    "isotonico", "isotônico", "del valle", "ades", "fresh"
   ],
 
   // Destilados
