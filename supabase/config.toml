@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.sync-products]
 verify_jwt = false
+
+[functions.import-products-csv]
+verify_jwt = false
