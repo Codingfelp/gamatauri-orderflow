@@ -74,9 +74,13 @@ serve(async (req) => {
       );
     }
 
-    console.log('Fetching products from Gamatauri API');
+    console.log('Fetching products from Gamatauri API with 5s timeout');
     console.log('API URL:', 'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api');
     console.log('API Key present:', !!Deno.env.get('PRODUCTS_API_KEY'));
+    
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
     
     const response = await fetch(
       'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api?limit=1000',
@@ -86,8 +90,11 @@ serve(async (req) => {
           'X-API-KEY': Deno.env.get('PRODUCTS_API_KEY') || '',
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
       }
     );
+    
+    clearTimeout(timeoutId);
 
     console.log('Response status:', response.status);
     console.log('Response ok:', response.ok);
