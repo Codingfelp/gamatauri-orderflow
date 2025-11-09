@@ -16,6 +16,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Install = lazy(() => import("./pages/Install"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminSync = lazy(() => import("./pages/AdminSync"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/install" element={<Install />} />
             <Route path="/tasks" element={<Tasks />} />
+            <Route path="/admin-sync" element={<AdminSync />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
