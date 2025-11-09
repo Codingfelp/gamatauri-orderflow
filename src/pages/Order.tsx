@@ -18,6 +18,7 @@ import { Search, Package } from "lucide-react";
 import { fetchProducts, type Product } from "@/services/productsService";
 import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMapping";
 import { CategoryProductRow } from "@/components/CategoryProductRow";
+import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 
 
 
@@ -63,6 +64,9 @@ const Order = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
+
+  // Detectar abandono de carrinho
+  useCartAbandonment(cart, user?.id);
 
   useEffect(() => {
     loadProducts();

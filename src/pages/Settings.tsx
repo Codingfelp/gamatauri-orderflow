@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Search } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { formatCPF, validateCPF } from "@/utils/cpfValidator";
+import { useAddressByCEP } from "@/hooks/useAddressByCEP";
 
 export default function Settings() {
   const { user, loading: authLoading } = useAuth();
@@ -21,8 +23,10 @@ export default function Settings() {
     name: "",
     cpf: "",
     phone: "",
+    cep: "",
     address: "",
   });
+  const { fetchAddress, loading: cepLoading, error: cepError } = useAddressByCEP();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -52,6 +56,7 @@ export default function Settings() {
           name: data.name || "",
           cpf: formatCPF((data as any).cpf || ""),
           phone: data.phone || "",
+          cep: "",
           address: data.address || "",
         });
       }
@@ -60,13 +65,25 @@ export default function Settings() {
     }
   };
 
-  const formatCPF = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    let formatted = digits;
-    if (digits.length > 3) formatted = digits.slice(0, 3) + '.' + digits.slice(3);
-    if (digits.length > 6) formatted = formatted.slice(0, 7) + '.' + digits.slice(6);
-    if (digits.length > 9) formatted = formatted.slice(0, 11) + '-' + digits.slice(9, 11);
-    return formatted;
+  const handleCEPSearch = async () => {
+    if (formData.cep.length < 8) return;
+    
+    const addressData = await fetchAddress(formData.cep);
+    
+    if (addressData) {
+      const fullAddress = `${addressData.logradouro}, ${addressData.bairro}, ${addressData.localidade} - ${addressData.uf}`;
+      setFormData(prev => ({ ...prev, address: fullAddress }));
+      toast({
+        title: "Endereço encontrado!",
+        description: "Complete com número e complemento se necessário",
+      });
+    } else if (cepError) {
+      toast({
+        title: "CEP não encontrado",
+        description: cepError,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -84,15 +101,17 @@ export default function Settings() {
       return;
     }
 
-    const cpfDigits = formData.cpf.replace(/\D/g, '');
-    if (cpfDigits.length !== 11) {
+    const cpfValidation = validateCPF(formData.cpf);
+    if (!cpfValidation.valid) {
       toast({
         title: "CPF inválido",
-        description: "O CPF deve conter 11 dígitos",
+        description: cpfValidation.error,
         variant: "destructive",
       });
       return;
     }
+    
+    const cpfDigits = formData.cpf.replace(/\D/g, '');
 
     if (!formData.phone.trim()) {
       toast({
@@ -227,6 +246,37 @@ export default function Settings() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="cep" className="text-base font-semibold flex items-center gap-2">
+                  <span>CEP</span>
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="cep"
+                    type="text"
+                    value={formData.cep}
+                    onChange={(e) => {
+                      const formatted = e.target.value.replace(/\D/g, '').slice(0, 8);
+                      setFormData(prev => ({ ...prev, cep: formatted }));
+                    }}
+                    onBlur={handleCEPSearch}
+                    placeholder="00000-000"
+                    maxLength={9}
+                    className="flex-1 h-12 text-base border-2 focus:border-primary transition-all"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleCEPSearch}
+                    disabled={cepLoading || formData.cep.length !== 8}
+                    variant="outline"
+                    size="icon"
+                    className="h-12 w-12"
+                  >
+                    {cepLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="address" className="text-base font-semibold flex items-center gap-2">
                   <span>Endereço completo</span>
                   <span className="text-primary">*</span>
@@ -235,7 +285,7 @@ export default function Settings() {
                   id="address"
                   value={formData.address}
                   onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                  placeholder="R. Nome da Rua, 123, Bairro"
+                  placeholder="R. Nome da Rua, 123, Bairro, Cidade - UF"
                   className="min-h-[100px] text-base border-2 focus:border-primary transition-all resize-none"
                   rows={4}
                   required

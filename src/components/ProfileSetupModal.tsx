@@ -20,9 +20,11 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
     name: "",
     cpf: "",
     phone: "",
+    cep: "",
     address: "",
   });
   const { toast } = useToast();
+  const { fetchAddress, loading: cepLoading, error: cepError } = useAddressByCEP();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,15 +47,17 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
       return;
     }
 
-    const cpfDigits = formData.cpf.replace(/\D/g, '');
-    if (cpfDigits.length !== 11) {
+    const cpfValidation = validateCPF(formData.cpf);
+    if (!cpfValidation.valid) {
       toast({
         title: "CPF inválido",
-        description: "O CPF deve conter 11 dígitos",
+        description: cpfValidation.error,
         variant: "destructive",
       });
       return;
     }
+    
+    const cpfDigits = formData.cpf.replace(/\D/g, '');
 
     if (!formData.phone.trim()) {
       toast({

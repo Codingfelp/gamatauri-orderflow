@@ -190,4 +190,80 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// ========================================
+// PUSH NOTIFICATIONS
+// ========================================
+self.addEventListener('push', (event) => {
+  console.log('[SW] Push recebido:', event.data?.text());
+  
+  const data = event.data ? event.data.json() : {};
+  
+  const title = data.title || 'Gamatauri Delivery';
+  const options = {
+    body: data.body || 'Você tem uma atualização!',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/icon-96x96.png',
+    data: {
+      url: data.url || '/',
+      orderId: data.orderId,
+      cartItems: data.cartItems
+    },
+    actions: [
+      { action: 'open', title: 'Abrir' },
+      { action: 'close', title: 'Fechar' }
+    ],
+    vibrate: [200, 100, 200],
+    tag: data.tag || 'notification',
+    requireInteraction: true
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// ========================================
+// NOTIFICATION CLICK - Deep linking
+// ========================================
+self.addEventListener('notificationclick', (event) => {
+  console.log('[SW] Notificação clicada:', event.action);
+  
+  event.notification.close();
+  
+  if (event.action === 'close') {
+    return;
+  }
+  
+  const urlToOpen = event.notification.data.url || '/';
+  const cartItems = event.notification.data.cartItems;
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Se já tem uma janela aberta, focar nela
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          // Se tem carrinho, enviar mensagem para restaurar
+          if (cartItems) {
+            client.postMessage({
+              type: 'RESTORE_CART',
+              cart: cartItems
+            });
+          }
+          return client.focus();
+        }
+      }
+      
+      // Se não tem janela aberta, abrir nova
+      if (clients.openWindow) {
+        let finalUrl = urlToOpen;
+        if (cartItems) {
+          // Passar carrinho via query string
+          finalUrl += `?restoreCart=true`;
+        }
+        return clients.openWindow(finalUrl);
+      }
+    })
+  );
+});
+
 console.log('[SW] Service Worker carregado - v' + CACHE_VERSION);
