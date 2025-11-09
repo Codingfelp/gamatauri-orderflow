@@ -1,8 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import freteGratisBanner from "@/assets/promotions/frete-gratis-banner.jpg";
 
 interface Promotion {
@@ -58,9 +56,6 @@ export const PromotionsCarousel = () => {
   );
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-
   useEffect(() => {
     if (!emblaApi) return;
 
@@ -78,16 +73,16 @@ export const PromotionsCarousel = () => {
 
   return (
     <div className="relative w-full">
-      <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
+      <div className="overflow-hidden rounded-2xl shadow-lg" ref={emblaRef}>
         <div className="flex">
           {promotions.map((promo) => (
             <div key={promo.id} className="flex-[0_0_100%] min-w-0">
               {promo.type === 'image' ? (
-                <div className="relative w-full h-48 md:h-64">
+                <div className="relative w-full h-48 md:h-64 bg-gradient-to-br from-red-50 to-red-100">
                   <img
                     src={promo.image}
                     alt={promo.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
               ) : (
@@ -106,24 +101,6 @@ export const PromotionsCarousel = () => {
           ))}
         </div>
       </div>
-
-      {/* Navigation Buttons */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg"
-        onClick={scrollPrev}
-      >
-        <ChevronLeft className="h-6 w-6" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg"
-        onClick={scrollNext}
-      >
-        <ChevronRight className="h-6 w-6" />
-      </Button>
 
       {/* Dots Indicator */}
       <div className="flex justify-center gap-2 mt-4">

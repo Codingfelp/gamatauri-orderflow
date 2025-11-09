@@ -9,7 +9,6 @@ import { ActiveOrderBanner } from "@/components/ActiveOrderBanner";
 import { AddressSelector } from "@/components/AddressSelector";
 import { ProfileIncompleteAlert } from "@/components/ProfileIncompleteAlert";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/gamatauri-logo.png";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -81,38 +80,24 @@ export const Header = () => {
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-card shadow-md backdrop-blur-sm bg-card/95">
         <div className="container mx-auto px-4 flex h-20 items-center justify-between">
-          <div className="flex items-center gap-4 md:gap-6 flex-1">
-            <div 
-              className="flex items-center gap-2 cursor-pointer group flex-shrink-0" 
-              onClick={() => navigate('/')}
-            >
-              <img 
-                src={logo} 
-                alt="Gamatauri - Distribuidora de Bebidas" 
-                className="h-6 md:h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
+          <div className="flex-1" />
 
-            {user && (
-              <div 
-                onClick={() => setShowAddressSelector(true)}
-                className="flex items-center gap-2 cursor-pointer hover:bg-accent/50 px-3 py-2 rounded-lg transition-colors"
-              >
-                <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
-                <div className="hidden sm:block">
-                  <p className="text-xs text-muted-foreground">Entregar em</p>
-                  <p className="font-semibold text-sm truncate max-w-[200px] md:max-w-[300px]">
-                    {userAddress || "Selecione o endereço"} ▼
-                  </p>
-                </div>
-                <p className="sm:hidden font-semibold text-sm">
-                  {userAddress ? userAddress.split(',')[0] : "Endereço"} ▼
+          {user && (
+            <div 
+              onClick={() => setShowAddressSelector(true)}
+              className="flex items-center gap-2 cursor-pointer hover:bg-accent/50 px-4 py-2 rounded-lg transition-colors"
+            >
+              <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-xs text-muted-foreground text-center">Entregar em</p>
+                <p className="font-semibold text-sm text-center">
+                  {userAddress || "Selecione o endereço"} ▼
                 </p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div className="flex items-center gap-4 flex-shrink-0">
+          <div className="flex-1 flex justify-end items-center gap-4">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

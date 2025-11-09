@@ -212,11 +212,6 @@ const Order = () => {
       <Header />
       
       <main className="container mx-auto px-0 py-6 md:py-10">
-        {/* ENDEREÇO DO CLIENTE */}
-        <div className="mb-4 px-4 flex justify-center md:justify-start">
-          <UserAddressDisplay />
-        </div>
-
         {/* 1. PROMOÇÕES */}
         <div className="mb-8 px-4">
           <PromotionsCarousel />
