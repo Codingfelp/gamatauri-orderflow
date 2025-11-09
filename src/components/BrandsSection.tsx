@@ -16,7 +16,7 @@ const getLogoClasses = (brandName: string) => {
   ];
   
   return needsContain.includes(brandName)
-    ? "w-full h-full object-contain p-0.5 transition-transform duration-300 group-hover:scale-125"
+    ? "w-full h-full object-contain p-1 scale-110 transition-transform duration-300 group-hover:scale-125"
     : "w-full h-full object-cover transition-transform duration-300 group-hover:scale-110";
 };
 

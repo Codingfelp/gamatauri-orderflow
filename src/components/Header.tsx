@@ -86,7 +86,7 @@ export const Header = () => {
             <img 
               src={logo} 
               alt="Gamatauri - Distribuidora de Bebidas" 
-              className="h-10 w-auto object-contain hover:opacity-80 transition-opacity"
+              className="h-8 w-auto object-contain hover:opacity-80 transition-opacity"
             />
           </div>
 
@@ -100,10 +100,10 @@ export const Header = () => {
                 onClick={() => setShowAddressSelector(true)}
                 className="flex items-center gap-2 cursor-pointer hover:bg-accent/50 px-4 py-2 rounded-lg transition-colors"
               >
-                <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
+                <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">Entregar em</p>
-                  <p className="font-semibold text-sm md:text-base">
+                  <p className="font-semibold text-sm">
                     {userAddress || "Selecione o endereço"} ▼
                   </p>
                 </div>
@@ -114,9 +114,9 @@ export const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-12 w-12 md:h-14 md:w-14 rounded-full hover:bg-accent transition-colors">
-                    <Avatar className="h-12 w-12 md:h-14 md:w-14">
-                      <AvatarFallback className="bg-primary text-primary-foreground text-lg md:text-xl font-bold">
+                  <Button variant="ghost" className="relative h-10 w-10 md:h-12 md:w-12 rounded-full hover:bg-accent transition-colors">
+                    <Avatar className="h-10 w-10 md:h-12 md:w-12">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-base md:text-lg font-bold">
                         {user.email?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
