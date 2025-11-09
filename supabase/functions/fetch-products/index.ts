@@ -75,6 +75,8 @@ serve(async (req) => {
     }
 
     console.log('Fetching products from Gamatauri API');
+    console.log('API URL:', 'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api');
+    console.log('API Key present:', !!Deno.env.get('PRODUCTS_API_KEY'));
     
     const response = await fetch(
       'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api',
@@ -87,10 +89,23 @@ serve(async (req) => {
       }
     );
 
+    console.log('Response status:', response.status);
+    console.log('Response ok:', response.ok);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Error fetching products:', errorData);
-      throw new Error(errorData.error || 'Failed to fetch products');
+      const responseText = await response.text();
+      console.error('Error response status:', response.status);
+      console.error('Error response body:', responseText);
+      
+      let errorData;
+      try {
+        errorData = JSON.parse(responseText);
+      } catch {
+        errorData = { error: responseText };
+      }
+      
+      throw new Error(`API returned ${response.status}: ${errorData.error || responseText || 'Failed to fetch products'}`);
     }
 
     const result = await response.json();
@@ -118,6 +133,42 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in fetch-products function:', error);
+    console.log('Attempting fallback to local database...');
+    
+    try {
+      // Fallback: buscar produtos da tabela local
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.38.4');
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { data: localProducts, error: dbError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('available', true)
+        .order('name');
+      
+      if (dbError) throw dbError;
+      
+      console.log(`Fallback successful: ${localProducts?.length || 0} products from database`);
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: localProducts || [],
+          count: localProducts?.length || 0,
+          cached: false,
+          fallback: true,
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    } catch (fallbackError) {
+      console.error('Fallback also failed:', fallbackError);
+    }
+    
+    // Se fallback também falhar, retornar erro original
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return new Response(
       JSON.stringify({
