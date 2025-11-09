@@ -87,16 +87,24 @@ serve(async (req) => {
             cleanImageUrl = null;
           }
 
+          // Prepare update data
+          const updateData: any = {
+            description: product.description,
+            price: product.price,
+            category: product.category,
+            available: product.available,
+          };
+
+          // Only update image_url if we have a valid URL from external API
+          // Don't overwrite existing images with null
+          if (cleanImageUrl) {
+            updateData.image_url = cleanImageUrl;
+          }
+
           // Update existing product
           const { error: updateError } = await supabase
             .from('products')
-            .update({
-              description: product.description,
-              price: product.price,
-              category: product.category,
-              image_url: cleanImageUrl,
-              available: product.available,
-            })
+            .update(updateData)
             .eq('id', existing.id);
 
           if (updateError) {

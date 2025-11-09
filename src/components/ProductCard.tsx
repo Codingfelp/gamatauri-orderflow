@@ -18,7 +18,7 @@ interface ProductCardProps {
 
 export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => {
   return (
-    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border-border">
+    <Card className="h-full group overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border-border flex flex-col">
       <div className="relative aspect-[4/3] md:aspect-square overflow-hidden bg-accent/10">
         {product.image_url && 
          product.image_url !== 'SIM' && 
@@ -49,7 +49,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
           </div>
         )}
       </div>
-      <div className="p-2 md:p-2.5 space-y-1 md:space-y-1.5">
+      <div className="p-2 md:p-2.5 space-y-1 md:space-y-1.5 flex-1 flex flex-col">
         <h3 className="font-bold text-xs md:text-sm text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
           {product.name}
         </h3>
@@ -58,7 +58,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             {product.description}
           </p>
         )}
-        <div className="flex items-center justify-between pt-1 md:pt-1.5 border-t border-border">
+        <div className="flex items-center justify-between pt-1 md:pt-1.5 border-t border-border mt-auto">
           <span className="text-base md:text-xl font-bold text-primary">
             R$ {product.price.toFixed(2)}
           </span>

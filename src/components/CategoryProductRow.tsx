@@ -74,10 +74,10 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
             </Button>
           )}
 
-          <div className="overflow-hidden" ref={emblaRef}>
+          <div className="overflow-hidden min-h-[280px] md:min-h-[360px]" ref={emblaRef}>
             <div className="flex gap-4">
               {displayedProducts.map((product) => (
-                <div key={product.id} className="flex-[0_0_160px] sm:flex-[0_0_200px] md:flex-[0_0_240px]">
+                <div key={product.id} className="flex-[0_0_160px] sm:flex-[0_0_200px] md:flex-[0_0_240px] min-h-[280px] md:min-h-[360px]">
                   <ProductCard product={product} onAddToCart={onAddToCart} />
                 </div>
               ))}
