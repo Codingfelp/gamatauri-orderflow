@@ -70,37 +70,35 @@ export default function Auth() {
     try {
       console.log('🔍 [PROFILE CHECK] Tentativa', retryCount + 1, '- Verificando perfil para:', user.id);
       
+      // AUMENTAR DELAY INICIAL para dar tempo ao trigger
+      if (retryCount === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay inicial
+      }
+      
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('phone, address, name, user_id, email')
+        .select('phone, address, name, cpf, user_id, email')
         .eq('user_id', user.id)
         .maybeSingle();
 
       console.log('📊 [PROFILE CHECK] Resultado da query:', { profile, error, retryCount });
 
       if (error) {
-        console.error('❌ [PROFILE CHECK] Erro ao buscar perfil:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
-        
-        // Abrir modal para completar perfil
+        console.error('❌ [PROFILE CHECK] Erro ao buscar perfil:', error);
         setUserId(user.id);
         setShowProfileModal(true);
         return false;
       }
 
       if (!profile) {
-        // Perfil não existe ainda - pode ser que o trigger ainda não executou
-        if (retryCount < 2) {
-          console.warn(`⏳ [PROFILE CHECK] Perfil não encontrado, tentando novamente em 300ms... (${retryCount + 1}/2)`);
-          await new Promise(resolve => setTimeout(resolve, 300));
+        // Perfil não existe - tentar novamente
+        if (retryCount < 3) { // AUMENTAR de 2 para 3 tentativas
+          console.warn(`⏳ [PROFILE CHECK] Perfil não encontrado, tentando novamente... (${retryCount + 1}/3)`);
+          await new Promise(resolve => setTimeout(resolve, 500)); // 500ms entre tentativas
           return checkProfileComplete(user, retryCount + 1);
         }
         
-        console.warn('⚠️ [PROFILE CHECK] Perfil não criado após 2 tentativas, abrindo modal');
+        console.warn('⚠️ [PROFILE CHECK] Perfil não criado após 3 tentativas, abrindo modal');
         setUserId(user.id);
         setShowProfileModal(true);
         return false;
@@ -108,29 +106,32 @@ export default function Auth() {
 
       console.log('📋 [PROFILE CHECK] Perfil encontrado:', profile);
 
-    // ✅ Perfil completo: verificar campos obrigatórios
-    if (!profile.name || !(profile as any).cpf || !profile.phone || !profile.address) {
-      console.log('⚠️ [PROFILE CHECK] Perfil incompleto - falta:', {
-        name: !profile.name,
+      // ✅ VERIFICAÇÃO CRÍTICA: cpf, phone e address são SEMPRE obrigatórios
+      // name pode vir do Google, mas os outros 3 campos precisam ser preenchidos
+      const missingFields = {
         cpf: !(profile as any).cpf,
         phone: !profile.phone,
         address: !profile.address
-      });
-      setUserId(user.id);
-      setShowProfileModal(true);
-      return false;
-    }
+      };
+
+      if (missingFields.cpf || missingFields.phone || missingFields.address) {
+        console.log('⚠️ [PROFILE CHECK] Perfil incompleto - faltam campos:', missingFields);
+        setUserId(user.id);
+        setShowProfileModal(true);
+        return false;
+      }
       
       console.log('✅ [PROFILE CHECK] Perfil completo!');
       return true;
     } catch (error) {
       console.error('❌ [PROFILE CHECK] Exceção inesperada:', error);
-      // Em caso de exceção, tentar novamente se ainda tiver tentativas
-      if (retryCount < 2) {
-        console.log(`🔄 [PROFILE CHECK] Tentando novamente após exceção... (${retryCount + 1}/2)`);
-        await new Promise(resolve => setTimeout(resolve, 300));
+      if (retryCount < 3) {
+        await new Promise(resolve => setTimeout(resolve, 500));
         return checkProfileComplete(user, retryCount + 1);
       }
+      // Em caso de erro persistente, abrir modal para garantir coleta de dados
+      setUserId(user.id);
+      setShowProfileModal(true);
       return false;
     }
   };

@@ -13,6 +13,7 @@ const Success = lazy(() => import("./pages/Success"));
 const Tasks = lazy(() => import("./pages/Tasks"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Orders = lazy(() => import("./pages/Orders"));
+const Settings = lazy(() => import("./pages/Settings"));
 const Install = lazy(() => import("./pages/Install"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/success" element={<Success />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/install" element={<Install />} />
             <Route path="/tasks" element={<Tasks />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

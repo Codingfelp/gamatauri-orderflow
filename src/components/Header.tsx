@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Package, MapPin } from "lucide-react";
+import { User, LogOut, Package, MapPin, Settings as SettingsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { ActiveOrderBanner } from "@/components/ActiveOrderBanner";
 import { AddressSelector } from "@/components/AddressSelector";
+import { ProfileIncompleteAlert } from "@/components/ProfileIncompleteAlert";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/gamatauri-logo.png";
 
@@ -15,10 +16,12 @@ export const Header = () => {
   const { user, signOut } = useAuth();
   const [userAddress, setUserAddress] = useState<string>("");
   const [showAddressSelector, setShowAddressSelector] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
 
   useEffect(() => {
     if (user) {
       loadUserAddress();
+      checkProfileComplete();
     }
   }, [user]);
 
@@ -44,6 +47,30 @@ export const Header = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const checkProfileComplete = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("name, cpf, phone, address")
+        .eq("user_id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      const missing: string[] = [];
+      if (!data?.name) missing.push('nome');
+      if (!(data as any)?.cpf) missing.push('CPF');
+      if (!data?.phone) missing.push('telefone');
+      if (!data?.address) missing.push('endereço');
+
+      setMissingFields(missing);
+    } catch (error) {
+      console.error("Error checking profile:", error);
+    }
   };
 
   const handleAddressSelect = (address: string) => {
@@ -104,6 +131,10 @@ export const Header = () => {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer">
+                    <SettingsIcon className="mr-2 h-4 w-4" />
+                    Configurações
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate('/orders')} className="cursor-pointer">
                     <Package className="mr-2 h-4 w-4" />
                     Pedidos
@@ -123,6 +154,7 @@ export const Header = () => {
           </div>
         </div>
       </header>
+      <ProfileIncompleteAlert missingFields={missingFields} />
       <ActiveOrderBanner />
       
       {user && (
