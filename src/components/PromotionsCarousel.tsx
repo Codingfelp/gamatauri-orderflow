@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import freteGratisBanner from "@/assets/promotions/frete-gratis-banner.jpg";
+import beatsComboBanner from "@/assets/promotions/beats-combo-banner.jpg";
 
 interface Promotion {
   id: number;
@@ -25,10 +26,11 @@ const promotions: Promotion[] = [
   },
   {
     id: 2,
-    type: 'gradient',
-    title: '🍺 Cervejas em Promoção',
-    description: 'Descontos especiais em cervejas selecionadas',
-    gradient: 'from-amber-500 via-amber-600 to-amber-700',
+    type: 'image',
+    image: beatsComboBanner,
+    title: 'Combo BEATS',
+    description: 'Leve 3 por 20 - O combo pro seu MIX',
+    gradient: '',
     textColor: 'text-white'
   },
   {
