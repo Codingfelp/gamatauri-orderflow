@@ -102,7 +102,7 @@ function parseProductName(name: string, category: string): ParsedProduct {
   return { brand, size, flavor, originalName: name };
 }
 
-function getProductColor(productName: string, flavor: string): string {
+export const getProductColor = (productName: string, flavor: string): string => {
   const key = `${productName.toLowerCase()}-${flavor.toLowerCase()}`;
   
   const colorMap: Record<string, string> = {
@@ -213,7 +213,7 @@ function getProductColor(productName: string, flavor: string): string {
   if (lowerName.includes('gatorade')) return '#FF8C00';
   
   return '#E0E0E0';
-}
+};
 
 export function groupProductsByVariants(
   products: Product[],

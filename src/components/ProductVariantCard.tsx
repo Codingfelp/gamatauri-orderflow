@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductVariantModal } from "./ProductVariantModal";
-import { ProductGroup, ProductVariant } from "@/utils/productVariants";
+import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -24,14 +24,23 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   };
   
   const [emblaRef] = useEmblaCarousel(
-    { loop: true, align: 'center' },
-    [Autoplay({ delay: 2000, stopOnInteraction: false })]
+    { 
+      loop: true, 
+      align: 'start',
+      slidesToScroll: 1,
+      containScroll: 'trimSnaps'
+    },
+    [Autoplay({ delay: 2500, stopOnInteraction: false })]
   );
+  
+  const buttonColor = selectedVariant 
+    ? getProductColor(selectedVariant.name, selectedVariant.flavor)
+    : getProductColor(variants[0].name, variants[0].flavor);
   
   return (
     <>
       <Card 
-        className="h-full group overflow-hidden transition-all duration-300 border-border flex flex-col hover:shadow-xl hover:scale-[1.02] cursor-pointer"
+        className="min-h-[420px] group overflow-hidden transition-all duration-300 border-border flex flex-col hover:shadow-xl hover:scale-[1.02] cursor-pointer"
         onClick={() => setIsModalOpen(true)}
       >
         <div className="relative h-48 md:h-56 overflow-hidden bg-accent/10 flex items-center justify-center">
@@ -52,7 +61,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           
         </div>
         
-        <div className="overflow-hidden -mt-6 px-4 mb-3 relative z-10" ref={emblaRef}>
+        <div className="overflow-hidden -mt-6 px-4 mb-3 relative z-10 max-w-[216px] mx-auto" ref={emblaRef}>
           <div className="flex gap-2">
             {variants.map((variant) => (
               <div 
@@ -93,7 +102,15 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
               </span>
             </div>
             
-            <Button size="sm" className="font-semibold h-8 text-xs px-3">
+            <Button 
+              size="sm" 
+              className="font-semibold h-8 text-xs px-3"
+              style={{ 
+                backgroundColor: buttonColor,
+                color: '#fff',
+                border: 'none'
+              }}
+            >
               Ver Sabores
             </Button>
           </div>
