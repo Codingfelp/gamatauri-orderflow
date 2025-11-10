@@ -93,6 +93,16 @@ const brands: Brand[] = [
   },
   { 
     id: "11", 
+    name: "Baly", 
+    searchTerm: "baly",
+    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNBWNwdk7vSFXg-fMsOfBlsbnZnk2r0-t-Rw&s",
+    filterLogic: (name) => {
+      const normalized = name.toLowerCase();
+      return normalized.includes("baly");
+    }
+  },
+  { 
+    id: "12", 
     name: "Corona", 
     searchTerm: "corona",
     logo: "https://cdn.cookielaw.org/logos/11821760-d248-4745-b43e-10d85e89e988/9886c9d8-a55a-4da5-96ac-b35949fd330c/9ac9dee6-b5d3-462a-acfe-99369a84480f/Corona_Logo12.jpg",
@@ -102,27 +112,27 @@ const brands: Brand[] = [
     }
   },
   { 
-    id: "12", 
+    id: "13", 
     name: "Laut",
     searchTerm: "laut",
     logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1XWm7F9O3V8debMSWC9iSV4yJQCOvw5rdRQ&s"
   },
   { 
-    id: "13", 
+    id: "14", 
     name: "Tial", 
     searchTerm: "tial",
     logo: "https://d3p2amk7tvag7f.cloudfront.net/brands/e823404ef2b4737dd3e61b11ce924b3298e46360.png",
     filterLogic: (name) => name.toLowerCase().includes("tial")
   },
   { 
-    id: "14", 
+    id: "15", 
     name: "Doritos", 
     searchTerm: "doritos",
     logo: "https://pbs.twimg.com/profile_images/1214557821749972992/OXfyImwY.jpg",
     filterLogic: (name) => name.toLowerCase().includes("doritos")
   },
   { 
-    id: "15", 
+    id: "16", 
     name: "Lays", 
     searchTerm: "lays",
     logo: "https://pbs.twimg.com/profile_images/1174678997374033920/5_6IucF8_400x400.png",

@@ -29,18 +29,18 @@ const promotions: Promotion[] = [
   {
     id: 2,
     type: 'image',
-    image: beatsPraiaBanner,
-    title: 'Combo BEATS',
-    description: 'Leve 3 por 20 - O combo pro seu MIX',
+    image: primeiraCompraBanner,
+    title: 'Primeira Compra',
+    description: 'Use o cupom TAURIFRETEOFF',
     gradient: '',
     textColor: 'text-white'
   },
   {
     id: 3,
     type: 'image',
-    image: primeiraCompraBanner,
-    title: 'Primeira Compra',
-    description: 'Use o cupom TAURIFRETEOFF',
+    image: beatsPraiaBanner,
+    title: 'Combo BEATS',
+    description: 'Leve 3 por 20 - O combo pro seu MIX',
     gradient: '',
     textColor: 'text-white'
   },
