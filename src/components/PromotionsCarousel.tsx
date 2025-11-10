@@ -3,6 +3,8 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import freteGratisBanner from "@/assets/promotions/frete-gratis-banner.jpg";
 import beatsComboBanner from "@/assets/promotions/beats-combo-banner.jpg";
+import beatsPraiaBanner from "@/assets/promotions/beats-praia-banner.png";
+import primeiraCompraBanner from "@/assets/promotions/primeira-compra-banner.png";
 
 interface Promotion {
   id: number;
@@ -27,7 +29,7 @@ const promotions: Promotion[] = [
   {
     id: 2,
     type: 'image',
-    image: beatsComboBanner,
+    image: beatsPraiaBanner,
     title: 'Combo BEATS',
     description: 'Leve 3 por 20 - O combo pro seu MIX',
     gradient: '',
@@ -35,10 +37,11 @@ const promotions: Promotion[] = [
   },
   {
     id: 3,
-    type: 'gradient',
-    title: '🎉 10% OFF na primeira compra',
-    description: 'Ganhe 10% de desconto no seu primeiro pedido',
-    gradient: 'from-green-500 via-green-600 to-green-700',
+    type: 'image',
+    image: primeiraCompraBanner,
+    title: 'Primeira Compra',
+    description: 'Use o cupom TAURIFRETEOFF',
+    gradient: '',
     textColor: 'text-white'
   },
   {
