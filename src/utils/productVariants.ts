@@ -30,13 +30,13 @@ const GROUPING_RULES: Record<string, {
   extractSize: boolean;
   extractFlavor: boolean;
 }> = {
-  'Refrigerantes': { groupBy: ['brand', 'size'], extractSize: true, extractFlavor: true },
+  'Refrigerantes': { groupBy: ['size'], extractSize: true, extractFlavor: true },
   'Energéticos': { groupBy: ['brand', 'size'], extractSize: true, extractFlavor: true },
-  'Cervejas': { groupBy: ['brand', 'size'], extractSize: true, extractFlavor: false },
   'Sucos': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
   'Drinks': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
   'Vinhos': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
-  'Destilados': { groupBy: ['brand'], extractSize: false, extractFlavor: true }
+  'Destilados': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Chocolates': { groupBy: ['brand'], extractSize: false, extractFlavor: true }
 };
 
 const BRAND_PATTERNS: Record<string, RegExp> = {
@@ -45,8 +45,8 @@ const BRAND_PATTERNS: Record<string, RegExp> = {
   sucos: /^(Del Valle|Tial|Maguary|Gatorade|Ades|Tang)\s*/i,
   drinks: /^(Beats|Smirnoff|Xeque Mate|Lambe)\s*/i,
   vinhos: /^(Santa Carolina|Concha y Toro|Casal|Campo Largo|Aurora)\s*/i,
-  cervejas: /^(Heineken|Stella|Corona|Brahma|Original|Budweiser|Skol)\s*/i,
-  destilados: /^(Corote|Smirnoff|Absolut|Jack Daniel|Johnnie Walker)\s*/i
+  destilados: /^(Corote|Smirnoff|Absolut|Jack Daniel|Johnnie Walker)\s*/i,
+  chocolates: /^(Lacta|Nestlé|Nestle|Garoto|Hershey|Ferrero)\s*/i
 };
 
 const SIZE_PATTERNS = [
@@ -102,30 +102,27 @@ function parseProductName(name: string, category: string): ParsedProduct {
   return { brand, size, flavor, originalName: name };
 }
 
-function getBrandGradient(brand: string): string {
-  const gradients: Record<string, string> = {
-    'Baly': 'from-purple-600 via-pink-500 to-purple-600',
-    'Red Bull': 'from-blue-600 via-cyan-400 to-blue-600',
-    'Monster': 'from-green-600 via-emerald-400 to-green-600',
-    'Coca-Cola': 'from-red-700 via-red-500 to-red-700',
-    'Coca': 'from-red-700 via-red-500 to-red-700',
-    'Pepsi': 'from-blue-700 via-blue-500 to-blue-700',
-    'Guaraná': 'from-green-600 via-green-400 to-green-600',
-    'Guarana': 'from-green-600 via-green-400 to-green-600',
-    'Sprite': 'from-lime-500 via-green-300 to-lime-500',
-    'Fanta': 'from-orange-600 via-orange-400 to-orange-600',
-    'Heineken': 'from-green-700 via-green-500 to-green-700',
-    'Stella': 'from-amber-600 via-yellow-400 to-amber-600',
-    'Corona': 'from-amber-500 via-yellow-300 to-amber-500',
-    'Brahma': 'from-red-600 via-red-400 to-red-600',
-    'Beats': 'from-orange-600 via-amber-400 to-orange-600',
-    'Smirnoff': 'from-red-600 via-rose-400 to-red-600',
-    'Del Valle': 'from-orange-500 via-yellow-400 to-orange-500',
-    'Tial': 'from-purple-600 via-purple-400 to-purple-600',
-    'Corote': 'from-rose-600 via-pink-400 to-rose-600'
+function getProductColor(productName: string, flavor: string): string {
+  const key = `${productName.toLowerCase()}-${flavor.toLowerCase()}`;
+  const colorMap: Record<string, string> = {
+    'baly-tradicional': '#FFD700', 'baly-original': '#FFD700', 'baly-tropicall': '#FFA500',
+    'baly-coco e açaí': '#87CEEB', 'baly-coco e acai': '#87CEEB', 'baly-freegels cereja': '#DC143C',
+    'baly-maçã verde': '#90EE90', 'baly-maca verde': '#90EE90',
+    'tial-laranja': '#FFD700', 'tial-uva': '#9370DB', 'tial-maracujá': '#FFD700', 'tial-maracuja': '#FFD700',
+    'maguary-laranja': '#CD5C5C', 'maguary-uva': '#8B008B',
+    'del valle-laranja': '#FFA500', 'del valle-uva': '#9370DB',
+    'red bull-tradicional': '#4169E1', 'monster-original': '#90EE90'
   };
-  
-  return gradients[brand] || 'from-primary via-primary/70 to-primary';
+  for (const [mapKey, color] of Object.entries(colorMap)) {
+    if (key.includes(mapKey)) return color;
+  }
+  const lowerName = productName.toLowerCase();
+  if (lowerName.includes('baly')) return '#FFD700';
+  if (lowerName.includes('tial')) return '#FFD700';
+  if (lowerName.includes('maguary')) return '#CD5C5C';
+  if (lowerName.includes('coca')) return '#DC143C';
+  if (lowerName.includes('pepsi')) return '#4169E1';
+  return '#E0E0E0';
 }
 
 export function groupProductsByVariants(
@@ -143,7 +140,12 @@ export function groupProductsByVariants(
     const parsed = parseProductName(product.name, category);
     
     let groupKey = parsed.brand;
-    if (rule.groupBy.includes('size') && parsed.size) {
+    let displayBrand = parsed.brand;
+    
+    if (category === 'Refrigerantes' && parsed.size) {
+      groupKey = parsed.size;
+      displayBrand = `Refrigerantes ${parsed.size}`;
+    } else if (rule.groupBy.includes('size') && parsed.size) {
       groupKey += `-${parsed.size}`;
     }
     
@@ -151,7 +153,7 @@ export function groupProductsByVariants(
       groups[groupKey] = {
         groupKey,
         baseProduct: {
-          brand: parsed.brand,
+          brand: displayBrand,
           type: category,
           size: parsed.size,
           category: product.category || category
@@ -159,7 +161,7 @@ export function groupProductsByVariants(
         variants: [],
         mainImage: product.image_url,
         priceRange: { min: Infinity, max: -Infinity },
-        brandColor: getBrandGradient(parsed.brand),
+        brandColor: getProductColor(product.name, parsed.flavor),
         availableCount: 0
       };
     }

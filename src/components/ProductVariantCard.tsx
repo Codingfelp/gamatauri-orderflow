@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ProductVariantModal } from "./ProductVariantModal";
 import { ProductGroup } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
 
 interface ProductVariantCardProps {
   productGroup: ProductGroup;
@@ -13,10 +14,12 @@ interface ProductVariantCardProps {
 
 export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariantCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { baseProduct, variants, mainImage, priceRange, availableCount } = productGroup;
+  const { baseProduct, variants, mainImage, priceRange } = productGroup;
   
-  const previewVariants = variants.slice(0, 4);
-  const hasMore = variants.length > 4;
+  const [emblaRef] = useEmblaCarousel(
+    { loop: true, align: 'center' },
+    [Autoplay({ delay: 2000, stopOnInteraction: false })]
+  );
   
   return (
     <>
@@ -40,35 +43,30 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
             </div>
           )}
           
-          <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground shadow-lg font-bold">
-            {availableCount} {availableCount === 1 ? 'sabor' : 'sabores'}
-          </Badge>
         </div>
         
-        <div className="flex justify-center gap-1 px-2 -mt-4 mb-2 relative z-10">
-          {previewVariants.map((variant, index) => (
-            <div 
-              key={variant.id}
-              className="w-10 h-10 rounded-full border-2 border-white bg-white overflow-hidden shadow-md"
-              style={{ marginLeft: index > 0 ? '-8px' : '0' }}
-            >
-              {variant.image_url ? (
-                <img 
-                  src={variant.image_url} 
-                  alt={variant.flavor}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className={`w-full h-full bg-gradient-to-br ${productGroup.brandColor} opacity-30`} />
-              )}
-            </div>
-          ))}
-          
-          {hasMore && (
-            <div className="w-10 h-10 rounded-full border-2 border-white bg-primary flex items-center justify-center text-xs font-bold text-white shadow-md -ml-2">
-              +{variants.length - 4}
-            </div>
-          )}
+        <div className="overflow-hidden -mt-6 px-4 mb-3 relative z-10" ref={emblaRef}>
+          <div className="flex gap-2">
+            {variants.map((variant) => (
+              <div 
+                key={variant.id}
+                className="flex-[0_0_48px] w-12 h-12 rounded-lg overflow-hidden border-2 border-white bg-white shadow-md"
+              >
+                {variant.image_url ? (
+                  <img 
+                    src={variant.image_url} 
+                    alt={variant.flavor}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div 
+                    className="w-full h-full opacity-30" 
+                    style={{ backgroundColor: productGroup.brandColor }}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
         </div>
         
         <div className="p-2 md:p-3 space-y-1 flex-1 flex flex-col">

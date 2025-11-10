@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
 import { ProductGroup } from "@/utils/productVariants";
@@ -15,210 +14,121 @@ interface ProductVariantModalProps {
   onAddToCart: (product: Product) => void;
 }
 
-export const ProductVariantModal = ({ 
-  isOpen, 
-  onClose, 
-  productGroup, 
-  onAddToCart 
-}: ProductVariantModalProps) => {
-  const { baseProduct, variants, brandColor } = productGroup;
+const getProductColor = (productName: string, flavor: string): string => {
+  const key = `${productName.toLowerCase()}-${flavor.toLowerCase()}`;
+  const colorMap: Record<string, string> = {
+    'baly-tradicional': '#FFD700', 'baly-original': '#FFD700', 'baly-tropicall': '#FFA500',
+    'baly-coco e açaí': '#87CEEB', 'baly-coco e acai': '#87CEEB', 'baly-freegels cereja': '#DC143C',
+    'baly-maçã verde': '#90EE90', 'baly-maca verde': '#90EE90',
+    'tial-laranja': '#FFD700', 'tial-uva': '#9370DB', 'maguary-laranja': '#CD5C5C', 'maguary-uva': '#8B008B',
+    'del valle-laranja': '#FFA500', 'red bull-tradicional': '#4169E1', 'monster-original': '#90EE90'
+  };
+  for (const [mapKey, color] of Object.entries(colorMap)) {
+    if (key.includes(mapKey)) return color;
+  }
+  const lowerName = productName.toLowerCase();
+  if (lowerName.includes('baly')) return '#FFD700';
+  if (lowerName.includes('tial')) return '#FFD700';
+  if (lowerName.includes('maguary')) return '#CD5C5C';
+  if (lowerName.includes('coca')) return '#DC143C';
+  if (lowerName.includes('pepsi')) return '#4169E1';
+  return '#E0E0E0';
+};
+
+export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart }: ProductVariantModalProps) => {
+  const { baseProduct, variants } = productGroup;
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const { toast } = useToast();
   
-  const handleAddToCart = () => {
-    if (!selectedVariant.available) return;
-    
+  const handleVariantClick = (variant: typeof variants[0]) => {
+    if (!variant.available) return;
     onAddToCart({
-      id: selectedVariant.id,
-      name: selectedVariant.name,
-      price: selectedVariant.price,
-      image_url: selectedVariant.image_url,
+      id: variant.id,
+      name: variant.name,
+      price: variant.price,
+      image_url: variant.image_url,
       description: null,
       category: baseProduct.category,
-      available: selectedVariant.available
+      available: variant.available
     });
-    
     toast({
       title: "✅ Adicionado ao carrinho!",
-      description: `${selectedVariant.name} - R$ ${selectedVariant.price.toFixed(2)}`
+      description: `${variant.name} - R$ ${variant.price.toFixed(2)}`
     });
-    
     onClose();
   };
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden">
-        <div className={`absolute inset-0 bg-gradient-to-br ${brandColor} opacity-15`}>
-          <motion.div
-            className="absolute inset-0"
-            animate={{
-              backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: "linear"
-            }}
-            style={{
-              backgroundImage: `radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.1) 100%)`
-            }}
-          />
-        </div>
-        
-        <div className="grid md:grid-cols-2 h-full relative z-10">
-          <div className="flex flex-col items-center justify-center p-4 md:p-8 bg-white/60 backdrop-blur-sm">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 md:hidden p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors"
-            >
+      <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden bg-background">
+        <div className="grid md:grid-cols-2 h-full">
+          <div className="flex items-center justify-center p-8 md:p-12 relative">
+            <button onClick={onClose} className="absolute top-4 right-4 md:hidden p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-20">
               <X className="w-5 h-5 text-white" />
             </button>
-            
-            <div className="relative w-full max-w-sm aspect-square flex items-center justify-center">
+            <AnimatePresence mode="wait">
               <motion.div
-                className={`absolute inset-0 bg-gradient-to-br ${brandColor} rounded-full opacity-20 blur-xl`}
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.2, 0.35, 0.2]
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              />
-              
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedVariant.id}
-                  initial={{ 
-                    rotateY: -180, 
-                    opacity: 0,
-                    scale: 0.8
-                  }}
-                  animate={{ 
-                    rotateY: 0, 
-                    opacity: 1,
-                    scale: 1
-                  }}
-                  exit={{ 
-                    rotateY: 180, 
-                    opacity: 0,
-                    scale: 0.8
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 20,
-                    duration: 0.7
-                  }}
-                  className="relative z-10 w-4/5 h-4/5"
-                  style={{ transformStyle: "preserve-3d" }}
-                >
-                  {selectedVariant.image_url ? (
-                    <img
-                      src={selectedVariant.image_url}
-                      alt={selectedVariant.flavor}
-                      className="w-full h-full object-contain drop-shadow-2xl"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <div className={`w-32 h-32 rounded-full bg-gradient-to-br ${brandColor} opacity-40`} />
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-            
-            <motion.div 
-              className="md:hidden mt-4 text-center"
-              key={selectedVariant.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h3 className="text-xl font-bold">{selectedVariant.flavor}</h3>
-              <p className="text-2xl font-bold text-primary mt-1">
-                R$ {selectedVariant.price.toFixed(2)}
-              </p>
-            </motion.div>
+                key={selectedVariant.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="w-full h-full flex items-center justify-center rounded-3xl"
+                style={{ backgroundColor: getProductColor(selectedVariant.name, selectedVariant.flavor) }}
+              >
+                {selectedVariant.image_url ? (
+                  <img src={selectedVariant.image_url} alt={selectedVariant.flavor} className="w-[85%] h-[85%] object-contain" />
+                ) : (
+                  <div className="w-32 h-32 rounded-full bg-muted opacity-40" />
+                )}
+              </motion.div>
+            </AnimatePresence>
           </div>
-          
-          <div className="flex flex-col h-full bg-white">
-            <DialogHeader className="p-4 md:p-6 border-b">
-              <DialogTitle className="text-2xl md:text-3xl font-bold">
+          <div className="flex flex-col h-full bg-background border-l border-border">
+            <DialogHeader className="p-4 md:p-6 border-b border-border">
+              <DialogTitle className="text-2xl md:text-3xl font-bold text-foreground">
                 {baseProduct.brand} {baseProduct.size}
               </DialogTitle>
-              <DialogDescription className="text-base">
-                Escolha seu sabor favorito • {variants.length} opções
+              <DialogDescription className="text-base text-muted-foreground">
+                Clique para adicionar • {variants.length} opções
               </DialogDescription>
             </DialogHeader>
-            
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-3">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-2">
               {variants.map(variant => (
                 <motion.button
                   key={variant.id}
-                  onClick={() => variant.available && setSelectedVariant(variant)}
+                  onClick={() => handleVariantClick(variant)}
+                  onMouseEnter={() => variant.available && setSelectedVariant(variant)}
                   disabled={!variant.available}
                   whileHover={variant.available ? { scale: 1.02 } : {}}
                   whileTap={variant.available ? { scale: 0.98 } : {}}
-                  className={`w-full flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl border-2 transition-all ${
+                  className={`w-full p-4 rounded-lg border-2 transition-all ${
                     selectedVariant.id === variant.id
-                      ? `border-primary bg-gradient-to-r ${brandColor} bg-opacity-10 shadow-lg`
+                      ? 'border-primary bg-primary/5 shadow-md'
                       : variant.available
-                      ? 'border-border hover:border-primary/50 bg-white hover:shadow-md'
-                      : 'border-border bg-gray-50 opacity-60 cursor-not-allowed'
+                      ? 'border-border hover:border-primary/50 bg-card hover:shadow-sm'
+                      : 'border-border bg-muted/30 opacity-60 cursor-not-allowed'
                   }`}
                 >
-                  <div className="w-14 h-14 md:w-16 md:h-16 rounded-lg overflow-hidden bg-accent flex-shrink-0 border border-border">
-                    {variant.image_url ? (
-                      <img 
-                        src={variant.image_url}
-                        alt={variant.flavor}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className={`w-full h-full bg-gradient-to-br ${brandColor} opacity-30`} />
-                    )}
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1 text-left">
+                      <h4 className="font-semibold text-foreground">{variant.flavor}</h4>
+                      {variant.size && variant.size !== baseProduct.size && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{variant.size}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <p className="text-lg font-bold text-primary">R$ {variant.price.toFixed(2)}</p>
+                      {!variant.available && <Badge variant="destructive" className="text-xs">Esgotado</Badge>}
+                      {variant.available && selectedVariant.id === variant.id && (
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                          <Check className="w-4 h-4 text-primary-foreground" />
+                        </motion.div>
+                      )}
+                    </div>
                   </div>
-                  
-                  <div className="flex-1 text-left">
-                    <h4 className="font-bold text-sm md:text-base">{variant.flavor}</h4>
-                    {variant.size && variant.size !== baseProduct.size && (
-                      <p className="text-xs text-muted-foreground">{variant.size}</p>
-                    )}
-                    <p className="text-sm md:text-base font-semibold text-primary mt-0.5">
-                      R$ {variant.price.toFixed(2)}
-                    </p>
-                  </div>
-                  
-                  {!variant.available ? (
-                    <Badge variant="destructive" className="text-xs">Esgotado</Badge>
-                  ) : selectedVariant.id === variant.id ? (
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"
-                    >
-                      <Check className="w-5 h-5 text-white" />
-                    </motion.div>
-                  ) : null}
                 </motion.button>
               ))}
-            </div>
-            
-            <div className="p-4 md:p-6 border-t bg-gradient-to-t from-white via-white to-transparent">
-              <Button
-                onClick={handleAddToCart}
-                disabled={!selectedVariant.available}
-                className="w-full h-12 md:h-14 text-base md:text-lg font-bold shadow-xl"
-                size="lg"
-              >
-                {selectedVariant.available 
-                  ? `Adicionar • R$ ${selectedVariant.price.toFixed(2)}`
-                  : 'Produto Indisponível'
-                }
-              </Button>
             </div>
           </div>
         </div>
