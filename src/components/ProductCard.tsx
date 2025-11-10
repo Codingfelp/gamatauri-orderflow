@@ -9,6 +9,7 @@ interface Product {
   price: number;
   image_url: string | null;
   category: string | null;
+  available: boolean;
 }
 
 interface ProductCardProps {
@@ -17,9 +18,22 @@ interface ProductCardProps {
 }
 
 export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => {
+  const isOutOfStock = !product.available;
+  
   return (
-    <Card className="h-full group overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.01] border-border flex flex-col">
+    <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col ${
+      isOutOfStock 
+        ? 'opacity-50 hover:shadow-md' 
+        : 'hover:shadow-xl hover:scale-[1.01]'
+    }`}>
       <div className="relative aspect-[4/3] md:aspect-square overflow-hidden bg-accent/10">
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">
+            <div className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md font-bold text-sm md:text-base">
+              Esgotado
+            </div>
+          </div>
+        )}
         {product.image_url && 
          product.image_url !== 'SIM' && 
          !product.image_url.startsWith('data:image') && 
@@ -31,7 +45,9 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             decoding="async"
             width="300"
             height="300"
-            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+            className={`w-full h-full object-contain transition-transform duration-500 ${
+              !isOutOfStock && 'group-hover:scale-110'
+            }`}
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
               const parent = (e.target as HTMLImageElement).parentElement;
@@ -50,7 +66,9 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
         )}
       </div>
       <div className="p-2 md:p-2.5 space-y-1 md:space-y-1.5 flex-1 flex flex-col">
-        <h3 className="font-bold text-xs md:text-sm text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
+        <h3 className={`font-bold text-xs md:text-sm text-card-foreground line-clamp-1 transition-colors ${
+          !isOutOfStock && 'group-hover:text-primary'
+        }`}>
           {product.name}
         </h3>
         {product.description && product.description.length < 200 && (
@@ -63,11 +81,16 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             R$ {product.price.toFixed(2)}
           </span>
           <Button
-            onClick={() => onAddToCart(product)}
+            onClick={() => !isOutOfStock && onAddToCart(product)}
+            disabled={isOutOfStock}
             size="sm"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-300 h-7 md:h-8 text-[10px] md:text-xs px-2 md:px-3"
+            className={`font-semibold transition-all duration-300 h-7 md:h-8 text-[10px] md:text-xs px-2 md:px-3 ${
+              isOutOfStock
+                ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+            }`}
           >
-            Adicionar
+            {isOutOfStock ? 'Esgotado' : 'Adicionar'}
           </Button>
         </div>
       </div>
