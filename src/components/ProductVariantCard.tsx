@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ProductVariantModal } from "./ProductVariantModal";
-import { ProductGroup } from "@/utils/productVariants";
+import { ProductGroup, ProductVariant } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
@@ -14,7 +14,14 @@ interface ProductVariantCardProps {
 
 export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariantCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const { baseProduct, variants, mainImage, priceRange } = productGroup;
+  
+  const displayImage = selectedVariant?.image_url || mainImage;
+  
+  const handleVariantSelected = (variant: ProductVariant) => {
+    setSelectedVariant(variant);
+  };
   
   const [emblaRef] = useEmblaCarousel(
     { loop: true, align: 'center' },
@@ -27,10 +34,10 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         className="h-full group overflow-hidden transition-all duration-300 border-border flex flex-col hover:shadow-xl hover:scale-[1.02] cursor-pointer"
         onClick={() => setIsModalOpen(true)}
       >
-        <div className="relative aspect-[4/3] md:aspect-square overflow-hidden bg-accent/10">
-          {mainImage ? (
+        <div className="relative h-48 md:h-56 overflow-hidden bg-accent/10 flex items-center justify-center">
+          {displayImage ? (
             <img 
-              src={mainImage}
+              src={displayImage}
               alt={`${baseProduct.brand} ${baseProduct.size || ''}`}
               loading="lazy"
               className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
@@ -98,6 +105,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         onClose={() => setIsModalOpen(false)}
         productGroup={productGroup}
         onAddToCart={onAddToCart}
+        onVariantSelected={handleVariantSelected}
       />
     </>
   );
