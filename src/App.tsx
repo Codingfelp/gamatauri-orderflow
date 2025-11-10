@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { OnlineStatus } from "@/components/OnlineStatus";
+import { ActiveOrderProvider } from "@/contexts/ActiveOrderContext";
 
 const Order = lazy(() => import("./pages/Order"));
 const Checkout = lazy(() => import("./pages/Checkout"));
@@ -29,32 +30,34 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <OnlineStatus />
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Suspense fallback={
-          <div className="min-h-screen flex items-center justify-center">
-            <LoadingSpinner size="lg" />
-          </div>
-        }>
-          <Routes>
-            <Route path="/" element={<Order />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/success" element={<Success />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/install" element={<Install />} />
-            <Route path="/tasks" element={<Tasks />} />
-            <Route path="/admin-sync" element={<AdminSync />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ActiveOrderProvider>
+      <TooltipProvider>
+        <OnlineStatus />
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+              <LoadingSpinner size="lg" />
+            </div>
+          }>
+            <Routes>
+              <Route path="/" element={<Order />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/success" element={<Success />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/install" element={<Install />} />
+              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/admin-sync" element={<AdminSync />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ActiveOrderProvider>
   </QueryClientProvider>
 );
 

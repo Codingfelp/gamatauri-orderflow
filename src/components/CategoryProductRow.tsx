@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductVariantCard } from "@/components/ProductVariantCard";
 import { Product } from "@/services/productsService";
+import { groupProductsByVariants, shouldUseVariantSystem } from "@/utils/productVariants";
 import useEmblaCarousel from "embla-carousel-react";
 
 interface CategoryProductRowProps {
@@ -21,7 +23,15 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
-  const displayedProducts = showAll ? products : products.slice(0, 6);
+  const useVariants = shouldUseVariantSystem(category);
+  const productGroups = useVariants ? groupProductsByVariants(products, category) : [];
+  const hasVariants = productGroups.length > 0;
+  
+  const itemsToDisplay = hasVariants 
+    ? (showAll ? productGroups : productGroups.slice(0, 6))
+    : (showAll ? products : products.slice(0, 6));
+  
+  const totalCount = hasVariants ? productGroups.length : products.length;
 
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
@@ -45,18 +55,18 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
         <h2 className="text-2xl md:text-3xl font-bold text-card-foreground">
           {category}
           <span className="text-muted-foreground text-lg ml-2">
-            ({products.length})
+            ({totalCount}{hasVariants ? ' tipos' : ''})
           </span>
         </h2>
         
-        {products.length > 6 && (
+        {totalCount > 6 && (
           <Button
             onClick={() => setShowAll(!showAll)}
             variant="ghost"
             size="sm"
             className="text-primary hover:text-primary/80"
           >
-            {showAll ? "Ver menos" : `Ver todos (${products.length})`}
+            {showAll ? "Ver menos" : `Ver todos (${totalCount})`}
           </Button>
         )}
       </div>
@@ -76,11 +86,22 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
 
           <div className="overflow-hidden min-h-[280px] md:min-h-[360px]" ref={emblaRef}>
             <div className="flex gap-4 h-full">
-              {displayedProducts.map((product) => (
-                <div key={product.id} className="flex-[0_0_160px] sm:flex-[0_0_200px] md:flex-[0_0_240px] min-h-[280px] md:min-h-[360px]">
-                  <ProductCard product={product} onAddToCart={onAddToCart} />
-                </div>
-              ))}
+              {hasVariants ? (
+                itemsToDisplay.map((group: any) => (
+                  <div key={group.groupKey} className="flex-[0_0_160px] sm:flex-[0_0_200px] md:flex-[0_0_240px]">
+                    <ProductVariantCard
+                      productGroup={group}
+                      onAddToCart={onAddToCart}
+                    />
+                  </div>
+                ))
+              ) : (
+                itemsToDisplay.map((product: any) => (
+                  <div key={product.id} className="flex-[0_0_160px] sm:flex-[0_0_200px] md:flex-[0_0_240px] min-h-[280px] md:min-h-[360px]">
+                    <ProductCard product={product} onAddToCart={onAddToCart} />
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -97,13 +118,23 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-            />
-          ))}
+          {hasVariants ? (
+            itemsToDisplay.map((group: any) => (
+              <ProductVariantCard
+                key={group.groupKey}
+                productGroup={group}
+                onAddToCart={onAddToCart}
+              />
+            ))
+          ) : (
+            itemsToDisplay.map((product: any) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+              />
+            ))
+          )}
         </div>
       )}
     </div>
