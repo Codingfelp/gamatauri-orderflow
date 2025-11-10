@@ -31,7 +31,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             decoding="async"
             width="300"
             height="300"
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = 'none';
               const parent = (e.target as HTMLImageElement).parentElement;
