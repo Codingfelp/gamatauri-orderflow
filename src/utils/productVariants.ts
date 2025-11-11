@@ -106,89 +106,200 @@ export const getProductColor = (productName: string, flavor: string): string => 
   const key = `${productName.toLowerCase()}-${flavor.toLowerCase()}`;
   
   const colorMap: Record<string, string> = {
-    // BALY - Cores baseadas nas latas reais
+    // BALY - Energéticos
     'baly-tradicional': '#FFD700', 'baly-original': '#FFD700',
-    'baly-tropicall': '#FF8C42', 'baly-tropical': '#FF8C42',
+    'baly-tropicall': '#FF4500', 'baly-tropical': '#FF4500',
+    'baly-guaraná': '#90EE90', 'baly-guarana': '#90EE90',
+    'baly-açaí': '#8B00FF', 'baly-acai': '#8B00FF',
+    'baly-limão': '#FFFF00', 'baly-limao': '#FFFF00',
+    'baly-tutti frutti': '#FF1493',
+    'baly-tangerina': '#FFA500',
     'baly-coco e açaí': '#87CEEB', 'baly-coco e acai': '#87CEEB',
     'baly-freegels cereja': '#DC143C', 'baly-cereja': '#DC143C',
     'baly-maçã verde': '#90EE90', 'baly-maca verde': '#90EE90',
     'baly-morango': '#FFB6C1',
     'baly-uva': '#9370DB',
     
-    // RED BULL - Cores das latas
-    'red bull-tradicional': '#FFD700', 'red bull-original': '#FFD700',
-    'red bull-blue': '#4169E1', 'red bull-azul': '#4169E1',
+    // RED BULL - Energéticos
+    'red bull-tradicional': '#00B4D8', 'red bull-original': '#00B4D8',
+    'red bull-blue': '#1E90FF', 'red bull-azul': '#1E90FF',
+    'red bull-tropicall': '#FFD700', 'red bull-tropical': '#FFD700',
+    'red bull-yellow': '#FFD700', 'red bull-amarelo': '#FFD700',
+    'red bull-coconut': '#F0FFF0', 'red bull-coco': '#F0FFF0',
+    'red bull-watermelon': '#FF6B6B', 'red bull-melancia': '#FF6B6B',
+    'red bull-summer': '#FFE5B4',
+    'red bull-winter': '#B0E0E6',
+    'red bull-spring': '#98FB98',
+    'red bull-energy': '#00B4D8',
     'red bull-red': '#DC143C', 'red bull-vermelho': '#DC143C',
     'red bull-silver': '#C0C0C0', 'red bull-prata': '#C0C0C0',
     'red bull-verde': '#90EE90', 'red bull-green': '#90EE90',
     
-    // MONSTER - Cores características
+    // MONSTER - Energéticos
     'monster-original': '#32CD32', 'monster-verde': '#32CD32',
-    'monster-ultra': '#E8E8E8', 'monster-branco': '#E8E8E8',
+    'monster-ultra': '#E0E0E0', 'monster-branco': '#E0E0E0',
+    'monster-assault': '#DC143C', 'monster-vermelho': '#DC143C',
+    'monster-zero': '#2F2F2F', 'monster-preto': '#2F2F2F',
+    'monster-ultra blue': '#4169E1', 'monster-azul': '#4169E1',
+    'monster-ultra white': '#F0F0F0',
+    'monster-ultra violet': '#8A2BE2', 'monster-roxo': '#8A2BE2',
+    'monster-pipeline punch': '#FF69B4',
+    'monster-lewis hamilton': '#FFD700',
     'monster-paradise': '#FF69B4', 'monster-rosa': '#FF69B4',
     'monster-mango': '#FFA500', 'monster-manga': '#FFA500',
     
-    // COCA-COLA
+    // COCA-COLA - Refrigerantes
     'coca-cola-original': '#DC143C', 'coca-original': '#DC143C',
+    'coca-cola-tradicional': '#DC143C',
     'coca-cola-zero': '#2F2F2F', 'coca-zero': '#2F2F2F',
+    'coca-cola-sem açúcar': '#2F2F2F', 'coca-cola-sem acucar': '#2F2F2F',
+    'coca-cola-energy': '#DC143C',
+    'coca-cola-cherry': '#8B0000',
+    'coca-cola-vanilla': '#F5DEB3',
+    'coca-cola-lime': '#32CD32',
     'coca-cola-limão': '#90EE90', 'coca-limao': '#90EE90',
     
-    // PEPSI
+    // PEPSI - Refrigerantes
     'pepsi-original': '#4169E1', 'pepsi-tradicional': '#4169E1',
-    'pepsi-black': '#2F2F2F', 'pepsi-zero': '#2F2F2F',
+    'pepsi-max': '#2F2F2F',
+    'pepsi-cola': '#4169E1',
+    'pepsi-wild cherry': '#DC143C',
+    'pepsi-vanilla': '#F5DEB3',
+    'pepsi-zero': '#2F2F2F',
+    'pepsi-black': '#2F2F2F',
     'pepsi-twist': '#90EE90', 'pepsi-limão': '#90EE90',
     
-    // GUARANÁ
-    'guaraná-original': '#228B22', 'guarana-original': '#228B22',
-    'guaraná-zero': '#2F2F2F', 'guarana-zero': '#2F2F2F',
+    // GUARANÁ - Refrigerantes
     'guaraná-antarctica': '#228B22', 'guarana-antarctica': '#228B22',
+    'guaraná-original': '#228B22', 'guarana-original': '#228B22',
+    'guaraná-diet': '#90EE90', 'guarana-diet': '#90EE90',
+    'guaraná-antarctica zero': '#2F2F2F', 'guarana-antarctica zero': '#2F2F2F',
+    'guaraná-zero': '#2F2F2F', 'guarana-zero': '#2F2F2F',
+    'guaraná-jesus': '#B8860B', 'guarana-jesus': '#B8860B',
+    'guaraná-kuat': '#8B4513', 'guarana-kuat': '#8B4513',
     
-    // SPRITE
-    'sprite-original': '#90EE90', 'sprite-tradicional': '#90EE90',
-    'sprite-zero': '#E8E8E8',
-    
-    // FANTA - Cada sabor tem cor própria
+    // FANTA - Refrigerantes
     'fanta-laranja': '#FF8C00', 'fanta-orange': '#FF8C00',
     'fanta-uva': '#9370DB', 'fanta-grape': '#9370DB',
+    'fanta-maracujá': '#FFD700', 'fanta-maracuja': '#FFD700',
+    'fanta-limão': '#ADFF2F', 'fanta-limao': '#ADFF2F',
+    'fanta-melancia': '#FF6B6B',
+    'fanta-pêssego': '#FFE5B4', 'fanta-pessego': '#FFE5B4',
     'fanta-guaraná': '#FFD700', 'fanta-guarana': '#FFD700',
     'fanta-morango': '#FFB6C1', 'fanta-strawberry': '#FFB6C1',
+    
+    // SPRITE - Refrigerantes
+    'sprite-original': '#90EE90', 'sprite-tradicional': '#90EE90',
+    'sprite-limão': '#90EE90', 'sprite-limao': '#90EE90',
+    'sprite-cranberry': '#DC143C',
+    'sprite-tropical': '#FFD700',
+    'sprite-zero': '#90EE90',
     
     // KUAT
     'kuat-original': '#8B4513', 'kuat-guaraná': '#8B4513',
     
-    // SUCOS TIAL
+    // TIAL - Sucos
     'tial-laranja': '#FF8C42', 'tial-orange': '#FF8C42',
+    'tial-abacaxi': '#FFD700',
+    'tial-morango': '#FFB6C1',
+    'tial-limão': '#ADFF2F', 'tial-limao': '#ADFF2F',
+    'tial-melancia': '#FF6B6B',
+    'tial-tangerina': '#FFA500',
     'tial-uva': '#9370DB', 'tial-grape': '#9370DB',
     'tial-maracujá': '#FFD700', 'tial-maracuja': '#FFD700',
     'tial-goiaba': '#FFB6C1', 'tial-guava': '#FFB6C1',
     'tial-manga': '#FFA500', 'tial-mango': '#FFA500',
     'tial-pêssego': '#FFDAB9', 'tial-pessego': '#FFDAB9',
     
-    // SUCOS MAGUARY
+    // MAGUARY - Sucos
     'maguary-laranja': '#CD5C5C',
+    'maguary-abacaxi': '#FFD700',
+    'maguary-morango': '#FFB6C1',
+    'maguary-limão': '#ADFF2F', 'maguary-limao': '#ADFF2F',
+    'maguary-pêssego': '#FFDAB9', 'maguary-pessego': '#FFDAB9',
+    'maguary-tangerina': '#FFA500',
+    'maguary-melancia': '#FF6B6B',
     'maguary-uva': '#8B008B',
     'maguary-maracujá': '#FFD700', 'maguary-maracuja': '#FFD700',
     'maguary-goiaba': '#FFB6C1',
     'maguary-manga': '#FFA500',
     
-    // DEL VALLE
+    // DEL VALLE - Sucos
     'del valle-laranja': '#FFA500',
+    'del valle-abacaxi': '#FFD700',
+    'del valle-morango': '#FFB6C1',
+    'del valle-limão': '#ADFF2F', 'del valle-limao': '#ADFF2F',
+    'del valle-tangerina': '#FFA500',
+    'del valle-melancia': '#FF6B6B',
+    'del valle-caju': '#FFA07A',
     'del valle-uva': '#9370DB',
     'del valle-maracujá': '#FFD700', 'del valle-maracuja': '#FFD700',
     'del valle-pêssego': '#FFDAB9', 'del valle-pessego': '#FFDAB9',
     'del valle-manga': '#FFA500',
     
-    // BEATS
-    'beats-senses': '#FF69B4', 'beats-rosa': '#FF69B4',
-    'beats-gt': '#FF4500', 'beats-laranja': '#FF4500',
-    'beats-zero': '#2F2F2F',
-    
-    // GATORADE
-    'gatorade-laranja': '#FF8C00', 'gatorade-orange': '#FF8C00',
+    // GATORADE - Isotônicos
+    'gatorade-cool blue': '#4169E1',
+    'gatorade-lemon lime': '#90EE90',
     'gatorade-limão': '#90EE90', 'gatorade-limao': '#90EE90',
+    'gatorade-fruit punch': '#DC143C',
+    'gatorade-tangerina': '#FFA500',
+    'gatorade-maracujá': '#FFD700', 'gatorade-maracuja': '#FFD700',
+    'gatorade-laranja': '#FF8C00', 'gatorade-orange': '#FF8C00',
     'gatorade-uva': '#9370DB',
     'gatorade-morango': '#FFB6C1',
     'gatorade-azul': '#4169E1', 'gatorade-blue': '#4169E1',
+    
+    // ADES - Sucos de Soja
+    'ades-laranja': '#FFA500',
+    'ades-maçã': '#90EE90', 'ades-maca': '#90EE90',
+    'ades-uva': '#9370DB',
+    'ades-pêssego': '#FFDAB9', 'ades-pessego': '#FFDAB9',
+    'ades-original': '#F5DEB3',
+    
+    // TANG - Sucos em Pó
+    'tang-laranja': '#FFA500',
+    'tang-uva': '#9370DB',
+    'tang-limão': '#ADFF2F', 'tang-limao': '#ADFF2F',
+    'tang-maracujá': '#FFD700', 'tang-maracuja': '#FFD700',
+    
+    // BEATS - Drinks
+    'beats-senses': '#FF69B4', 'beats-rosa': '#FF69B4',
+    'beats-pink': '#FF69B4',
+    'beats-gt': '#FF4500', 'beats-laranja': '#FF4500',
+    'beats-original': '#FF4500',
+    'beats-black': '#2F2F2F',
+    'beats-red': '#DC143C',
+    'beats-passion': '#FF1493',
+    'beats-zero': '#2F2F2F',
+    
+    // SMIRNOFF - Drinks
+    'smirnoff-ice': '#E0E0E0',
+    'smirnoff-red': '#DC143C',
+    'smirnoff-green apple': '#90EE90',
+    'smirnoff-raspberry': '#DC143C',
+    'smirnoff-original': '#E0E0E0',
+    
+    // XEQUE MATE
+    'xeque mate-original': '#FFD700',
+    'xeque mate-limão': '#90EE90', 'xeque mate-limao': '#90EE90',
+    'xeque mate-morango': '#FFB6C1',
+    
+    // COROTE - Destilados
+    'corote-uva': '#9370DB',
+    'corote-morango': '#FFB6C1',
+    'corote-limão': '#90EE90', 'corote-limao': '#90EE90',
+    'corote-pêssego': '#FFDAB9', 'corote-pessego': '#FFDAB9',
+    
+    // H2OH - Águas Saborizadas
+    'h2oh-limão': '#ADFF2F', 'h2oh-limao': '#ADFF2F',
+    'h2oh-limoneto': '#ADFF2F',
+    
+    // VINHOS
+    'vinho-tinto': '#8B0000',
+    'vinho-branco': '#F5DEB3',
+    'vinho-rosé': '#FFB6C1', 'vinho-rose': '#FFB6C1',
+    'vinho-suave': '#DC143C',
+    'vinho-seco': '#8B0000',
   };
   
   for (const [mapKey, color] of Object.entries(colorMap)) {

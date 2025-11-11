@@ -113,7 +113,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                 Clique para adicionar • {variants.length} opções
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-2 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-2 scrollbar-hide min-h-0">
               {variants.map(variant => (
                 <motion.button
                   key={variant.id}
@@ -132,7 +132,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                 >
                   <div className="flex justify-between items-center">
                     <div className="flex-1 text-left">
-                      <h4 className="font-semibold text-foreground">{variant.flavor}</h4>
+                      <h4 className="font-semibold text-foreground">{variant.name}</h4>
                       {variant.size && variant.size !== baseProduct.size && (
                         <p className="text-xs text-muted-foreground mt-0.5">{variant.size}</p>
                       )}
