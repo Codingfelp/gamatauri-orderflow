@@ -35,9 +35,9 @@ interface CategoryChipsProps {
 
 export const CategoryChips = ({ onCategoryChange, selectedCategory }: CategoryChipsProps) => {
   return (
-    <div className="relative mb-6">
+    <div className="relative mb-8">
       <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex gap-2 px-4 py-2">
+        <div className="flex gap-3 px-4 py-3">
           {categories.map((category) => {
             const Icon = category.icon;
             const isSelected = selectedCategory === category.value;
@@ -47,14 +47,16 @@ export const CategoryChips = ({ onCategoryChange, selectedCategory }: CategoryCh
                 key={category.value}
                 onClick={() => onCategoryChange(isSelected ? "" : category.value)}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2.5 rounded-full whitespace-nowrap transition-all duration-200",
-                  "border-2 font-medium text-sm",
+                  "flex items-center gap-2.5 px-6 py-4 rounded-full whitespace-nowrap",
+                  "border-2 font-semibold text-base",
+                  "transition-all duration-300 ease-out",
+                  "hover:shadow-lg hover:shadow-primary/20",
                   isSelected 
-                    ? "bg-primary text-primary-foreground border-primary shadow-md scale-105" 
-                    : "bg-card text-foreground border-border hover:border-primary/50 hover:bg-accent active:scale-95"
+                    ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/30 scale-110" 
+                    : "bg-card text-foreground border-border hover:border-primary hover:bg-accent hover:scale-105 active:scale-95"
                 )}
               >
-                <Icon className="h-4 w-4" />
+                <Icon className="h-5 w-5" />
                 <span>{category.name}</span>
               </button>
             );
@@ -63,8 +65,8 @@ export const CategoryChips = ({ onCategoryChange, selectedCategory }: CategoryCh
       </div>
       
       {/* Gradiente fade nas bordas para indicar scroll */}
-      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background via-background to-transparent pointer-events-none z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background via-background to-transparent pointer-events-none z-10" />
     </div>
   );
 };

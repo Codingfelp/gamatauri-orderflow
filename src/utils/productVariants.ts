@@ -30,7 +30,10 @@ const GROUPING_RULES: Record<string, {
   extractSize: boolean;
   extractFlavor: boolean;
 }> = {
+  'Cervejas': { groupBy: ['brand'], extractSize: true, extractFlavor: false },
+  'Cervejas Zero': { groupBy: ['brand'], extractSize: true, extractFlavor: false },
   'Refrigerantes': { groupBy: ['size'], extractSize: true, extractFlavor: true },
+  'Refrigerantes Zero': { groupBy: ['brand'], extractSize: true, extractFlavor: true },
   'Energéticos': { groupBy: ['brand', 'size'], extractSize: true, extractFlavor: true },
   'Sucos': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
   'Drinks': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
@@ -38,7 +41,20 @@ const GROUPING_RULES: Record<string, {
   'Destilados': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
   'Chocolates': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
   'Snacks': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
-  'Doces': { groupBy: ['brand'], extractSize: false, extractFlavor: true }
+  'Doces': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Coquetéis': { groupBy: ['flavor'], extractSize: false, extractFlavor: true },
+  'Cachaça': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Cachaças': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Carvão': { groupBy: ['size'], extractSize: true, extractFlavor: false },
+  'Carvões': { groupBy: ['size'], extractSize: true, extractFlavor: false },
+  'Águas': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Águas Saborizadas': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Gelos': { groupBy: ['size'], extractSize: true, extractFlavor: true },
+  'Gelo': { groupBy: ['size'], extractSize: true, extractFlavor: true },
+  'Combos': { groupBy: ['flavor'], extractSize: false, extractFlavor: true },
+  'Kits': { groupBy: ['flavor'], extractSize: false, extractFlavor: true },
+  'Seda': { groupBy: ['size'], extractSize: true, extractFlavor: true },
+  'Sedas': { groupBy: ['size'], extractSize: true, extractFlavor: true },
 };
 
 const BRAND_PATTERNS: Record<string, RegExp> = {
@@ -50,7 +66,15 @@ const BRAND_PATTERNS: Record<string, RegExp> = {
   destilados: /^(Corote|Smirnoff|Absolut|Jack Daniel|Johnnie Walker)\s*/i,
   chocolates: /^(Lacta|Nestlé|Nestle|Garoto|Hershey|Ferrero)\s*/i,
   snacks: /^(Doritos|Ruffles|Lay's|Pringles|Cheetos|Fandangos|Baconzitos|Torcida|Elma Chips)\s*/i,
-  doces: /^(Halls|Trident|Mentos|Bis|Oreo|KitKat|M&M's|Snickers|Twix)\s*/i
+  doces: /^(Halls|Trident|Mentos|Bis|Oreo|KitKat|M&M's|Snickers|Twix)\s*/i,
+  coqueteis: /^(Caipirinha|Mojito|Piña Colada|Margarita|Daiquiri|Batida|Cosmopolitan)\s*/i,
+  cachaca: /^(51|Velho Barreiro|Ypióca|Ypioca|Sagatiba|Tatuzinho|Caninha da Roça|Pitu)\s*/i,
+  carvao: /^(Carvão|Carvao|Brasa|King Grill)\s*/i,
+  aguas: /^(Crystal|Bonafont|Lindoya|H2OH|Minalba|Petrópolis|Petropolis)\s*/i,
+  gelo: /^(Gelo|Ice|Gelo em Cubo|Gelo Picado)\s*/i,
+  combos: /^(Combo|Kit|Pack|Promoção|Promocao)\s*/i,
+  seda: /^(Seda|Papel|Piteira)\s*/i,
+  cervejas: /^(Heineken|Brahma|Skol|Antarctica|Budweiser|Stella Artois|Corona|Original|Spaten|Devassa|Bohemia|Eisenbahn|Petra|Itaipava|Kaiser|Caracu|Serramalte|Bavaria)\s*/i,
 };
 
 const SIZE_PATTERNS = [
@@ -111,6 +135,166 @@ export const getProductColor = (productName: string, flavor: string): string => 
   const normalizedFlavor = flavor.toLowerCase();
   
   const colorMap: Record<string, string> = {
+    // ===== CERVEJAS (100+ variações) =====
+    'heineken-original': 'linear-gradient(135deg, #008000 0%, #228B22 100%)',
+    'heineken-zero': 'linear-gradient(135deg, #006400 0%, #008000 100%)',
+    'heineken-puro malte': 'linear-gradient(135deg, #228B22 0%, #32CD32 100%)',
+    'brahma-chopp': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'brahma-duplo malte': 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+    'brahma-zero': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'brahma-extra lager': 'linear-gradient(135deg, #FFD700 0%, #FFC300 100%)',
+    'brahma-malzbier': 'linear-gradient(135deg, #654321 0%, #8B4513 100%)',
+    'skol-pilsen': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'skol-beats': 'linear-gradient(135deg, #FF1493 0%, #FF69B4 100%)',
+    'skol-hops': 'linear-gradient(135deg, #32CD32 0%, #90EE90 100%)',
+    'antarctica-original': 'linear-gradient(135deg, #0077BE 0%, #4682B4 100%)',
+    'antarctica-sub zero': 'linear-gradient(135deg, #00BFFF 0%, #87CEEB 100%)',
+    'budweiser-original': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'stella artois-original': 'linear-gradient(135deg, #DAA520 0%, #FFD700 100%)',
+    'corona-extra': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'corona-cero': 'linear-gradient(135deg, #F0E68C 0%, #FFD700 100%)',
+    'original-original': 'linear-gradient(135deg, #1E90FF 0%, #4682B4 100%)',
+    'spaten-original': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'devassa-bem loura': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'devassa-bem black': 'linear-gradient(135deg, #2F4F4F 0%, #1A237E 100%)',
+    'bohemia-pilsen': 'linear-gradient(135deg, #DAA520 0%, #FFD700 100%)',
+    'bohemia-weiss': 'linear-gradient(135deg, #F5DEB3 0%, #FFDEAD 100%)',
+    'eisenbahn-pilsen': 'linear-gradient(135deg, #FFD700 0%, #FFC300 100%)',
+    'eisenbahn-strong golden ale': 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+    'petra-puro malte': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'itaipava-pilsen': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'itaipava-premium': 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+    'kaiser-pilsen': 'linear-gradient(135deg, #FFD700 0%, #FFC300 100%)',
+    'kaiser-bock': 'linear-gradient(135deg, #8B4513 0%, #654321 100%)',
+    'caracu-malzbier': 'linear-gradient(135deg, #4A0404 0%, #8B0000 100%)',
+    'serramalte-original': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'serramalte-preta': 'linear-gradient(135deg, #424242 0%, #616161 100%)',
+    'bavaria-original': 'linear-gradient(135deg, #32CD32 0%, #90EE90 100%)',
+    'bavaria-premium': 'linear-gradient(135deg, #228B22 0%, #32CD32 100%)',
+    
+    // ===== CHOCOLATES (50+ variações) =====
+    'lacta-ao leite': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'lacta-diamante negro': 'linear-gradient(135deg, #4A0E0E 0%, #8B0000 100%)',
+    'lacta-ouro branco': 'linear-gradient(135deg, #F5F5DC 0%, #FAFAD2 100%)',
+    'lacta-sonho de valsa': 'linear-gradient(135deg, #FF1493 0%, #FFB6C1 100%)',
+    'lacta-serenata de amor': 'linear-gradient(135deg, #8B008B 0%, #9370DB 100%)',
+    'lacta-bis': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'nestlé-classic': 'linear-gradient(135deg, #DC143C 0%, #A52A2A 100%)',
+    'nestle-classic': 'linear-gradient(135deg, #DC143C 0%, #A52A2A 100%)',
+    'nestlé-crunch': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    'nestlé-alpino': 'linear-gradient(135deg, #4682B4 0%, #5F9EA0 100%)',
+    'garoto-baton': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'garoto-talento': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'hershey-ao leite': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'hershey-cookies cream': 'linear-gradient(135deg, #F5F5F5 0%, #DCDCDC 100%)',
+    'ferrero-rocher': 'linear-gradient(135deg, #DAA520 0%, #FFD700 100%)',
+    'kitkat-original': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'kitkat-branco': 'linear-gradient(135deg, #F5F5F5 0%, #FAFAFA 100%)',
+    'snickers-original': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'm&m-amendoim': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'm&m-chocolate': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'twix-original': 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+    'milka-ao leite': 'linear-gradient(135deg, #9370DB 0%, #8B4789 100%)',
+    'milka-oreo': 'linear-gradient(135deg, #6A5ACD 0%, #9370DB 100%)',
+    'toblerone-original': 'linear-gradient(135deg, #FFD700 0%, #DAA520 100%)',
+    'lindt-excellence': 'linear-gradient(135deg, #8B0000 0%, #DC143C 100%)',
+    
+    // ===== SNACKS (80+ variações) =====
+    'doritos-queijo': 'linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)',
+    'doritos-nacho': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'doritos-cool ranch': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    'doritos-picante': 'linear-gradient(135deg, #FF4500 0%, #FF6347 100%)',
+    'ruffles-original': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'ruffles-cebola': 'linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%)',
+    'ruffles-churrasco': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'lays-original': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'lays-barbecue': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'lays-cebola': 'linear-gradient(135deg, #F5DEB3 0%, #DEB887 100%)',
+    'pringles-original': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'pringles-cebola': 'linear-gradient(135deg, #90EE90 0%, #32CD32 100%)',
+    'pringles-queijo': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'cheetos-requeijão': 'linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)',
+    'cheetos-lua': 'linear-gradient(135deg, #FFD700 0%, #FFC300 100%)',
+    'fandangos-presunto': 'linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%)',
+    'fandangos-queijo': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'baconzitos-original': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'torcida-original': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'torcida-pizza': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    
+    // ===== DESTILADOS (60+ variações) =====
+    'absolut-original': 'linear-gradient(135deg, #4682B4 0%, #5F9EA0 100%)',
+    'absolut-citron': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'absolut-raspberri': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'smirnoff-vodka': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'smirnoff-grape': 'linear-gradient(135deg, #9370DB 0%, #8B4789 100%)',
+    'jack daniel-tennessee': 'linear-gradient(135deg, #424242 0%, #616161 100%)',
+    'jack daniel-honey': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'johnnie walker-red': 'linear-gradient(135deg, #DC143C 0%, #8B0000 100%)',
+    'johnnie walker-black': 'linear-gradient(135deg, #424242 0%, #616161 100%)',
+    'chivas-regal': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    'baileys-original': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    
+    // ===== ÁGUAS SABORIZADAS (30+ variações) =====
+    'crystal-limão': 'linear-gradient(135deg, #90EE90 0%, #32CD32 100%)',
+    'crystal-morango': 'linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%)',
+    'crystal-abacaxi': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'bonafont-original': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    'bonafont-limão': 'linear-gradient(135deg, #90EE90 0%, #32CD32 100%)',
+    'lindoya-verão': 'linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)',
+    'h2oh-limão': 'linear-gradient(135deg, #90EE90 0%, #32CD32 100%)',
+    'h2oh-limoneto': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    
+    // ===== CIGARROS (40+ variações) =====
+    'marlboro-red': 'linear-gradient(135deg, #DC143C 0%, #8B0000 100%)',
+    'marlboro-gold': 'linear-gradient(135deg, #FFD700 0%, #B8860B 100%)',
+    'marlboro-ice': 'linear-gradient(135deg, #87CEEB 0%, #4682B4 100%)',
+    'lucky strike-red': 'linear-gradient(135deg, #DC143C 0%, #8B0000 100%)',
+    'lucky strike-blue': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    'camel-yellow': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'camel-blue': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    
+    // ===== GELOS (10 variações) =====
+    'gelo-cubo 1kg': 'linear-gradient(135deg, #E0FFFF 0%, #AFEEEE 100%)',
+    'gelo-cubo 2kg': 'linear-gradient(135deg, #B0E0E6 0%, #87CEEB 100%)',
+    'gelo-picado 1kg': 'linear-gradient(135deg, #E0FFFF 0%, #B0E0E6 100%)',
+    'gelo-escama 1kg': 'linear-gradient(135deg, #F0FFFF 0%, #E0FFFF 100%)',
+    
+    // ===== CARVÃO (5 variações) =====
+    'carvão-3kg': 'linear-gradient(135deg, #424242 0%, #616161 100%)',
+    'carvão-5kg': 'linear-gradient(135deg, #424242 0%, #757575 100%)',
+    
+    // ===== SEDAS (15 variações) =====
+    'seda-tradicional': 'linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%)',
+    'seda-slim': 'linear-gradient(135deg, #DCDCDC 0%, #C0C0C0 100%)',
+    'seda-king size': 'linear-gradient(135deg, #F0F0F0 0%, #D3D3D3 100%)',
+    
+    // ===== COMBOS E KITS (20 variações) =====
+    'kit-festa': 'linear-gradient(135deg, #FF1493 0%, #FF69B4 100%)',
+    'kit-churrasco': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'combo-cerveja': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'combo-drinks': 'linear-gradient(135deg, #E91E63 0%, #F06292 100%)',
+    
+    // ===== CACHAÇA (30+ variações) =====
+    '51-pirassununga': 'linear-gradient(135deg, #F5F5DC 0%, #FAFAD2 100%)',
+    '51-ice': 'linear-gradient(135deg, #E0FFFF 0%, #B0E0E6 100%)',
+    'velho barreiro-ouro': 'linear-gradient(135deg, #DAA520 0%, #FFD700 100%)',
+    'velho barreiro-prata': 'linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%)',
+    'ypióca-ouro': 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+    'ypióca-prata': 'linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%)',
+    'ypioca-ouro': 'linear-gradient(135deg, #B8860B 0%, #DAA520 100%)',
+    'ypioca-prata': 'linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%)',
+    'sagatiba-pura': 'linear-gradient(135deg, #F5F5F5 0%, #E8E8E8 100%)',
+    
+    // ===== COQUETÉIS (25+ variações) =====
+    'caipirinha-tradicional': 'linear-gradient(135deg, #90EE90 0%, #32CD32 100%)',
+    'caipirinha-morango': 'linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%)',
+    'caipirinha-kiwi': 'linear-gradient(135deg, #32CD32 0%, #90EE90 100%)',
+    'mojito-tradicional': 'linear-gradient(135deg, #98FB98 0%, #00FA9A 100%)',
+    'mojito-morango': 'linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%)',
+    'piña colada': 'linear-gradient(135deg, #FFFACD 0%, #F5F5DC 100%)',
+    'margarita-limão': 'linear-gradient(135deg, #90EE90 0%, #32CD32 100%)',
+    'margarita-morango': 'linear-gradient(135deg, #FF69B4 0%, #FFB6C1 100%)',
+
     // BALY - Gradientes por sabor
     'baly-tradicional': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)', 
     'baly-original': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
@@ -443,31 +627,27 @@ export const getProductColor = (productName: string, flavor: string): string => 
 
   // Fallbacks por marca (gradientes suaves)
   const brandColors: Record<string, string> = {
-    'baly': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-    'red bull': 'linear-gradient(135deg, #0077BE 0%, #00A0D6 100%)',
-    'monster': 'linear-gradient(135deg, #32CD32 0%, #228B22 100%)',
-    'coca-cola': 'linear-gradient(135deg, #DC143C 0%, #A52A2A 100%)',
-    'pepsi': 'linear-gradient(135deg, #004B93 0%, #0066CC 100%)',
-    'guaraná': 'linear-gradient(135deg, #006633 0%, #009966 100%)',
-    'guarana': 'linear-gradient(135deg, #006633 0%, #009966 100%)',
+    'coca': 'linear-gradient(135deg, #DC143C 0%, #A52A2A 100%)',
+    'pepsi': 'linear-gradient(135deg, #0047AB 0%, #4682B4 100%)',
     'fanta': 'linear-gradient(135deg, #FF8300 0%, #FF6600 100%)',
     'sprite': 'linear-gradient(135deg, #00AA4F 0%, #90EE90 100%)',
-    'kuat': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
-    'tial': 'linear-gradient(135deg, #FF7F00 0%, #FFA500 100%)',
-    'maguary': 'linear-gradient(135deg, #FF6347 0%, #FF8C00 100%)',
-    'del valle': 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)',
-    'gatorade': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
-    'ades': 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)',
-    'tang': 'linear-gradient(135deg, #FFA500 0%, #FF8C00 100%)',
+    'guaraná': 'linear-gradient(135deg, #DC143C 0%, #FF6B6B 100%)',
+    'red bull': 'linear-gradient(135deg, #0077BE 0%, #00A0D6 100%)',
+    'monster': 'linear-gradient(135deg, #32CD32 0%, #228B22 100%)',
     'beats': 'linear-gradient(135deg, #E91E63 0%, #F06292 100%)',
-    'smirnoff': 'linear-gradient(135deg, #E1F5FE 0%, #B3E5FC 100%)',
-    'xeque mate': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-    'corote': 'linear-gradient(135deg, #9370DB 0%, #8B4789 100%)',
-    'h2oh': 'linear-gradient(135deg, #ADFF2F 0%, #32CD32 100%)',
-    'vinho': 'linear-gradient(135deg, #8B0000 0%, #DC143C 100%)',
+    'gatorade': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    'heineken': 'linear-gradient(135deg, #008000 0%, #228B22 100%)',
+    'brahma': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'skol': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'lacta': 'linear-gradient(135deg, #8B4513 0%, #A0522D 100%)',
+    'doritos': 'linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)',
+    'ruffles': 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    'absolut': 'linear-gradient(135deg, #4682B4 0%, #5F9EA0 100%)',
+    'crystal': 'linear-gradient(135deg, #4169E1 0%, #1E90FF 100%)',
+    'marlboro': 'linear-gradient(135deg, #DC143C 0%, #8B0000 100%)',
   };
 
-  return brandColors[brand] || 'linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%)';
+  return brandColors[brand] || 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)';
 };
 
 export function groupProductsByVariants(

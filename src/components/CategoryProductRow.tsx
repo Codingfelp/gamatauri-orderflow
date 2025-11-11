@@ -51,14 +51,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
 
   return (
     <div className="mb-12 px-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-card-foreground">
-          {category}
-          <span className="text-muted-foreground text-lg ml-2">
-            ({totalCount}{hasVariants ? ' tipos' : ''})
-          </span>
-        </h2>
-        
+      <div className="flex items-center justify-end mb-4">
         {totalCount > 6 && (
           <Button
             onClick={() => setShowAll(!showAll)}

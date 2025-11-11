@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { getProductColor } from "@/utils/productVariants";
 
 interface Product {
   id: string;
@@ -22,13 +23,20 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
   const { user } = useAuth();
   const isOutOfStock = !product.available;
   
+  const productColor = product.category 
+    ? getProductColor(product.name, product.name.split(' ').pop() || 'original')
+    : 'linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%)';
+  
   return (
     <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col ${
       isOutOfStock 
         ? 'opacity-50 hover:shadow-md' 
         : 'hover:shadow-xl hover:scale-[1.01]'
     }`}>
-      <div className="relative aspect-[4/3] md:aspect-square overflow-hidden bg-accent/10">
+      <div 
+        className="relative aspect-[4/3] md:aspect-square overflow-hidden flex items-center justify-center"
+        style={{ background: productColor }}
+      >
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">
             <div className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md font-bold text-sm md:text-base">

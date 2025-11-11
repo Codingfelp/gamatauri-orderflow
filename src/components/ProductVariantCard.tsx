@@ -35,6 +35,14 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
     [Autoplay({ delay: 2500, stopOnInteraction: false })]
   );
   
+  const firstVariant = variants[0];
+  const isOutOfStock = variants.every(v => !v.available);
+  
+  const backgroundColor = getProductColor(
+    variants[0].name, 
+    variants[0].flavor
+  );
+  
   const buttonColor = selectedVariant 
     ? getProductColor(selectedVariant.name, selectedVariant.flavor)
     : getProductColor(variants[0].name, variants[0].flavor);
@@ -45,7 +53,10 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         className="min-h-[420px] group overflow-hidden transition-all duration-300 border-border flex flex-col hover:shadow-xl hover:scale-[1.02] cursor-pointer"
         onClick={() => setIsModalOpen(true)}
       >
-        <div className="relative h-48 md:h-56 overflow-hidden bg-accent/10 flex items-center justify-center">
+        <div 
+          className="relative h-48 md:h-56 overflow-hidden flex items-center justify-center"
+          style={{ background: backgroundColor }}
+        >
           {displayImage ? (
             <img 
               src={displayImage}
