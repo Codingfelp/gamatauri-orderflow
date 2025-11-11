@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "@/components/ProductCard";
 import { Cart } from "@/components/Cart";
-import { CategoryCarousel } from "@/components/CategoryCarousel";
+import { CategoryChips } from "@/components/CategoryChips";
 import { Header } from "@/components/Header";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
@@ -229,17 +229,14 @@ const Order = () => {
           />
         </div>
         
-        {/* 3. CATEGORIAS */}
-        <div className="mb-8">
-          <h2 className="text-xl md:text-2xl font-bold mb-4 px-4 md:px-8 text-card-foreground">Categorias</h2>
-          <CategoryCarousel 
-            onCategoryChange={(cat) => {
-              setSelectedCategory(cat);
-              setSelectedBrand("");
-            }}
-            selectedCategory={selectedCategory}
-          />
-        </div>
+        {/* 3. CHIPS DE CATEGORIAS (Padrão iFood) */}
+        <CategoryChips 
+          onCategoryChange={(cat) => {
+            setSelectedCategory(cat);
+            setSelectedBrand("");
+          }}
+          selectedCategory={selectedCategory}
+        />
 
         {/* 4. MARCAS */}
         <BrandsSection 

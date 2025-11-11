@@ -110,7 +110,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                   size="sm" 
                   className="font-semibold h-8 text-xs px-3"
                   style={{ 
-                    backgroundColor: buttonColor,
+                    background: buttonColor,
                     color: '#fff',
                     border: 'none'
                   }}
