@@ -6,6 +6,7 @@ import { Check, X } from "lucide-react";
 import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ProductVariantModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   const { baseProduct, variants } = productGroup;
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const handleVariantClick = (variant: typeof variants[0]) => {
     if (!variant.available) return;
@@ -45,9 +47,9 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden bg-background">
-        <div className="grid md:grid-cols-[35%_65%] h-full">
-          <div className="flex items-center justify-center p-8 md:p-12 relative md:w-[392.2px] md:h-[493.31px]">
+      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden bg-background">
+        <div className="grid md:grid-cols-[35%_65%] h-full max-h-[85vh]">
+          <div className="flex items-center justify-center p-8 md:p-12 relative md:min-h-[493px] md:max-h-[493px]">
             <button onClick={onClose} className="absolute top-4 right-4 md:hidden p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-20">
               <X className="w-5 h-5 text-white" />
             </button>
@@ -104,8 +106,8 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
               </motion.div>
             </AnimatePresence>
           </div>
-          <div className="flex flex-col h-full bg-background border-l border-border">
-            <DialogHeader className="p-4 md:p-6 border-b border-border">
+          <div className="flex flex-col h-full bg-background border-l border-border min-h-0">
+            <DialogHeader className="p-4 md:p-6 border-b border-border flex-shrink-0">
               <DialogTitle className="text-2xl md:text-3xl font-bold text-foreground">
                 {baseProduct.brand} {baseProduct.size}
               </DialogTitle>
@@ -113,7 +115,10 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                 Clique para adicionar • {variants.length} opções
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-2 scrollbar-hide min-h-0">
+            <div className="relative flex-1 min-h-0">
+              <div className="sticky top-0 left-0 right-0 h-6 bg-gradient-to-b from-background via-background to-transparent pointer-events-none z-10" />
+              
+              <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 space-y-2 scrollbar-hide pt-2">
               {variants.map(variant => (
                 <motion.button
                   key={variant.id}
@@ -138,7 +143,11 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                       )}
                     </div>
                     <div className="flex items-center gap-3">
-                      <p className="text-lg font-bold text-primary">R$ {variant.price.toFixed(2)}</p>
+                      {user ? (
+                        <p className="text-lg font-bold text-primary">R$ {variant.price.toFixed(2)}</p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Faça login para ver</p>
+                      )}
                       {!variant.available && <Badge variant="destructive" className="text-xs">Esgotado</Badge>}
                       {variant.available && selectedVariant.id === variant.id && (
                         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
@@ -149,6 +158,9 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                   </div>
                 </motion.button>
               ))}
+              </div>
+              
+              <div className="sticky bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background via-background to-transparent pointer-events-none z-10" />
             </div>
           </div>
         </div>

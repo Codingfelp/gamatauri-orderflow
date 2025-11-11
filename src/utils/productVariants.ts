@@ -36,7 +36,9 @@ const GROUPING_RULES: Record<string, {
   'Drinks': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
   'Vinhos': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
   'Destilados': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
-  'Chocolates': { groupBy: ['brand'], extractSize: false, extractFlavor: true }
+  'Chocolates': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Snacks': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Doces': { groupBy: ['brand'], extractSize: false, extractFlavor: true }
 };
 
 const BRAND_PATTERNS: Record<string, RegExp> = {
@@ -46,7 +48,9 @@ const BRAND_PATTERNS: Record<string, RegExp> = {
   drinks: /^(Beats|Smirnoff|Xeque Mate|Lambe)\s*/i,
   vinhos: /^(Santa Carolina|Concha y Toro|Casal|Campo Largo|Aurora)\s*/i,
   destilados: /^(Corote|Smirnoff|Absolut|Jack Daniel|Johnnie Walker)\s*/i,
-  chocolates: /^(Lacta|Nestlé|Nestle|Garoto|Hershey|Ferrero)\s*/i
+  chocolates: /^(Lacta|Nestlé|Nestle|Garoto|Hershey|Ferrero)\s*/i,
+  snacks: /^(Doritos|Ruffles|Lay's|Pringles|Cheetos|Fandangos|Baconzitos|Torcida|Elma Chips)\s*/i,
+  doces: /^(Halls|Trident|Mentos|Bis|Oreo|KitKat|M&M's|Snickers|Twix)\s*/i
 };
 
 const SIZE_PATTERNS = [
@@ -103,7 +107,8 @@ function parseProductName(name: string, category: string): ParsedProduct {
 }
 
 export const getProductColor = (productName: string, flavor: string): string => {
-  const key = `${productName.toLowerCase()}-${flavor.toLowerCase()}`;
+  const normalizedName = productName.toLowerCase();
+  const normalizedFlavor = flavor.toLowerCase();
   
   const colorMap: Record<string, string> = {
     // BALY - Energéticos
@@ -301,29 +306,87 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'vinho-suave': '#DC143C',
     'vinho-seco': '#8B0000',
   };
-  
-  for (const [mapKey, color] of Object.entries(colorMap)) {
-    if (key.includes(mapKey)) return color;
+
+  // Extrair marca do nome do produto
+  let brand = '';
+  if (normalizedName.includes('baly')) brand = 'baly';
+  else if (normalizedName.includes('red bull')) brand = 'red bull';
+  else if (normalizedName.includes('monster')) brand = 'monster';
+  else if (normalizedName.includes('coca-cola') || normalizedName.includes('coca cola')) brand = 'coca-cola';
+  else if (normalizedName.includes('coca')) brand = 'coca-cola';
+  else if (normalizedName.includes('pepsi')) brand = 'pepsi';
+  else if (normalizedName.includes('guaraná') || normalizedName.includes('guarana')) brand = 'guaraná';
+  else if (normalizedName.includes('fanta')) brand = 'fanta';
+  else if (normalizedName.includes('sprite')) brand = 'sprite';
+  else if (normalizedName.includes('kuat')) brand = 'kuat';
+  else if (normalizedName.includes('tial')) brand = 'tial';
+  else if (normalizedName.includes('maguary')) brand = 'maguary';
+  else if (normalizedName.includes('del valle')) brand = 'del valle';
+  else if (normalizedName.includes('gatorade')) brand = 'gatorade';
+  else if (normalizedName.includes('ades')) brand = 'ades';
+  else if (normalizedName.includes('tang')) brand = 'tang';
+  else if (normalizedName.includes('beats')) brand = 'beats';
+  else if (normalizedName.includes('smirnoff')) brand = 'smirnoff';
+  else if (normalizedName.includes('xeque mate')) brand = 'xeque mate';
+  else if (normalizedName.includes('corote')) brand = 'corote';
+  else if (normalizedName.includes('h2oh')) brand = 'h2oh';
+  else if (normalizedName.includes('vinho')) brand = 'vinho';
+
+  // Estratégia 1: brand-flavor com espaço
+  if (brand && colorMap[`${brand} ${normalizedFlavor}`]) {
+    return colorMap[`${brand} ${normalizedFlavor}`];
   }
   
-  // Fallbacks por marca
-  const lowerName = productName.toLowerCase();
-  if (lowerName.includes('baly')) return '#FFD700';
-  if (lowerName.includes('red bull')) return '#FFD700';
-  if (lowerName.includes('monster')) return '#32CD32';
-  if (lowerName.includes('tial')) return '#FFD700';
-  if (lowerName.includes('maguary')) return '#CD5C5C';
-  if (lowerName.includes('coca')) return '#DC143C';
-  if (lowerName.includes('pepsi')) return '#4169E1';
-  if (lowerName.includes('guaraná') || lowerName.includes('guarana')) return '#228B22';
-  if (lowerName.includes('sprite')) return '#90EE90';
-  if (lowerName.includes('fanta')) return '#FF8C00';
-  if (lowerName.includes('kuat')) return '#8B4513';
-  if (lowerName.includes('del valle')) return '#FFA500';
-  if (lowerName.includes('beats')) return '#FF69B4';
-  if (lowerName.includes('gatorade')) return '#FF8C00';
+  // Estratégia 2: brand-flavor com hífen
+  if (brand && colorMap[`${brand}-${normalizedFlavor}`]) {
+    return colorMap[`${brand}-${normalizedFlavor}`];
+  }
   
-  return '#E0E0E0';
+  // Estratégia 3: Buscar palavras-chave do flavor no nome completo
+  for (const [mapKey, color] of Object.entries(colorMap)) {
+    const keyParts = mapKey.split(/[-\s]/);
+    const keyBrand = keyParts[0];
+    const keyFlavor = keyParts.slice(1).join(' ');
+    
+    if (brand === keyBrand && keyFlavor && normalizedName.includes(keyFlavor)) {
+      return color;
+    }
+  }
+  
+  // Estratégia 4: Buscar apenas por flavor contido no nome (sem marca)
+  for (const [mapKey, color] of Object.entries(colorMap)) {
+    const flavorPart = mapKey.split(/[-\s]/).slice(1).join(' ');
+    if (flavorPart.length > 3 && normalizedName.includes(flavorPart)) {
+      return color;
+    }
+  }
+
+  // Fallbacks por marca (cores diferenciadas)
+  const brandColors: Record<string, string> = {
+    'baly': '#FFD700',
+    'red bull': '#00B4D8',
+    'monster': '#32CD32',
+    'coca-cola': '#DC143C',
+    'pepsi': '#4169E1',
+    'guaraná': '#228B22',
+    'fanta': '#FF8C00',
+    'sprite': '#90EE90',
+    'kuat': '#8B4513',
+    'tial': '#FF8C42',
+    'maguary': '#CD5C5C',
+    'del valle': '#FFA500',
+    'gatorade': '#4169E1',
+    'ades': '#FFA500',
+    'tang': '#FFA500',
+    'beats': '#FF69B4',
+    'smirnoff': '#E0E0E0',
+    'xeque mate': '#FFD700',
+    'corote': '#9370DB',
+    'h2oh': '#ADFF2F',
+    'vinho': '#8B0000',
+  };
+
+  return brandColors[brand] || '#E0E0E0';
 };
 
 export function groupProductsByVariants(

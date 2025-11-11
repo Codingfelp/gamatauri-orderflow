@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ProductVariantModal } from "./ProductVariantModal";
 import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
+import { useAuth } from "@/hooks/useAuth";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -13,6 +14,7 @@ interface ProductVariantCardProps {
 }
 
 export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariantCardProps) => {
+  const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const { baseProduct, variants, mainImage, priceRange } = productGroup;
@@ -95,24 +97,42 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           </p>
           
           <div className="flex items-center justify-between pt-2 border-t border-border mt-auto">
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">A partir de</span>
-              <span className="text-lg md:text-xl font-bold text-primary">
-                R$ {priceRange.min.toFixed(2)}
-              </span>
-            </div>
-            
-            <Button 
-              size="sm" 
-              className="font-semibold h-8 text-xs px-3"
-              style={{ 
-                backgroundColor: buttonColor,
-                color: '#fff',
-                border: 'none'
-              }}
-            >
-              Ver Sabores
-            </Button>
+            {user ? (
+              <>
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">A partir de</span>
+                  <span className="text-lg md:text-xl font-bold text-primary">
+                    R$ {priceRange.min.toFixed(2)}
+                  </span>
+                </div>
+                
+                <Button 
+                  size="sm" 
+                  className="font-semibold h-8 text-xs px-3"
+                  style={{ 
+                    backgroundColor: buttonColor,
+                    color: '#fff',
+                    border: 'none'
+                  }}
+                >
+                  Ver Sabores
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className="text-xs text-muted-foreground">Faça login</span>
+                <Button 
+                  size="sm" 
+                  className="font-semibold h-8 text-xs px-3"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = '/auth';
+                  }}
+                >
+                  Entrar
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </Card>

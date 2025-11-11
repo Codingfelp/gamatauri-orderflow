@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Product {
   id: string;
@@ -18,6 +19,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => {
+  const { user } = useAuth();
   const isOutOfStock = !product.available;
   
   return (
@@ -77,21 +79,36 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
           </p>
         )}
         <div className="flex items-center justify-between pt-1 md:pt-1.5 border-t border-border mt-auto">
-          <span className="text-base md:text-xl font-bold text-primary">
-            R$ {product.price.toFixed(2)}
-          </span>
-          <Button
-            onClick={() => !isOutOfStock && onAddToCart(product)}
-            disabled={isOutOfStock}
-            size="sm"
-            className={`font-semibold transition-all duration-300 h-7 md:h-8 text-[10px] md:text-xs px-2 md:px-3 ${
-              isOutOfStock
-                ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-            }`}
-          >
-            {isOutOfStock ? 'Esgotado' : 'Adicionar'}
-          </Button>
+          {user ? (
+            <>
+              <span className="text-base md:text-xl font-bold text-primary">
+                R$ {product.price.toFixed(2)}
+              </span>
+              <Button
+                onClick={() => !isOutOfStock && onAddToCart(product)}
+                disabled={isOutOfStock}
+                size="sm"
+                className={`font-semibold transition-all duration-300 h-7 md:h-8 text-[10px] md:text-xs px-2 md:px-3 ${
+                  isOutOfStock
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                    : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                }`}
+              >
+                {isOutOfStock ? 'Esgotado' : 'Adicionar'}
+              </Button>
+            </>
+          ) : (
+            <>
+              <span className="text-xs text-muted-foreground">Login para ver preços</span>
+              <Button 
+                onClick={() => window.location.href = '/auth'} 
+                size="sm"
+                className="font-semibold h-7 md:h-8 text-[10px] md:text-xs px-2 md:px-3"
+              >
+                Entrar
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </Card>
