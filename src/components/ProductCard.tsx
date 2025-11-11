@@ -24,8 +24,8 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
   const isOutOfStock = !product.available;
   
   const productColor = product.category 
-    ? getProductColor(product.name, product.name.split(' ').pop() || 'original')
-    : 'linear-gradient(135deg, #E0E0E0 0%, #BDBDBD 100%)';
+    ? getProductColor(product.name, product.name.split(' ').pop() || 'original') || '#E0E0E0'
+    : '#E0E0E0';
   
   return (
     <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col ${
@@ -53,6 +53,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             alt={product.name}
             loading="lazy"
             decoding="async"
+            fetchPriority="low"
             width="300"
             height="300"
             className={`w-full h-full object-contain transition-transform duration-500 ${

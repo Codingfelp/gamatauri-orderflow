@@ -40,11 +40,6 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     "refrigerante", "energetico"
   ],
 
-  // Refrigerantes Zero
-  "Refrigerantes Zero": [
-    "zero", "diet", "light"
-  ],
-
   // Cervejas
   "Cervejas": [
     "colorado", "goose island", "stella", "wals", "itaipava", "patagonia",

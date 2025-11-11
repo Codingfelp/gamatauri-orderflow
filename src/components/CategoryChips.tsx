@@ -1,31 +1,39 @@
 import { cn } from "@/lib/utils";
-import { 
-  Wine, Beer, Coffee, IceCream, Flame, 
-  Droplets, Apple, Cookie, Package, Candy
-} from "lucide-react";
+import { Card } from "@/components/ui/card";
+import cervejasImg from "@/assets/categories/cervejas.jpg";
+import cervejasZeroImg from "@/assets/categories/cervejas-zero.jpg";
+import destiladosImg from "@/assets/categories/destilados.png";
+import vinhosImg from "@/assets/categories/vinhos.png";
+import drinksImg from "@/assets/categories/drinks-prontos.png";
+import refrigerantesImg from "@/assets/categories/refrigerantes-energeticos.png";
+import aguasImg from "@/assets/categories/aguas-sucos.png";
+import chocolatesImg from "@/assets/categories/chocolates.jpg";
+import balasImg from "@/assets/categories/balas-doces.png";
+import copaoImg from "@/assets/categories/copao.jpg";
+import cigarrosImg from "@/assets/categories/cigarros.jpg";
+import gelosImg from "@/assets/categories/gelos.jpg";
 
 interface Category {
   name: string;
   value: string;
-  icon: React.ComponentType<any>;
+  image: string;
 }
 
 const categories: Category[] = [
-  { name: "Cervejas", value: "Cervejas", icon: Beer },
-  { name: "Cervejas Zero", value: "Cervejas Zero", icon: Beer },
-  { name: "Destilados", value: "Destilados", icon: Wine },
-  { name: "Vinhos", value: "Vinhos", icon: Wine },
-  { name: "Drinks", value: "Drinks", icon: Coffee },
-  { name: "Refrigerantes", value: "Refrigerantes", icon: Droplets },
-  { name: "Refrigerantes Zero", value: "Refrigerantes Zero", icon: Droplets },
-  { name: "Águas", value: "Águas", icon: Droplets },
-  { name: "Sucos", value: "Sucos", icon: Apple },
-  { name: "Chocolates", value: "Chocolates", icon: Cookie },
-  { name: "Snacks", value: "Snacks", icon: Package },
-  { name: "Doces", value: "Doces", icon: Candy },
-  { name: "Copão", value: "Copão", icon: Flame },
-  { name: "Cigarros", value: "Cigarros", icon: Package },
-  { name: "Gelos", value: "Gelos", icon: IceCream },
+  { name: "Cervejas", value: "Cervejas", image: cervejasImg },
+  { name: "Cervejas Zero", value: "Cervejas Zero", image: cervejasZeroImg },
+  { name: "Destilados", value: "Destilados", image: destiladosImg },
+  { name: "Vinhos", value: "Vinhos", image: vinhosImg },
+  { name: "Drinks", value: "Drinks", image: drinksImg },
+  { name: "Refrigerantes", value: "Refrigerantes", image: refrigerantesImg },
+  { name: "Águas", value: "Águas", image: aguasImg },
+  { name: "Sucos", value: "Sucos", image: aguasImg },
+  { name: "Chocolates", value: "Chocolates", image: chocolatesImg },
+  { name: "Snacks", value: "Snacks", image: balasImg },
+  { name: "Doces", value: "Doces", image: balasImg },
+  { name: "Copão", value: "Copão", image: copaoImg },
+  { name: "Cigarros", value: "Cigarros", image: cigarrosImg },
+  { name: "Gelos", value: "Gelos", image: gelosImg },
 ];
 
 interface CategoryChipsProps {
@@ -35,38 +43,49 @@ interface CategoryChipsProps {
 
 export const CategoryChips = ({ onCategoryChange, selectedCategory }: CategoryChipsProps) => {
   return (
-    <div className="relative mb-8">
+    <div className="relative mb-6">
       <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex gap-3 px-4 py-3">
+        <div className="flex gap-3 px-4 py-2">
           {categories.map((category) => {
-            const Icon = category.icon;
             const isSelected = selectedCategory === category.value;
             
             return (
-              <button
+              <Card
                 key={category.value}
                 onClick={() => onCategoryChange(isSelected ? "" : category.value)}
                 className={cn(
-                  "flex items-center gap-2.5 px-6 py-4 rounded-full whitespace-nowrap",
-                  "border-2 font-semibold text-base",
-                  "transition-all duration-300 ease-out",
-                  "hover:shadow-lg hover:shadow-primary/20",
+                  "flex-shrink-0 w-24 h-28 cursor-pointer overflow-hidden transition-all duration-300",
+                  "hover:scale-105 active:scale-95",
                   isSelected 
-                    ? "bg-primary text-primary-foreground border-primary shadow-xl shadow-primary/30 scale-110" 
-                    : "bg-card text-foreground border-border hover:border-primary hover:bg-accent hover:scale-105 active:scale-95"
+                    ? "ring-2 ring-primary scale-105 shadow-lg" 
+                    : "hover:shadow-md"
                 )}
               >
-                <Icon className="h-5 w-5" />
-                <span>{category.name}</span>
-              </button>
+                <div className="h-20 overflow-hidden bg-muted">
+                  <img 
+                    src={category.image} 
+                    alt={category.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-1.5 text-center bg-card">
+                  <span className={cn(
+                    "text-[10px] font-semibold leading-tight line-clamp-2",
+                    isSelected ? "text-primary" : "text-foreground"
+                  )}>
+                    {category.name}
+                  </span>
+                </div>
+              </Card>
             );
           })}
         </div>
       </div>
       
       {/* Gradiente fade nas bordas para indicar scroll */}
-      <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background via-background to-transparent pointer-events-none z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background via-background to-transparent pointer-events-none z-10" />
+      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-background via-background to-transparent pointer-events-none z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background via-background to-transparent pointer-events-none z-10" />
     </div>
   );
 };

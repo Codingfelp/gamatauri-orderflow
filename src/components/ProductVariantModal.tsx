@@ -83,7 +83,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                 }}
                 className="w-full h-full max-w-[392.2px] max-h-[493.31px] flex items-center justify-center rounded-3xl"
                 style={{ 
-                  backgroundColor: getProductColor(selectedVariant.name, selectedVariant.flavor),
+                  backgroundColor: getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1',
                   transformStyle: 'preserve-3d',
                   perspective: '1000px'
                 }}

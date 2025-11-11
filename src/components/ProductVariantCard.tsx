@@ -41,11 +41,11 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const backgroundColor = getProductColor(
     variants[0].name, 
     variants[0].flavor
-  );
+  ) || '#4169E1';
   
   const buttonColor = selectedVariant 
-    ? getProductColor(selectedVariant.name, selectedVariant.flavor)
-    : getProductColor(variants[0].name, variants[0].flavor);
+    ? getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1'
+    : getProductColor(variants[0].name, variants[0].flavor) || '#4169E1';
   
   return (
     <>
