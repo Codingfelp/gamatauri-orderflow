@@ -66,7 +66,8 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                   opacity: 1, 
                   scale: 1,
                   rotateY: 0,
-                  x: 0
+                  x: 0,
+                  backgroundColor: getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1'
                 }}
                 exit={{ 
                   opacity: 0, 
@@ -79,11 +80,11 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                   ease: [0.34, 1.56, 0.64, 1],
                   scale: { duration: 0.4 },
                   rotateY: { duration: 0.5 },
-                  opacity: { duration: 0.3 }
+                  opacity: { duration: 0.3 },
+                  backgroundColor: { duration: 0.3 }
                 }}
                 className="w-full h-full max-w-[392.2px] max-h-[493.31px] flex items-center justify-center rounded-3xl"
                 style={{ 
-                  backgroundColor: getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1',
                   transformStyle: 'preserve-3d',
                   perspective: '1000px'
                 }}

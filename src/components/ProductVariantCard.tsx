@@ -38,10 +38,9 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const firstVariant = variants[0];
   const isOutOfStock = variants.every(v => !v.available);
   
-  const backgroundColor = getProductColor(
-    variants[0].name, 
-    variants[0].flavor
-  ) || '#4169E1';
+  const backgroundColor = selectedVariant
+    ? getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1'
+    : getProductColor(variants[0].name, variants[0].flavor) || '#4169E1';
   
   const buttonColor = selectedVariant 
     ? getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1'

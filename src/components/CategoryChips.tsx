@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import cervejasImg from "@/assets/categories/cervejas.jpg";
-import cervejasZeroImg from "@/assets/categories/cervejas-zero.jpg";
+
 import destiladosImg from "@/assets/categories/destilados.png";
 import vinhosImg from "@/assets/categories/vinhos.png";
 import drinksImg from "@/assets/categories/drinks-prontos.png";
@@ -21,7 +21,6 @@ interface Category {
 
 const categories: Category[] = [
   { name: "Cervejas", value: "Cervejas", image: cervejasImg },
-  { name: "Cervejas Zero", value: "Cervejas Zero", image: cervejasZeroImg },
   { name: "Destilados", value: "Destilados", image: destiladosImg },
   { name: "Vinhos", value: "Vinhos", image: vinhosImg },
   { name: "Drinks", value: "Drinks", image: drinksImg },
