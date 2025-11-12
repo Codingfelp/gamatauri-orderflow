@@ -190,44 +190,13 @@ serve(async (req) => {
   }
 });
 
-// Função para calcular variação de preço baseada no produto
-function getPriceVariation(basePrice: number, productName: string): number {
-  const name = productName.toLowerCase();
-  
-  // Energéticos premium
-  if (name.includes('red bull')) return basePrice * 1.3;
-  if (name.includes('monster')) return basePrice * 1.2;
-  if (name.includes('baly')) return basePrice * 1.0;
-  
-  // Refrigerantes premium
-  if (name.includes('coca-cola') && name.includes('zero')) return basePrice * 1.1;
-  if (name.includes('pepsi') && name.includes('black')) return basePrice * 1.15;
-  
-  // Sucos premium
-  if (name.includes('del valle')) return basePrice * 1.2;
-  if (name.includes('gatorade')) return basePrice * 1.25;
-  
-  // Tamanhos
-  if (name.includes('1l') || name.includes('1000ml') || name.includes('1 l')) return basePrice * 1.8;
-  if (name.includes('2l') || name.includes('2000ml') || name.includes('2 l')) return basePrice * 2.5;
-  if (name.includes('600ml')) return basePrice * 1.4;
-  if (name.includes('473ml')) return basePrice * 1.3;
-  if (name.includes('350ml')) return basePrice * 1.1;
-  if (name.includes('269ml') || name.includes('250ml')) return basePrice * 0.9;
-  
-  return basePrice;
-}
-
 // Função para mapear produtos da API Gamatauri para formato do frontend
 function mapProduct(product: any) {
-  const basePrice = 5.00; // preço base
-  const variedPrice = getPriceVariation(basePrice, product.name);
-  
   return {
     id: product.id,
     name: product.name,
     description: product.description || null,
-    price: variedPrice,
+    price: product.price || 0, // Usar preço real da API
     image_url: product.image_url,
     category: product.category,
     available: product.active, // Mapear 'active' para 'available'

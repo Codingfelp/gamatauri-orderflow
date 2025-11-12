@@ -215,7 +215,9 @@ export const getProductColor = (productName: string, flavor: string): { type: 'c
   const normalizedFlavor = flavor.toLowerCase();
   
   // Vinhos usam imagem de madeira
-  if (normalizedName.includes('vinho') || normalizedName.includes('wine')) {
+  if (normalizedName.includes('vinho') || normalizedName.includes('wine') || 
+      normalizedName.includes('campo largo') || normalizedName.includes('aurora') ||
+      normalizedName.includes('concha')) {
     return {
       type: 'image',
       value: 'https://static.vecteezy.com/ti/fotos-gratis/p2/2901896-fundo-de-textura-de-madeira-gratis-foto.jpg'

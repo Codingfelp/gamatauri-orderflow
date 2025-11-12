@@ -117,32 +117,34 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           </div>
           
           {/* Thumbnails scrolláveis */}
-          <div className="flex-[0_0_110px] overflow-x-auto px-4 py-3 flex gap-3 bg-background border-t border-b border-border scrollbar-hide">
-            {variants.map((variant, index) => (
-              <button
-                key={variant.id}
-                onClick={() => {
-                  setSelectedVariant(variant);
-                  emblaApi?.scrollTo(index);
-                }}
-                className={cn(
-                  "flex-shrink-0 w-24 h-24 rounded-xl border-2 overflow-hidden transition-all bg-white",
-                  selectedVariant.id === variant.id
-                    ? "border-primary ring-2 ring-primary ring-offset-2 scale-110"
-                    : "border-border hover:border-primary/50 scale-100"
-                )}
-              >
-                {variant.image_url ? (
-                  <img
-                    src={variant.image_url}
-                    alt={variant.flavor}
-                    className="w-full h-full object-contain p-1"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted/30" />
-                )}
-              </button>
-            ))}
+          <div className="flex-[0_0_110px] w-full overflow-x-auto px-4 py-3 bg-background border-t border-b border-border scrollbar-hide">
+            <div className="flex gap-3 min-w-max pb-1">
+              {variants.map((variant, index) => (
+                <button
+                  key={variant.id}
+                  onClick={() => {
+                    setSelectedVariant(variant);
+                    emblaApi?.scrollTo(index);
+                  }}
+                  className={cn(
+                    "flex-shrink-0 w-20 h-20 rounded-xl border-2 overflow-hidden transition-all bg-white",
+                    selectedVariant.id === variant.id
+                      ? "border-primary ring-2 ring-primary ring-offset-1 scale-105"
+                      : "border-border hover:border-primary/50 scale-100"
+                  )}
+                >
+                  {variant.image_url ? (
+                    <img
+                      src={variant.image_url}
+                      alt={variant.flavor}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted/30" />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
           
           {/* Info e botão */}
