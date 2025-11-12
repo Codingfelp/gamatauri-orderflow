@@ -90,7 +90,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           <div className="flex-[0_0_35vh] overflow-hidden relative" ref={emblaRef}>
             <div className="flex h-full">
               {variants.map((variant) => {
-                const productBg = getProductColor(variant.name, variant.flavor);
+                const productBg = getProductColor(variant.name, variant.flavor, baseProduct.category);
                 const bgStyle = productBg.type === 'image'
                   ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
                   : { background: productBg.value };
@@ -117,8 +117,8 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           </div>
           
           {/* Thumbnails scrolláveis */}
-          <div className="flex-[0_0_110px] w-full overflow-x-auto px-4 py-3 bg-background border-t border-b border-border scrollbar-hide">
-            <div className="flex gap-3 min-w-max pb-1">
+          <div className="flex-[0_0_100px] w-full overflow-x-auto px-3 py-2 bg-background border-t border-b border-border snap-x snap-mandatory scrollbar-hide">
+            <div className="flex gap-2 pb-1">
               {variants.map((variant, index) => (
                 <button
                   key={variant.id}
@@ -127,10 +127,10 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                     emblaApi?.scrollTo(index);
                   }}
                   className={cn(
-                    "flex-shrink-0 w-20 h-20 rounded-xl border-2 overflow-hidden transition-all bg-white",
+                    "flex-shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden transition-all bg-white snap-start",
                     selectedVariant.id === variant.id
-                      ? "border-primary ring-2 ring-primary ring-offset-1 scale-105"
-                      : "border-border hover:border-primary/50 scale-100"
+                      ? "border-primary ring-2 ring-primary scale-105"
+                      : "border-border hover:border-primary/50"
                   )}
                 >
                   {variant.image_url ? (
@@ -202,7 +202,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                   x: -30
                 }}
                 animate={(() => {
-                  const productBg = getProductColor(selectedVariant.name, selectedVariant.flavor);
+                  const productBg = getProductColor(selectedVariant.name, selectedVariant.flavor, baseProduct.category);
                   const baseAnimation = { 
                     opacity: 1, 
                     scale: 1,

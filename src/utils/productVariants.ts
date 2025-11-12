@@ -210,12 +210,14 @@ export function parseProductName(name: string, category: string): ParsedProduct 
   return { brand, size, flavor, originalName: name };
 }
 
-export const getProductColor = (productName: string, flavor: string): { type: 'color' | 'image', value: string } => {
+export const getProductColor = (productName: string, flavor: string, category?: string): { type: 'color' | 'image', value: string } => {
   const normalizedName = productName.toLowerCase();
   const normalizedFlavor = flavor.toLowerCase();
+  const normalizedCategory = category?.toLowerCase() || '';
   
-  // Vinhos usam imagem de madeira
-  if (normalizedName.includes('vinho') || normalizedName.includes('wine') || 
+  // Vinhos usam imagem de madeira - detectar por categoria PRIMEIRO
+  if (normalizedCategory.includes('vinho') || normalizedCategory.includes('wine') ||
+      normalizedName.includes('vinho') || normalizedName.includes('wine') || 
       normalizedName.includes('campo largo') || normalizedName.includes('aurora') ||
       normalizedName.includes('concha')) {
     return {

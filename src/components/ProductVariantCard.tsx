@@ -39,8 +39,8 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const isOutOfStock = variants.every(v => !v.available);
   
   const productBg = selectedVariant
-    ? getProductColor(selectedVariant.name, selectedVariant.flavor)
-    : getProductColor(variants[0].name, variants[0].flavor);
+    ? getProductColor(selectedVariant.name, selectedVariant.flavor, productGroup.baseProduct.category)
+    : getProductColor(variants[0].name, variants[0].flavor, productGroup.baseProduct.category);
   
   const backgroundStyle = productBg.type === 'image'
     ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }

@@ -28,7 +28,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
     : { flavor: 'original' };
   
   const productBg = product.category 
-    ? getProductColor(product.name, parsed.flavor)
+    ? getProductColor(product.name, parsed.flavor, product.category)
     : { type: 'color' as const, value: '#E0E0E0' };
   
   const backgroundStyle = productBg.type === 'image'
