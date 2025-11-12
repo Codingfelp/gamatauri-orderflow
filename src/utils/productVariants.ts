@@ -176,7 +176,7 @@ function normalizeCategoryForPattern(category: string): string {
   return category.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-function parseProductName(name: string, category: string): ParsedProduct {
+export function parseProductName(name: string, category: string): ParsedProduct {
   const normalized = normalizeCategoryForPattern(category);
   
   const brandPattern = BRAND_PATTERNS[normalized];

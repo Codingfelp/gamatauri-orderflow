@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { getProductColor } from "@/utils/productVariants";
+import { parseProductName, getProductColor } from "@/utils/productVariants";
 
 interface Product {
   id: string;
@@ -23,8 +23,12 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
   const { user } = useAuth();
   const isOutOfStock = !product.available;
   
+  const parsed = product.category 
+    ? parseProductName(product.name, product.category)
+    : { flavor: 'original' };
+  
   const productBg = product.category 
-    ? getProductColor(product.name, product.name.split(' ').pop() || 'original')
+    ? getProductColor(product.name, parsed.flavor)
     : { type: 'color' as const, value: '#E0E0E0' };
   
   const backgroundStyle = productBg.type === 'image'
