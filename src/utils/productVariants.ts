@@ -127,6 +127,10 @@ const BRAND_COLORS: Record<string, string> = {
   'soda': '#D3D3D3',
   'h2oh': '#87CEEB',
   
+  // SUCOS
+  'tial': '#FFD700',
+  'gatorade': '#4169E1',
+  
   // DRINKS
   'beats': '#E85D75',
   'lambe': '#FFC0CB',
@@ -140,6 +144,20 @@ const BRAND_COLORS: Record<string, string> = {
   'brutal fruit': '#FF69B4',
   'moscow mule': '#F5DEB3',
   'xá de cana': '#B8860B',
+  
+  // VINHOS
+  'campo largo': '#3E2723',
+  'canção': '#3E2723',
+  'cancao': '#3E2723',
+  'casal garcia': '#3E2723',
+  'casal': '#3E2723',
+  'casillero del diablo': '#3E2723',
+  'casillero': '#3E2723',
+  'concha y toro': '#3E2723',
+  'gato negro': '#3E2723',
+  'novecento': '#3E2723',
+  'santa carolina': '#3E2723',
+  'aurora': '#3E2723',
 };
 
 interface ParsedProduct {
@@ -165,23 +183,25 @@ function parseProductName(name: string, category: string): ParsedProduct {
   const brandMatch = brandPattern?.exec(name);
   const brand = brandMatch ? brandMatch[1] : extractBrandFallback(name);
   
+  let remainingName = name;
+  
+  // 1. Remover marca primeiro
+  if (brandPattern) {
+    remainingName = remainingName.replace(brandPattern, '').trim();
+  }
+  
+  // 2. Extrair e remover TODOS os tamanhos
   let size: string | undefined;
   for (const pattern of SIZE_PATTERNS) {
-    const match = pattern.exec(name.toLowerCase());
+    const match = pattern.exec(remainingName);
     if (match) {
-      size = match[1].replace(/\s/g, '');
-      break;
+      size = match[0].trim();
+      remainingName = remainingName.replace(pattern, '').trim();
     }
   }
   
-  let flavor = name;
-  if (brandPattern) {
-    flavor = flavor.replace(brandPattern, '');
-  }
-  SIZE_PATTERNS.forEach(pattern => {
-    flavor = flavor.replace(pattern, '');
-  });
-  flavor = flavor.trim();
+  // 3. O que sobrou é o sabor
+  let flavor = remainingName.trim();
   
   if (!flavor || flavor.length < 2) {
     flavor = 'Original';
@@ -213,36 +233,49 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'stella-original': '#E8E8E8',
     'stella artois-original': '#E8E8E8',
     
-    // ===== ENERGÉTICOS - BALY =====
+    // ===== ENERGÉTICOS - BALY (17 sabores) =====
+    'baly-2l': '#FFD700',
+    'baly-473ml': '#FFD700',
     'baly-original': '#FFD700',
-    'baly-morango': '#FFD700',
-    'baly-pêssego': '#FFD700',
-    'baly-pessego': '#FFD700',
-    'baly-morango e pêssego': '#FFD700',
-    'baly-morango e pessego': '#FFD700',
-    'baly-tropical': '#FFD700',
-    'baly-tropicall': '#FFD700',
-    'baly-fusion': '#32CD32',
-    'baly-fusion tropical': '#FFD700',
+    'baly-abacaxi': '#FFD700',
+    'baly-abacaxi com hortelã': '#98FF98',
+    'baly-abacaxi com hortela': '#98FF98',
+    'baly-coco': '#F5DEB3',
+    'baly-coco e acai': '#8B4789',
+    'baly-coco e açai': '#8B4789',
+    'baly-freegels cereja': '#DC143C',
+    'baly-cereja': '#DC143C',
+    'baly-maca verde': '#9ACD32',
+    'baly-maça verde': '#9ACD32',
+    'baly-melancia': '#FF6B9D',
+    'baly-morango': '#FFB6C1',
+    'baly-morango e pessego': '#FFDAB9',
+    'baly-morango e pêssego': '#FFDAB9',
+    'baly-morango pessego': '#FFDAB9',
+    'baly-summer loco manga': '#FFA500',
+    'baly-manga': '#FFA500',
+    'baly-tropical': '#FFA500',
+    'baly-zero': '#E0E0E0',
     
-    // ===== ENERGÉTICOS - RED BULL =====
-    'red bull-original': '#0047AB',
-    'red bull-tradicional': '#0047AB',
+    // ===== ENERGÉTICOS - RED BULL (14 sabores) =====
     'red bull-250ml': '#0047AB',
     'red bull-355ml': '#0047AB',
     'red bull-473ml': '#0047AB',
+    'red bull-original': '#0047AB',
+    'red bull-tradicional': '#0047AB',
     'red bull-amora': '#C71585',
-    'red bull-cereja': '#87CEEB',
-    'red bull-morango': '#FFD700',
-    'red bull-pêssego': '#FFD700',
-    'red bull-pessego': '#FFD700',
-    'red bull-morango e pêssego': '#FFD700',
-    'red bull-morango e pessego': '#FFD700',
-    'red bull-pitaya': '#90EE90',
-    'red bull-pomelo': '#DDA0DD',
+    'red bull-cereja': '#DC143C',
+    'red bull-melancia': '#FF6B9D',
+    'red bull-morango': '#FFB6C1',
+    'red bull-pêssego': '#FFDAB9',
+    'red bull-pessego': '#FFDAB9',
+    'red bull-morango e pêssego': '#FFB6C1',
+    'red bull-morango e pessego': '#FFB6C1',
+    'red bull-morango com pessego': '#FFB6C1',
+    'red bull-pitaya': '#FF1493',
+    'red bull-pomelo': '#FFE4B5',
     'red bull-summer': '#FFD700',
-    'red bull-summer edition': '#FFD700',
-    'red bull-tropical': '#FFD700',
+    'red bull-tropical': '#FFA500',
     'red bull-zero': '#B0E0E6',
     
     // ===== ENERGÉTICOS - MONSTER =====
@@ -270,10 +303,10 @@ export const getProductColor = (productName: string, flavor: string): string => 
     
     // ===== REFRIGERANTES - COCA-COLA =====
     'coca-cola-original': '#DC143C',
-    'coca-cola-zero': '#000000',
-    'coca-cola-zero açúcar': '#000000',
-    'coca-cola-zero acucar': '#000000',
-    'coca-zero': '#000000',
+    'coca-cola-zero': '#DC143C',
+    'coca-cola-zero açúcar': '#DC143C',
+    'coca-cola-zero acucar': '#DC143C',
+    'coca-zero': '#DC143C',
     'coca-original': '#DC143C',
     
     // ===== REFRIGERANTES - PEPSI =====
@@ -301,54 +334,57 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'h2oh-limão': '#F0E68C',
     'h2oh-limao': '#F0E68C',
     
-    // ===== DRINKS - BEATS =====
-    'beats-caipirinha': '#F0E68C',
-    'beats-green mix': '#90EE90',
-    'beats-gt': '#9370DB',
-    'beats-red mix': '#E85D75',
+    // ===== DRINKS - BEATS (6 sabores) =====
+    'beats-caipirinha': '#ADFF2F',
+    'beats-green mix': '#32CD32',
+    'beats-gt': '#8B008B',
+    'beats-red mix': '#DC143C',
     'beats-senses': '#DDA0DD',
-    'beats-tropical': '#FFB347',
+    'beats-tropical': '#FFA500',
     
-    // ===== DRINKS - LAMBE-LAMBE =====
-    'lambe-lambe-limonada rosa': '#FFC0CB',
-    'lambe-lambe-tangerina': '#FFA500',
-    'lambe-limonada rosa': '#FFC0CB',
-    'lambe-tangerina': '#FFA500',
+    // ===== DRINKS - LAMBE-LAMBE (2 sabores) =====
+    'lambe-lambe-limonada rosa': '#FFB6C1',
+    'lambe-lambe-tangerina': '#FF8C00',
+    'lambe-limonada rosa': '#FFB6C1',
+    'lambe-tangerina': '#FF8C00',
     
     // ===== DRINKS - SMIRNOFF ICE =====
     'smirnoff-ice': '#D3D3D3',
     'smirnoff ice-original': '#D3D3D3',
     
-    // ===== DRINKS - ICE SYN =====
-    'ice syn-kiwi': '#90EE90',
+    // ===== DRINKS - ICE SYN (7 sabores) =====
+    'ice syn-kiwi': '#8FBC8F',
     'ice syn-limão': '#F0E68C',
     'ice syn-limao': '#F0E68C',
-    'ice syn-maca verde': '#98FB98',
-    'ice syn-maça verde': '#98FB98',
-    'ice syn-melancia': '#FFB6C1',
+    'ice syn-maca verde': '#9ACD32',
+    'ice syn-maça verde': '#9ACD32',
+    'ice syn-melancia': '#FF6B9D',
     'ice syn-morango': '#FFB6C1',
-    'ice syn-tropical': '#FFD700',
+    'ice syn-tropical': '#FFA500',
     
-    // ===== DRINKS - MANSÃO MAROMBA =====
+    // ===== DRINKS - MANSÃO MAROMBA (8 sabores) =====
+    'mansão maromba-1l': '#FFD700',
     'mansão maromba-original': '#FFD700',
     'mansão maromba-colors berry': '#C71585',
-    'mansão maromba-combo maça verde': '#98FB98',
-    'mansão maromba-combo maçã verde': '#98FB98',
+    'mansão maromba-combo maça verde': '#9ACD32',
+    'mansão maromba-combo maçã verde': '#9ACD32',
     'mansão maromba-combo tigrinho manga': '#FFA500',
-    'mansão maromba-combo tigrinho tropical': '#FFD700',
-    'mansão maromba-gin melancia': '#FFB6C1',
+    'mansão maromba-combo tigrinho manga + maracujá': '#FFD700',
+    'mansão maromba-combo tigrinho tropical': '#FFA500',
+    'mansão maromba-gin + melancia': '#FF6B9D',
+    'mansão maromba-gin melancia': '#FF6B9D',
     'mansão maromba-gin cut original': '#B0C4DE',
-    'mansão maromba-vodka combo': '#D3D3D3',
+    'mansão maromba-vodka combo': '#E0E0E0',
     
-    // ===== DRINKS - EQUILIBRISTA =====
-    'equilibrista-gingibre': '#F5DEB3',
-    'equilibrista-rubra': '#DC143C',
-    'equilibrista-veneta': '#DDA0DD',
+    // ===== DRINKS - EQUILIBRISTA (3 sabores) =====
+    'equilibrista-gingibre': '#DEB887',
+    'equilibrista-rubra': '#8B0000',
+    'equilibrista-veneta': '#9370DB',
     
-    // ===== DRINKS - VANFALL =====
-    'vanfall-fizz mexerica e hortelã': '#FFD700',
-    'vanfall-fizz mexerica e hortela': '#FFD700',
-    'vanfall-ruby frutas vermelhas': '#C71585',
+    // ===== DRINKS - VANFALL (3 sabores) =====
+    'vanfall-fizz mexerica e hortelã': '#FFA500',
+    'vanfall-fizz mexerica e hortela': '#FFA500',
+    'vanfall-ruby frutas vermelhas': '#DC143C',
     'vanfall-vibra maracujá': '#FFD700',
     'vanfall-vibra maracuja': '#FFD700',
     
@@ -356,6 +392,36 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'brutal fruit-spritzer': '#FF69B4',
     'moscow mule-original': '#F5DEB3',
     'xá de cana-original': '#B8860B',
+    
+    // ===== SUCOS - TIAL (todos amarelos) =====
+    'tial-abacaxi': '#FFD700',
+    'tial-caju': '#FFD700',
+    'tial-goiaba': '#FFD700',
+    'tial-laranja': '#FFD700',
+    'tial-manga': '#FFD700',
+    'tial-maracujá': '#FFD700',
+    'tial-maracuja': '#FFD700',
+    'tial-pêssego': '#FFD700',
+    'tial-pessego': '#FFD700',
+    'tial-uva': '#FFD700',
+    
+    // ===== ISOTÔNICOS - GATORADE (12 sabores) =====
+    'gatorade-berry blue': '#4169E1',
+    'gatorade-frutas citricas': '#FFD700',
+    'gatorade-frutas cítricas': '#FFD700',
+    'gatorade-laranja': '#FFA500',
+    'gatorade-lightning blast': '#E0E0E0',
+    'gatorade-limao': '#FFFF00',
+    'gatorade-limão': '#FFFF00',
+    'gatorade-maracuja': '#FFD700',
+    'gatorade-maracujá': '#FFD700',
+    'gatorade-midnight ice': '#191970',
+    'gatorade-morango maracuja': '#FFB6C1',
+    'gatorade-morango maracujá': '#FFB6C1',
+    'gatorade-tangerina': '#FF8C00',
+    'gatorade-uva': '#8B008B',
+    'gatorade-zero frutas silvestres': '#8B4789',
+    'gatorade-zero laranja': '#FFA500',
   };
   
   // 1. Tentar chave específica: 'marca-sabor' (primeira palavra)
