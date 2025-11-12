@@ -118,8 +118,8 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           </div>
           
           {/* Thumbnails scrolláveis */}
-          <div className="flex-[0_0_100px] w-full overflow-x-auto px-3 py-2 bg-background border-t border-b border-border snap-x snap-mandatory scrollbar-hide">
-            <div className="inline-flex gap-2 pb-1">
+        <div className="flex-[0_0_100px] w-full overflow-x-auto px-3 py-2 bg-background border-t border-b border-border snap-x snap-mandatory scrollbar-hide">
+          <div className="flex gap-2 pb-1 min-w-max">
               {variants.map((variant, index) => (
                 <button
                   key={variant.id}
@@ -127,12 +127,12 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                     setSelectedVariant(variant);
                     emblaApi?.scrollTo(index);
                   }}
-                  className={cn(
-                    "flex-shrink-0 w-[calc((100vw-40px)/4.2)] h-[calc((100vw-40px)/4.2)] max-w-16 max-h-16 rounded-lg border-2 overflow-hidden transition-all bg-white snap-start",
-                    selectedVariant.id === variant.id
-                      ? "border-primary ring-2 ring-primary scale-105"
-                      : "border-border hover:border-primary/50"
-                  )}
+                className={cn(
+                  "flex-shrink-0 w-16 h-16 min-w-[64px] rounded-lg border-2 overflow-hidden transition-all bg-white snap-start",
+                  selectedVariant.id === variant.id
+                    ? "border-primary ring-2 ring-primary scale-105"
+                    : "border-border hover:border-primary/50"
+                )}
                 >
                   {variant.image_url ? (
                     <img

@@ -101,7 +101,10 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         
         <div className="p-2 md:p-3 space-y-1 flex-1 flex flex-col">
           <h3 className="font-bold text-sm md:text-base text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
-            {baseProduct.brand} {baseProduct.size}
+            {baseProduct.brand}
+            {baseProduct.size && variants.some(v => v.flavor && v.flavor !== 'original' && v.flavor !== baseProduct.brand.toLowerCase()) 
+              ? ` ${baseProduct.size}` 
+              : ''}
           </h3>
           
           <p className="text-xs text-muted-foreground">
@@ -127,7 +130,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                     border: 'none'
                   }}
                 >
-                  Ver Sabores
+                  Ver Opções
                 </Button>
               </>
             ) : (
