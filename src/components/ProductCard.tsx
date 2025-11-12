@@ -23,9 +23,13 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
   const { user } = useAuth();
   const isOutOfStock = !product.available;
   
-  const productColor = product.category 
-    ? getProductColor(product.name, product.name.split(' ').pop() || 'original') || '#E0E0E0'
-    : '#E0E0E0';
+  const productBg = product.category 
+    ? getProductColor(product.name, product.name.split(' ').pop() || 'original')
+    : { type: 'color' as const, value: '#E0E0E0' };
+  
+  const backgroundStyle = productBg.type === 'image'
+    ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : { background: productBg.value };
   
   return (
     <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col ${
@@ -35,7 +39,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
     }`}>
       <div 
         className="relative aspect-[4/3] md:aspect-square overflow-hidden flex items-center justify-center"
-        style={{ background: productColor }}
+        style={backgroundStyle}
       >
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">

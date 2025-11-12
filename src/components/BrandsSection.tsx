@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface Brand {
   id: string;
@@ -149,6 +151,29 @@ interface BrandsSectionProps {
 }
 
 export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProps) => {
+  // Carousel para desktop também
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "start",
+    dragFree: true,
+    containScroll: "trimSnaps"
+  });
+
+  // Scroll horizontal com mouse wheel (desktop)
+  useEffect(() => {
+    const emblaNode = emblaApi?.rootNode();
+    if (!emblaNode) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        emblaNode.scrollLeft += e.deltaY;
+      }
+    };
+
+    emblaNode.addEventListener('wheel', handleWheel, { passive: false });
+    return () => emblaNode.removeEventListener('wheel', handleWheel);
+  }, [emblaApi]);
+
   return (
     <div className="mb-12">
       <div className="flex justify-between items-center mb-6 px-4 md:px-8">
@@ -209,15 +234,16 @@ export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProp
         </div>
       </div>
 
-      {/* Desktop: Grid */}
-      <div className="hidden md:grid grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-6 px-4 md:px-8">
+      {/* Desktop: Carousel horizontal */}
+      <div className="hidden md:block overflow-hidden px-4 md:px-8" ref={emblaRef}>
+        <div className="flex gap-6">
         {brands.map((brand) => {
           const isSelected = selectedBrand === brand.searchTerm;
           return (
             <div
               key={brand.id}
               onClick={() => onBrandClick(isSelected ? "" : brand.searchTerm)}
-              className="flex flex-col items-center gap-2 cursor-pointer group"
+              className="flex-shrink-0 flex flex-col items-center gap-2 cursor-pointer group"
             >
               <div
                 className={cn(
@@ -252,6 +278,7 @@ export const BrandsSection = ({ onBrandClick, selectedBrand }: BrandsSectionProp
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

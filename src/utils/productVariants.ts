@@ -210,9 +210,17 @@ function parseProductName(name: string, category: string): ParsedProduct {
   return { brand, size, flavor, originalName: name };
 }
 
-export const getProductColor = (productName: string, flavor: string): string => {
+export const getProductColor = (productName: string, flavor: string): { type: 'color' | 'image', value: string } => {
   const normalizedName = productName.toLowerCase();
   const normalizedFlavor = flavor.toLowerCase();
+  
+  // Vinhos usam imagem de madeira
+  if (normalizedName.includes('vinho') || normalizedName.includes('wine')) {
+    return {
+      type: 'image',
+      value: 'https://png.pngtree.com/thumb_back/fh260/back_our/20190628/ourmid/pngtree-dark-wood-grain-background-material-image_268100.jpg'
+    };
+  }
   
   const colorMap: Record<string, string> = {
     // ===== CERVEJAS =====
@@ -335,32 +343,32 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'h2oh-limao': '#F0E68C',
     
     // ===== DRINKS - BEATS (6 sabores) =====
-    'beats-caipirinha': '#E9F9EC', // verde-limão diluído, tropical
-    'beats-green mix': '#E8FBE5', // verde-claro suave
-    'beats-gt': '#FFF0E0', // laranja claro puxado pro dourado
-    'beats-red mix': '#FFE5E5', // vermelho claro rosado
-    'beats-senses': '#E9EAFB', // azul-claro acinzentado, moderno
-    'beats-tropical': '#FFF4E1', // pêssego claro, calor de verão
+    'beats-caipirinha': '#E9F9EC',
+    'beats-green mix': '#E8FBE5',
+    'beats-gt': '#FFF0E0',
+    'beats-red mix': '#FFE5E5',
+    'beats-senses': '#E9EAFB',
+    'beats-tropical': '#FFF4E1',
     
     // ===== DRINKS - LAMBE-LAMBE (2 sabores) =====
     'lambe-lambe-limonada rosa': '#FFB6C1',
-    'lambe-lambe-tangerina': '#FFD700', // amarelo vibrante
+    'lambe-lambe-tangerina': '#FFD700',
     'lambe-limonada rosa': '#FFB6C1',
-    'lambe-tangerina': '#FFD700', // amarelo vibrante
+    'lambe-tangerina': '#FFD700',
     
     // ===== DRINKS - SMIRNOFF ICE =====
     'smirnoff-ice': '#D3D3D3',
     'smirnoff ice-original': '#D3D3D3',
     
     // ===== DRINKS - ICE SYN (7 sabores) =====
-    'ice syn-kiwi': '#E8FFE8', // verde-claro natural
-    'ice syn-limão': '#F2FFE6', // verde-limão pastel
-    'ice syn-limao': '#F2FFE6', // verde-limão pastel
-    'ice syn-maca verde': '#ECFFE5', // verde-pálido com toque cítrico
-    'ice syn-maça verde': '#ECFFE5', // verde-pálido com toque cítrico
-    'ice syn-melancia': '#FFE6EF', // rosa pastel com leve toque de vermelho
-    'ice syn-morango': '#FFE6F1', // rosa bebê com brilho suave
-    'ice syn-tropical': '#EFFFF9', // aqua-claro, refrescante
+    'ice syn-kiwi': '#E8FFE8',
+    'ice syn-limão': '#F2FFE6',
+    'ice syn-limao': '#F2FFE6',
+    'ice syn-maca verde': '#ECFFE5',
+    'ice syn-maça verde': '#ECFFE5',
+    'ice syn-melancia': '#FFE6EF',
+    'ice syn-morango': '#FFE6F1',
+    'ice syn-tropical': '#EFFFF9',
     
     // ===== DRINKS - MANSÃO MAROMBA (8 sabores) =====
     'mansão maromba-1l': '#FFD700',
@@ -377,9 +385,9 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'mansão maromba-vodka combo': '#E0E0E0',
     
     // ===== DRINKS - EQUILIBRISTA (3 sabores) =====
-    'equilibrista-gingibre': '#FFF4E0', // bege-amarelado, lembra gengibre
-    'equilibrista-rubra': '#FFE8EB', // vermelho-claro rosado, vibrante e leve
-    'equilibrista-veneta': '#F3E8FF', // lavanda clara, elegante
+    'equilibrista-gingibre': '#FFF4E0',
+    'equilibrista-rubra': '#FFE8EB',
+    'equilibrista-veneta': '#F3E8FF',
     
     // ===== DRINKS - VANFALL (3 sabores) =====
     'vanfall-fizz mexerica e hortelã': '#FFA500',
@@ -427,29 +435,29 @@ export const getProductColor = (productName: string, flavor: string): string => 
   // 1. Tentar chave específica: 'marca-sabor' (primeira palavra)
   let specificKey = `${normalizedName.split(' ')[0]}-${normalizedFlavor}`;
   if (colorMap[specificKey]) {
-    return colorMap[specificKey];
+    return { type: 'color', value: colorMap[specificKey] };
   }
   
   // 2. Tentar chave específica com DUAS palavras (ex: "ice syn", "mansão maromba", "pepsi black")
   const firstTwoWords = normalizedName.split(' ').slice(0, 2).join(' ');
   specificKey = `${firstTwoWords}-${normalizedFlavor}`;
   if (colorMap[specificKey]) {
-    return colorMap[specificKey];
+    return { type: 'color', value: colorMap[specificKey] };
   }
   
   // 3. Tentar apenas marca (uma palavra)
   const brand = normalizedName.split(' ')[0];
   if (BRAND_COLORS[brand]) {
-    return BRAND_COLORS[brand];
+    return { type: 'color', value: BRAND_COLORS[brand] };
   }
   
   // 4. Tentar marca com duas palavras (ex: "stella artois", "ice syn", "pepsi black")
   if (BRAND_COLORS[firstTwoWords]) {
-    return BRAND_COLORS[firstTwoWords];
+    return { type: 'color', value: BRAND_COLORS[firstTwoWords] };
   }
   
   // 5. Fallback padrão
-  return '#4169E1';
+  return { type: 'color', value: '#4169E1' };
 };
 
 export function groupProductsByVariants(
@@ -488,7 +496,10 @@ export function groupProductsByVariants(
         variants: [],
         mainImage: product.image_url,
         priceRange: { min: Infinity, max: -Infinity },
-        brandColor: getProductColor(product.name, parsed.flavor),
+        brandColor: (() => {
+          const bg = getProductColor(product.name, parsed.flavor);
+          return bg.type === 'color' ? bg.value : '#4169E1';
+        })(),
         availableCount: 0
       };
     }

@@ -75,6 +75,22 @@ export const CategoryCarousel = ({ onCategoryChange, selectedCategory }: Categor
     emblaApi.on("reInit", onSelect);
   }, [emblaApi]);
 
+  // Scroll horizontal com mouse wheel (sem shift)
+  useEffect(() => {
+    const emblaNode = emblaApi?.rootNode();
+    if (!emblaNode) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        emblaNode.scrollLeft += e.deltaY;
+      }
+    };
+
+    emblaNode.addEventListener('wheel', handleWheel, { passive: false });
+    return () => emblaNode.removeEventListener('wheel', handleWheel);
+  }, [emblaApi]);
+
   return (
     <div className="relative px-4 md:px-8">
       <div className="overflow-x-auto scrollbar-hide" ref={emblaRef}>

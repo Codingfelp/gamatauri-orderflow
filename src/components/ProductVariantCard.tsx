@@ -38,13 +38,15 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const firstVariant = variants[0];
   const isOutOfStock = variants.every(v => !v.available);
   
-  const backgroundColor = selectedVariant
-    ? getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1'
-    : getProductColor(variants[0].name, variants[0].flavor) || '#4169E1';
+  const productBg = selectedVariant
+    ? getProductColor(selectedVariant.name, selectedVariant.flavor)
+    : getProductColor(variants[0].name, variants[0].flavor);
   
-  const buttonColor = selectedVariant 
-    ? getProductColor(selectedVariant.name, selectedVariant.flavor) || '#4169E1'
-    : getProductColor(variants[0].name, variants[0].flavor) || '#4169E1';
+  const backgroundStyle = productBg.type === 'image'
+    ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : { background: productBg.value };
+  
+  const buttonColor = productBg.type === 'color' ? productBg.value : '#4169E1';
   
   return (
     <>
@@ -54,7 +56,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
       >
         <div 
           className="relative h-48 md:h-56 overflow-hidden flex items-center justify-center"
-          style={{ background: backgroundColor }}
+          style={backgroundStyle}
         >
           {displayImage ? (
             <img 
