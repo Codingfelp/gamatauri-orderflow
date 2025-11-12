@@ -97,9 +97,9 @@ const BRAND_COLORS: Record<string, string> = {
   'heineken': '#90EE90',
   'itaipava': '#D3D3D3',
   'laut': '#FFD700',
-  'michelob': '#0047AB',
+  'michelob': '#87CEEB',
   'original': '#FFD700',
-  'petra': '#FFB347',
+  'petra': '#F5DEB3',
   'skol': '#FFD700',
   'spaten': '#228B22',
   'stella': '#E8E8E8',
@@ -114,6 +114,18 @@ const BRAND_COLORS: Record<string, string> = {
   // REFRIGERANTES
   'sukita': '#9370DB',
   'soda': '#D3D3D3',
+  
+  // DRINKS
+  'beats': '#E85D75',
+  'lambe': '#FFC0CB',
+  'lambe-lambe': '#FFC0CB',
+  'smirnoff': '#000000',
+  'xeque mate': '#B8860B',
+  'ice syn': '#98FB98',
+  'mansão maromba': '#FFD700',
+  'equilibrista': '#DDA0DD',
+  'vanfall': '#FF6347',
+  'brutal fruit': '#FF69B4',
 };
 
 interface ParsedProduct {
@@ -179,9 +191,9 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'heineken-original': '#90EE90',
     'itaipava-original': '#D3D3D3',
     'laut-original': '#FFD700',
-    'michelob-original': '#0047AB',
+    'michelob-original': '#87CEEB',
     'original-original': '#FFD700',
-    'petra-original': '#FFB347',
+    'petra-original': '#F5DEB3',
     'skol-original': '#FFD700',
     'spaten-original': '#228B22',
     'stella-original': '#E8E8E8',
@@ -241,6 +253,62 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'soda-zero': '#D3D3D3',
     'soda-tradicional': '#D3D3D3',
     'soda-original': '#D3D3D3',
+    
+    // ===== DRINKS - BEATS =====
+    'beats-caipirinha': '#F0E68C',
+    'beats-green mix': '#90EE90',
+    'beats-gt': '#9370DB',
+    'beats-red mix': '#E85D75',
+    'beats-senses': '#DDA0DD',
+    'beats-tropical': '#FFB347',
+    
+    // ===== DRINKS - LAMBE-LAMBE =====
+    'lambe-lambe-limonada rosa': '#FFC0CB',
+    'lambe-lambe-tangerina': '#FFA500',
+    'lambe-limonada rosa': '#FFC0CB',
+    'lambe-tangerina': '#FFA500',
+    
+    // ===== DRINKS - SMIRNOFF ICE =====
+    'smirnoff-ice': '#D3D3D3',
+    'smirnoff ice-original': '#D3D3D3',
+    
+    // ===== DRINKS - ICE SYN =====
+    'ice syn-kiwi': '#90EE90',
+    'ice syn-limão': '#F0E68C',
+    'ice syn-limao': '#F0E68C',
+    'ice syn-maca verde': '#98FB98',
+    'ice syn-maça verde': '#98FB98',
+    'ice syn-melancia': '#FFB6C1',
+    'ice syn-morango': '#FFB6C1',
+    'ice syn-tropical': '#FFD700',
+    
+    // ===== DRINKS - MANSÃO MAROMBA =====
+    'mansão maromba-original': '#FFD700',
+    'mansão maromba-colors berry': '#C71585',
+    'mansão maromba-combo maça verde': '#98FB98',
+    'mansão maromba-combo maçã verde': '#98FB98',
+    'mansão maromba-combo tigrinho manga': '#FFA500',
+    'mansão maromba-combo tigrinho tropical': '#FFD700',
+    'mansão maromba-gin melancia': '#FFB6C1',
+    'mansão maromba-gin cut original': '#B0C4DE',
+    'mansão maromba-vodka combo': '#D3D3D3',
+    
+    // ===== DRINKS - EQUILIBRISTA =====
+    'equilibrista-gingibre': '#F5DEB3',
+    'equilibrista-rubra': '#DC143C',
+    'equilibrista-veneta': '#DDA0DD',
+    
+    // ===== DRINKS - VANFALL =====
+    'vanfall-fizz mexerica e hortelã': '#FFD700',
+    'vanfall-fizz mexerica e hortela': '#FFD700',
+    'vanfall-ruby frutas vermelhas': '#C71585',
+    'vanfall-vibra maracujá': '#FFD700',
+    'vanfall-vibra maracuja': '#FFD700',
+    
+    // ===== DRINKS - OUTRAS =====
+    'brutal fruit-spritzer': '#FF69B4',
+    'moscow mule-original': '#F5DEB3',
+    'xá de cana-original': '#B8860B',
   };
   
   // 1. Tentar chave específica: 'marca-sabor'
