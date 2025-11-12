@@ -335,32 +335,32 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'h2oh-limao': '#F0E68C',
     
     // ===== DRINKS - BEATS (6 sabores) =====
-    'beats-caipirinha': '#ADFF2F',
-    'beats-green mix': '#32CD32',
-    'beats-gt': '#8B008B',
-    'beats-red mix': '#DC143C',
-    'beats-senses': '#DDA0DD',
-    'beats-tropical': '#FFA500',
+    'beats-caipirinha': '#E9F9EC', // verde-limão diluído, tropical
+    'beats-green mix': '#E8FBE5', // verde-claro suave
+    'beats-gt': '#FFF0E0', // laranja claro puxado pro dourado
+    'beats-red mix': '#FFE5E5', // vermelho claro rosado
+    'beats-senses': '#E9EAFB', // azul-claro acinzentado, moderno
+    'beats-tropical': '#FFF4E1', // pêssego claro, calor de verão
     
     // ===== DRINKS - LAMBE-LAMBE (2 sabores) =====
     'lambe-lambe-limonada rosa': '#FFB6C1',
-    'lambe-lambe-tangerina': '#FF8C00',
+    'lambe-lambe-tangerina': '#FFD700', // amarelo vibrante
     'lambe-limonada rosa': '#FFB6C1',
-    'lambe-tangerina': '#FF8C00',
+    'lambe-tangerina': '#FFD700', // amarelo vibrante
     
     // ===== DRINKS - SMIRNOFF ICE =====
     'smirnoff-ice': '#D3D3D3',
     'smirnoff ice-original': '#D3D3D3',
     
     // ===== DRINKS - ICE SYN (7 sabores) =====
-    'ice syn-kiwi': '#8FBC8F',
-    'ice syn-limão': '#F0E68C',
-    'ice syn-limao': '#F0E68C',
-    'ice syn-maca verde': '#9ACD32',
-    'ice syn-maça verde': '#9ACD32',
-    'ice syn-melancia': '#FF6B9D',
-    'ice syn-morango': '#FFB6C1',
-    'ice syn-tropical': '#FFA500',
+    'ice syn-kiwi': '#E8FFE8', // verde-claro natural
+    'ice syn-limão': '#F2FFE6', // verde-limão pastel
+    'ice syn-limao': '#F2FFE6', // verde-limão pastel
+    'ice syn-maca verde': '#ECFFE5', // verde-pálido com toque cítrico
+    'ice syn-maça verde': '#ECFFE5', // verde-pálido com toque cítrico
+    'ice syn-melancia': '#FFE6EF', // rosa pastel com leve toque de vermelho
+    'ice syn-morango': '#FFE6F1', // rosa bebê com brilho suave
+    'ice syn-tropical': '#EFFFF9', // aqua-claro, refrescante
     
     // ===== DRINKS - MANSÃO MAROMBA (8 sabores) =====
     'mansão maromba-1l': '#FFD700',
@@ -377,9 +377,9 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'mansão maromba-vodka combo': '#E0E0E0',
     
     // ===== DRINKS - EQUILIBRISTA (3 sabores) =====
-    'equilibrista-gingibre': '#DEB887',
-    'equilibrista-rubra': '#8B0000',
-    'equilibrista-veneta': '#9370DB',
+    'equilibrista-gingibre': '#FFF4E0', // bege-amarelado, lembra gengibre
+    'equilibrista-rubra': '#FFE8EB', // vermelho-claro rosado, vibrante e leve
+    'equilibrista-veneta': '#F3E8FF', // lavanda clara, elegante
     
     // ===== DRINKS - VANFALL (3 sabores) =====
     'vanfall-fizz mexerica e hortelã': '#FFA500',
