@@ -82,7 +82,7 @@ const BRAND_PATTERNS: Record<string, RegExp> = {
 };
 
 const SIZE_PATTERNS = [
-  /\b(200\s?ml|350\s?ml|473\s?ml|550\s?ml|600\s?ml|1\s?l|2\s?l|3\s?l)\b/i,
+  /\b(\d+\s?ml|\d+\s?l)\b/i,
   /\b(lata|latao|latão|garrafa|long\s?neck|pet)\b/i
 ];
 
@@ -218,7 +218,7 @@ export const getProductColor = (productName: string, flavor: string): { type: 'c
   if (normalizedName.includes('vinho') || normalizedName.includes('wine')) {
     return {
       type: 'image',
-      value: 'https://png.pngtree.com/thumb_back/fh260/back_our/20190628/ourmid/pngtree-dark-wood-grain-background-material-image_268100.jpg'
+      value: 'https://static.vecteezy.com/ti/fotos-gratis/p2/2901896-fundo-de-textura-de-madeira-gratis-foto.jpg'
     };
   }
   

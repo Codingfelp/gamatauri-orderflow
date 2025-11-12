@@ -87,7 +87,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           </button>
           
           {/* Carrossel de imagens no topo */}
-          <div className="flex-[0_0_50vh] overflow-hidden relative" ref={emblaRef}>
+          <div className="flex-[0_0_35vh] overflow-hidden relative" ref={emblaRef}>
             <div className="flex h-full">
               {variants.map((variant) => {
                 const productBg = getProductColor(variant.name, variant.flavor);
@@ -117,7 +117,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           </div>
           
           {/* Thumbnails scrolláveis */}
-          <div className="flex-[0_0_100px] overflow-x-auto px-4 py-3 flex gap-2 bg-background border-t border-b border-border scrollbar-hide">
+          <div className="flex-[0_0_110px] overflow-x-auto px-4 py-3 flex gap-3 bg-background border-t border-b border-border scrollbar-hide">
             {variants.map((variant, index) => (
               <button
                 key={variant.id}
@@ -126,10 +126,10 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                   emblaApi?.scrollTo(index);
                 }}
                 className={cn(
-                  "flex-shrink-0 w-20 h-20 rounded-lg border-2 overflow-hidden transition-all bg-white",
+                  "flex-shrink-0 w-24 h-24 rounded-xl border-2 overflow-hidden transition-all bg-white",
                   selectedVariant.id === variant.id
-                    ? "border-primary ring-2 ring-primary scale-105"
-                    : "border-border hover:border-primary/50"
+                    ? "border-primary ring-2 ring-primary ring-offset-2 scale-110"
+                    : "border-border hover:border-primary/50 scale-100"
                 )}
               >
                 {variant.image_url ? (
