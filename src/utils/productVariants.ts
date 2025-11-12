@@ -59,9 +59,11 @@ const GROUPING_RULES: Record<string, {
 
 const BRAND_PATTERNS: Record<string, RegExp> = {
   energeticos: /^(Baly|Red Bull|Monster|Fusion)\s*/i,
-  refrigerantes: /^(Coca-Cola|Coca|Pepsi|Guaraná|Guarana|Sprite|Fanta|Kuat|Sukita|Soda)\s*/i,
+  refrigerantes: /^(Coca-Cola|Coca|Pepsi|Guaraná|Guarana|Sprite|Fanta|Kuat|Sukita|Soda|H2OH)\s*/i,
+  refrigerante: /^(Coca-Cola|Coca|Pepsi|Guaraná|Guarana|Sprite|Fanta|Kuat|Sukita|Soda|H2OH)\s*/i,
   sucos: /^(Del Valle|Tial|Maguary|Gatorade|Ades|Tang)\s*/i,
-  drinks: /^(Beats|Smirnoff|Xeque Mate|Lambe)\s*/i,
+  drinks: /^(Beats|Smirnoff|Xeque Mate|Lambe-Lambe|Lambe|Ice Syn|Mansão Maromba|Equilibrista|Vanfall|Brutal Fruit|Moscow Mule|Xá de Cana)\s*/i,
+  drink: /^(Beats|Smirnoff|Xeque Mate|Lambe-Lambe|Lambe|Ice Syn|Mansão Maromba|Equilibrista|Vanfall|Brutal Fruit|Moscow Mule|Xá de Cana)\s*/i,
   vinhos: /^(Santa Carolina|Concha y Toro|Casal|Campo Largo|Aurora)\s*/i,
   destilados: /^(Corote|Smirnoff|Absolut|Jack Daniel|Johnnie Walker)\s*/i,
   chocolates: /^(Lacta|Nestlé|Nestle|Garoto|Hershey|Ferrero)\s*/i,
@@ -112,20 +114,32 @@ const BRAND_COLORS: Record<string, string> = {
   'fusion': '#32CD32',
   
   // REFRIGERANTES
+  'coca-cola': '#DC143C',
+  'coca': '#DC143C',
+  'pepsi': '#0066CC',
+  'pepsi black': '#003366',
+  'pepsi twist': '#003366',
+  'sprite': '#90EE90',
+  'guaraná': '#228B22',
+  'guarana': '#228B22',
+  'fanta': '#FFA500',
   'sukita': '#9370DB',
   'soda': '#D3D3D3',
+  'h2oh': '#87CEEB',
   
   // DRINKS
   'beats': '#E85D75',
   'lambe': '#FFC0CB',
   'lambe-lambe': '#FFC0CB',
-  'smirnoff': '#000000',
+  'smirnoff': '#D3D3D3',
   'xeque mate': '#B8860B',
   'ice syn': '#98FB98',
   'mansão maromba': '#FFD700',
   'equilibrista': '#DDA0DD',
   'vanfall': '#FF6347',
   'brutal fruit': '#FF69B4',
+  'moscow mule': '#F5DEB3',
+  'xá de cana': '#B8860B',
 };
 
 interface ParsedProduct {
@@ -254,6 +268,39 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'soda-tradicional': '#D3D3D3',
     'soda-original': '#D3D3D3',
     
+    // ===== REFRIGERANTES - COCA-COLA =====
+    'coca-cola-original': '#DC143C',
+    'coca-cola-zero': '#000000',
+    'coca-cola-zero açúcar': '#000000',
+    'coca-cola-zero acucar': '#000000',
+    'coca-zero': '#000000',
+    'coca-original': '#DC143C',
+    
+    // ===== REFRIGERANTES - PEPSI =====
+    'pepsi-original': '#0066CC',
+    'pepsi-black': '#003366',
+    'pepsi-twist': '#003366',
+    'pepsi-zero': '#0066CC',
+    
+    // ===== REFRIGERANTES - SPRITE =====
+    'sprite-original': '#90EE90',
+    'sprite-zero': '#90EE90',
+    
+    // ===== REFRIGERANTES - GUARANÁ =====
+    'guaraná-original': '#228B22',
+    'guarana-original': '#228B22',
+    'guaraná-zero': '#228B22',
+    'guarana-zero': '#228B22',
+    
+    // ===== REFRIGERANTES - FANTA =====
+    'fanta-laranja': '#FFA500',
+    'fanta-uva': '#9370DB',
+    
+    // ===== REFRIGERANTES - H2OH =====
+    'h2oh-citrus': '#FFD700',
+    'h2oh-limão': '#F0E68C',
+    'h2oh-limao': '#F0E68C',
+    
     // ===== DRINKS - BEATS =====
     'beats-caipirinha': '#F0E68C',
     'beats-green mix': '#90EE90',
@@ -311,25 +358,31 @@ export const getProductColor = (productName: string, flavor: string): string => 
     'xá de cana-original': '#B8860B',
   };
   
-  // 1. Tentar chave específica: 'marca-sabor'
-  const specificKey = `${normalizedName.split(' ')[0]}-${normalizedFlavor}`;
+  // 1. Tentar chave específica: 'marca-sabor' (primeira palavra)
+  let specificKey = `${normalizedName.split(' ')[0]}-${normalizedFlavor}`;
   if (colorMap[specificKey]) {
     return colorMap[specificKey];
   }
   
-  // 2. Tentar apenas marca
+  // 2. Tentar chave específica com DUAS palavras (ex: "ice syn", "mansão maromba", "pepsi black")
+  const firstTwoWords = normalizedName.split(' ').slice(0, 2).join(' ');
+  specificKey = `${firstTwoWords}-${normalizedFlavor}`;
+  if (colorMap[specificKey]) {
+    return colorMap[specificKey];
+  }
+  
+  // 3. Tentar apenas marca (uma palavra)
   const brand = normalizedName.split(' ')[0];
   if (BRAND_COLORS[brand]) {
     return BRAND_COLORS[brand];
   }
   
-  // 3. Tentar marca completa (ex: "stella artois")
-  const firstTwoWords = normalizedName.split(' ').slice(0, 2).join(' ');
+  // 4. Tentar marca com duas palavras (ex: "stella artois", "ice syn", "pepsi black")
   if (BRAND_COLORS[firstTwoWords]) {
     return BRAND_COLORS[firstTwoWords];
   }
   
-  // 4. Fallback padrão
+  // 5. Fallback padrão
   return '#4169E1';
 };
 
