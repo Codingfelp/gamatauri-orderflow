@@ -14,7 +14,8 @@ import { UserAddressDisplay } from "@/components/UserAddressDisplay";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Package } from "lucide-react";
+import { Search, Package, Mic, MicOff } from "lucide-react";
+import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { fetchProducts, type Product } from "@/services/productsService";
 import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMapping";
 import { CategoryProductRow } from "@/components/CategoryProductRow";
@@ -61,6 +62,10 @@ const Order = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { toast } = useToast();
+  
+  const { isListening, isSupported, startListening } = useVoiceSearch((text) => {
+    setSearchQuery(text);
+  });
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading: authLoading } = useAuth();
@@ -217,16 +222,30 @@ const Order = () => {
           <PromotionsCarousel />
         </div>
 
-        {/* 2. BUSCA */}
+        {/* 2. BUSCA COM VOZ */}
         <div className="mb-8 px-4 max-w-2xl mx-auto relative">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
           <Input
             type="text"
-            placeholder="Buscar produtos..."
+            placeholder={isListening ? "Ouvindo..." : "Buscar produtos ou diga o que procura..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-lg py-7 pl-14 pr-4 rounded-xl bg-white shadow-sm border border-border/50 focus:shadow-lg focus:shadow-primary/20 focus:border-primary/50 transition-all duration-300 focus-visible:outline-none focus-visible:ring-0"
+            className="w-full text-lg py-7 pl-14 pr-16 rounded-xl bg-white shadow-sm border border-border/50 focus:shadow-lg focus:shadow-primary/20 focus:border-primary/50 transition-all duration-300 focus-visible:outline-none focus-visible:ring-0"
           />
+          {isSupported && (
+            <button
+              onClick={startListening}
+              disabled={isListening}
+              className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
+                isListening 
+                  ? 'bg-primary text-primary-foreground animate-pulse' 
+                  : 'hover:bg-accent'
+              }`}
+              aria-label="Buscar por voz"
+            >
+              {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            </button>
+          )}
         </div>
         
         {/* 3. CHIPS DE CATEGORIAS (Padrão iFood) */}

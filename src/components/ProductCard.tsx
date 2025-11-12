@@ -3,6 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { parseProductName, getProductColor } from "@/utils/productVariants";
+import { Share2 } from "lucide-react";
+import { shareProductWhatsApp } from "@/utils/shareUtils";
 
 interface Product {
   id: string;
@@ -45,6 +47,18 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
         className="relative aspect-[4/3] md:aspect-square overflow-hidden flex items-center justify-center"
         style={backgroundStyle}
       >
+        {/* Botão de compartilhar */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            shareProductWhatsApp({ name: product.name, price: product.price, category: product.category || undefined });
+          }}
+          className="absolute top-2 right-2 p-2 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all z-10 group/share"
+          aria-label="Compartilhar no WhatsApp"
+        >
+          <Share2 className="h-4 w-4 text-muted-foreground group-hover/share:text-primary transition-colors" />
+        </button>
+        
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">
             <div className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md font-bold text-sm md:text-base">

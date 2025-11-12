@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, Share2 } from "lucide-react";
+import { shareProductWhatsApp } from "@/utils/shareUtils";
 import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
 import { useToast } from "@/hooks/use-toast";
@@ -118,7 +119,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           
           {/* Thumbnails scrolláveis */}
           <div className="flex-[0_0_100px] w-full overflow-x-auto px-3 py-2 bg-background border-t border-b border-border snap-x snap-mandatory scrollbar-hide">
-            <div className="flex gap-2 pb-1">
+            <div className="inline-flex gap-2 pb-1">
               {variants.map((variant, index) => (
                 <button
                   key={variant.id}
@@ -127,7 +128,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                     emblaApi?.scrollTo(index);
                   }}
                   className={cn(
-                    "flex-shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden transition-all bg-white snap-start",
+                    "flex-shrink-0 w-[calc((100vw-40px)/4.2)] h-[calc((100vw-40px)/4.2)] max-w-16 max-h-16 rounded-lg border-2 overflow-hidden transition-all bg-white snap-start",
                     selectedVariant.id === variant.id
                       ? "border-primary ring-2 ring-primary scale-105"
                       : "border-border hover:border-primary/50"
@@ -167,13 +168,29 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                   </span>
                 </div>
                 
-                <Button
-                  onClick={() => handleVariantClick(selectedVariant)}
-                  disabled={!selectedVariant.available}
-                  className="w-full h-12 text-base font-semibold"
-                >
-                  {selectedVariant.available ? 'Adicionar ao Carrinho' : 'Esgotado'}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => handleVariantClick(selectedVariant)}
+                    disabled={!selectedVariant.available}
+                    className="flex-1 h-12 text-base font-semibold"
+                  >
+                    {selectedVariant.available ? 'Adicionar ao Carrinho' : 'Esgotado'}
+                  </Button>
+                  
+                  <Button
+                    onClick={() => shareProductWhatsApp({ 
+                      name: selectedVariant.name, 
+                      price: selectedVariant.price, 
+                      category: baseProduct.category 
+                    })}
+                    variant="outline"
+                    size="icon"
+                    className="h-12 w-12 flex-shrink-0"
+                    aria-label="Compartilhar no WhatsApp"
+                  >
+                    <Share2 className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">
