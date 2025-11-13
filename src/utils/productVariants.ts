@@ -559,10 +559,16 @@ export function groupProductsByVariants(
     let groupKey = parsed.brand;
     let displayBrand = parsed.brand;
     
-    // Agrupamento especial para Tabacaria
+    // Agrupamento especial para Tabacaria: cada tipo tem sua própria regra
     if (category === 'Tabacaria') {
-      groupKey = actualCategory; // Agrupa por tipo (Sedas, Isqueiros, etc)
-      displayBrand = actualCategory;
+      // Para Piteiras, Isqueiros e outros, usar a regra específica do tipo
+      if (specificRule.groupBy.includes('brand')) {
+        groupKey = `${actualCategory}-${parsed.brand}`;
+        displayBrand = parsed.brand;
+      } else {
+        groupKey = actualCategory;
+        displayBrand = actualCategory;
+      }
     } else if (category === 'Refrigerantes' && parsed.size) {
       groupKey = parsed.size;
       displayBrand = `Refrigerantes ${parsed.size}`;
@@ -575,9 +581,9 @@ export function groupProductsByVariants(
         groupKey,
         baseProduct: {
           brand: displayBrand,
-          type: category,
+          type: category === 'Tabacaria' ? actualCategory : category,
           size: parsed.size,
-          category: product.category || category
+          category: product.category || actualCategory
         },
         variants: [],
         mainImage: product.image_url,
