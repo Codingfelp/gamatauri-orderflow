@@ -82,7 +82,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-background">
         {/* MOBILE: Carrossel + Thumbnails + Info */}
-        <div className="flex flex-col md:hidden h-full max-h-[90vh]">
+        <div className="flex flex-col md:hidden w-full max-w-full h-full max-h-[90vh] overflow-x-hidden">
           <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors z-50">
             <X className="w-5 h-5 text-white" />
           </button>
