@@ -55,6 +55,11 @@ const GROUPING_RULES: Record<string, {
   'Kits': { groupBy: ['flavor'], extractSize: false, extractFlavor: true },
   'Seda': { groupBy: ['size'], extractSize: true, extractFlavor: true },
   'Sedas': { groupBy: ['size'], extractSize: true, extractFlavor: true },
+  'Tabacaria': { groupBy: ['type'], extractSize: false, extractFlavor: false },
+  'Cigarros - Maço': { groupBy: ['brand'], extractSize: false, extractFlavor: false },
+  'Cigarros - Picado': { groupBy: ['brand'], extractSize: false, extractFlavor: false },
+  'Isqueiros': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
+  'Piteiras': { groupBy: ['brand'], extractSize: false, extractFlavor: false },
 };
 
 const BRAND_PATTERNS: Record<string, RegExp> = {
@@ -76,6 +81,7 @@ const BRAND_PATTERNS: Record<string, RegExp> = {
   gelo: /^(Gelo|Ice|Gelo em Cubo|Gelo Picado)\s*/i,
   gelo_puro: /^(Gelo Filtrado|Gelo em Escama|Gelo Cubo|Gelo Picado)\s*/i,
   gelo_saborizado: /^(Gelo Saborizado|Gelo com Sabor)\s*/i,
+  tabacaria: /^(Lucky Strike|Brothers|Dunhill|Derby|Marlboro|Seda|OCB|Smoking|BIC|Isqueiro|Piteira)\s*/i,
   combos: /^(Combo|Kit|Pack|Promoção|Promocao)\s*/i,
   seda: /^(Seda|Papel|Piteira)\s*/i,
   cervejas: /^(Heineken|Brahma|Skol|Antarctica|Budweiser|Stella Artois|Stella|Corona|Original|Spaten|Devassa|Bohemia|Eisenbahn|Petra|Itaipava|Kaiser|Caracu|Serramalte|Bavaria|Colorado|Goose|Laut|Michelob)\s*/i,
