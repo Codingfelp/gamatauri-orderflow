@@ -45,6 +45,16 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const productBg = selectedVariant
     ? getProductColor(selectedVariant.name, selectedVariant.flavor, productGroup.baseProduct.category)
     : getProductColor(initialVariant.name, initialVariant.flavor, productGroup.baseProduct.category);
+
+  // DEBUG
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`📦 Card "${baseProduct.brand}":`, {
+      initialVariant: initialVariant.name,
+      flavor: initialVariant.flavor,
+      color: productBg.value,
+      allVariants: variants.map(v => v.name)
+    });
+  }
   
   const backgroundStyle = productBg.type === 'image'
     ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }

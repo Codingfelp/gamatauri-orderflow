@@ -177,7 +177,7 @@ interface ParsedProduct {
  * Detecta o tipo específico de produto de Tabacaria
  * ORDEM IMPORTA: Cigarros primeiro, depois outros produtos
  */
-function detectTabacariaType(productName: string): string | null {
+function detectTabacariaType(productName: string): string {
   const normalized = productName.toLowerCase();
   
   // 1. DETECTAR CIGARROS PRIMEIRO (para não conflitar com "c/piteira")
@@ -226,15 +226,24 @@ function detectTabacariaType(productName: string): string | null {
     return 'Isqueiros';
   }
   
-  // 4. PITEIRAS (ESPECÍFICO: só "bem bolado")
-  if (normalized.includes('bem bolado') ||
+  // 4. PITEIRAS (FLEXÍVEL: aceitar vários termos)
+  if (normalized.includes('piteira') ||
+      normalized.includes('bem bolado') ||
       normalized.includes('tips') ||
-      normalized.includes('filter tip')) {
+      normalized.includes('filter')) {
+    // Se tem palavra "cigarro" ou marca de cigarro, é cigarro, não piteira
+    if (normalized.includes('brothers') || 
+        normalized.includes('cigarro') ||
+        normalized.includes('marlboro') ||
+        normalized.includes('lucky')) {
+      return 'Cigarros - Maço';
+    }
     return 'Piteiras';
   }
   
-  // Fallback: Retornar null para ignorar produtos não identificados
-  return null;
+  // Fallback: usar Tabacaria como categoria genérica
+  console.warn(`⚠️ Produto Tabacaria não classificado especificamente: ${productName}`);
+  return 'Tabacaria';
 }
 
 function extractBrandFallback(name: string): string {
@@ -566,14 +575,7 @@ export function groupProductsByVariants(
     let actualCategory = category;
     if (category === 'Tabacaria') {
       actualCategory = detectTabacariaType(product.name);
-      
-      console.log(`🔍 Detecção Tabacaria: "${product.name}" → ${actualCategory || 'NULL'}`);
-      
-      // Ignorar produtos não identificados (evita card "Tabacaria" redundante)
-      if (!actualCategory) {
-        console.warn(`⚠️ Produto Tabacaria não identificado: ${product.name}`);
-        return;
-      }
+      console.log(`🔍 Detecção: "${product.name}" → "${actualCategory}"`);
     }
     
     // Usar actualCategory nas regras de agrupamento
