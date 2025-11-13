@@ -52,8 +52,11 @@ export const CATEGORY_MAPPING: Record<string, string[]> = {
   "Copão": [
     "Copão", "Copao", "Copo"
   ],
-  "Cigarros": [
-    "Cigarro", "Cigarette", "Marlboro", "Derby"
+  "Tabacaria": [
+    "Cigarro", "Cigarette", "Marlboro", "Derby",
+    "Seda", "Papel", "Smoking", "OCB",
+    "Isqueiro", "Lighter", "Bic", "Zippo",
+    "Piteira", "Filtro", "Filter", "Tips"
   ],
   "Gelos": [
     "Gelo", "Ice", "Gela"

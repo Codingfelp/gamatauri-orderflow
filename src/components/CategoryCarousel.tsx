@@ -28,7 +28,7 @@ interface Category {
 const categories: Category[] = [
   { name: "Chocolates", image: chocolates, value: "Chocolates" },
   { name: "Copão", image: copao, value: "Copão" },
-  { name: "Cigarros", image: cigarros, value: "Cigarros" },
+  { name: "Tabacaria", image: cigarros, value: "Tabacaria" },
   { name: "Gelos", image: gelos, value: "Gelos" },
   { name: "Refrigerantes", image: refrigerantesEnergeticos, value: "Refrigerantes" },
   { name: "Refrigerantes Zero", image: refrigerantesZero, value: "Refrigerantes Zero" },

@@ -77,34 +77,55 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         
         <div className="overflow-hidden -mt-6 px-4 mb-3 relative z-10 max-w-[216px] mx-auto" ref={emblaRef}>
           <div className="flex gap-2">
-            {variants.map((variant) => (
-              <div 
-                key={variant.id}
-                className="flex-[0_0_48px] w-12 h-12 rounded-lg overflow-hidden border-2 border-white bg-white shadow-md"
-              >
-                {variant.image_url ? (
-                  <img 
-                    src={variant.image_url} 
-                    alt={variant.flavor}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div 
-                    className="w-full h-full opacity-30" 
-                    style={{ backgroundColor: productGroup.brandColor }}
-                  />
-                )}
-              </div>
-            ))}
+            {variants.map((variant) => {
+              // Calcular cor individual de cada variante
+              const variantColor = getProductColor(
+                variant.name, 
+                variant.flavor, 
+                productGroup.baseProduct.category
+              );
+              
+              const thumbnailBg = variantColor.type === 'image'
+                ? { backgroundImage: `url(${variantColor.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                : { backgroundColor: variantColor.value };
+              
+              return (
+                <div 
+                  key={variant.id}
+                  className="flex-[0_0_48px] w-12 h-12 rounded-lg overflow-hidden border-2 border-white shadow-md"
+                  style={variant.image_url ? undefined : thumbnailBg}
+                >
+                  {variant.image_url ? (
+                    <img 
+                      src={variant.image_url} 
+                      alt={variant.flavor}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div 
+                      className="w-full h-full opacity-30" 
+                      style={thumbnailBg}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
         
         <div className="p-2 md:p-3 space-y-1 flex-1 flex flex-col">
           <h3 className="font-bold text-sm md:text-base text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
-            {baseProduct.brand}
-            {baseProduct.size && variants.some(v => v.flavor && v.flavor !== 'original' && v.flavor !== baseProduct.brand.toLowerCase()) 
-              ? ` ${baseProduct.size}` 
-              : ''}
+            {baseProduct.category?.toLowerCase().includes('cerveja')
+              ? baseProduct.brand.split(' ')[0]
+              : (
+                <>
+                  {baseProduct.brand}
+                  {baseProduct.size && variants.some(v => v.flavor && v.flavor !== 'original' && v.flavor !== baseProduct.brand.toLowerCase()) 
+                    ? ` ${baseProduct.size}` 
+                    : ''}
+                </>
+              )
+            }
           </h3>
           
           <p className="text-xs text-muted-foreground">

@@ -22,10 +22,17 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     "ballantines com", "gordons com", "com red bull", "com baly", "com fusion"
   ],
 
-  // Cigarros
-  "Cigarros": [
+  // Tabacaria (Cigarros, Sedas, Isqueiros, Piteiras)
+  "Tabacaria": [
+    // Cigarros
     "lucky strike", "brothers", "dunhill", "porto faria", "black picado", 
-    "paiol", "picado", "cigarro", "maço"
+    "paiol", "picado", "cigarro", "maço",
+    // Sedas
+    "seda", "papel", "smoking", "ocb", "piteira", "king size",
+    // Isqueiros
+    "isqueiro", "bic", "zippo", "cricket", "lighter",
+    // Piteiras
+    "piteira", "filtro", "tips"
   ],
 
   // Gelos
