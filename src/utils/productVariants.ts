@@ -175,70 +175,45 @@ interface ParsedProduct {
 
 /**
  * Detecta o tipo específico de produto de Tabacaria
- * ORDEM IMPORTA: Cigarros primeiro, depois outros produtos
+ * ORDEM IMPORTA: Piteiras (Bem Bolado) primeiro, depois Cigarros
  */
 function detectTabacariaType(productName: string): string {
   const normalized = productName.toLowerCase();
   
-  // 1. DETECTAR CIGARROS PRIMEIRO (para não conflitar com "c/piteira")
+  // 1. DETECTAR PITEIRAS PRIMEIRO (prioridade máxima para "Bem Bolado")
+  if (normalized.includes('bem bolado') ||
+      (normalized.includes('piteira') && !normalized.includes('c/piteira')) ||
+      normalized.includes('tips') ||
+      normalized.includes('filter tip')) {
+    return 'Piteiras';
+  }
   
-  // 1a. Cigarros - Picado
-  if (normalized.includes('picado') ||
+  // 2. DETECTAR CIGARROS
+  // Maço
+  if (normalized.includes('maço') || 
+      normalized.includes('box') ||
+      (normalized.includes('cigarro') && !normalized.includes('picado'))) {
+    return 'Cigarros - Maço';
+  }
+  
+  // Picado
+  if (normalized.includes('picado') || 
       normalized.includes('tabaco') ||
       normalized.includes('fumo')) {
     return 'Cigarros - Picado';
   }
   
-  // 1b. Cigarros - Maço (detectar marcas + palavra "maço")
-  if (normalized.includes('maço') ||
-      normalized.includes('cigarette') ||
-      normalized.includes('lucky strike') ||
-      normalized.includes('marlboro') ||
-      normalized.includes('dunhill') ||
-      normalized.includes('derby') ||
-      normalized.includes('brothers') ||
-      normalized.includes('camel') ||
-      normalized.includes('coyote') ||
-      normalized.includes('madiba') ||
-      normalized.includes('mandele') ||
-      normalized.includes('porto faria') ||
-      normalized.includes('rothmans') ||
-      normalized.includes('san marino')) {
+  // Marcas de cigarro conhecidas
+  const cigarroBrands = ['marlboro', 'lucky', 'dunhill', 'camel', 'winston', 'pall mall', 'derby', 'eight', 'minster', 'hollywood', 'rothmans', 'free'];
+  if (cigarroBrands.some(brand => normalized.includes(brand))) {
     return 'Cigarros - Maço';
-  }
-  
-  // 2. SEDAS (depois de cigarros)
-  if (normalized.includes('seda') || 
-      normalized.includes('papel') || 
-      normalized.includes('smoking') || 
-      normalized.includes('ocb') ||
-      normalized.includes('zomo') ||
-      normalized.includes('king size')) {
-    return 'Sedas';
   }
   
   // 3. ISQUEIROS
   if (normalized.includes('isqueiro') || 
       normalized.includes('lighter') ||
-      normalized.includes('bic') || 
-      normalized.includes('zippo') ||
-      normalized.includes('cricket')) {
+      normalized.includes('bic')) {
     return 'Isqueiros';
-  }
-  
-  // 4. PITEIRAS (FLEXÍVEL: aceitar vários termos)
-  if (normalized.includes('piteira') ||
-      normalized.includes('bem bolado') ||
-      normalized.includes('tips') ||
-      normalized.includes('filter')) {
-    // Se tem palavra "cigarro" ou marca de cigarro, é cigarro, não piteira
-    if (normalized.includes('brothers') || 
-        normalized.includes('cigarro') ||
-        normalized.includes('marlboro') ||
-        normalized.includes('lucky')) {
-      return 'Cigarros - Maço';
-    }
-    return 'Piteiras';
   }
   
   // Fallback: usar Tabacaria como categoria genérica
