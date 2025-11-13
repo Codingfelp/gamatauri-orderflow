@@ -79,15 +79,24 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           <div className="flex gap-2">
             {variants.map((variant) => {
               // Calcular cor individual de cada variante
-              const variantColor = getProductColor(
-                variant.name, 
-                variant.flavor, 
-                productGroup.baseProduct.category
-              );
-              
-              const thumbnailBg = variantColor.type === 'image'
-                ? { backgroundImage: `url(${variantColor.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-                : { backgroundColor: variantColor.value };
+            const variantColor = getProductColor(
+              variant.name, 
+              variant.flavor, 
+              productGroup.baseProduct.category
+            );
+            
+            const thumbnailBg = variantColor.type === 'image'
+              ? { backgroundImage: `url(${variantColor.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+              : { background: variantColor.value };
+            
+            // DEBUG: Verificar cores dos thumbnails
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`🖼️ Thumbnail ${variant.flavor}:`, {
+                name: variant.name,
+                flavor: variant.flavor,
+                color: variantColor.value
+              });
+            }
               
               return (
                 <div 

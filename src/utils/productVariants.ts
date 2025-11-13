@@ -173,6 +173,61 @@ interface ParsedProduct {
   originalName: string;
 }
 
+/**
+ * Detecta o tipo específico de produto de Tabacaria
+ */
+function detectTabacariaType(productName: string): string {
+  const normalized = productName.toLowerCase();
+  
+  // 1. Detectar Sedas
+  if (normalized.includes('seda') || 
+      normalized.includes('papel') || 
+      normalized.includes('smoking') || 
+      normalized.includes('ocb') ||
+      normalized.includes('king size')) {
+    return 'Sedas';
+  }
+  
+  // 2. Detectar Isqueiros
+  if (normalized.includes('isqueiro') || 
+      normalized.includes('lighter') ||
+      normalized.includes('bic') || 
+      normalized.includes('zippo') ||
+      normalized.includes('cricket')) {
+    return 'Isqueiros';
+  }
+  
+  // 3. Detectar Piteiras
+  if (normalized.includes('piteira') || 
+      normalized.includes('filtro') ||
+      normalized.includes('tips') ||
+      normalized.includes('filter')) {
+    return 'Piteiras';
+  }
+  
+  // 4. Detectar Cigarros - Picado
+  if (normalized.includes('picado') ||
+      normalized.includes('tabaco') ||
+      normalized.includes('fumo')) {
+    return 'Cigarros - Picado';
+  }
+  
+  // 5. Detectar Cigarros - Maço (padrão para cigarros)
+  if (normalized.includes('cigarro') ||
+      normalized.includes('maço') ||
+      normalized.includes('cigarette') ||
+      normalized.includes('lucky strike') ||
+      normalized.includes('marlboro') ||
+      normalized.includes('dunhill') ||
+      normalized.includes('derby') ||
+      normalized.includes('brothers')) {
+    return 'Cigarros - Maço';
+  }
+  
+  // Fallback
+  return 'Tabacaria';
+}
+
 function extractBrandFallback(name: string): string {
   const words = name.trim().split(/\s+/);
   return words[0] || 'Desconhecido';
@@ -444,6 +499,20 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   
   // 1. Tentar chave específica: 'marca-sabor' (primeira palavra)
   let specificKey = `${normalizedName.split(' ')[0]}-${normalizedFlavor}`;
+  
+  // DEBUG: Verificar lookup de cores
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🎨 getProductColor:', { 
+      productName, 
+      flavor, 
+      normalizedName, 
+      normalizedFlavor, 
+      specificKey,
+      found: !!colorMap[specificKey],
+      color: colorMap[specificKey]
+    });
+  }
+  
   if (colorMap[specificKey]) {
     return { type: 'color', value: colorMap[specificKey] };
   }
@@ -484,13 +553,26 @@ export function groupProductsByVariants(
   products.forEach(product => {
     const parsed = parseProductName(product.name, category);
     
+    // Detecção de tipo para Tabacaria
+    let actualCategory = category;
+    if (category === 'Tabacaria') {
+      actualCategory = detectTabacariaType(product.name);
+    }
+    
+    // Usar actualCategory nas regras de agrupamento
+    const specificRule = GROUPING_RULES[actualCategory] || rule;
+    
     let groupKey = parsed.brand;
     let displayBrand = parsed.brand;
     
-    if (category === 'Refrigerantes' && parsed.size) {
+    // Agrupamento especial para Tabacaria
+    if (category === 'Tabacaria') {
+      groupKey = actualCategory; // Agrupa por tipo (Sedas, Isqueiros, etc)
+      displayBrand = actualCategory;
+    } else if (category === 'Refrigerantes' && parsed.size) {
       groupKey = parsed.size;
       displayBrand = `Refrigerantes ${parsed.size}`;
-    } else if (rule.groupBy.includes('size') && parsed.size) {
+    } else if (specificRule.groupBy.includes('size') && parsed.size) {
       groupKey += `-${parsed.size}`;
     }
     
