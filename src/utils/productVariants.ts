@@ -84,7 +84,7 @@ const BRAND_PATTERNS: Record<string, RegExp> = {
   tabacaria: /^(Lucky Strike|Brothers|Dunhill|Derby|Marlboro|Seda|OCB|Smoking|BIC|Isqueiro|Piteira)\s*/i,
   combos: /^(Combo|Kit|Pack|Promoção|Promocao)\s*/i,
   seda: /^(Seda|Papel|Piteira)\s*/i,
-  cervejas: /^(Heineken|Brahma|Skol|Antarctica|Budweiser|Stella Artois|Stella|Corona|Original|Spaten|Devassa|Bohemia|Eisenbahn|Petra|Itaipava|Kaiser|Caracu|Serramalte|Bavaria|Colorado|Goose|Laut|Michelob)\s*/i,
+  cervejas: /^(Heineken|Brahma|Skol|Antarctica|Budweiser|Stella Artois|Stella|Corona|Original|Spaten|Devassa|Bohemia|Eisenbahn|Petra|Itaipava|Kaiser|Caracu|Serramalte|Bavaria|Colorado|Goose|Laut|Michelob|Amstel)\s*/i,
 };
 
 const SIZE_PATTERNS = [
@@ -95,6 +95,7 @@ const SIZE_PATTERNS = [
 // Mapa de cores por MARCA (fallback quando cor específica não existe)
 const BRAND_COLORS: Record<string, string> = {
   // CERVEJAS
+  'amstel': '#FDB913',
   'antarctica': '#0077BE',
   'bohemia': '#F5DEB3',
   'brahma': '#C41E3A',
@@ -282,6 +283,7 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   
   const colorMap: Record<string, string> = {
     // ===== CERVEJAS =====
+    'amstel-original': '#FDB913',
     'antarctica-original': '#0077BE',
     'bohemia-original': '#F5DEB3',
     'brahma-original': '#C41E3A',
