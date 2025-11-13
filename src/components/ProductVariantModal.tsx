@@ -149,7 +149,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           </div>
           
           {/* Info e botão */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          <div className="flex-1 overflow-y-auto min-h-0 px-4 py-4 space-y-4">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-1">
                 {baseProduct.brand} {baseProduct.size}
