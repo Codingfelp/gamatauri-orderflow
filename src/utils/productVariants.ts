@@ -175,20 +175,49 @@ interface ParsedProduct {
 
 /**
  * Detecta o tipo específico de produto de Tabacaria
+ * ORDEM IMPORTA: Cigarros primeiro, depois outros produtos
  */
-function detectTabacariaType(productName: string): string {
+function detectTabacariaType(productName: string): string | null {
   const normalized = productName.toLowerCase();
   
-  // 1. Detectar Sedas
+  // 1. DETECTAR CIGARROS PRIMEIRO (para não conflitar com "c/piteira")
+  
+  // 1a. Cigarros - Picado
+  if (normalized.includes('picado') ||
+      normalized.includes('tabaco') ||
+      normalized.includes('fumo')) {
+    return 'Cigarros - Picado';
+  }
+  
+  // 1b. Cigarros - Maço (detectar marcas + palavra "maço")
+  if (normalized.includes('maço') ||
+      normalized.includes('cigarette') ||
+      normalized.includes('lucky strike') ||
+      normalized.includes('marlboro') ||
+      normalized.includes('dunhill') ||
+      normalized.includes('derby') ||
+      normalized.includes('brothers') ||
+      normalized.includes('camel') ||
+      normalized.includes('coyote') ||
+      normalized.includes('madiba') ||
+      normalized.includes('mandele') ||
+      normalized.includes('porto faria') ||
+      normalized.includes('rothmans') ||
+      normalized.includes('san marino')) {
+    return 'Cigarros - Maço';
+  }
+  
+  // 2. SEDAS (depois de cigarros)
   if (normalized.includes('seda') || 
       normalized.includes('papel') || 
       normalized.includes('smoking') || 
       normalized.includes('ocb') ||
+      normalized.includes('zomo') ||
       normalized.includes('king size')) {
     return 'Sedas';
   }
   
-  // 2. Detectar Isqueiros
+  // 3. ISQUEIROS
   if (normalized.includes('isqueiro') || 
       normalized.includes('lighter') ||
       normalized.includes('bic') || 
@@ -197,35 +226,15 @@ function detectTabacariaType(productName: string): string {
     return 'Isqueiros';
   }
   
-  // 3. Detectar Piteiras
-  if (normalized.includes('piteira') || 
-      normalized.includes('filtro') ||
+  // 4. PITEIRAS (ESPECÍFICO: só "bem bolado")
+  if (normalized.includes('bem bolado') ||
       normalized.includes('tips') ||
-      normalized.includes('filter')) {
+      normalized.includes('filter tip')) {
     return 'Piteiras';
   }
   
-  // 4. Detectar Cigarros - Picado
-  if (normalized.includes('picado') ||
-      normalized.includes('tabaco') ||
-      normalized.includes('fumo')) {
-    return 'Cigarros - Picado';
-  }
-  
-  // 5. Detectar Cigarros - Maço (padrão para cigarros)
-  if (normalized.includes('cigarro') ||
-      normalized.includes('maço') ||
-      normalized.includes('cigarette') ||
-      normalized.includes('lucky strike') ||
-      normalized.includes('marlboro') ||
-      normalized.includes('dunhill') ||
-      normalized.includes('derby') ||
-      normalized.includes('brothers')) {
-    return 'Cigarros - Maço';
-  }
-  
-  // Fallback
-  return 'Tabacaria';
+  // Fallback: Retornar null para ignorar produtos não identificados
+  return null;
 }
 
 function extractBrandFallback(name: string): string {
@@ -557,6 +566,12 @@ export function groupProductsByVariants(
     let actualCategory = category;
     if (category === 'Tabacaria') {
       actualCategory = detectTabacariaType(product.name);
+      
+      // Ignorar produtos não identificados (evita card "Tabacaria" redundante)
+      if (!actualCategory) {
+        console.warn(`⚠️ Produto Tabacaria não identificado: ${product.name}`);
+        return;
+      }
     }
     
     // Usar actualCategory nas regras de agrupamento
