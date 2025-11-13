@@ -31,7 +31,7 @@ const categories: Category[] = [
   { name: "Snacks", value: "Snacks", image: balasImg },
   { name: "Doces", value: "Doces", image: balasImg },
   { name: "Copão", value: "Copão", image: copaoImg },
-  { name: "Cigarros", value: "Cigarros", image: cigarrosImg },
+  { name: "Tabacaria", value: "Tabacaria", image: cigarrosImg },
   { name: "Gelos", value: "Gelos", image: gelosImg },
 ];
 
