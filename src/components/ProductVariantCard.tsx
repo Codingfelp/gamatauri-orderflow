@@ -38,9 +38,12 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const firstVariant = variants[0];
   const isOutOfStock = variants.every(v => !v.available);
   
+  // Sempre usar o primeiro produto disponível (ou primeiro se todos indisponíveis)
+  const initialVariant = variants.find(v => v.available) || variants[0];
+  
   const productBg = selectedVariant
     ? getProductColor(selectedVariant.name, selectedVariant.flavor, productGroup.baseProduct.category)
-    : getProductColor(variants[0].name, variants[0].flavor, productGroup.baseProduct.category);
+    : getProductColor(initialVariant.name, initialVariant.flavor, productGroup.baseProduct.category);
   
   const backgroundStyle = productBg.type === 'image'
     ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
