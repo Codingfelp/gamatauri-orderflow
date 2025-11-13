@@ -19,8 +19,6 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const { baseProduct, variants, mainImage, priceRange } = productGroup;
   
-  const displayImage = selectedVariant?.image_url || mainImage;
-  
   const handleVariantSelected = (variant: ProductVariant) => {
     setSelectedVariant(variant);
   };
@@ -40,6 +38,9 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   
   // Sempre usar o primeiro produto disponível (ou primeiro se todos indisponíveis)
   const initialVariant = variants.find(v => v.available) || variants[0];
+  
+  // Usar initialVariant para imagem e cores quando nenhum variant está selecionado
+  const displayImage = selectedVariant?.image_url || initialVariant.image_url || mainImage;
   
   const productBg = selectedVariant
     ? getProductColor(selectedVariant.name, selectedVariant.flavor, productGroup.baseProduct.category)

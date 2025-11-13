@@ -567,6 +567,8 @@ export function groupProductsByVariants(
     if (category === 'Tabacaria') {
       actualCategory = detectTabacariaType(product.name);
       
+      console.log(`🔍 Detecção Tabacaria: "${product.name}" → ${actualCategory || 'NULL'}`);
+      
       // Ignorar produtos não identificados (evita card "Tabacaria" redundante)
       if (!actualCategory) {
         console.warn(`⚠️ Produto Tabacaria não identificado: ${product.name}`);
