@@ -283,6 +283,11 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   
   const colorMap: Record<string, string> = {
     // ===== CERVEJAS =====
+    'amstel-355ml': '#FDB913',
+    'amstel-473ml': '#FDB913',
+    'amstel-269ml': '#FDB913',
+    'amstel-275ml': '#FDB913',
+    'amstel-long neck': '#FDB913',
     'amstel-original': '#FDB913',
     'antarctica-original': '#0077BE',
     'bohemia-original': '#F5DEB3',
