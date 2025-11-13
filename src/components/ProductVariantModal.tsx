@@ -80,15 +80,15 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden bg-background">
+      <DialogContent className="max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-background">
         {/* MOBILE: Carrossel + Thumbnails + Info */}
-        <div className="flex flex-col md:hidden h-[90vh]">
+        <div className="flex flex-col md:hidden h-full max-h-[90vh]">
           <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors z-50">
             <X className="w-5 h-5 text-white" />
           </button>
           
           {/* Carrossel de imagens no topo */}
-          <div className="flex-[0_0_35vh] overflow-hidden relative" ref={emblaRef}>
+          <div className="flex-[0_0_35vh] max-h-[35vh] overflow-hidden relative" ref={emblaRef}>
             <div className="flex h-full">
               {variants.map((variant) => {
                 const productBg = getProductColor(variant.name, variant.flavor, baseProduct.category);
