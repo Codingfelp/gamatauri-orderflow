@@ -270,6 +270,11 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   const normalizedFlavor = flavor.toLowerCase();
   const normalizedCategory = category?.toLowerCase() || '';
   
+  // AMSTEL sempre dourado (prioridade máxima)
+  if (normalizedName.includes('amstel')) {
+    return { type: 'color', value: '#FDB913' };
+  }
+  
   // Vinhos usam imagem de madeira - detectar por categoria PRIMEIRO
   if (normalizedCategory.includes('vinho') || normalizedCategory.includes('wine') ||
       normalizedName.includes('vinho') || normalizedName.includes('wine') || 
