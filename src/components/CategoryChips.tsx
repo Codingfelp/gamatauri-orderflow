@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import cervejasImg from "@/assets/categories/cervejas.jpg";
@@ -41,9 +42,43 @@ interface CategoryChipsProps {
 }
 
 export const CategoryChips = ({ onCategoryChange, selectedCategory }: CategoryChipsProps) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div className="relative mb-6">
-      <div className="category-chips-scroll overflow-x-auto overflow-y-hidden scroll-smooth hover:cursor-grab active:cursor-grabbing">
+      <div 
+        ref={scrollRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        className={cn(
+          "overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide",
+          isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+        )}
+      >
         <div className="flex gap-3 px-4 py-2">
           {categories.map((category) => {
             const isSelected = selectedCategory === category.value;

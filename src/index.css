@@ -146,33 +146,6 @@ All colors MUST be HSL.
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-
-  /* Scroll horizontal suave para chips de categoria */
-  .category-chips-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--primary) / 0.3) transparent;
-  }
-  
-  .category-chips-scroll::-webkit-scrollbar {
-    height: 6px;
-  }
-  
-  .category-chips-scroll::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .category-chips-scroll::-webkit-scrollbar-thumb {
-    background: hsl(var(--primary) / 0.3);
-    border-radius: 3px;
-  }
-  
-  .category-chips-scroll::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.5);
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
   
   .scrollbar-hide {
     -ms-overflow-style: none;
