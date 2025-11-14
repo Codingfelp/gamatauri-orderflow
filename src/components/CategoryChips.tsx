@@ -43,7 +43,7 @@ interface CategoryChipsProps {
 export const CategoryChips = ({ onCategoryChange, selectedCategory }: CategoryChipsProps) => {
   return (
     <div className="relative mb-6">
-      <div className="overflow-x-auto scrollbar-hide">
+      <div className="category-chips-scroll overflow-x-auto overflow-y-hidden scroll-smooth hover:cursor-grab active:cursor-grabbing">
         <div className="flex gap-3 px-4 py-2">
           {categories.map((category) => {
             const isSelected = selectedCategory === category.value;
