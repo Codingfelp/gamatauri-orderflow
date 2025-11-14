@@ -58,8 +58,8 @@ const GROUPING_RULES: Record<string, {
   'Tabacaria': { groupBy: ['type'], extractSize: false, extractFlavor: false },
   'Cigarros - Maço': { groupBy: ['type'], extractSize: false, extractFlavor: false },
   'Cigarros - Picado': { groupBy: ['type'], extractSize: false, extractFlavor: false },
-  'Isqueiros': { groupBy: ['type'], extractSize: false, extractFlavor: true },
-  'Piteiras': { groupBy: ['type'], extractSize: false, extractFlavor: false },
+  'Isqueiro': { groupBy: ['type'], extractSize: false, extractFlavor: true },
+  'Piteira': { groupBy: ['type'], extractSize: false, extractFlavor: false },
 };
 
 const BRAND_PATTERNS: Record<string, RegExp> = {
@@ -186,7 +186,7 @@ function detectTabacariaType(productName: string): string {
       (normalized.includes('piteira') && !normalized.includes('c/piteira')) ||
       normalized.includes('tips') ||
       normalized.includes('filter tip')) {
-    return 'Piteiras';
+    return 'Piteira';
   }
   
   // 2. DETECTAR CIGARROS
@@ -222,7 +222,7 @@ function detectTabacariaType(productName: string): string {
   if (normalized.includes('isqueiro') || 
       normalized.includes('lighter') ||
       normalized.includes('bic')) {
-    return 'Isqueiros';
+    return 'Isqueiro';
   }
   
   // Fallback: usar Tabacaria como categoria genérica
