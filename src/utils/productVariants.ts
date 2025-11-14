@@ -56,10 +56,10 @@ const GROUPING_RULES: Record<string, {
   'Seda': { groupBy: ['size'], extractSize: true, extractFlavor: true },
   'Sedas': { groupBy: ['size'], extractSize: true, extractFlavor: true },
   'Tabacaria': { groupBy: ['type'], extractSize: false, extractFlavor: false },
-  'Cigarros - Maço': { groupBy: ['brand'], extractSize: false, extractFlavor: false },
-  'Cigarros - Picado': { groupBy: ['brand'], extractSize: false, extractFlavor: false },
-  'Isqueiros': { groupBy: ['brand'], extractSize: false, extractFlavor: true },
-  'Piteiras': { groupBy: ['brand'], extractSize: false, extractFlavor: false },
+  'Cigarros - Maço': { groupBy: ['type'], extractSize: false, extractFlavor: false },
+  'Cigarros - Picado': { groupBy: ['type'], extractSize: false, extractFlavor: false },
+  'Isqueiros': { groupBy: ['type'], extractSize: false, extractFlavor: true },
+  'Piteiras': { groupBy: ['type'], extractSize: false, extractFlavor: false },
 };
 
 const BRAND_PATTERNS: Record<string, RegExp> = {
@@ -210,7 +210,15 @@ function detectTabacariaType(productName: string): string {
     return 'Cigarros - Maço';
   }
   
-  // 3. ISQUEIROS
+  // 3. SEDA (adicionar antes de isqueiros)
+  if (normalized.includes('seda') || 
+      normalized.includes('papel') ||
+      normalized.includes('smoking') ||
+      normalized.includes('papel de fumar')) {
+    return 'Seda';
+  }
+  
+  // 4. ISQUEIROS
   if (normalized.includes('isqueiro') || 
       normalized.includes('lighter') ||
       normalized.includes('bic')) {
@@ -562,7 +570,6 @@ export function groupProductsByVariants(
     let actualCategory = category;
     if (category === 'Tabacaria') {
       actualCategory = detectTabacariaType(product.name);
-      console.log(`🔍 Detecção: "${product.name}" → "${actualCategory}"`);
     }
     
     // Usar actualCategory nas regras de agrupamento
@@ -571,16 +578,10 @@ export function groupProductsByVariants(
     let groupKey = parsed.brand;
     let displayBrand = parsed.brand;
     
-    // Agrupamento especial para Tabacaria: cada tipo tem sua própria regra
+    // Agrupamento especial para Tabacaria: sempre agrupar por tipo
     if (category === 'Tabacaria') {
-      // Para Piteiras, Isqueiros e outros, usar a regra específica do tipo
-      if (specificRule.groupBy.includes('brand')) {
-        groupKey = `${actualCategory}-${parsed.brand}`;
-        displayBrand = parsed.brand;
-      } else {
-        groupKey = actualCategory;
-        displayBrand = actualCategory;
-      }
+      groupKey = actualCategory;
+      displayBrand = actualCategory;
     } else if (category === 'Refrigerantes' && parsed.size) {
       groupKey = parsed.size;
       displayBrand = `Refrigerantes ${parsed.size}`;
