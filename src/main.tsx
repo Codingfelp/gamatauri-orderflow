@@ -28,8 +28,8 @@ if ('serviceWorker' in navigator) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 // Nova versão disponível
-                toast.info('Nova versão disponível!', {
-                  description: 'Clique para atualizar',
+                toast.info('Nova versão disponível! 🚀', {
+                  description: 'Clique em Atualizar para obter as melhorias mais recentes',
                   action: {
                     label: 'Atualizar',
                     onClick: () => {

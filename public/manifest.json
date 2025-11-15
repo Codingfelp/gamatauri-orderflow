@@ -1,9 +1,10 @@
 {
   "name": "Gamatauri Delivery",
   "short_name": "Gamatauri",
-  "description": "App de Delivery da Gamatauri. Quer bebida gelada? Pede com a gente!",
+  "description": "Peça bebidas geladas e receba rapidamente em casa! App de delivery completo com pedidos em tempo real.",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#DC2626",
   "orientation": "portrait-primary",
@@ -58,20 +59,27 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["food", "shopping"],
+  "categories": ["food", "shopping", "lifestyle"],
   "shortcuts": [
     {
       "name": "Fazer Pedido",
       "short_name": "Pedir",
-      "description": "Fazer um novo pedido",
+      "description": "Fazer um novo pedido de bebidas",
       "url": "/",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "Meus Pedidos",
       "short_name": "Pedidos",
-      "description": "Ver meus pedidos",
+      "description": "Ver histórico de pedidos",
       "url": "/orders",
+      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Carrinho",
+      "short_name": "Carrinho",
+      "description": "Ver carrinho de compras",
+      "url": "/?cart=open",
       "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
     }
   ]

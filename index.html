@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     
+    <!-- PWA Performance -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
     <!-- SEO Básico -->
     <title>Gamatauri Delivery - Bora pedir!</title>
     <meta name="description" content="App de Delivery da Gamatauri. Quer bebida gelada? Pede com a gente!">
@@ -27,9 +31,14 @@
     <link rel="shortcut icon" href="https://storage.googleapis.com/gpt-engineer-file-uploads/vIzUF68grigBH7BRUmoXGf7LYms2/uploads/1761993433700-Logo Quadrada.png">
     
     <!-- Performance Hints -->
-    <link rel="preconnect" href="https://lsxukelagellagzvjyuy.supabase.co" />
+    <link rel="preconnect" href="https://lsxukelagellagzvjyuy.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+    <link rel="preload" as="image" href="/icons/icon-192x192.png" />
     <link rel="preload" as="script" href="/src/main.tsx" />
+    
+    <!-- iOS Splash Screens -->
+    <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

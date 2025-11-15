@@ -7,6 +7,7 @@ import { Product } from "@/services/productsService";
 import { useAuth } from "@/hooks/useAuth";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface ProductVariantCardProps {
   productGroup: ProductGroup;
@@ -73,11 +74,10 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           style={backgroundStyle}
         >
           {displayImage ? (
-            <img 
+            <OptimizedImage 
               src={displayImage}
               alt={`${baseProduct.brand} ${baseProduct.size || ''}`}
-              loading="lazy"
-              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-full transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
