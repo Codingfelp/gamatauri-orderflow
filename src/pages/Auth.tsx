@@ -22,6 +22,7 @@ export default function Auth() {
   const [name, setName] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [userId, setUserId] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<string>("signin");
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -234,15 +235,52 @@ export default function Auth() {
   };
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha email e senha",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { error, data } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro ao fazer login:', error);
+        
+        // Verificar se é erro de credenciais inválidas
+        if (error.message.includes('Invalid login credentials') || 
+            error.message.includes('Email not confirmed')) {
+          
+          // Verificar se o email existe no sistema
+          const { data: existingUser } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email.trim())
+            .maybeSingle();
+          
+          if (!existingUser) {
+            // Usuário não existe - trocar para cadastro
+            setActiveTab("signup");
+            toast({
+              title: "Usuário não encontrado",
+              description: "Você ainda não tem cadastro. Por favor, cadastre-se primeiro.",
+              variant: "default",
+            });
+            setLoading(false);
+            return;
+          }
+        }
+        
+        throw error;
+      }
 
       if (data?.user) {
         const isComplete = await checkProfileComplete(data.user);
@@ -289,7 +327,7 @@ export default function Auth() {
             <p className="text-muted-foreground">Entre ou crie sua conta para continuar</p>
           </div>
           
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8 p-1 bg-accent/50">
               <TabsTrigger value="signin" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">Entrar</TabsTrigger>
               <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-semibold">Cadastrar</TabsTrigger>

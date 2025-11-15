@@ -439,15 +439,38 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                 <span>Total:</span>
                 <span className="text-primary">R$ {total.toFixed(2)}</span>
               </div>
-              <Button 
-                onClick={() => onCheckout(finalShippingFee, deliveryAddress, appliedCoupon?.coupon_id || null, couponDiscount)}
-                disabled={items.length === 0}
-                size="lg" 
-                className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]"
-              >
-                <span className="mr-2">✓</span>
-                Finalizar Pedido
-              </Button>
+              
+              {items.length > 0 && shippingFee === 0 && (
+                <div className="flex items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <Info className="w-4 h-4 text-yellow-600 dark:text-yellow-500 shrink-0" />
+                  <span className="text-sm text-yellow-700 dark:text-yellow-400 font-medium">
+                    Calcule o frete para continuar
+                  </span>
+                </div>
+              )}
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="w-full">
+                      <Button 
+                        onClick={() => onCheckout(finalShippingFee, deliveryAddress, appliedCoupon?.coupon_id || null, couponDiscount)}
+                        disabled={items.length === 0 || shippingFee === 0}
+                        size="lg" 
+                        className="w-full h-14 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        <span className="mr-2">✓</span>
+                        Finalizar Pedido
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {items.length > 0 && shippingFee === 0 && (
+                    <TooltipContent>
+                      <p className="font-medium">⚠️ Calcule o frete antes de finalizar</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         )}
