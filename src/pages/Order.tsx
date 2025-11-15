@@ -111,6 +111,17 @@ const Order = () => {
   };
 
   const addToCart = (product: Product) => {
+    // Verificar se usuário está logado
+    if (!user) {
+      setShowAuthDialog(true);
+      toast({
+        title: "Login necessário",
+        description: "Faça login para adicionar produtos ao carrinho",
+        variant: "default",
+      });
+      return;
+    }
+    
     setCart(current => {
       const existing = current.find(item => item.id === product.id);
       if (existing) {
