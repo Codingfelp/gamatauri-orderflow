@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { parseProductName, getProductColor } from "@/utils/productVariants";
 import { Share2 } from "lucide-react";
 import { shareProductWhatsApp } from "@/utils/shareUtils";
-import { OptimizedImage } from "@/components/OptimizedImage";
+
 
 interface Product {
   id: string;
@@ -71,10 +71,12 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
          product.image_url !== 'SIM' && 
          !product.image_url.startsWith('data:image') && 
          product.image_url.length > 10 ? (
-          <OptimizedImage
+          <img
             src={product.image_url} 
             alt={product.name}
-            className={`w-full h-full transition-transform duration-500 ${
+            loading="lazy"
+            decoding="async"
+            className={`w-full h-full object-contain transition-transform duration-500 ${
               !isOutOfStock && 'group-hover:scale-110'
             }`}
             onError={(e) => {
