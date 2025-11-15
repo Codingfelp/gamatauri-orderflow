@@ -7,6 +7,7 @@ import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { OnlineStatus } from "@/components/OnlineStatus";
 import { ActiveOrderProvider } from "@/contexts/ActiveOrderContext";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 const Order = lazy(() => import("./pages/Order"));
 const Checkout = lazy(() => import("./pages/Checkout"));
@@ -16,6 +17,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Install = lazy(() => import("./pages/Install"));
+const Offline = lazy(() => import("./pages/Offline"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminSync = lazy(() => import("./pages/AdminSync"));
 
@@ -33,6 +35,7 @@ const App = () => (
     <ActiveOrderProvider>
       <TooltipProvider>
         <OnlineStatus />
+        <InstallPrompt />
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -49,6 +52,7 @@ const App = () => (
               <Route path="/orders" element={<Orders />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/install" element={<Install />} />
+              <Route path="/offline" element={<Offline />} />
               <Route path="/tasks" element={<Tasks />} />
               <Route path="/admin-sync" element={<AdminSync />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
