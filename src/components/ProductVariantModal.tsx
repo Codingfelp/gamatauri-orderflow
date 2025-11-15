@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@/lib/utils";
-import { OptimizedImage } from "@/components/OptimizedImage";
+
 
 interface ProductVariantModalProps {
   isOpen: boolean;
@@ -104,10 +104,12 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                     style={bgStyle}
                   >
                     {variant.image_url ? (
-                      <OptimizedImage
+                      <img
                         src={variant.image_url}
                         alt={variant.flavor}
-                        className="max-w-[70%] max-h-[70%]"
+                        loading="lazy"
+                        decoding="async"
+                        className="max-w-[70%] max-h-[70%] object-contain"
                       />
                     ) : (
                       <div className="w-32 h-32 rounded-full bg-muted opacity-40" />
@@ -262,9 +264,11 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                 }}
               >
                 {selectedVariant.image_url ? (
-                  <OptimizedImage 
+                  <img 
                     src={selectedVariant.image_url} 
                     alt={selectedVariant.flavor} 
+                    loading="lazy"
+                    decoding="async"
                     className="object-contain" 
                     style={{ 
                       width: '280px',
