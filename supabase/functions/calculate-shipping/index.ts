@@ -45,6 +45,8 @@ serve(async (req) => {
       );
     }
 
+    console.log('🔑 API Key configurada:', API_KEY.substring(0, 10) + '...');
+
     // Normalizar endereço de destino (fallback de segurança)
     let normalizedDestination = destination.trim();
     const hasCityMention = /Belo Horizonte|BH|Contagem|Betim/i.test(normalizedDestination);
@@ -72,11 +74,31 @@ serve(async (req) => {
 
     // Validar resposta
     if (data.status !== 'OK') {
-      console.error('❌ Erro na API do Google:', data.status, data.error_message);
+      console.error('❌ Erro na API do Google:', {
+        status: data.status,
+        error_message: data.error_message,
+        raw_response: JSON.stringify(data)
+      });
+      
+      // Mensagens de erro mais específicas
+      let userMessage = 'Não foi possível calcular a distância';
+      
+      if (data.status === 'REQUEST_DENIED') {
+        userMessage = 'Erro de configuração da API do Google Maps';
+        console.error('🚨 REQUEST_DENIED - Possíveis causas:');
+        console.error('   1. Billing não habilitado no projeto Google Cloud');
+        console.error('   2. Distance Matrix API não habilitada');
+        console.error('   3. API Key com restrições incorretas');
+        console.error('   4. API Key expirada ou inválida');
+      } else if (data.status === 'OVER_QUERY_LIMIT') {
+        userMessage = 'Limite de requisições da API excedido';
+      }
+      
       return new Response(
         JSON.stringify({ 
-          error: 'Não foi possível calcular a distância', 
-          details: data.error_message 
+          error: userMessage, 
+          details: data.error_message,
+          status: data.status
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
