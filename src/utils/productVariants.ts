@@ -166,36 +166,98 @@ const BRAND_COLORS: Record<string, string> = {
   'santa carolina': '#3E2723',
   'aurora': '#3E2723',
   
-  // DESTILADOS
+  // DESTILADOS - WHISKY
   'red label': '#B31B1B',
   'johnnie walker red': '#B31B1B',
-  'beefeater': '#D3D3D3',
-  'beefeater pink': '#FFB6C1',
-  'tanqueray': '#006B3F',
-  'absolut': '#4169E1',
-  'smirnoff': '#DC143C',
-  'ballantines': '#FFD700',
-  "ballantine's": '#FFD700',
+  'johnnie walker black': '#1C1C1C',
+  'johnnie walker': '#D4AF37',
   'jack daniels': '#1C1C1C',
   "jack daniel's": '#1C1C1C',
-  'jagermeister': '#FF6600',
-  'jägermeister': '#FF6600',
-  'ciroc': '#8A2BE2',
-  'hennessy': '#8B4513',
-  'bacardi': '#FF1493',
-  'vodka': '#D3D3D3',
+  'jack daniel': '#1C1C1C',
+  'ballantines': '#FFD700',
+  "ballantine's": '#FFD700',
+  'chivas': '#8B4513',
+  'old parr': '#D4AF37',
   'whisky': '#D2691E',
   'whiskey': '#D2691E',
-  'rum': '#8B4513',
+  
+  // DESTILADOS - GIN
+  'beefeater pink': '#FFB6C1',
+  'beefeater': '#D3D3D3',
+  'tanqueray ten': '#8B008B',
+  'tanqueray': '#006B3F',
+  'gordons': '#FFD700',
+  "gordon's": '#FFD700',
+  'bombay sapphire': '#4169E1',
+  'bombay': '#4169E1',
+  'eternity strawberry': '#FF69B4',
+  'eternity tropical': '#FFA500',
+  'eternity watermelon': '#FF1493',
+  'eternity maca verde': '#90EE90',
+  'eternity pessego': '#FFB6C1',
+  'eternity': '#8A2BE2',
+  'seagers': '#4169E1',
   'gin': '#90EE90',
+  
+  // DESTILADOS - VODKA
+  'absolut': '#4169E1',
+  'smirnoff': '#DC143C',
+  'ciroc': '#8A2BE2',
+  'skyy': '#4169E1',
+  'orloff': '#D3D3D3',
+  'vodka': '#D3D3D3',
+  
+  // DESTILADOS - RUM
+  'bacardi': '#FF1493',
+  'bacardi gold': '#FFD700',
+  'captain morgan': '#8B4513',
+  'montilla': '#8B4513',
+  'rum': '#8B4513',
+  
+  // DESTILADOS - TEQUILA
+  'jose cuervo': '#FFD700',
+  'olmeca': '#FFD700',
   'tequila': '#FFD700',
   
+  // DESTILADOS - CACHAÇA
+  'ypioca ouro': '#FFD700',
+  'ypioca 150': '#D4AF37',
+  'ypioca 160': '#C0C0C0',
+  'ypioca cinco chaves': '#8B4513',
+  'ypioca': '#FFD700',
+  'ypióca': '#FFD700',
+  '51 ouro': '#FFD700',
+  '51': '#FFD700',
+  'cabare ouro': '#FFD700',
+  'cabare amburana': '#8B4513',
+  'cabare': '#DC143C',
+  'cabaré': '#DC143C',
+  'seleta': '#90EE90',
+  'velho barreiro': '#D2691E',
+  
+  // DESTILADOS - OUTROS
+  'jagermeister': '#FF6600',
+  'jägermeister': '#FF6600',
+  'hennessy': '#8B4513',
+  'conhaque dreher': '#8B4513',
+  'dreher': '#8B4513',
+  'presidente': '#D4AF37',
+  
   // CHOCOLATES
-  'chocolate': '#3E2723',
+  'bis black': '#1C1C1C',
+  'bis oreo': '#1C1C1C',
+  'bis xtra oreo': '#1C1C1C',
+  'bis branco': '#F5F5DC',
+  'bis xtra branco': '#F5F5DC',
+  'bis original': '#FF6F00',
+  'bis xtra': '#FF6F00',
+  'bis': '#FF6F00',
+  'baton ao leite': '#8B4513',
+  'baton branco': '#F5F5DC',
+  'baton': '#DC143C',
+  'lacta': '#8E44AD',
   'hersheys': '#5D4037',
   "hershey's": '#5D4037',
-  'lacta': '#8E44AD',
-  'bis': '#FF6F00',
   'kitkat': '#E53935',
   'kit kat': '#E53935',
   'snickers': '#5D4037',
@@ -204,30 +266,76 @@ const BRAND_COLORS: Record<string, string> = {
   'garoto': '#C62828',
   'nestle': '#DC143C',
   'nestlé': '#DC143C',
+  'chocolate': '#3E2723',
   
-  // SNACKS
-  'doritos': '#DC143C',
-  'doritos sweet chili': '#1C1C1C',
+  // SNACKS - DORITOS
+  'doritos sweet chili': '#8B0000',
   'doritos flamin hot': '#8B008B',
   'doritos pimenta mexicana': '#228B22',
-  'lays': '#FFD700',
+  'doritos nacho': '#DC143C',
+  'doritos': '#DC143C',
+  
+  // SNACKS - LAYS
+  'lays barbecue': '#8B0000',
   'lays salt & vinegar': '#4169E1',
   'lays sour cream': '#90EE90',
+  'lays queijo': '#FFD700',
+  'lays': '#FFD700',
+  
+  // SNACKS - CHEETOS
+  'cheetos lua parmesao': '#FFD700',
+  'cheetos onda requeijao': '#FFA500',
+  'cheetos crunchy cheddar': '#FF8C00',
+  'cheetos crunchy white': '#F5F5DC',
+  'cheetos bola': '#FF6347',
+  'cheetos mix': '#FF4500',
+  'cheetos': '#FF6347',
+  
+  // SNACKS - RUFFLES
+  'ruffles churrasco': '#8B4513',
+  'ruffles queijo': '#FFD700',
+  'ruffles': '#228B22',
+  
+  // SNACKS - OUTROS
+  'fandangos': '#FF6347',
+  'baconzitos': '#FF6347',
+  'cebolitos': '#FFD700',
   'sensacoes': '#F5DEB3',
   'sensações': '#F5DEB3',
-  'ruffles': '#DC143C',
-  'cheetos': '#FF6347',
   'pringles': '#DC143C',
   'torcida': '#006400',
-  'fandangos': '#FF6347',
-  'baconzitos': '#8B4513',
+  'croques': '#FFD700',
+  'amendoim japones': '#D2691E',
+  'amendoim ovinhos': '#FFA500',
+  'amendoim': '#D2B48C',
   
-  // DOCES
+  // DOCES - HALLS
+  'halls cereja': '#DC143C',
+  'halls extra forte': '#1C3D5A',
+  'halls melancia': '#FF69B4',
+  'halls menta': '#00CED1',
+  'halls mentol': '#4169E1',
+  'halls morango': '#FF1493',
+  'halls uva verde': '#90EE90',
+  'halls': '#32CD32',
+  
+  // DOCES - MENTOS
+  'mentos fruit': '#FF0000',
+  'mentos frutas vermelhas': '#DC143C',
+  'mentos mint': '#00CED1',
+  'mentos rainbow': '#FF69B4',
+  'mentos tutti frutti': '#FFA500',
+  'mentos yogurt': '#FFB6C1',
+  'mentos': '#FF1493',
+  
+  // DOCES - OUTROS
+  'bala azedinha': '#FF69B4',
+  'bala chita': '#FFD700',
+  'bala lilith': '#8B008B',
+  'icekiss': '#87CEEB',
   'bala': '#FF69B4',
   'chiclete': '#00CED1',
   'trident': '#4169E1',
-  'halls': '#32CD32',
-  'mentos': '#FF1493',
   'skittles': '#FF0000',
   'fini': '#FF69B4',
   'm&m': '#8B4513',
@@ -357,14 +465,38 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   }
   
   // Destilados - verificar por categoria E palavras-chave
-  if (normalizedCategory.includes('destilado') || 
+  if (normalizedCategory.includes('destilado') || normalizedCategory.includes('cachaca') ||
+      normalizedCategory.includes('cachaça') || normalizedCategory.includes('vodka') ||
+      normalizedCategory.includes('whisky') || normalizedCategory.includes('gin') ||
+      normalizedCategory.includes('rum') || normalizedCategory.includes('tequila') ||
+      normalizedCategory.includes('conhaque') || normalizedCategory.includes('licor') ||
       normalizedName.includes('whisky') || normalizedName.includes('whiskey') ||
       normalizedName.includes('vodka') || normalizedName.includes('gin') ||
       normalizedName.includes('rum') || normalizedName.includes('tequila') ||
       normalizedName.includes('johnnie') || normalizedName.includes('red label') ||
-      normalizedName.includes('jack daniel')) {
-    // Buscar cor específica no BRAND_COLORS
-    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+      normalizedName.includes('jack daniel') || normalizedName.includes('ypioca') ||
+      normalizedName.includes('ypióca')) {
+    
+    // Ordenar marcas por especificidade (mais específicas primeiro)
+    const sortedBrands = Object.entries(BRAND_COLORS)
+      .filter(([brand]) => {
+        // Filtrar apenas destilados
+        return brand.includes('red label') || brand.includes('beefeater') || 
+               brand.includes('tanqueray') || brand.includes('jack') || 
+               brand.includes('absolut') || brand.includes('smirnoff') ||
+               brand.includes('ypioca') || brand.includes('ypióca') ||
+               brand.includes('51') || brand.includes('cabare') || brand.includes('cabaré') ||
+               brand.includes('eternity') || brand.includes('vodka') || 
+               brand.includes('whisky') || brand.includes('gin') || 
+               brand.includes('rum') || brand.includes('tequila') ||
+               brand.includes('bacardi') || brand.includes('jose') ||
+               brand.includes('dreher') || brand.includes('presidente') ||
+               brand.includes('seleta') || brand.includes('gordons') ||
+               brand.includes('bombay') || brand.includes('seagers');
+      })
+      .sort((a, b) => b[0].length - a[0].length); // Mais específico primeiro
+    
+    for (const [brand, color] of sortedBrands) {
       if (normalizedName.includes(brand)) {
         return { type: 'color', value: color };
       }
@@ -373,8 +505,22 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   }
 
   // Chocolates
-  if (normalizedCategory.includes('chocolate') || normalizedName.includes('chocolate')) {
-    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+  if (normalizedCategory.includes('chocolate') || normalizedName.includes('chocolate') ||
+      normalizedName.includes('bis') || normalizedName.includes('baton')) {
+    
+    // Ordenar por especificidade
+    const sortedBrands = Object.entries(BRAND_COLORS)
+      .filter(([brand]) => {
+        return brand.includes('bis') || brand.includes('baton') || 
+               brand.includes('chocolate') || brand.includes('lacta') ||
+               brand.includes('hershey') || brand.includes('kitkat') ||
+               brand.includes('snickers') || brand.includes('twix') ||
+               brand.includes('milka') || brand.includes('garoto') ||
+               brand.includes('nestle') || brand.includes('nestlé');
+      })
+      .sort((a, b) => b[0].length - a[0].length);
+    
+    for (const [brand, color] of sortedBrands) {
       if (normalizedName.includes(brand)) {
         return { type: 'color', value: color };
       }
@@ -383,8 +529,25 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   }
 
   // Snacks
-  if (normalizedCategory.includes('snack') || normalizedCategory.includes('salgadinho')) {
-    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+  if (normalizedCategory.includes('snack') || normalizedCategory.includes('salgadinho') ||
+      normalizedName.includes('doritos') || normalizedName.includes('lays') ||
+      normalizedName.includes('cheetos') || normalizedName.includes('ruffles') ||
+      normalizedName.includes('fandangos') || normalizedName.includes('amendoim')) {
+    
+    // Ordenar por especificidade (mais longo = mais específico)
+    const sortedBrands = Object.entries(BRAND_COLORS)
+      .filter(([brand]) => {
+        return brand.includes('doritos') || brand.includes('lays') || 
+               brand.includes('cheetos') || brand.includes('ruffles') ||
+               brand.includes('fandangos') || brand.includes('baconzitos') ||
+               brand.includes('cebolitos') || brand.includes('sensacoes') ||
+               brand.includes('sensações') || brand.includes('pringles') ||
+               brand.includes('torcida') || brand.includes('croques') ||
+               brand.includes('amendoim');
+      })
+      .sort((a, b) => b[0].length - a[0].length);
+    
+    for (const [brand, color] of sortedBrands) {
       if (normalizedName.includes(brand)) {
         return { type: 'color', value: color };
       }
@@ -394,8 +557,23 @@ export const getProductColor = (productName: string, flavor: string, category?: 
 
   // Doces
   if (normalizedCategory.includes('doce') || normalizedCategory.includes('bala') ||
-      normalizedCategory.includes('candy')) {
-    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+      normalizedCategory.includes('candy') || normalizedCategory.includes('chiclete') ||
+      normalizedName.includes('halls') || normalizedName.includes('mentos') ||
+      normalizedName.includes('bala')) {
+    
+    // Ordenar por especificidade
+    const sortedBrands = Object.entries(BRAND_COLORS)
+      .filter(([brand]) => {
+        return brand.includes('halls') || brand.includes('mentos') || 
+               brand.includes('bala') || brand.includes('chiclete') ||
+               brand.includes('trident') || brand.includes('skittles') ||
+               brand.includes('fini') || brand.includes('m&m') ||
+               brand.includes('paçoca') || brand.includes('pacoca') ||
+               brand.includes('pirulito') || brand.includes('icekiss');
+      })
+      .sort((a, b) => b[0].length - a[0].length);
+    
+    for (const [brand, color] of sortedBrands) {
       if (normalizedName.includes(brand)) {
         return { type: 'color', value: color };
       }
