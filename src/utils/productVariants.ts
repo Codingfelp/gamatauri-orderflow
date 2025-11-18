@@ -142,7 +142,7 @@ const BRAND_COLORS: Record<string, string> = {
   'beats': '#E85D75',
   'lambe': '#FFC0CB',
   'lambe-lambe': '#FFC0CB',
-  'smirnoff': '#D3D3D3',
+  'smirnoff ice': '#D3D3D3',
   'xeque mate': '#B8860B',
   'ice syn': '#98FB98',
   'mansão maromba': '#FFD700',
@@ -165,6 +165,79 @@ const BRAND_COLORS: Record<string, string> = {
   'novecento': '#3E2723',
   'santa carolina': '#3E2723',
   'aurora': '#3E2723',
+  
+  // DESTILADOS
+  'red label': '#B31B1B',
+  'johnnie walker red': '#B31B1B',
+  'beefeater': '#D3D3D3',
+  'beefeater pink': '#FFB6C1',
+  'tanqueray': '#006B3F',
+  'absolut': '#4169E1',
+  'smirnoff': '#DC143C',
+  'ballantines': '#FFD700',
+  "ballantine's": '#FFD700',
+  'jack daniels': '#1C1C1C',
+  "jack daniel's": '#1C1C1C',
+  'jagermeister': '#FF6600',
+  'jägermeister': '#FF6600',
+  'ciroc': '#8A2BE2',
+  'hennessy': '#8B4513',
+  'bacardi': '#FF1493',
+  'vodka': '#D3D3D3',
+  'whisky': '#D2691E',
+  'whiskey': '#D2691E',
+  'rum': '#8B4513',
+  'gin': '#90EE90',
+  'tequila': '#FFD700',
+  
+  // CHOCOLATES
+  'chocolate': '#3E2723',
+  'hersheys': '#5D4037',
+  "hershey's": '#5D4037',
+  'lacta': '#8E44AD',
+  'bis': '#FF6F00',
+  'kitkat': '#E53935',
+  'kit kat': '#E53935',
+  'snickers': '#5D4037',
+  'twix': '#D4AF37',
+  'milka': '#8E44AD',
+  'garoto': '#C62828',
+  'nestle': '#DC143C',
+  'nestlé': '#DC143C',
+  
+  // SNACKS
+  'doritos': '#DC143C',
+  'doritos sweet chili': '#1C1C1C',
+  'doritos flamin hot': '#8B008B',
+  'doritos pimenta mexicana': '#228B22',
+  'lays': '#FFD700',
+  'lays salt & vinegar': '#4169E1',
+  'lays sour cream': '#90EE90',
+  'sensacoes': '#F5DEB3',
+  'sensações': '#F5DEB3',
+  'ruffles': '#DC143C',
+  'cheetos': '#FF6347',
+  'pringles': '#DC143C',
+  'torcida': '#006400',
+  'fandangos': '#FF6347',
+  'baconzitos': '#8B4513',
+  
+  // DOCES
+  'bala': '#FF69B4',
+  'chiclete': '#00CED1',
+  'trident': '#4169E1',
+  'halls': '#32CD32',
+  'mentos': '#FF1493',
+  'skittles': '#FF0000',
+  'fini': '#FF69B4',
+  'm&m': '#8B4513',
+  'paçoca': '#DEB887',
+  'pacoca': '#DEB887',
+  'pirulito': '#FF1493',
+  
+  // GELO
+  'gelo': '#87CEEB',
+  'ice': '#87CEEB',
 };
 
 interface ParsedProduct {
@@ -281,6 +354,59 @@ export const getProductColor = (productName: string, flavor: string, category?: 
   // AMSTEL sempre dourado (prioridade máxima)
   if (normalizedName.includes('amstel')) {
     return { type: 'color', value: '#FDB913' };
+  }
+  
+  // Destilados - verificar por categoria E palavras-chave
+  if (normalizedCategory.includes('destilado') || 
+      normalizedName.includes('whisky') || normalizedName.includes('whiskey') ||
+      normalizedName.includes('vodka') || normalizedName.includes('gin') ||
+      normalizedName.includes('rum') || normalizedName.includes('tequila') ||
+      normalizedName.includes('johnnie') || normalizedName.includes('red label') ||
+      normalizedName.includes('jack daniel')) {
+    // Buscar cor específica no BRAND_COLORS
+    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+      if (normalizedName.includes(brand)) {
+        return { type: 'color', value: color };
+      }
+    }
+    return { type: 'color', value: '#8B4513' }; // Marrom padrão para destilados
+  }
+
+  // Chocolates
+  if (normalizedCategory.includes('chocolate') || normalizedName.includes('chocolate')) {
+    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+      if (normalizedName.includes(brand)) {
+        return { type: 'color', value: color };
+      }
+    }
+    return { type: 'color', value: '#3E2723' }; // Marrom escuro padrão
+  }
+
+  // Snacks
+  if (normalizedCategory.includes('snack') || normalizedCategory.includes('salgadinho')) {
+    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+      if (normalizedName.includes(brand)) {
+        return { type: 'color', value: color };
+      }
+    }
+    return { type: 'color', value: '#FF6347' }; // Laranja padrão
+  }
+
+  // Doces
+  if (normalizedCategory.includes('doce') || normalizedCategory.includes('bala') ||
+      normalizedCategory.includes('candy')) {
+    for (const [brand, color] of Object.entries(BRAND_COLORS)) {
+      if (normalizedName.includes(brand)) {
+        return { type: 'color', value: color };
+      }
+    }
+    return { type: 'color', value: '#FF69B4' }; // Rosa padrão
+  }
+
+  // Gelo
+  if (normalizedCategory.includes('gelo') || normalizedName.includes('gelo') ||
+      normalizedName.includes('ice')) {
+    return { type: 'color', value: '#87CEEB' }; // Azul gelo
   }
   
   // Vinhos usam imagem de madeira - detectar por categoria PRIMEIRO

@@ -68,7 +68,7 @@ serve(async (req) => {
         customer_phone: normalizedPhone, // Use normalized phone
         customer_email: orderData.customer_email || null,
         customer_address: orderData.customer_address || null,
-        payment_method: orderData.payment_method, // Use original value (pix, cartao, dinheiro)
+        payment_method: normalizePaymentMethod(orderData.payment_method),
         payment_timing: orderData.payment_timing || 'entrega',
         payment_status: 'pendente',
         order_status: 'preparing',
@@ -230,6 +230,20 @@ serve(async (req) => {
     );
   }
 });
+
+// Normalizar método de pagamento para valores aceitos pelo banco
+function normalizePaymentMethod(method: string): string {
+  const normalized = method.toLowerCase();
+  
+  // Mapear credito/debito para "cartao"
+  if (normalized === 'credito' || normalized === 'debito' || normalized === 'cartão') {
+    return 'cartao';
+  }
+  
+  // Validar valores permitidos
+  const allowedMethods = ['pix', 'cartao', 'dinheiro'];
+  return allowedMethods.includes(normalized) ? normalized : 'dinheiro';
+}
 
 // Função para mapear método de pagamento
 function mapPaymentMethod(method: string): string {

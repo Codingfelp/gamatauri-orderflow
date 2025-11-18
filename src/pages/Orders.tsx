@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { EmptyState } from "@/components/EmptyState";
-import { Package, Clock, Truck, CheckCircle } from "lucide-react";
+import { Package, Clock, Truck, CheckCircle, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { normalizePhone } from "@/utils/phoneUtils";
@@ -293,6 +293,18 @@ export default function Orders() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      
+      <div className="container mx-auto px-4 py-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="mb-4 hover:bg-accent/60 transition-all duration-300"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Voltar para Início
+        </Button>
+      </div>
+      
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Meus Pedidos</h1>
