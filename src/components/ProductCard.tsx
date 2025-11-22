@@ -39,20 +39,22 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
                     product.name.toLowerCase().includes('doritos sweet chili');
   
   let backgroundStyle = {};
-  if (productBg.type === 'gradient') {
+  if (needsFire) {
+    // Adicionar efeito de fogo para Doritos Dinamita e Sweet Chili
+    const baseColor = productBg.type === 'color' ? productBg.value : 
+                      productBg.type === 'gradient' ? '#DC143C' : '#DC143C';
+    backgroundStyle = { 
+      background: `linear-gradient(to bottom, ${baseColor} 0%, ${baseColor} 70%, #FF4500 85%, #FF6347 92%, #FFA500 100%)`,
+      backgroundSize: '100% 200%',
+      animation: 'fireFlicker 2s ease-in-out infinite'
+    };
+  } else if (productBg.type === 'gradient') {
     backgroundStyle = { background: productBg.value };
   } else if (productBg.type === 'image') {
     backgroundStyle = { 
       backgroundImage: `url(${productBg.value})`, 
       backgroundSize: 'cover', 
       backgroundPosition: 'center' 
-    };
-  } else if (needsFire) {
-    // Adicionar efeito de fogo para Doritos Dinamita e Sweet Chili
-    backgroundStyle = { 
-      background: `linear-gradient(to bottom, ${productBg.value} 0%, ${productBg.value} 70%, #FF4500 85%, #FF6347 92%, #FFA500 100%)`,
-      backgroundSize: '100% 200%',
-      animation: 'fireFlicker 2s ease-in-out infinite'
     };
   } else {
     backgroundStyle = { backgroundColor: productBg.value };
