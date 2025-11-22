@@ -34,20 +34,49 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
     ? getProductColor(product.name, parsed.flavor, product.category)
     : { type: 'color' as const, value: '#E0E0E0' };
   
-  const backgroundStyle = productBg.type === 'image'
-    ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-    : { background: productBg.value };
+  // Verificar se precisa de efeito fogo (Doritos Dinamita e Sweet Chili)
+  const needsFire = product.name.toLowerCase().includes('doritos dinamita') ||
+                    product.name.toLowerCase().includes('doritos sweet chili');
+  
+  let backgroundStyle = {};
+  if (productBg.type === 'gradient') {
+    backgroundStyle = { background: productBg.value };
+  } else if (productBg.type === 'image') {
+    backgroundStyle = { 
+      backgroundImage: `url(${productBg.value})`, 
+      backgroundSize: 'cover', 
+      backgroundPosition: 'center' 
+    };
+  } else if (needsFire) {
+    // Adicionar efeito de fogo para Doritos Dinamita e Sweet Chili
+    backgroundStyle = { 
+      background: `linear-gradient(to bottom, ${productBg.value} 0%, ${productBg.value} 70%, #FF4500 85%, #FF6347 92%, #FFA500 100%)`,
+      backgroundSize: '100% 200%',
+      animation: 'fireFlicker 2s ease-in-out infinite'
+    };
+  } else {
+    backgroundStyle = { backgroundColor: productBg.value };
+  }
   
   return (
-    <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col ${
-      isOutOfStock 
-        ? 'opacity-50 hover:shadow-md' 
-        : 'hover:shadow-xl hover:scale-[1.01]'
-    }`}>
-      <div 
-        className="relative aspect-[4/3] md:aspect-square overflow-hidden flex items-center justify-center"
-        style={backgroundStyle}
-      >
+    <>
+      {needsFire && (
+        <style>{`
+          @keyframes fireFlicker {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 0% 100%; }
+          }
+        `}</style>
+      )}
+      <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col ${
+        isOutOfStock 
+          ? 'opacity-50 hover:shadow-md' 
+          : 'hover:shadow-xl hover:scale-[1.01]'
+      }`}>
+        <div 
+          className="relative aspect-[4/3] md:aspect-square overflow-hidden flex items-center justify-center"
+          style={backgroundStyle}
+        >
         {/* Botão de compartilhar */}
         <button
           onClick={(e) => {
@@ -140,6 +169,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
           )}
         </div>
       </div>
-    </Card>
+      </Card>
+    </>
   );
 });
