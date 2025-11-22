@@ -82,6 +82,35 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
     
     const cpfDigits = formData.cpf.replace(/\D/g, '');
 
+    // Verificar se CPF já existe
+    const { data: existingProfile, error: cpfCheckError } = await supabase
+      .from('profiles')
+      .select('user_id, name')
+      .eq('cpf', cpfDigits)
+      .neq('user_id', userId)
+      .maybeSingle();
+
+    if (cpfCheckError) {
+      console.error('Erro ao verificar CPF:', cpfCheckError);
+    }
+
+    if (existingProfile) {
+      toast({
+        title: "CPF já cadastrado",
+        description: `Este CPF já está vinculado a outra conta (${existingProfile.name}). Cada CPF pode ter apenas uma conta.`,
+        variant: "destructive",
+        duration: 8000,
+      });
+      
+      // Deslogar o usuário
+      setTimeout(async () => {
+        await supabase.auth.signOut();
+        window.location.href = '/auth';
+      }, 2000);
+      
+      return;
+    }
+
     if (!formData.phone.trim()) {
       toast({
         title: "Campo obrigatório",

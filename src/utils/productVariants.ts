@@ -243,19 +243,39 @@ const BRAND_COLORS: Record<string, string> = {
   'dreher': '#8B4513',
   'presidente': '#D4AF37',
   
-  // CHOCOLATES
+  // CHOCOLATES - BIS
+  'bis oreo': 'linear-gradient(to bottom, #87CEEB 0%, #1C3D5A 100%)', // Azul claro → azul escuro
+  'bis xtra oreo': 'linear-gradient(to top, #87CEEB 0%, #F5F5DC 100%)', // Azul claro abaixo → creme cima
   'bis black': '#1C1C1C',
-  'bis oreo': '#1C1C1C',
-  'bis xtra oreo': '#1C1C1C',
   'bis branco': '#F5F5DC',
   'bis xtra branco': '#F5F5DC',
-  'bis original': '#FF6F00',
+  'bis original': '#4169E1',                   // Azul
+  'bis xtra original': '#4169E1',
   'bis xtra': '#FF6F00',
   'bis': '#FF6F00',
+  
+  // CHOCOLATES - CAIXAS
+  'caixa garoto': '#FFD700',                   // Amarelo
+  'caixa lacta': '#8E44AD',                    // Azul Lacta
+  
+  // CHOCOLATES - LACTA
+  'lacta branco': '#F5F5DC',                   // Creme
+  'lacta ouro branco': '#FFD700',              // Amarelo
+  'lacta shot': '#FFD700',                     // Amarelo
+  'lacta sonho de valsa': '#FFB6C1',           // Rosa
+  'lacta': '#8E44AD',                          // Azul padrão
+  
+  // CHOCOLATES - TRENTO
+  'trento dark': '#808080',                    // Cinza
+  'trento branco-dark': '#F5F5DC',             // Creme
+  'trento branco dark': '#F5F5DC',
+  'trento milk': '#87CEEB',                    // Azul claro
+  'trento': '#DC143C',                         // Vermelho
+  
+  // CHOCOLATES - OUTROS
   'baton ao leite': '#8B4513',
   'baton branco': '#F5F5DC',
   'baton': '#DC143C',
-  'lacta': '#8E44AD',
   'hersheys': '#5D4037',
   "hershey's": '#5D4037',
   'kitkat': '#E53935',
@@ -269,7 +289,9 @@ const BRAND_COLORS: Record<string, string> = {
   'chocolate': '#3E2723',
   
   // SNACKS - DORITOS
-  'doritos sweet chili': '#8B0000',
+  'doritos sweet chili': '#1C1C1C',           // Preto (com fogo vibrante)
+  'doritos dinamita flamin hot': '#8B008B',   // Roxo (com fogo)
+  'doritos dinamita pimenta mexicana': '#228B22', // Verde (com fogo)
   'doritos flamin hot': '#8B008B',
   'doritos pimenta mexicana': '#228B22',
   'doritos nacho': '#DC143C',
@@ -283,30 +305,48 @@ const BRAND_COLORS: Record<string, string> = {
   'lays': '#FFD700',
   
   // SNACKS - CHEETOS
+  'cheetos mix': '#8B008B',                    // Roxo
+  'cheetos bola queijo': '#FFFFE0',            // Amarelo claro
+  'cheetos bola': '#FFFFE0',
   'cheetos lua parmesao': '#FFD700',
   'cheetos onda requeijao': '#FFA500',
   'cheetos crunchy cheddar': '#FF8C00',
   'cheetos crunchy white': '#F5F5DC',
-  'cheetos bola': '#FF6347',
-  'cheetos mix': '#FF4500',
   'cheetos': '#FF6347',
   
   // SNACKS - RUFFLES
-  'ruffles churrasco': '#8B4513',
+  'ruffles': '#4169E1',                        // Azul
+  'ruffles cebola e salsa': '#90EE90',         // Verde claro
+  'ruffles churrasco': '#DC143C',              // Vermelho
+  'ruffles tubo sour cream': '#90EE90',        // Verde claro
   'ruffles queijo': '#FFD700',
-  'ruffles': '#228B22',
   
   // SNACKS - OUTROS
   'fandangos': '#FF6347',
-  'baconzitos': '#FF6347',
+  'baconzitos': '#DC143C',                     // Vermelho
   'cebolitos': '#FFD700',
   'sensacoes': '#F5DEB3',
   'sensações': '#F5DEB3',
+  'pringles cebola': '#90EE90',                // Verde
+  'pringles original': '#DC143C',              // Vermelho
   'pringles': '#DC143C',
+  'stax sour cream & onion': '#90EE90',        // Verde
+  'stax sour cream': '#90EE90',
+  'torcida bacon': '#D3D3D3',                  // Cinza claro
+  'torcida cebola': '#90EE90',                 // Verde claro
+  'torcida churrasco': '#DDA0DD',              // Lilás claro
+  'torcida costelinha com limão': '#8B4513',   // Marrom
+  'torcida costelinha limão': '#8B4513',
+  'torcida costelinha': '#8B4513',
+  'torcida pão de alho': '#F5DEB3',            // Bege
+  'torcida pao de alho': '#F5DEB3',
+  'torcida queijo': '#FFD700',                 // Amarelo
+  'torcida vinagrete': '#DC143C',              // Vermelho
   'torcida': '#006400',
   'croques': '#FFD700',
-  'amendoim japones': '#D2691E',
-  'amendoim ovinhos': '#FFA500',
+  'amendoim ovinhos': '#DC143C',               // Vermelho
+  'amendoim japones': '#F5DEB3',               // Bege
+  'amendoim japonês': '#F5DEB3',
   'amendoim': '#D2B48C',
   
   // DOCES - HALLS
@@ -328,6 +368,13 @@ const BRAND_COLORS: Record<string, string> = {
   'mentos yogurt': '#FFB6C1',
   'mentos': '#FF1493',
   
+  // DOCES - TRIDENT (por sabor)
+  'trident menta': '#00CED1',                  // Turquesa
+  'trident morango': '#FF69B4',                // Rosa
+  'trident melancia': '#FF1493',               // Pink
+  'trident uva': '#8B008B',                    // Roxo
+  'trident': '#4169E1',                        // Azul padrão
+  
   // DOCES - OUTROS
   'bala azedinha': '#FF69B4',
   'bala chita': '#FFD700',
@@ -335,7 +382,6 @@ const BRAND_COLORS: Record<string, string> = {
   'icekiss': '#87CEEB',
   'bala': '#FF69B4',
   'chiclete': '#00CED1',
-  'trident': '#4169E1',
   'skittles': '#FF0000',
   'fini': '#FF69B4',
   'm&m': '#8B4513',
@@ -454,7 +500,7 @@ export function parseProductName(name: string, category: string): ParsedProduct 
   return { brand, size, flavor, originalName: name };
 }
 
-export const getProductColor = (productName: string, flavor: string, category?: string): { type: 'color' | 'image', value: string } => {
+export const getProductColor = (productName: string, flavor: string, category?: string): { type: 'color' | 'image' | 'gradient', value: string } => {
   const normalizedName = productName.toLowerCase();
   const normalizedFlavor = flavor.toLowerCase();
   const normalizedCategory = category?.toLowerCase() || '';
@@ -498,6 +544,10 @@ export const getProductColor = (productName: string, flavor: string, category?: 
     
     for (const [brand, color] of sortedBrands) {
       if (normalizedName.includes(brand)) {
+        // Detectar se é um gradiente CSS
+        if (typeof color === 'string' && color.startsWith('linear-gradient')) {
+          return { type: 'gradient', value: color };
+        }
         return { type: 'color', value: color };
       }
     }
@@ -522,6 +572,10 @@ export const getProductColor = (productName: string, flavor: string, category?: 
     
     for (const [brand, color] of sortedBrands) {
       if (normalizedName.includes(brand)) {
+        // Detectar se é um gradiente CSS
+        if (typeof color === 'string' && color.startsWith('linear-gradient')) {
+          return { type: 'gradient', value: color };
+        }
         return { type: 'color', value: color };
       }
     }
