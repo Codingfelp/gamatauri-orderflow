@@ -256,14 +256,20 @@ const BRAND_COLORS: Record<string, string> = {
   
   // CHOCOLATES - CAIXAS
   'caixa garoto': '#FFD700',                   // Amarelo
-  'caixa lacta': '#8E44AD',                    // Azul Lacta
+  'caixa lacta': '#4169E1',                    // Azul Lacta
+  'caixa bis': '#4169E1',
   
   // CHOCOLATES - LACTA
+  'lacta amaro': '#4169E1',                    // Azul
+  'lacta amaro 40% cacau': '#4169E1',          // Azul
+  'lacta ao leite': '#4169E1',                 // Azul
+  'lacta diamante negro': '#4169E1',           // Azul
+  'lacta oreo ao leite': '#4169E1',            // Azul
   'lacta branco': '#F5F5DC',                   // Creme
   'lacta ouro branco': '#FFD700',              // Amarelo
   'lacta shot': '#FFD700',                     // Amarelo
   'lacta sonho de valsa': '#FFB6C1',           // Rosa
-  'lacta': '#8E44AD',                          // Azul padrão
+  'lacta': '#4169E1',                          // Azul padrão
   
   // CHOCOLATES - TRENTO
   'trento dark': '#808080',                    // Cinza
@@ -322,6 +328,8 @@ const BRAND_COLORS: Record<string, string> = {
   'ruffles queijo': '#FFD700',
   
   // SNACKS - OUTROS
+  'fandangos presunto': '#DC143C',
+  'fandangos queijo': '#FFD700',
   'fandangos': '#FF6347',
   'baconzitos': '#DC143C',                     // Vermelho
   'cebolitos': '#FFD700',
@@ -348,6 +356,9 @@ const BRAND_COLORS: Record<string, string> = {
   'amendoim japones': '#F5DEB3',               // Bege
   'amendoim japonês': '#F5DEB3',
   'amendoim': '#D2B48C',
+  'pingo d\'ouro bacon': '#DC143C',            // Vermelho
+  'pingo d\'ouro picanha': '#4169E1',          // Azul
+  'pingo d\'ouro': '#FFD700',                  // Amarelo
   
   // DOCES - HALLS
   'halls cereja': '#DC143C',
@@ -360,7 +371,7 @@ const BRAND_COLORS: Record<string, string> = {
   'halls': '#32CD32',
   
   // DOCES - MENTOS
-  'mentos fruit': '#FF0000',
+  'mentos fruit': '#FFD700',                   // Amarelo
   'mentos frutas vermelhas': '#DC143C',
   'mentos mint': '#00CED1',
   'mentos rainbow': '#FF69B4',
@@ -369,9 +380,12 @@ const BRAND_COLORS: Record<string, string> = {
   'mentos': '#FF1493',
   
   // DOCES - TRIDENT (por sabor)
+  'trident canela': '#D2691E',                 // Cor de canela
   'trident menta': '#00CED1',                  // Turquesa
+  'trident melancia': '#FFB6C1',               // Vermelho claro
   'trident morango': '#FF69B4',                // Rosa
-  'trident melancia': '#FF1493',               // Pink
+  'trident tutti frutti': '#FFB6C1',           // Rosa claro
+  'trident tutti-frutti': '#FFB6C1',           // Rosa claro
   'trident uva': '#8B008B',                    // Roxo
   'trident': '#4169E1',                        // Azul padrão
   
@@ -566,7 +580,8 @@ export const getProductColor = (productName: string, flavor: string, category?: 
                brand.includes('hershey') || brand.includes('kitkat') ||
                brand.includes('snickers') || brand.includes('twix') ||
                brand.includes('milka') || brand.includes('garoto') ||
-               brand.includes('nestle') || brand.includes('nestlé');
+               brand.includes('nestle') || brand.includes('nestlé') ||
+               brand.includes('trento') || brand.includes('caixa');
       })
       .sort((a, b) => b[0].length - a[0].length);
     
@@ -597,7 +612,8 @@ export const getProductColor = (productName: string, flavor: string, category?: 
                brand.includes('cebolitos') || brand.includes('sensacoes') ||
                brand.includes('sensações') || brand.includes('pringles') ||
                brand.includes('torcida') || brand.includes('croques') ||
-               brand.includes('amendoim');
+               brand.includes('amendoim') || brand.includes('stax') ||
+               brand.includes('pingo');
       })
       .sort((a, b) => b[0].length - a[0].length);
     
