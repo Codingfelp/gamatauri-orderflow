@@ -69,51 +69,67 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         className="h-[280px] sm:h-[320px] group overflow-hidden transition-all duration-300 border-0 flex flex-col rounded-lg shadow-md hover:shadow-xl hover:scale-[1.02] cursor-pointer"
         onClick={() => setIsModalOpen(true)}
       >
+        {/* ÁREA COLORIDA - 70% */}
         <div 
-          className="relative h-48 md:h-56 overflow-hidden flex items-center justify-center"
+          className="relative h-[70%] overflow-hidden flex items-center justify-center p-3"
           style={backgroundStyle}
         >
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">
+              <div className="bg-destructive text-destructive-foreground px-4 py-2 rounded-md font-bold text-sm">
+                Esgotado
+              </div>
+            </div>
+          )}
           {displayImage ? (
             <img 
               src={displayImage}
               alt={`${baseProduct.brand} ${baseProduct.size || ''}`}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+              className={`w-full h-full object-contain transition-transform duration-500 ${
+                !isOutOfStock && 'group-hover:scale-110'
+              }`}
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+                const parent = (e.target as HTMLImageElement).parentElement;
+                if (parent) {
+                  parent.innerHTML = '<div class="w-full h-full flex flex-col items-center justify-center text-white/60"><svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-[10px]">Imagem indisponível</span></div>';
+                }
+              }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-              <svg className="w-16 h-16 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-full h-full flex flex-col items-center justify-center text-white/60">
+              <svg className="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
+              <span className="text-[10px]">Imagem indisponível</span>
             </div>
           )}
-          
         </div>
         
-        <div className="overflow-hidden -mt-6 px-4 mb-3 relative z-10 max-w-[216px] mx-auto" ref={emblaRef}>
+        {/* Carrossel de variantes - sobre a área colorida */}
+        <div className="overflow-hidden -mt-6 px-4 mb-2 relative z-10 max-w-[216px] mx-auto" ref={emblaRef}>
           <div className="flex gap-2">
             {variants.map((variant) => {
-              // Calcular cor individual de cada variante
-            const variantColor = getProductColor(
-              variant.name, 
-              variant.flavor, 
-              productGroup.baseProduct.category
-            );
-            
-            const thumbnailBg = variantColor.type === 'image'
-              ? { backgroundImage: `url(${variantColor.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-              : { background: variantColor.value };
-            
-            // DEBUG: Verificar cores dos thumbnails
-            if (process.env.NODE_ENV === 'development') {
-              console.log(`🖼️ Thumbnail ${variant.flavor}:`, {
-                name: variant.name,
-                flavor: variant.flavor,
-                color: variantColor.value
-              });
-            }
+              const variantColor = getProductColor(
+                variant.name, 
+                variant.flavor, 
+                productGroup.baseProduct.category
+              );
               
+              const thumbnailBg = variantColor.type === 'image'
+                ? { backgroundImage: `url(${variantColor.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                : { background: variantColor.value };
+              
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`🖼️ Thumbnail ${variant.flavor}:`, {
+                  name: variant.name,
+                  flavor: variant.flavor,
+                  color: variantColor.value
+                });
+              }
+                
               return (
                 <div 
                   key={variant.id}
@@ -140,8 +156,11 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           </div>
         </div>
         
-        <div className="p-2 md:p-3 space-y-1 flex-1 flex flex-col">
-          <h3 className="font-bold text-sm md:text-base text-card-foreground line-clamp-1 group-hover:text-primary transition-colors">
+        {/* ÁREA BRANCA - 30% */}
+        <div className="bg-white h-[30%] p-2.5 flex flex-col justify-between">
+          <h3 className={`font-semibold text-xs line-clamp-2 text-foreground transition-colors ${
+            !isOutOfStock && 'group-hover:text-primary'
+          }`}>
             {baseProduct.category?.toLowerCase().includes('cerveja')
               ? baseProduct.brand.split(' ')[0]
               : (
@@ -155,48 +174,46 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
             }
           </h3>
           
-          <p className="text-xs text-muted-foreground">
-            {variants.length} {variants.length === 1 ? 'opção' : 'opções'} disponíveis
-          </p>
-          
-          <div className="flex items-center justify-between pt-2 border-t border-border mt-auto">
-            {user ? (
-              <>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground">A partir de</span>
-                  <span className="text-lg md:text-xl font-bold text-primary">
-                    R$ {priceRange.min.toFixed(2)}
-                  </span>
-                </div>
-                
-                <Button 
-                  size="sm" 
-                  className="font-semibold h-8 text-xs px-3"
-                  style={{ 
-                    background: buttonColor,
-                    color: '#fff',
-                    border: 'none'
-                  }}
-                >
-                  Ver Opções
-                </Button>
-              </>
-            ) : (
-              <>
-                <span className="text-xs text-muted-foreground">Faça login</span>
-                <Button 
-                  size="sm" 
-                  className="font-semibold h-8 text-xs px-3"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.location.href = '/auth';
-                  }}
-                >
-                  Entrar
-                </Button>
-              </>
-            )}
-          </div>
+          {user ? (
+            <div className="flex items-stretch gap-0 border border-border rounded-full overflow-hidden h-8">
+              <div className="flex flex-col items-start justify-center px-3 bg-white min-w-0">
+                <span className="text-[9px] text-muted-foreground leading-none whitespace-nowrap">A partir de</span>
+                <span className="text-sm font-bold text-primary leading-tight whitespace-nowrap">
+                  R$ {priceRange.min.toFixed(2)}
+                </span>
+              </div>
+              <div className="w-px bg-border" />
+              <button
+                className={`flex items-center justify-center gap-1 px-3 font-medium text-[10px] transition-colors whitespace-nowrap ${
+                  isOutOfStock
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                    : 'text-white hover:opacity-90'
+                }`}
+                style={{ 
+                  background: isOutOfStock ? undefined : buttonColor 
+                }}
+                disabled={isOutOfStock}
+              >
+                <span>{isOutOfStock ? 'Esgotado' : 'Ver Opções'}</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-stretch gap-0 border border-border rounded-full overflow-hidden h-8">
+              <div className="flex items-center justify-center px-3 bg-white">
+                <span className="text-[10px] text-muted-foreground">Login para preços</span>
+              </div>
+              <div className="w-px bg-border" />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.location.href = '/auth';
+                }}
+                className="flex items-center justify-center gap-1 px-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-[10px] transition-colors"
+              >
+                <span>Entrar</span>
+              </button>
+            </div>
+          )}
         </div>
       </Card>
       
