@@ -20,6 +20,7 @@ import { fetchProducts, type Product } from "@/services/productsService";
 import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMapping";
 import { CategoryProductRow } from "@/components/CategoryProductRow";
 import { useCartAbandonment } from "@/hooks/useCartAbandonment";
+import { RecommendedSection } from "@/components/RecommendedSection";
 
 
 
@@ -276,6 +277,16 @@ const Order = () => {
           }}
           selectedBrand={selectedBrand}
         />
+
+        {/* 4.5. RECOMENDAÇÕES PERSONALIZADAS */}
+        {!selectedCategory && !selectedBrand && !searchQuery && (
+          <div className="px-4">
+            <RecommendedSection 
+              allProducts={products}
+              onAddToCart={addToCart}
+            />
+          </div>
+        )}
 
         {/* 5. PRODUTOS */}
 
