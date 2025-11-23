@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import cervejasImg from "@/assets/categories/cervejas.jpg";
-
 import destiladosImg from "@/assets/categories/destilados.png";
 import vinhosImg from "@/assets/categories/vinhos.png";
 import drinksImg from "@/assets/categories/drinks-prontos.png";
@@ -10,6 +9,7 @@ import refrigerantesImg from "@/assets/categories/refrigerantes-energeticos.png"
 import aguasImg from "@/assets/categories/aguas-sucos.png";
 import chocolatesImg from "@/assets/categories/chocolates.jpg";
 import balasImg from "@/assets/categories/balas-doces.png";
+import snacksImg from "@/assets/categories/snacks.png";
 import copaoImg from "@/assets/categories/copao.jpg";
 import cigarrosImg from "@/assets/categories/cigarros.jpg";
 import gelosImg from "@/assets/categories/gelos.jpg";
@@ -29,7 +29,7 @@ const categories: Category[] = [
   { name: "Águas", value: "Águas", image: aguasImg },
   { name: "Sucos", value: "Sucos", image: aguasImg },
   { name: "Chocolates", value: "Chocolates", image: chocolatesImg },
-  { name: "Snacks", value: "Snacks", image: balasImg },
+  { name: "Snacks", value: "Snacks", image: snacksImg },
   { name: "Doces", value: "Doces", image: balasImg },
   { name: "Copão", value: "Copão", image: copaoImg },
   { name: "Tabacaria", value: "Tabacaria", image: cigarrosImg },
