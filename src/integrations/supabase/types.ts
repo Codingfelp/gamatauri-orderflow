@@ -309,6 +309,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_recommendations: {
+        Row: {
+          avg_ticket_value: number | null
+          behavioral_products: Json | null
+          cache_valid_until: string | null
+          customer_phone: string
+          favorite_categories: string[] | null
+          id: string
+          last_purchase_date: string | null
+          similar_products: Json | null
+          smart_combos: Json | null
+          top_recurrent_products: Json | null
+          total_orders: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avg_ticket_value?: number | null
+          behavioral_products?: Json | null
+          cache_valid_until?: string | null
+          customer_phone: string
+          favorite_categories?: string[] | null
+          id?: string
+          last_purchase_date?: string | null
+          similar_products?: Json | null
+          smart_combos?: Json | null
+          top_recurrent_products?: Json | null
+          total_orders?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avg_ticket_value?: number | null
+          behavioral_products?: Json | null
+          cache_valid_until?: string | null
+          customer_phone?: string
+          favorite_categories?: string[] | null
+          id?: string
+          last_purchase_date?: string | null
+          similar_products?: Json | null
+          smart_combos?: Json | null
+          top_recurrent_products?: Json | null
+          total_orders?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

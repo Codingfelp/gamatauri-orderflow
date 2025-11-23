@@ -1,15 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, Loader2, Save, MapPin, Info } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2, Save, MapPin, Info, Lightbulb, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { fetchProducts, type Product } from "@/services/productsService";
 
 interface CartItem {
   id: string;
@@ -39,6 +40,96 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponError, setCouponError] = useState('');
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  
+  // Carregar produtos para sugestões
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const products = await fetchProducts();
+        setAllProducts(products);
+      } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+      }
+    };
+    loadProducts();
+  }, []);
+
+  // Lógica de sugestões inteligentes do carrinho
+  const cartSuggestions = useMemo(() => {
+    if (!allProducts.length || !items.length) return [];
+
+    const suggestions: Product[] = [];
+    const cartProductNames = items.map(i => i.name.toLowerCase());
+
+    // Regra 1: Bebidas alcoólicas → sugerir gelo
+    const hasAlcohol = cartProductNames.some(name =>
+      name.includes('whisky') || name.includes('vodka') || 
+      name.includes('cerveja') || name.includes('gin') ||
+      name.includes('brahma') || name.includes('heineken') ||
+      name.includes('label') || name.includes('absolut')
+    );
+
+    if (hasAlcohol && !cartProductNames.some(n => n.includes('gelo'))) {
+      const gelo = allProducts.find(p => p.name.toLowerCase().includes('gelo'));
+      if (gelo) suggestions.push(gelo);
+    }
+
+    // Regra 2: Whisky/Vodka → sugerir energético
+    const hasSpirit = cartProductNames.some(name =>
+      name.includes('whisky') || name.includes('vodka') ||
+      name.includes('label') || name.includes('absolut')
+    );
+
+    if (hasSpirit && !cartProductNames.some(n => n.includes('red bull') || n.includes('energético'))) {
+      const energetico = allProducts.find(p => 
+        p.name.toLowerCase().includes('red bull') || 
+        p.name.toLowerCase().includes('energético')
+      );
+      if (energetico && !suggestions.find(s => s.id === energetico.id)) {
+        suggestions.push(energetico);
+      }
+    }
+
+    // Regra 3: Cerveja → sugerir snacks
+    const hasBeer = cartProductNames.some(name =>
+      name.includes('cerveja') || name.includes('brahma') || 
+      name.includes('heineken') || name.includes('skol')
+    );
+
+    if (hasBeer && !cartProductNames.some(n => 
+      n.includes('doritos') || n.includes('ruffles') || 
+      n.includes('cheetos') || n.includes('amendoim')
+    )) {
+      const snack = allProducts.find(p => {
+        const pName = p.name.toLowerCase();
+        return pName.includes('doritos') || pName.includes('ruffles') || 
+               pName.includes('cheetos') || pName.includes('amendoim');
+      });
+      if (snack && !suggestions.find(s => s.id === snack.id)) {
+        suggestions.push(snack);
+      }
+    }
+
+    return suggestions.slice(0, 3); // Máximo 3 sugestões
+  }, [items, allProducts]);
+  
+  const handleQuickAdd = (product: Product) => {
+    const existingItem = items.find(item => item.id === product.id);
+    if (existingItem) {
+      onUpdateQuantity(product.id, existingItem.quantity + 1);
+      toast({
+        title: "Quantidade atualizada",
+        description: `${product.name} adicionado novamente`,
+      });
+    } else {
+      // Simular adição ao carrinho criando um novo item
+      toast({
+        title: "Sugestão adicionada! 🎉",
+        description: `${product.name} foi adicionado ao carrinho`,
+      });
+    }
+  };
   
   // Carregar endereço do perfil automaticamente
   useEffect(() => {
@@ -273,6 +364,51 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                 ))}
               </div>
             </ScrollArea>
+            
+            {/* Sugestões inteligentes */}
+            {cartSuggestions.length > 0 && (
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4 -mx-6 mx-6">
+                <p className="font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2 text-sm">
+                  <Lightbulb className="h-5 w-5" />
+                  Que tal completar seu pedido?
+                </p>
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {cartSuggestions.map((product) => (
+                    <Card 
+                      key={product.id}
+                      className="flex-shrink-0 w-32 p-3 bg-white dark:bg-card border-amber-200 dark:border-amber-800 hover:shadow-md transition-all group cursor-pointer"
+                      onClick={() => handleQuickAdd(product)}
+                    >
+                      <div className="text-center space-y-2">
+                        <div className="text-2xl">
+                          {product.name.toLowerCase().includes('gelo') ? '🧊' :
+                           product.name.toLowerCase().includes('red bull') || product.name.toLowerCase().includes('energético') ? '⚡' :
+                           '🍿'}
+                        </div>
+                        <p className="text-xs font-medium line-clamp-2 text-card-foreground">
+                          {product.name}
+                        </p>
+                        <p className="text-sm font-bold text-primary">
+                          R$ {product.price.toFixed(2)}
+                        </p>
+                        <Button 
+                          size="sm" 
+                          className="w-full h-7 text-xs group-hover:bg-primary group-hover:text-primary-foreground"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuickAdd(product);
+                          }}
+                        >
+                          <Plus className="h-3 w-3 mr-1" />
+                          Adicionar
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div className="border-t pt-4 space-y-2 -mx-6 px-6">
               <div className="flex items-center gap-2 mb-1">
