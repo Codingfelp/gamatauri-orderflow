@@ -176,22 +176,19 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           
           {user ? (
             <div className="flex items-stretch gap-0 border border-border rounded-full overflow-hidden h-8">
-              <div className="flex flex-col items-start justify-center px-3 bg-white min-w-0">
-                <span className="text-[9px] text-muted-foreground leading-none whitespace-nowrap">A partir de</span>
-                <span className="text-sm font-bold text-primary leading-tight whitespace-nowrap">
+              <div className="flex items-center gap-1 px-3 bg-white flex-shrink-0">
+                <span className="text-[9px] text-muted-foreground whitespace-nowrap">De</span>
+                <span className="text-xs font-bold text-primary whitespace-nowrap">
                   R$ {priceRange.min.toFixed(2)}
                 </span>
               </div>
               <div className="w-px bg-border" />
               <button
-                className={`flex items-center justify-center gap-1 px-3 font-medium text-[10px] transition-colors whitespace-nowrap ${
+                className={`flex items-center justify-center gap-1 px-3 font-medium text-[10px] transition-colors whitespace-nowrap rounded-r-full ${
                   isOutOfStock
                     ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                    : 'text-white hover:opacity-90'
+                    : 'bg-primary hover:bg-primary/90 text-primary-foreground'
                 }`}
-                style={{ 
-                  background: isOutOfStock ? undefined : buttonColor 
-                }}
                 disabled={isOutOfStock}
               >
                 <span>{isOutOfStock ? 'Esgotado' : 'Ver Opções'}</span>
@@ -208,7 +205,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                   e.stopPropagation();
                   window.location.href = '/auth';
                 }}
-                className="flex items-center justify-center gap-1 px-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-[10px] transition-colors"
+                className="flex items-center justify-center gap-1 px-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-[10px] transition-colors rounded-r-full"
               >
                 <span>Entrar</span>
               </button>

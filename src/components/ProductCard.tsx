@@ -99,15 +99,15 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
               </span>
             </div>
             <div className="w-px bg-border" />
-            <button
-              onClick={() => !isOutOfStock && onAddToCart(product)}
-              disabled={isOutOfStock}
-              className={`flex items-center justify-center gap-1 px-3 font-medium text-[10px] transition-colors ${
-                isOutOfStock
-                  ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                  : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-              }`}
-            >
+              <button
+                onClick={() => !isOutOfStock && onAddToCart(product)}
+                disabled={isOutOfStock}
+                className={`flex items-center justify-center gap-1 px-3 font-medium text-[10px] transition-colors rounded-r-full ${
+                  isOutOfStock
+                    ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                    : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                }`}
+              >
               <Plus className="h-3 w-3" />
               <span>{isOutOfStock ? 'Esgotado' : 'Adicionar'}</span>
             </button>
