@@ -54,11 +54,11 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
       className="mb-8 bg-card/30 backdrop-blur-sm rounded-2xl border border-border/40 p-5"
     >
       {/* Header minimalista */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-semibold text-foreground">
-            Recomendado
+          <Sparkles className="h-4 w-4 text-primary/60" />
+          <h2 className="text-sm font-medium text-muted-foreground">
+            Recomendado para você
           </h2>
         </div>
         
@@ -66,9 +66,9 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
           variant="ghost"
           size="sm"
           onClick={refreshRecommendations}
-          className="h-8 w-8 p-0 hover:bg-accent"
+          className="h-7 w-7 p-0 hover:bg-accent"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className="h-3.5 w-3.5" />
         </Button>
       </div>
 
