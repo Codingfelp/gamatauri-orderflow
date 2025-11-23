@@ -1,16 +1,15 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, Loader2, Save, MapPin, Info, Lightbulb, Sparkles } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2, Save, MapPin, Info } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { fetchProducts, type Product } from "@/services/productsService";
 
 interface CartItem {
   id: string;
@@ -40,101 +39,6 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const [couponDiscount, setCouponDiscount] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponError, setCouponError] = useState('');
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  
-  // Carregar produtos para sugestões
-  useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const products = await fetchProducts();
-        setAllProducts(products);
-      } catch (error) {
-        console.error('Erro ao carregar produtos:', error);
-      }
-    };
-    loadProducts();
-  }, []);
-
-  // Lógica de sugestões inteligentes do carrinho
-  const cartSuggestions = useMemo(() => {
-    if (!allProducts.length || !items.length) return [];
-
-    const suggestions: Product[] = [];
-    const cartProductIds = items.map(i => i.id); // IDs dos produtos no carrinho
-    const cartProductNames = items.map(i => i.name.toLowerCase());
-
-    // Regra 1: Bebidas alcoólicas → sugerir gelo
-    const hasAlcohol = cartProductNames.some(name =>
-      name.includes('whisky') || name.includes('vodka') || 
-      name.includes('cerveja') || name.includes('gin') ||
-      name.includes('brahma') || name.includes('heineken') ||
-      name.includes('label') || name.includes('absolut')
-    );
-
-    if (hasAlcohol && !cartProductNames.some(n => n.includes('gelo'))) {
-      const gelo = allProducts.find(p => 
-        p.name.toLowerCase().includes('gelo') && 
-        !cartProductIds.includes(p.id)
-      );
-      if (gelo) suggestions.push(gelo);
-    }
-
-    // Regra 2: Whisky/Vodka → sugerir energético
-    const hasSpirit = cartProductNames.some(name =>
-      name.includes('whisky') || name.includes('vodka') ||
-      name.includes('label') || name.includes('absolut')
-    );
-
-    if (hasSpirit && !cartProductNames.some(n => n.includes('red bull') || n.includes('energético'))) {
-      const energetico = allProducts.find(p => {
-        const pName = p.name.toLowerCase();
-        return (pName.includes('red bull') || pName.includes('energético')) && 
-               !cartProductIds.includes(p.id) &&
-               !suggestions.find(s => s.id === p.id);
-      });
-      if (energetico) suggestions.push(energetico);
-    }
-
-    // Regra 3: Cerveja → sugerir snacks
-    const hasBeer = cartProductNames.some(name =>
-      name.includes('cerveja') || name.includes('brahma') || 
-      name.includes('heineken') || name.includes('skol')
-    );
-
-    if (hasBeer && !cartProductNames.some(n => 
-      n.includes('doritos') || n.includes('ruffles') || 
-      n.includes('cheetos') || n.includes('amendoim')
-    )) {
-      const snack = allProducts.find(p => {
-        const pName = p.name.toLowerCase();
-        return (pName.includes('doritos') || pName.includes('ruffles') || 
-                pName.includes('cheetos') || pName.includes('amendoim')) &&
-               !cartProductIds.includes(p.id) &&
-               !suggestions.find(s => s.id === p.id);
-      });
-      if (snack) suggestions.push(snack);
-    }
-
-    return suggestions.slice(0, 3); // Máximo 3 sugestões
-  }, [items, allProducts]);
-  
-  const handleQuickAdd = (product: Product) => {
-    const existingItem = items.find(item => item.id === product.id);
-    if (existingItem) {
-      onUpdateQuantity(product.id, existingItem.quantity + 1);
-      toast({
-        title: "✓ Quantidade atualizada",
-        description: `${product.name} adicionado novamente`,
-      });
-    } else {
-      // Nota: Produto não está no carrinho, usuário precisa adicionar pela página principal
-      toast({
-        title: "💡 Ótima escolha!",
-        description: `Adicione ${product.name} pela página principal`,
-        duration: 2000,
-      });
-    }
-  };
   
   // Carregar endereço do perfil automaticamente
   useEffect(() => {
@@ -369,58 +273,6 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                 ))}
               </div>
             </ScrollArea>
-            
-            {/* Sugestões inteligentes */}
-            {cartSuggestions.length > 0 && (
-              <div className="bg-white dark:bg-card border border-border rounded-lg p-3 mb-4 -mx-6 mx-6 shadow-sm">
-                {/* Título discreto */}
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="h-3.5 w-3.5 text-primary/60" />
-                  <p className="text-xs font-medium text-muted-foreground">
-                    Que tal completar seu pedido?
-                  </p>
-                </div>
-                
-                {/* Carrossel horizontal de produtos */}
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                  {cartSuggestions.map((product) => (
-                    <button
-                      key={product.id}
-                      onClick={() => handleQuickAdd(product)}
-                      className="flex items-center gap-2 flex-shrink-0 bg-accent/30 hover:bg-accent/50 rounded-lg p-2 transition-all group border border-transparent hover:border-primary/20"
-                    >
-                      {/* Imagem minimizada (40x40px) */}
-                      <div className="w-10 h-10 rounded bg-white dark:bg-card flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {product.image_url ? (
-                          <img 
-                            src={product.image_url} 
-                            alt={product.name}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <div className="text-lg">
-                            {product.name.toLowerCase().includes('gelo') ? '🧊' :
-                             product.name.toLowerCase().includes('red bull') || product.name.toLowerCase().includes('energético') ? '⚡' :
-                             '🍿'}
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Nome do produto */}
-                      <span className="text-xs font-medium text-foreground line-clamp-1 max-w-[120px]">
-                        {product.name}
-                      </span>
-                      
-                      {/* Botão adicionar integrado */}
-                      <div className="flex items-center gap-1 bg-primary text-primary-foreground rounded-full px-2 py-1 ml-auto">
-                        <Plus className="h-3 w-3" />
-                        <span className="text-[10px] font-medium whitespace-nowrap">Adicionar</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
             
             <div className="border-t pt-4 space-y-2 -mx-6 px-6">
               <div className="flex items-center gap-2 mb-1">
