@@ -66,7 +66,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   return (
     <>
       <Card 
-        className="min-h-[420px] group overflow-hidden transition-all duration-300 border-border flex flex-col hover:shadow-xl hover:scale-[1.02] cursor-pointer"
+        className="h-[280px] sm:h-[320px] group overflow-hidden transition-all duration-300 border-0 flex flex-col rounded-lg shadow-md hover:shadow-xl hover:scale-[1.02] cursor-pointer"
         onClick={() => setIsModalOpen(true)}
       >
         <div 

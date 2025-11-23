@@ -50,7 +50,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
   }, [emblaApi]);
 
   return (
-    <div className="mb-12 px-4">
+    <div className="mb-6 px-4">
       <div className="flex items-center justify-end mb-4">
         {totalCount > 6 && (
           <Button
@@ -77,11 +77,11 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
             </Button>
           )}
 
-          <div className="overflow-hidden min-h-[240px] md:min-h-[280px]" ref={emblaRef}>
-            <div className="flex gap-3 pl-4 pr-4 h-full">
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex gap-3 pl-4 pr-4">
               {hasVariants ? (
                 itemsToDisplay.map((group: any) => (
-                  <div key={group.groupKey} className="flex-[0_0_140px] sm:flex-[0_0_180px] md:flex-[0_0_200px]">
+                  <div key={group.groupKey} className="flex-[0_0_120px] sm:flex-[0_0_160px] md:flex-[0_0_180px]">
                     <ProductVariantCard
                       productGroup={group}
                       onAddToCart={onAddToCart}
@@ -90,7 +90,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
                 ))
               ) : (
                 itemsToDisplay.map((product: any) => (
-                  <div key={product.id} className="flex-[0_0_140px] sm:flex-[0_0_180px] md:flex-[0_0_200px] min-h-[240px] md:min-h-[280px]">
+                  <div key={product.id} className="flex-[0_0_120px] sm:flex-[0_0_160px] md:flex-[0_0_180px]">
                     <ProductCard product={product} onAddToCart={onAddToCart} />
                   </div>
                 ))
