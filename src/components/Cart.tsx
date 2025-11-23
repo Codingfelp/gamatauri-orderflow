@@ -60,6 +60,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     if (!allProducts.length || !items.length) return [];
 
     const suggestions: Product[] = [];
+    const cartProductIds = items.map(i => i.id); // IDs dos produtos no carrinho
     const cartProductNames = items.map(i => i.name.toLowerCase());
 
     // Regra 1: Bebidas alcoólicas → sugerir gelo
@@ -71,7 +72,10 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     );
 
     if (hasAlcohol && !cartProductNames.some(n => n.includes('gelo'))) {
-      const gelo = allProducts.find(p => p.name.toLowerCase().includes('gelo'));
+      const gelo = allProducts.find(p => 
+        p.name.toLowerCase().includes('gelo') && 
+        !cartProductIds.includes(p.id)
+      );
       if (gelo) suggestions.push(gelo);
     }
 
@@ -82,13 +86,13 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     );
 
     if (hasSpirit && !cartProductNames.some(n => n.includes('red bull') || n.includes('energético'))) {
-      const energetico = allProducts.find(p => 
-        p.name.toLowerCase().includes('red bull') || 
-        p.name.toLowerCase().includes('energético')
-      );
-      if (energetico && !suggestions.find(s => s.id === energetico.id)) {
-        suggestions.push(energetico);
-      }
+      const energetico = allProducts.find(p => {
+        const pName = p.name.toLowerCase();
+        return (pName.includes('red bull') || pName.includes('energético')) && 
+               !cartProductIds.includes(p.id) &&
+               !suggestions.find(s => s.id === p.id);
+      });
+      if (energetico) suggestions.push(energetico);
     }
 
     // Regra 3: Cerveja → sugerir snacks
@@ -103,12 +107,12 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     )) {
       const snack = allProducts.find(p => {
         const pName = p.name.toLowerCase();
-        return pName.includes('doritos') || pName.includes('ruffles') || 
-               pName.includes('cheetos') || pName.includes('amendoim');
+        return (pName.includes('doritos') || pName.includes('ruffles') || 
+                pName.includes('cheetos') || pName.includes('amendoim')) &&
+               !cartProductIds.includes(p.id) &&
+               !suggestions.find(s => s.id === p.id);
       });
-      if (snack && !suggestions.find(s => s.id === snack.id)) {
-        suggestions.push(snack);
-      }
+      if (snack) suggestions.push(snack);
     }
 
     return suggestions.slice(0, 3); // Máximo 3 sugestões
@@ -119,14 +123,15 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     if (existingItem) {
       onUpdateQuantity(product.id, existingItem.quantity + 1);
       toast({
-        title: "Quantidade atualizada",
+        title: "✓ Quantidade atualizada",
         description: `${product.name} adicionado novamente`,
       });
     } else {
-      // Simular adição ao carrinho criando um novo item
+      // Nota: Produto não está no carrinho, usuário precisa adicionar pela página principal
       toast({
-        title: "Sugestão adicionada! 🎉",
-        description: `${product.name} foi adicionado ao carrinho`,
+        title: "💡 Ótima escolha!",
+        description: `Adicione ${product.name} pela página principal`,
+        duration: 2000,
       });
     }
   };
@@ -367,44 +372,51 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
             
             {/* Sugestões inteligentes */}
             {cartSuggestions.length > 0 && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4 -mx-6 mx-6">
-                <p className="font-bold text-amber-900 dark:text-amber-100 mb-3 flex items-center gap-2 text-sm">
-                  <Lightbulb className="h-5 w-5" />
-                  Que tal completar seu pedido?
-                </p>
-                <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="bg-white dark:bg-card border border-border rounded-lg p-3 mb-4 -mx-6 mx-6 shadow-sm">
+                {/* Título discreto */}
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary/60" />
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Que tal completar seu pedido?
+                  </p>
+                </div>
+                
+                {/* Carrossel horizontal de produtos */}
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                   {cartSuggestions.map((product) => (
-                    <Card 
+                    <button
                       key={product.id}
-                      className="flex-shrink-0 w-32 p-3 bg-white dark:bg-card border-amber-200 dark:border-amber-800 hover:shadow-md transition-all group cursor-pointer"
                       onClick={() => handleQuickAdd(product)}
+                      className="flex items-center gap-2 flex-shrink-0 bg-accent/30 hover:bg-accent/50 rounded-lg p-2 transition-all group border border-transparent hover:border-primary/20"
                     >
-                      <div className="text-center space-y-2">
-                        <div className="text-2xl">
-                          {product.name.toLowerCase().includes('gelo') ? '🧊' :
-                           product.name.toLowerCase().includes('red bull') || product.name.toLowerCase().includes('energético') ? '⚡' :
-                           '🍿'}
-                        </div>
-                        <p className="text-xs font-medium line-clamp-2 text-card-foreground">
-                          {product.name}
-                        </p>
-                        <p className="text-sm font-bold text-primary">
-                          R$ {product.price.toFixed(2)}
-                        </p>
-                        <Button 
-                          size="sm" 
-                          className="w-full h-7 text-xs group-hover:bg-primary group-hover:text-primary-foreground"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleQuickAdd(product);
-                          }}
-                        >
-                          <Plus className="h-3 w-3 mr-1" />
-                          Adicionar
-                        </Button>
+                      {/* Imagem minimizada (40x40px) */}
+                      <div className="w-10 h-10 rounded bg-white dark:bg-card flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {product.image_url ? (
+                          <img 
+                            src={product.image_url} 
+                            alt={product.name}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-lg">
+                            {product.name.toLowerCase().includes('gelo') ? '🧊' :
+                             product.name.toLowerCase().includes('red bull') || product.name.toLowerCase().includes('energético') ? '⚡' :
+                             '🍿'}
+                          </div>
+                        )}
                       </div>
-                    </Card>
+                      
+                      {/* Nome do produto */}
+                      <span className="text-xs font-medium text-foreground line-clamp-1 max-w-[120px]">
+                        {product.name}
+                      </span>
+                      
+                      {/* Botão adicionar integrado */}
+                      <div className="flex items-center gap-1 bg-primary text-primary-foreground rounded-full px-2 py-1 ml-auto">
+                        <Plus className="h-3 w-3" />
+                        <span className="text-[10px] font-medium whitespace-nowrap">Adicionar</span>
+                      </div>
+                    </button>
                   ))}
                 </div>
               </div>
