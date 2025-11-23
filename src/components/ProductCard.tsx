@@ -1,10 +1,7 @@
 import { memo } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { parseProductName, getProductColor } from "@/utils/productVariants";
-import { Share2 } from "lucide-react";
-import { shareProductWhatsApp } from "@/utils/shareUtils";
+import { Plus } from "lucide-react";
 
 
 interface Product {
@@ -26,70 +23,13 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
   const { user } = useAuth();
   const isOutOfStock = !product.available;
   
-  const parsed = product.category 
-    ? parseProductName(product.name, product.category)
-    : { flavor: 'original' };
-  
-  const productBg = product.category 
-    ? getProductColor(product.name, parsed.flavor, product.category)
-    : { type: 'color' as const, value: '#E0E0E0' };
-  
-  // Verificar se precisa de efeito fogo (Doritos Dinamita e Sweet Chili)
-  const needsFire = product.name.toLowerCase().includes('doritos dinamita') ||
-                    product.name.toLowerCase().includes('doritos sweet chili');
-  
-  let backgroundStyle = {};
-  if (needsFire) {
-    // Adicionar efeito de fogo para Doritos Dinamita e Sweet Chili
-    const baseColor = productBg.type === 'color' ? productBg.value : 
-                      productBg.type === 'gradient' ? '#DC143C' : '#DC143C';
-    backgroundStyle = { 
-      background: `linear-gradient(to bottom, ${baseColor} 0%, ${baseColor} 70%, #FF4500 85%, #FF6347 92%, #FFA500 100%)`,
-      backgroundSize: '100% 200%',
-      animation: 'fireFlicker 2s ease-in-out infinite'
-    };
-  } else if (productBg.type === 'gradient') {
-    backgroundStyle = { background: productBg.value };
-  } else if (productBg.type === 'image') {
-    backgroundStyle = { 
-      backgroundImage: `url(${productBg.value})`, 
-      backgroundSize: 'cover', 
-      backgroundPosition: 'center' 
-    };
-  } else {
-    backgroundStyle = { backgroundColor: productBg.value };
-  }
-  
   return (
-    <>
-      {needsFire && (
-        <style>{`
-          @keyframes fireFlicker {
-            0%, 100% { background-position: 0% 0%; }
-            50% { background-position: 0% 100%; }
-          }
-        `}</style>
-      )}
-      <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col ${
-        isOutOfStock 
-          ? 'opacity-50 hover:shadow-md' 
-          : 'hover:shadow-xl hover:scale-[1.01]'
-      }`}>
-        <div 
-          className="relative aspect-[4/3] md:aspect-square overflow-hidden flex items-center justify-center"
-          style={backgroundStyle}
-        >
-        {/* Botão de compartilhar */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            shareProductWhatsApp({ name: product.name, price: product.price, category: product.category || undefined });
-          }}
-          className="absolute top-2 right-2 p-2 rounded-full bg-white/90 hover:bg-white shadow-md hover:shadow-lg transition-all z-10 group/share"
-          aria-label="Compartilhar no WhatsApp"
-        >
-          <Share2 className="h-4 w-4 text-muted-foreground group-hover/share:text-primary transition-colors" />
-        </button>
+    <Card className={`h-full group overflow-hidden transition-all duration-300 border-border flex flex-col rounded-xl ${
+      isOutOfStock 
+        ? 'opacity-50 hover:shadow-md' 
+        : 'hover:shadow-xl hover:scale-[1.01]'
+    }`}>
+      <div className="relative aspect-square overflow-hidden flex items-center justify-center bg-gray-50 p-2">
         
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">
@@ -107,7 +47,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
             alt={product.name}
             loading="lazy"
             decoding="async"
-            className={`w-full h-full object-contain transition-transform duration-500 ${
+            className={`w-full h-full object-contain p-2 transition-transform duration-500 ${
               !isOutOfStock && 'group-hover:scale-110'
             }`}
             onError={(e) => {
@@ -127,51 +67,50 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
           </div>
         )}
       </div>
-      <div className="p-2 md:p-2.5 space-y-1 md:space-y-1.5 flex-1 flex flex-col">
-        <h3 className={`font-bold text-xs md:text-sm text-card-foreground line-clamp-1 transition-colors ${
+      <div className="p-2 space-y-1 flex-1 flex flex-col">
+        <h3 className={`font-semibold text-sm text-foreground line-clamp-2 mb-2 transition-colors ${
           !isOutOfStock && 'group-hover:text-primary'
         }`}>
           {product.name}
         </h3>
-        {product.description && product.description.length < 200 && (
-          <p className="hidden md:block text-[10px] text-muted-foreground line-clamp-1 leading-relaxed">
-            {product.description.substring(0, 100)}
-          </p>
-        )}
-        <div className="flex items-center justify-between pt-1 md:pt-1.5 border-t border-border mt-auto">
+        <div className="mt-auto">
           {user ? (
-            <>
-              <span className="text-base md:text-xl font-bold text-primary">
-                R$ {product.price.toFixed(2)}
-              </span>
-              <Button
+            <div className="flex items-stretch gap-0 border border-border rounded-full overflow-hidden h-9">
+              <div className="flex items-center justify-center px-3 bg-background">
+                <span className="text-sm font-bold text-primary">
+                  R$ {product.price.toFixed(2)}
+                </span>
+              </div>
+              <div className="w-px bg-border" />
+              <button
                 onClick={() => !isOutOfStock && onAddToCart(product)}
                 disabled={isOutOfStock}
-                size="sm"
-                className={`font-semibold transition-all duration-300 h-7 md:h-8 text-[10px] md:text-xs px-2 md:px-3 ${
+                className={`flex items-center justify-center gap-1.5 px-4 font-medium text-xs transition-colors ${
                   isOutOfStock
                     ? 'bg-muted text-muted-foreground cursor-not-allowed'
                     : 'bg-primary hover:bg-primary/90 text-primary-foreground'
                 }`}
               >
-                {isOutOfStock ? 'Esgotado' : 'Adicionar'}
-              </Button>
-            </>
+                <Plus className="h-3.5 w-3.5" />
+                <span>{isOutOfStock ? 'Esgotado' : 'Adicionar'}</span>
+              </button>
+            </div>
           ) : (
-            <>
-              <span className="text-xs text-muted-foreground">Login para ver preços</span>
-              <Button 
-                onClick={() => window.location.href = '/auth'} 
-                size="sm"
-                className="font-semibold h-7 md:h-8 text-[10px] md:text-xs px-2 md:px-3"
+            <div className="flex items-stretch gap-0 border border-border rounded-full overflow-hidden h-9">
+              <div className="flex items-center justify-center px-3 bg-background">
+                <span className="text-xs text-muted-foreground">Login para ver preços</span>
+              </div>
+              <div className="w-px bg-border" />
+              <button
+                onClick={() => window.location.href = '/auth'}
+                className="flex items-center justify-center gap-1.5 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-xs transition-colors"
               >
-                Entrar
-              </Button>
-            </>
+                <span>Entrar</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
-      </Card>
-    </>
+    </Card>
   );
 });
