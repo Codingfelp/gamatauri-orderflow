@@ -1,71 +1,67 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Validation schemas with Zod
+const OrderItemSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).max(200),
+  price: z.number().positive().max(99999),
+  quantity: z.number().int().positive().max(999),
+});
+
+const OrderSchema = z.object({
+  customer_name: z.string().min(2).max(100).trim(),
+  customer_phone: z.string().regex(/^\d{10,11}$/, 'Telefone inválido'),
+  customer_email: z.string().email().max(255).optional().nullable(),
+  customer_address: z.string().min(10).max(500).trim().optional().nullable(),
+  payment_method: z.enum(['pix', 'cartao', 'dinheiro', 'credito', 'debito']),
+  payment_timing: z.string().optional(),
+  items: z.array(OrderItemSchema).min(1).max(50),
+  notes: z.string().max(1000).trim().optional().nullable(),
+  delivery_fee: z.number().min(0).max(1000).default(0),
+  change_for: z.string().max(50).optional().nullable(),
+  card_info: z.object({
+    holder: z.string().max(100),
+    number: z.string().max(19),
+    expiry: z.string().max(7),
+    cvv: z.string().max(4),
+  }).optional().nullable(),
+});
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const orderData = await req.json();
-    
-    console.log('Received order data:', JSON.stringify(orderData, null, 2));
+    const rawData = await req.json();
+    const orderData = OrderSchema.parse(rawData);
 
-    // Initialize Supabase client with service role
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Validar dados obrigatórios
-    if (!orderData.customer_name || typeof orderData.customer_name !== 'string') {
-      throw new Error('Nome do cliente é obrigatório');
-    }
-
-    if (!orderData.customer_phone || typeof orderData.customer_phone !== 'string') {
-      throw new Error('Telefone do cliente é obrigatório');
-    }
-
-    // Normalizar telefone (remover espaços, parênteses, hífens)
     const normalizedPhone = orderData.customer_phone.replace(/\D/g, '');
-
-    if (!orderData.items || !Array.isArray(orderData.items) || orderData.items.length === 0) {
-      throw new Error('Carrinho está vazio');
-    }
-
-    if (!orderData.payment_method) {
-      throw new Error('Método de pagamento é obrigatório');
-    }
-
-    // Validar items
-    for (const item of orderData.items) {
-      if (!item.id || !item.name || !item.quantity || !item.price) {
-        throw new Error('Item inválido no carrinho');
-      }
-    }
-
-    // Calcular total
+    
     const itemsTotal = orderData.items.reduce((sum: number, item: any) => 
       sum + (item.price * item.quantity), 0
     );
     const deliveryFee = orderData.delivery_fee || 0;
     const totalPrice = itemsTotal + deliveryFee;
 
-    // 1. SAVE TO LOCAL DATABASE FIRST
-    console.log('Saving order to local database...');
-    
     const { data: localOrder, error: localOrderError } = await supabaseAdmin
       .from('orders')
       .insert({
         customer_name: orderData.customer_name,
-        customer_phone: normalizedPhone, // Use normalized phone
+        customer_phone: normalizedPhone,
         customer_email: orderData.customer_email || null,
         customer_address: orderData.customer_address || null,
         payment_method: normalizePaymentMethod(orderData.payment_method),
@@ -79,14 +75,11 @@ serve(async (req) => {
       .single();
 
     if (localOrderError || !localOrder) {
-      console.error('Failed to save order to local DB:', localOrderError);
       throw new Error('Falha ao salvar pedido no banco de dados');
     }
 
     const internalOrderId = localOrder.id;
-    console.log('Order saved to local DB with ID:', internalOrderId);
 
-    // 2. SAVE ORDER ITEMS
     const orderItemsData = orderData.items.map((item: any) => ({
       order_id: internalOrderId,
       product_id: item.id,
@@ -102,11 +95,8 @@ serve(async (req) => {
 
     if (itemsError) {
       console.error('Failed to save order items:', itemsError);
-      // Continue anyway, we have the order
     }
 
-    // 3. SEND TO EXTERNAL API
-    // Mapear payload para formato da API Gamatauri
     const gamatauriPayload = {
       external_order_id: internalOrderId,
       external_webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`,
@@ -126,22 +116,13 @@ serve(async (req) => {
       delivery_fee: deliveryFee,
       notes: orderData.notes?.trim() || null,
       change_for: orderData.change_for || null,
-      card_info: orderData.card_info ? {
-        holder: orderData.card_info.holder,
-        number: orderData.card_info.number,
-        expiry: orderData.card_info.expiry,
-        cvv: orderData.card_info.cvv,
-      } : undefined,
     };
 
-    console.log('Sending to Gamatauri API:', JSON.stringify(gamatauriPayload, null, 2));
+    let externalOrderNumber = null;
+    let lastError: Error | null = null;
 
-    // Implementar retry logic (3 tentativas)
-    let lastError;
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`Attempt ${attempt} to create order`);
-        
         const response = await fetch(
           'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/create-external-order',
           {
@@ -157,15 +138,12 @@ serve(async (req) => {
         const result = await response.json();
 
         if (!response.ok) {
-          console.error(`API returned error (attempt ${attempt}):`, result);
           lastError = new Error(result.error || 'Failed to create order');
           
-          // Se for erro de validação (400), não tentar novamente
           if (response.status === 400 || response.status === 401) {
             throw lastError;
           }
           
-          // Aguardar antes de tentar novamente (backoff exponencial)
           if (attempt < 3) {
             await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
             continue;
@@ -173,16 +151,14 @@ serve(async (req) => {
           throw lastError;
         }
 
-        console.log('Order created successfully:', result);
-
-        // 4. UPDATE LOCAL ORDER WITH EXTERNAL ORDER ID AND ORDER NUMBER
+        externalOrderNumber = result.data.order_number;
         const externalOrderId = result.data.order_id;
-        const externalOrderNumber = result.data.order_number;
+        
         await supabaseAdmin
           .from('orders')
           .update({ 
-            stripe_payment_intent_id: externalOrderId, // Using this field to store external ID
-            external_order_number: externalOrderNumber // Store the external order number (e.g., "EXT-20251103-001")
+            stripe_payment_intent_id: externalOrderId,
+            external_order_number: externalOrderNumber
           })
           .eq('id', internalOrderId);
 
@@ -191,7 +167,7 @@ serve(async (req) => {
             success: true,
             message: 'Pedido criado com sucesso',
             data: {
-              order_id: internalOrderId, // Return INTERNAL order ID for timeline
+              order_id: internalOrderId,
               order_number: result.data.order_number,
               status: result.data.status,
               total: result.data.total,
@@ -204,7 +180,7 @@ serve(async (req) => {
         );
 
       } catch (error) {
-        lastError = error;
+        lastError = error as Error;
         if (attempt === 3) {
           throw error;
         }
@@ -214,7 +190,23 @@ serve(async (req) => {
     throw lastError;
 
   } catch (error) {
-    console.error('Error in submit-order function:', error);
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Dados inválidos',
+          details: error.errors.map(e => ({
+            field: e.path.join('.'),
+            message: e.message
+          })),
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const errorMessage = error instanceof Error ? error.message : 'Falha ao criar pedido';
     const isValidationError = errorMessage.includes('obrigatório') || errorMessage.includes('inválido');
     
@@ -231,21 +223,17 @@ serve(async (req) => {
   }
 });
 
-// Normalizar método de pagamento para valores aceitos pelo banco
 function normalizePaymentMethod(method: string): string {
   const normalized = method.toLowerCase();
   
-  // Mapear credito/debito para "cartao"
   if (normalized === 'credito' || normalized === 'debito' || normalized === 'cartão') {
     return 'cartao';
   }
   
-  // Validar valores permitidos
   const allowedMethods = ['pix', 'cartao', 'dinheiro'];
   return allowedMethods.includes(normalized) ? normalized : 'dinheiro';
 }
 
-// Função para mapear método de pagamento
 function mapPaymentMethod(method: string): string {
   const normalized = method.toLowerCase();
   const mapping: Record<string, string> = {

@@ -14,10 +14,50 @@ interface ProductRow {
   available?: boolean;
 }
 
+// Helper function to verify admin access
+async function verifyAdminAccess(req: Request) {
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    return { authorized: false, error: 'Unauthorized - No token provided' };
+  }
+
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+  if (userError || !user) {
+    return { authorized: false, error: 'Unauthorized - Invalid token' };
+  }
+
+  // Check admin role
+  const { data: roles } = await supabaseClient
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .eq('role', 'admin');
+
+  if (!roles || roles.length === 0) {
+    return { authorized: false, error: 'Forbidden - Admin access required' };
+  }
+
+  return { authorized: true };
+}
+
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Verify admin access
+  const authCheck = await verifyAdminAccess(req);
+  if (!authCheck.authorized) {
+    return new Response(JSON.stringify({ error: authCheck.error }), {
+      status: authCheck.error?.includes('Forbidden') ? 403 : 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 
   try {
@@ -38,8 +78,6 @@ Deno.serve(async (req) => {
       throw new Error('sheetsUrl is required');
     }
 
-    console.log('Received sheets URL:', sheetsUrl);
-
     // Convert Google Sheets edit/view URL to CSV export URL
     const sheetIdMatch = sheetsUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
     if (!sheetIdMatch) {
@@ -48,8 +86,6 @@ Deno.serve(async (req) => {
 
     const sheetId = sheetIdMatch[1];
     const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
-    
-    console.log('Converted to CSV URL:', csvUrl);
 
     // Fetch CSV data
     const csvResponse = await fetch(csvUrl);
@@ -58,7 +94,6 @@ Deno.serve(async (req) => {
     }
 
     const csvText = await csvResponse.text();
-    console.log('CSV fetched successfully, size:', csvText.length, 'bytes');
 
     // Parse CSV
     const lines = csvText.split('\n').filter(line => line.trim());
@@ -67,7 +102,6 @@ Deno.serve(async (req) => {
     }
 
     const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-    console.log('CSV headers:', headers);
 
     const products: ProductRow[] = [];
     let skippedRows = 0;
@@ -89,7 +123,6 @@ Deno.serve(async (req) => {
       const name = values[nameIndex];
       const priceStr = values[priceIndex];
 
-      // Skip rows without name or price
       if (!name || !priceStr) {
         skippedRows++;
         continue;
@@ -97,7 +130,6 @@ Deno.serve(async (req) => {
 
       const price = parseFloat(priceStr);
       if (isNaN(price) || price < 0) {
-        console.warn(`Skipping row ${i + 1}: invalid price "${priceStr}"`);
         skippedRows++;
         continue;
       }
@@ -114,8 +146,6 @@ Deno.serve(async (req) => {
       products.push(product);
     }
 
-    console.log(`Parsed ${products.length} products, skipped ${skippedRows} invalid rows`);
-
     if (products.length === 0) {
       throw new Error('No valid products found in CSV');
     }
@@ -123,12 +153,10 @@ Deno.serve(async (req) => {
     // Insert products in batches of 100
     const batchSize = 100;
     let inserted = 0;
-    let updated = 0;
     let errors = 0;
 
     for (let i = 0; i < products.length; i += batchSize) {
       const batch = products.slice(i, i + batchSize);
-      console.log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(products.length / batchSize)}`);
 
       const { data, error } = await supabaseClient
         .from('products')
@@ -136,26 +164,20 @@ Deno.serve(async (req) => {
         .select();
 
       if (error) {
-        console.error('Batch insert error:', error);
         errors += batch.length;
       } else {
-        const batchInserted = data?.length || 0;
-        inserted += batchInserted;
-        console.log(`Batch processed: ${batchInserted} products`);
+        inserted += (data?.length || 0);
       }
     }
 
     const result = {
       success: true,
       inserted,
-      updated,
       errors,
       skipped: skippedRows,
       total_processed: products.length,
       message: `Successfully imported ${inserted} products from Google Sheets`,
     };
-
-    console.log('Import completed:', result);
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -163,7 +185,6 @@ Deno.serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error importing products:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return new Response(
       JSON.stringify({

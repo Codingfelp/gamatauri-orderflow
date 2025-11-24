@@ -314,7 +314,6 @@ export type Database = {
           avg_ticket_value: number | null
           behavioral_products: Json | null
           cache_valid_until: string | null
-          customer_phone: string
           favorite_categories: string[] | null
           id: string
           last_purchase_date: string | null
@@ -329,7 +328,6 @@ export type Database = {
           avg_ticket_value?: number | null
           behavioral_products?: Json | null
           cache_valid_until?: string | null
-          customer_phone: string
           favorite_categories?: string[] | null
           id?: string
           last_purchase_date?: string | null
@@ -344,7 +342,6 @@ export type Database = {
           avg_ticket_value?: number | null
           behavioral_products?: Json | null
           cache_valid_until?: string | null
-          customer_phone?: string
           favorite_categories?: string[] | null
           id?: string
           last_purchase_date?: string | null
@@ -390,6 +387,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
       validate_coupon: {
         Args: { p_code: string; p_shipping_fee: number; p_user_id: string }
         Returns: Json

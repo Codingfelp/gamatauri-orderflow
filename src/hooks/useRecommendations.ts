@@ -32,48 +32,24 @@ export const useRecommendations = (
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Buscar telefone do usuário
-  const fetchCustomerPhone = async (): Promise<string | null> => {
-    if (!user?.id) return null;
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('phone')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error) {
-        console.error('❌ Erro ao buscar telefone:', error);
-        return null;
-      }
-
-      return data?.phone || null;
-    } catch (error) {
-      console.error('❌ Erro ao buscar telefone:', error);
-      return null;
-    }
-  };
-
   // Carregar recomendações
   const loadRecommendations = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const phone = await fetchCustomerPhone();
-      if (!phone) {
-        console.log('⚠️ Usuário sem telefone cadastrado');
+      if (!user?.id) {
+        console.log('⚠️ Usuário não autenticado');
         setRecommendations(null);
         return;
       }
 
-      const data = await fetchRecommendations(phone);
+      const data = await fetchRecommendations(user.id);
       
       if (!data) {
         // Cache vazio ou expirado, tentar recalcular
         console.log('🔄 Cache vazio, recalculando...');
-        const freshData = await refreshRecommendationsService(phone, user?.id);
+        const freshData = await refreshRecommendationsService(user.id);
         setRecommendations(freshData);
       } else {
         setRecommendations(data);
@@ -90,10 +66,9 @@ export const useRecommendations = (
   const refreshRecommendations = async () => {
     try {
       setLoading(true);
-      const phone = await fetchCustomerPhone();
-      if (!phone) return;
+      if (!user?.id) return;
 
-      const freshData = await refreshRecommendationsService(phone, user?.id);
+      const freshData = await refreshRecommendationsService(user.id);
       setRecommendations(freshData);
     } catch (err) {
       console.error('❌ Erro ao atualizar recomendações:', err);
