@@ -42,21 +42,18 @@ export interface UserRecommendations {
  * Busca recomendações do cache ou retorna vazio se não houver
  */
 export async function fetchRecommendations(
-  customerPhone: string
+  userId: string
 ): Promise<UserRecommendations | null> {
   try {
-    console.log('📊 Buscando recomendações para:', customerPhone);
-
     const { data, error } = await supabase
       .from('user_recommendations')
       .select('*')
-      .eq('customer_phone', customerPhone)
+      .eq('user_id', userId)
       .single();
 
     if (error) {
       // Se não encontrou, retorna null (cliente novo ou sem cache)
       if (error.code === 'PGRST116') {
-        console.log('⚠️ Nenhuma recomendação encontrada no cache');
         return null;
       }
       throw error;
@@ -67,11 +64,8 @@ export async function fetchRecommendations(
     const now = new Date();
 
     if (now > cacheValidUntil) {
-      console.log('⚠️ Cache expirado, precisa atualizar');
       return null;
     }
-
-    console.log('✅ Recomendações carregadas do cache');
 
     return {
       top_recurrent: (data.top_recurrent_products as unknown as Recommendation[]) || [],
@@ -95,17 +89,11 @@ export async function fetchRecommendations(
  * Força recalcular as recomendações chamando a edge function
  */
 export async function refreshRecommendations(
-  customerPhone: string,
-  userId?: string
+  userId: string
 ): Promise<UserRecommendations | null> {
   try {
-    console.log('🔄 Recalculando recomendações para:', customerPhone);
-
     const { data, error } = await supabase.functions.invoke('calculate-recommendations', {
-      body: {
-        customer_phone: customerPhone,
-        user_id: userId,
-      },
+      body: { user_id: userId },
     });
 
     if (error) throw error;
@@ -113,8 +101,6 @@ export async function refreshRecommendations(
     if (!data.success) {
       throw new Error(data.error || 'Falha ao calcular recomendações');
     }
-
-    console.log('✅ Recomendações recalculadas com sucesso');
 
     return {
       top_recurrent: data.data.top_recurrent || [],

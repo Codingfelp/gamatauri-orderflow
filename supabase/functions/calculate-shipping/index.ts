@@ -36,16 +36,13 @@ serve(async (req) => {
     
     // API Key do Google (armazenada como secret)
     const API_KEY = Deno.env.get('GOOGLE_DISTANCE_MATRIX_API_KEY');
-    
+
     if (!API_KEY) {
-      console.error('❌ GOOGLE_DISTANCE_MATRIX_API_KEY não configurada');
       return new Response(
         JSON.stringify({ error: 'Configuração de API inválida' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log('🔑 API Key configurada:', API_KEY.substring(0, 10) + '...');
 
     // Normalizar endereço de destino (fallback de segurança)
     let normalizedDestination = destination.trim();

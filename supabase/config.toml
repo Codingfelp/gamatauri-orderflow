@@ -1,25 +1,17 @@
 project_id = "lsxukelagellagzvjyuy"
 
+# Public endpoints (allow anonymous access for customer features)
 [functions.submit-order]
-verify_jwt = false
-
-[functions.update-order-status]
-verify_jwt = false
-
-[functions.fetch-products]
 verify_jwt = false
 
 [functions.calculate-shipping]
 verify_jwt = false
 
-[functions.sync-products]
+[functions.fetch-products]
 verify_jwt = false
 
 [functions.product-webhook]
 verify_jwt = false
 
-[functions.import-products-csv]
-verify_jwt = false
-
-[functions.admin-sync]
-verify_jwt = false
+# Admin functions require authentication (JWT verified internally)
+# verify_jwt removed to allow custom admin role checking
