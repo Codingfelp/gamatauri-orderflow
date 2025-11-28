@@ -7,11 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, Copy } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, Copy, AlertCircle } from "lucide-react";
 import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
+import { validateAddress } from "@/utils/addressValidator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type CartItem = OrderItem;
 
@@ -37,6 +39,7 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [addressError, setAddressError] = useState<string>("");
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -84,6 +87,20 @@ const Checkout = () => {
       });
       return;
     }
+
+    // Validar endereço completo
+    const addressValidation = validateAddress(formData.customer_address);
+    if (!addressValidation.valid) {
+      setAddressError(addressValidation.errors.join('. '));
+      toast({
+        title: "Endereço incompleto",
+        description: "Por favor, complete seu endereço com rua, número e bairro",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setAddressError("");
 
     setLoading(true);
     
@@ -224,18 +241,29 @@ const Checkout = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address" className="text-base font-semibold text-foreground">Endereço de Entrega</Label>
+                    <Label htmlFor="address" className="text-base font-semibold text-foreground">
+                      Endereço de Entrega *
+                    </Label>
                     <Textarea
                       id="address"
                       value={formData.customer_address}
-                      onChange={(e) => setFormData({ ...formData, customer_address: e.target.value })}
-                      placeholder="Ex: Rua Arauá, 220 - São Paulo (bairro), Belo Horizonte - MG"
+                      onChange={(e) => {
+                        setFormData({ ...formData, customer_address: e.target.value });
+                        setAddressError("");
+                      }}
+                      placeholder="Ex: Rua Arauá, 220, São Paulo (bairro), Belo Horizonte - MG"
                       rows={3}
-                      className="text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none bg-background"
+                      className={`text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none bg-background ${addressError ? 'border-destructive' : ''}`}
                     />
                     <p className="text-xs text-muted-foreground">
-                      💡 Inclua rua, número, bairro e cidade para cálculo correto do frete
+                      💡 Informe rua, número, bairro e cidade (separados por vírgula)
                     </p>
+                    {addressError && (
+                      <Alert variant="destructive" className="mt-2">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{addressError}</AlertDescription>
+                      </Alert>
+                    )}
                   </div>
                 </div>
               </Card>

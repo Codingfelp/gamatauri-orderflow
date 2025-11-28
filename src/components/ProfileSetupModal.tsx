@@ -23,7 +23,12 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
     cpf: "",
     phone: "",
     cep: "",
-    address: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
   });
   const { toast } = useToast();
   const { fetchAddress, loading: cepLoading, error: cepError } = useAddressByCEP();
@@ -34,11 +39,16 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
     const addressData = await fetchAddress(formData.cep);
     
     if (addressData) {
-      const fullAddress = `${addressData.logradouro}, ${addressData.bairro}, ${addressData.localidade} - ${addressData.uf}`;
-      setFormData(prev => ({ ...prev, address: fullAddress }));
+      setFormData(prev => ({ 
+        ...prev, 
+        street: addressData.logradouro,
+        neighborhood: addressData.bairro,
+        city: addressData.localidade,
+        state: addressData.uf,
+      }));
       toast({
         title: "Endereço encontrado!",
-        description: "Complete com número e complemento se necessário",
+        description: "Agora informe o número da sua casa",
       });
     } else if (cepError) {
       toast({
@@ -120,14 +130,35 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
       return;
     }
 
-    if (!formData.address.trim()) {
+    if (!formData.street.trim()) {
       toast({
         title: "Campo obrigatório",
-        description: "Por favor, preencha seu endereço completo",
+        description: "Por favor, preencha a rua",
         variant: "destructive",
       });
       return;
     }
+
+    if (!formData.number.trim()) {
+      toast({
+        title: "Número obrigatório",
+        description: "Por favor, informe o número da sua casa/prédio",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.neighborhood.trim()) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha o bairro",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Montar endereço completo
+    const fullAddress = `${formData.street}, ${formData.number}${formData.complement ? ', ' + formData.complement : ''}, ${formData.neighborhood}, ${formData.city} - ${formData.state}`;
 
     setLoading(true);
     try {
@@ -137,7 +168,7 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
           name: formData.name.trim(),
           cpf: cpfDigits,
           phone: formData.phone.trim(),
-          address: formData.address.trim(),
+          address: fullAddress,
         })
         .eq('user_id', userId);
 
@@ -249,19 +280,100 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="address" className="text-base font-semibold flex items-center gap-2">
-              <span>Endereço completo</span>
+            <Label htmlFor="street" className="text-base font-semibold flex items-center gap-2">
+              <span>Rua</span>
               <span className="text-primary">*</span>
             </Label>
-            <Textarea
-              id="address"
-              value={formData.address}
-              onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-              placeholder="R. Nome da Rua, 123, Bairro, Cidade - UF"
-              className="min-h-[80px] text-base border-2 focus:border-primary transition-all resize-none"
-              rows={3}
+            <Input
+              id="street"
+              type="text"
+              value={formData.street}
+              onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
+              placeholder="Nome da Rua"
+              className="h-12 text-base border-2 focus:border-primary transition-all"
               required
             />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="number" className="text-base font-semibold flex items-center gap-2">
+                <span>Número</span>
+                <span className="text-primary">*</span>
+              </Label>
+              <Input
+                id="number"
+                type="text"
+                value={formData.number}
+                onChange={(e) => setFormData(prev => ({ ...prev, number: e.target.value }))}
+                placeholder="123"
+                className="h-12 text-base border-2 focus:border-primary transition-all"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="complement" className="text-base font-semibold">
+                Complemento
+              </Label>
+              <Input
+                id="complement"
+                type="text"
+                value={formData.complement}
+                onChange={(e) => setFormData(prev => ({ ...prev, complement: e.target.value }))}
+                placeholder="Apto 101"
+                className="h-12 text-base border-2 focus:border-primary transition-all"
+              />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="neighborhood" className="text-base font-semibold flex items-center gap-2">
+              <span>Bairro</span>
+              <span className="text-primary">*</span>
+            </Label>
+            <Input
+              id="neighborhood"
+              type="text"
+              value={formData.neighborhood}
+              onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
+              placeholder="Nome do Bairro"
+              className="h-12 text-base border-2 focus:border-primary transition-all"
+              required
+            />
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="city" className="text-base font-semibold">
+                Cidade
+              </Label>
+              <Input
+                id="city"
+                type="text"
+                value={formData.city}
+                onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                placeholder="Cidade"
+                className="h-12 text-base border-2 focus:border-primary transition-all"
+                readOnly
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="state" className="text-base font-semibold">
+                UF
+              </Label>
+              <Input
+                id="state"
+                type="text"
+                value={formData.state}
+                onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
+                placeholder="MG"
+                maxLength={2}
+                className="h-12 text-base border-2 focus:border-primary transition-all uppercase"
+                readOnly
+              />
+            </div>
           </div>
           <Button
             type="submit"
