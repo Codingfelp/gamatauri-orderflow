@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search as SearchIcon, ArrowLeft } from "lucide-react";
+import { Search as SearchIcon, ArrowLeft, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchProducts, type Product } from "@/services/productsService";
+import { ProductCard } from "@/components/ProductCard";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { categoryMatchesFilter } from "@/utils/categoryMapping";
+import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import cervejasImg from "@/assets/categories/cervejas.jpg";
 import destiladosImg from "@/assets/categories/destilados.png";
@@ -40,17 +48,120 @@ const categories: Category[] = [
   { name: "Gelos", value: "Gelos", image: gelosImg, color: "from-cyan-300 to-cyan-500" },
 ];
 
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+const usePersistedCart = (key: string, initialValue: CartItem[]) => {
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      return initialValue;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(cart));
+    } catch (error) {
+      console.error('Error saving cart:', error);
+    }
+  }, [key, cart]);
+
+  return [cart, setCart] as const;
+};
+
 const Search = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [cart, setCart] = usePersistedCart('gamatauri-cart', []);
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const productsData = await fetchProducts();
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addToCart = (product: Product) => {
+    if (!user) {
+      setShowAuthDialog(true);
+      toast({
+        title: "Login necessário",
+        description: "Faça login para adicionar produtos ao carrinho",
+      });
+      return;
+    }
+    
+    setCart(current => {
+      const existing = current.find(item => item.id === product.id);
+      if (existing) {
+        return current.map(item =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...current, {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+      }];
+    });
+
+    toast({
+      title: "Adicionado ao carrinho",
+      description: `${product.name} foi adicionado ao seu carrinho`,
+    });
+  };
 
   const handleCategoryClick = (category: string) => {
-    navigate(`/?category=${encodeURIComponent(category)}`);
+    setSelectedCategory(category);
+    setSearchTerm("");
+  };
+
+  const handleBackToCategories = () => {
+    setSelectedCategory(null);
+    setSearchTerm("");
   };
 
   const filteredCategories = categories.filter(cat =>
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (selectedCategory) {
+      return matchesSearch && categoryMatchesFilter(product.category || "", selectedCategory);
+    }
+    
+    return matchesSearch;
+  });
+
+  const showProducts = searchTerm.length > 0 || selectedCategory !== null;
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -59,19 +170,29 @@ const Search = () => {
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center gap-3 mb-4">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => selectedCategory ? handleBackToCategories() : navigate("/")}
               className="p-2 hover:bg-muted rounded-full transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <h1 className="text-xl font-bold">Buscar</h1>
+            <h1 className="text-xl font-bold flex-1">
+              {selectedCategory || "Buscar"}
+            </h1>
+            {selectedCategory && (
+              <button
+                onClick={handleBackToCategories}
+                className="p-2 hover:bg-muted rounded-full transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
           </div>
           
           <div className="relative">
             <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Buscar produtos ou categorias..."
+              placeholder="Buscar produtos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 h-12 bg-muted/50"
@@ -80,43 +201,90 @@ const Search = () => {
         </div>
       </div>
 
-      {/* Categories Grid */}
+      {/* Content */}
       <div className="max-w-md mx-auto px-4 py-6">
-        <h2 className="text-sm font-semibold text-muted-foreground mb-4">
-          CATEGORIAS
-        </h2>
-        
-        <div className="grid grid-cols-2 gap-3">
-          {filteredCategories.map((category) => (
-            <Card
-              key={category.value}
-              onClick={() => handleCategoryClick(category.value)}
-              className="overflow-hidden cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
-            >
-              <div className={`relative h-32 bg-gradient-to-br ${category.color}`}>
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-cover mix-blend-overlay opacity-80"
+        {loading ? (
+          <LoadingSpinner />
+        ) : showProducts ? (
+          <>
+            <p className="text-sm text-muted-foreground mb-4">
+              {filteredProducts.length} produto(s) encontrado(s)
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {filteredProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={addToCart}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3">
-                  <h3 className="text-white font-bold text-lg leading-tight drop-shadow-lg">
-                    {category.name}
-                  </h3>
-                </div>
+              ))}
+            </div>
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <SearchIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Nenhum produto encontrado</p>
               </div>
-            </Card>
-          ))}
-        </div>
+            )}
+          </>
+        ) : (
+          <>
+            <h2 className="text-sm font-semibold text-muted-foreground mb-4">
+              CATEGORIAS
+            </h2>
+            
+            <div className="grid grid-cols-2 gap-3">
+              {filteredCategories.map((category) => (
+                <Card
+                  key={category.value}
+                  onClick={() => handleCategoryClick(category.value)}
+                  className="overflow-hidden cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform"
+                >
+                  <div className={`relative h-32 bg-gradient-to-br ${category.color}`}>
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="w-full h-full object-cover mix-blend-overlay opacity-80"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-3 left-3 right-3">
+                      <h3 className="text-white font-bold text-lg leading-tight drop-shadow-lg">
+                        {category.name}
+                      </h3>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
 
-        {filteredCategories.length === 0 && (
-          <div className="text-center py-12 text-muted-foreground">
-            <SearchIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>Nenhuma categoria encontrada</p>
-          </div>
+            {filteredCategories.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <SearchIcon className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Nenhuma categoria encontrada</p>
+              </div>
+            )}
+          </>
         )}
       </div>
+
+      {/* Auth Dialog */}
+      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Login necessário</DialogTitle>
+            <DialogDescription>
+              Você precisa fazer login para adicionar produtos ao carrinho.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/auth")} className="flex-1">
+              Fazer Login
+            </Button>
+            <Button variant="outline" onClick={() => setShowAuthDialog(false)} className="flex-1">
+              Cancelar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <BottomNavigation />
     </div>
