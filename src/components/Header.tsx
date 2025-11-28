@@ -108,15 +108,15 @@ export const Header = () => {
           <div className="flex-1 md:hidden" />
 
           {/* ENDEREÇO + NOTIFICAÇÕES/AVATAR AGRUPADOS À DIREITA */}
-          <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-4 md:flex-1 md:justify-center">
             {user && (
               <div 
                 onClick={() => setShowAddressSelector(true)}
-                className="flex items-center cursor-pointer hover:bg-accent/50 px-2 md:px-4 py-2 rounded-lg transition-colors md:justify-center"
+                className="flex items-center cursor-pointer hover:bg-accent/50 px-2 md:px-4 py-2 rounded-lg transition-colors"
               >
-                <div className="text-center">
-                  <p className="text-[10px] md:text-xs text-muted-foreground">Entregar em</p>
-                  <p className="font-semibold text-xs md:text-sm">
+                <div className="text-left md:text-center">
+                  <p className="text-[9px] md:text-xs text-muted-foreground">Entregar em</p>
+                  <p className="font-semibold text-[10px] md:text-sm">
                     {userAddress || "Selecione o endereço"}
                   </p>
                 </div>
