@@ -20,7 +20,18 @@ const OrderSchema = z.object({
   customer_name: z.string().min(2).max(100).trim(),
   customer_phone: z.string().regex(/^\d{10,11}$/, 'Telefone inválido'),
   customer_email: z.string().email().max(255).optional().nullable(),
-  customer_address: z.string().min(10).max(500).trim().optional().nullable(),
+  customer_address: z.string()
+    .min(10, 'Endereço muito curto')
+    .max(500, 'Endereço muito longo')
+    .trim()
+    .refine(addr => /\d+/.test(addr || ''), {
+      message: 'Endereço deve conter o número da casa/prédio',
+    })
+    .refine(addr => (addr?.split(',').length || 0) >= 2, {
+      message: 'Endereço deve conter rua, número e bairro separados por vírgula',
+    })
+    .optional()
+    .nullable(),
   payment_method: z.enum(['pix', 'cartao', 'dinheiro', 'credito', 'debito']),
   payment_timing: z.string().optional(),
   items: z.array(OrderItemSchema).min(1).max(50),

@@ -164,3 +164,14 @@ All colors MUST be HSL.
     @apply active:scale-95;
   }
 }
+
+/* Mobile safe-area support for iOS notch/home indicator */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .mb-safe {
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+}

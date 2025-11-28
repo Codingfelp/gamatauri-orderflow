@@ -21,6 +21,7 @@ import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMappin
 import { CategoryProductRow } from "@/components/CategoryProductRow";
 import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 import { RecommendedSection } from "@/components/RecommendedSection";
+import { BottomNavigation } from "@/components/BottomNavigation";
 
 
 
@@ -344,6 +345,8 @@ const Order = () => {
           </div>
         </DialogContent>
       </Dialog>
+      
+      <BottomNavigation />
     </div>
   );
 };

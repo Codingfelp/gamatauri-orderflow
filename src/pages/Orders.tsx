@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { normalizePhone } from "@/utils/phoneUtils";
 import { toast } from "sonner";
+import { BottomNavigation } from "@/components/BottomNavigation";
 
 interface OrderItem {
   product_name: string;
@@ -281,17 +282,18 @@ export default function Orders() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20">
         <Header />
         <div className="flex items-center justify-center h-[60vh]">
           <LoadingSpinner />
         </div>
+        <BottomNavigation />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       
       <div className="container mx-auto px-4 py-6">
@@ -352,6 +354,8 @@ export default function Orders() {
           </TabsContent>
         </Tabs>
       </main>
+      
+      <BottomNavigation />
     </div>
   );
 }
