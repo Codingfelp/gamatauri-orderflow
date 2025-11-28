@@ -20,25 +20,16 @@ if ('serviceWorker' in navigator) {
           registration.update();
         }, 60 * 60 * 1000);
         
-        // Detectar nova versão disponível
+        // Detectar nova versão disponível e atualizar automaticamente
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Nova versão disponível
-                toast.info('Nova versão disponível! 🚀', {
-                  description: 'Clique em Atualizar para obter as melhorias mais recentes',
-                  action: {
-                    label: 'Atualizar',
-                    onClick: () => {
-                      newWorker.postMessage({ type: 'SKIP_WAITING' });
-                      window.location.reload();
-                    }
-                  },
-                  duration: Infinity,
-                });
+                // Atualizar automaticamente sem toast
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                // O controllerchange listener abaixo já vai recarregar a página
               }
             });
           }
