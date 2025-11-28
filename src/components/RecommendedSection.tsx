@@ -35,16 +35,28 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
 
   const totalOrders = recommendations?.metadata?.total_orders || 0;
 
-  // Só mostrar para usuários com pelo menos 1 pedido
-  if (!hasRecommendations || totalOrders === 0) {
-    return null;
+  // Consolidar produtos recomendados ou usar populares como fallback
+  let allRecommended: Product[] = [];
+  let title = "Recomendado para você";
+  
+  if (hasRecommendations && totalOrders > 0) {
+    // Usuário com histórico - recomendações personalizadas
+    allRecommended = [
+      ...getTopRecurrentProducts(allProducts),
+      ...getSimilarProducts(allProducts),
+    ].slice(0, 8);
+  } else {
+    // Novo usuário - produtos populares
+    title = "Produtos em destaque";
+    allRecommended = allProducts
+      .filter(p => p.available)
+      .slice(0, 8);
   }
 
-  // Consolidar todos os produtos recomendados em um único array
-  const allRecommended = [
-    ...getTopRecurrentProducts(allProducts),
-    ...getSimilarProducts(allProducts),
-  ].slice(0, 8); // Limitar a 8 produtos para manter o carousel clean
+  // Não mostrar se não houver produtos
+  if (allRecommended.length === 0) {
+    return null;
+  }
 
   return (
     <motion.div
@@ -58,7 +70,7 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary/60" />
           <h2 className="text-sm font-medium text-muted-foreground">
-            Recomendado para você
+            {title}
           </h2>
         </div>
         
@@ -80,9 +92,11 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
       />
 
       {/* Footer discreto */}
-      <p className="text-[10px] text-muted-foreground/60 mt-3">
-        Baseado em {totalOrders} {totalOrders === 1 ? 'pedido' : 'pedidos'}
-      </p>
+      {totalOrders > 0 && (
+        <p className="text-[10px] text-muted-foreground/60 mt-3">
+          Baseado em {totalOrders} {totalOrders === 1 ? 'pedido' : 'pedidos'}
+        </p>
+      )}
     </motion.div>
   );
 };
