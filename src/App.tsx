@@ -20,6 +20,9 @@ const Install = lazy(() => import("./pages/Install"));
 const Offline = lazy(() => import("./pages/Offline"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AdminSync = lazy(() => import("./pages/AdminSync"));
+const Search = lazy(() => import("./pages/Search"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Addresses = lazy(() => import("./pages/Addresses"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,6 +54,9 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/busca" element={<Search />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/addresses" element={<Addresses />} />
               <Route path="/install" element={<Install />} />
               <Route path="/offline" element={<Offline />} />
               <Route path="/tasks" element={<Tasks />} />

@@ -11,6 +11,12 @@ export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
+    // Check if app is already installed
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                         (window.navigator as any).standalone === true;
+    
+    if (isStandalone) return;
+
     // Check if already dismissed permanently
     const dismissed = localStorage.getItem(PROMPT_DISMISSED_KEY);
     if (dismissed) return;

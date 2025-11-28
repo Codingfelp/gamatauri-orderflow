@@ -11,33 +11,13 @@ export const BottomNavigation = () => {
 
   const navItems = [
     { path: "/", label: "Início", icon: Home },
-    { path: "/busca", label: "Busca", icon: Search, action: "scroll-search" },
+    { path: "/busca", label: "Busca", icon: Search },
     { path: "/orders", label: "Pedidos", icon: Package },
-    { path: "/settings", label: "Perfil", icon: User },
+    { path: "/profile", label: "Perfil", icon: User },
   ];
 
   const handleNavClick = (item: typeof navItems[0]) => {
-    if (item.action === "scroll-search") {
-      // Se já estiver na home, fazer scroll para o campo de busca
-      if (location.pathname === "/") {
-        const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
-        if (searchInput) {
-          searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
-          setTimeout(() => searchInput.focus(), 300);
-        }
-      } else {
-        navigate("/");
-        setTimeout(() => {
-          const searchInput = document.querySelector('input[placeholder*="Buscar"]') as HTMLInputElement;
-          if (searchInput) {
-            searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
-            searchInput.focus();
-          }
-        }, 300);
-      }
-    } else {
-      navigate(item.path);
-    }
+    navigate(item.path);
   };
 
   const isActive = (path: string) => {
@@ -53,7 +33,7 @@ export const BottomNavigation = () => {
       <div className="flex justify-around items-center h-16 max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const active = item.action === "scroll-search" ? false : isActive(item.path);
+          const active = isActive(item.path);
           
           return (
             <button
