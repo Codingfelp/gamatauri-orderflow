@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -8,13 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { EmptyState } from "@/components/EmptyState";
-import { Package, Clock, Truck, CheckCircle, ArrowLeft } from "lucide-react";
-import { format } from "date-fns";
+import { Package, Clock, Truck, CheckCircle, ArrowLeft, Store } from "lucide-react";
+import { format, isToday, isYesterday, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { normalizePhone } from "@/utils/phoneUtils";
 import { toast } from "sonner";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import gamatauri from "@/assets/gamatauri-logo.png";
 
 interface OrderItem {
   product_name: string;
@@ -69,14 +68,7 @@ export default function Orders() {
       if (!user || !userProfile) return;
 
       try {
-        // Normalizar telefone do perfil para comparação
         const normalizedProfilePhone = normalizePhone(userProfile.phone);
-        
-        console.log('Fetching orders for user:', {
-          email: user.email,
-          profilePhone: userProfile.phone,
-          normalizedPhone: normalizedProfilePhone
-        });
 
         const { data, error } = await supabase
           .from("orders")
@@ -93,10 +85,6 @@ export default function Orders() {
           .order("created_at", { ascending: false });
 
         if (error) throw error;
-        
-        console.log('Orders fetched:', data?.length || 0);
-        console.log('Orders:', data);
-        
         setOrders(data || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -112,21 +100,20 @@ export default function Orders() {
 
   useEffect(() => {
     if (!user) return;
-    
+
     const channel = supabase
-      .channel('orders-updates')
+      .channel("orders-updates")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders'
+          event: "UPDATE",
+          schema: "public",
+          table: "orders",
         },
         (payload: any) => {
-          console.log('Pedido atualizado:', payload.new);
-          setOrders(prevOrders => 
-            prevOrders.map(order => 
-              order.id === payload.new.id 
+          setOrders((prevOrders) =>
+            prevOrders.map((order) =>
+              order.id === payload.new.id
                 ? { ...order, order_status: payload.new.order_status }
                 : order
             )
@@ -134,7 +121,7 @@ export default function Orders() {
         }
       )
       .subscribe();
-    
+
     return () => {
       supabase.removeChannel(channel);
     };
@@ -143,138 +130,153 @@ export default function Orders() {
   const markAsDelivered = async (orderId: string) => {
     try {
       const { error } = await supabase
-        .from('orders')
-        .update({ 
-          order_status: 'delivered',
-          updated_at: new Date().toISOString()
+        .from("orders")
+        .update({
+          order_status: "delivered",
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', orderId);
+        .eq("id", orderId);
 
       if (error) throw error;
-      
-      setOrders(orders.map(order => 
-        order.id === orderId 
-          ? { ...order, order_status: 'delivered' }
-          : order
-      ));
-      
-      toast.success('Pedido marcado como entregue! 🎉');
+
+      setOrders(
+        orders.map((order) =>
+          order.id === orderId ? { ...order, order_status: "delivered" } : order
+        )
+      );
+
+      toast.success("Pedido confirmado como entregue! 🎉");
     } catch (error) {
-      console.error('Error marking as delivered:', error);
-      toast.error('Erro ao marcar pedido como entregue');
+      console.error("Error marking as delivered:", error);
+      toast.error("Erro ao marcar pedido como entregue");
     }
   };
 
-  const getPaymentMethodLabel = (method: string) => {
-    const methods: Record<string, string> = {
-      pix: "PIX",
-      credito: "Cartão de Crédito",
-      debito: "Cartão de Débito",
-      dinheiro: "Dinheiro",
+  const getStatusBadge = (status: string) => {
+    const config: Record<string, { label: string; variant: any; icon: any }> = {
+      preparing: { label: "Preparando", variant: "secondary", icon: Clock },
+      in_route: { label: "A caminho", variant: "default", icon: Truck },
+      delivered: { label: "Entregue", variant: "outline", icon: CheckCircle },
     };
-    return methods[method] || method;
-  };
-
-  const getPaymentStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      pago: "default",
-      pendente: "secondary",
-    };
-    const labels: Record<string, string> = {
-      pago: "Pago",
-      pendente: "Pendente",
-    };
+    const { label, variant, icon: Icon } = config[status] || config.preparing;
     return (
-      <Badge variant={variants[status] || "outline"}>
-        {labels[status] || status}
+      <Badge variant={variant} className="flex items-center gap-1">
+        <Icon className="h-3 w-3" />
+        {label}
       </Badge>
     );
   };
 
+  const getDateLabel = (date: string) => {
+    const orderDate = new Date(date);
+    if (isToday(orderDate)) return "Hoje";
+    if (isYesterday(orderDate)) return "Ontem";
+    const days = differenceInDays(new Date(), orderDate);
+    if (days <= 7) return `Há ${days} dias`;
+    return format(orderDate, "dd 'de' MMMM", { locale: ptBR });
+  };
+
   const filterOrdersByStatus = (status: string) => {
-    const filtered = orders.filter((order) => order.order_status === status);
-    console.log(`Filtering orders by status "${status}":`, filtered.length);
-    return filtered;
+    return orders.filter((order) => order.order_status === status);
+  };
+
+  const groupOrdersByDate = (orders: Order[]) => {
+    const groups: Record<string, Order[]> = {};
+    orders.forEach((order) => {
+      const label = getDateLabel(order.created_at);
+      if (!groups[label]) groups[label] = [];
+      groups[label].push(order);
+    });
+    return groups;
   };
 
   const OrderCard = ({ order }: { order: Order }) => (
-    <Card className="p-4 space-y-3">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-bold text-lg">
-            Pedido #{order.external_order_number || order.id.slice(0, 8)}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {format(new Date(order.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-          </p>
+    <Card className="p-4 hover:shadow-md transition-shadow">
+      <div className="flex gap-3">
+        {/* Logo */}
+        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <img src={gamatauri} alt="Gamatauri" className="h-8 w-8 object-contain" />
         </div>
-        {getPaymentStatusBadge(order.payment_status)}
-      </div>
 
-      <div className="space-y-2 border-t pt-3">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Pagamento:</span>
-          <span className="font-medium">{getPaymentMethodLabel(order.payment_method)}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Endereço:</span>
-          <span className="font-medium text-right max-w-[200px] truncate">
-            {order.customer_address}
-          </span>
-        </div>
-      </div>
-
-      <div className="border-t pt-3 space-y-1">
-        <p className="text-sm font-semibold">Itens:</p>
-        {order.order_items.map((item, idx) => (
-          <div key={idx} className="text-sm flex justify-between">
-            <span className="text-muted-foreground">
-              {item.quantity}x {item.product_name}
-            </span>
-            <span>R$ {item.subtotal.toFixed(2)}</span>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          {/* Header */}
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex-1">
+              <h3 className="font-bold text-base">Gamatauri Delivery</h3>
+              <p className="text-xs text-muted-foreground">
+                {format(new Date(order.created_at), "dd/MM/yyyy 'às' HH:mm")}
+              </p>
+            </div>
+            {getStatusBadge(order.order_status)}
           </div>
-        ))}
-      </div>
 
-      <div className="border-t pt-3 flex justify-between items-center">
-        <span className="font-bold">Total:</span>
-        <span className="text-xl font-bold text-primary">
-          R$ {order.total_amount.toFixed(2)}
-        </span>
-      </div>
+          {/* Items Preview */}
+          <div className="text-sm text-muted-foreground mb-3">
+            {order.order_items.slice(0, 2).map((item, idx) => (
+              <span key={idx}>
+                {item.quantity}x {item.product_name}
+                {idx < Math.min(order.order_items.length, 2) - 1 && " • "}
+              </span>
+            ))}
+            {order.order_items.length > 2 && (
+              <span className="text-xs"> +{order.order_items.length - 2} itens</span>
+            )}
+          </div>
 
-      {order.order_status === 'in_route' && (
-        <div className="border-t pt-3">
-          <Button
-            onClick={() => markAsDelivered(order.id)}
-            className="w-full bg-green-600 hover:bg-green-700 text-white"
-            size="sm"
-          >
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Confirmar Entrega
-          </Button>
+          {/* Footer */}
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-lg text-primary">
+              R$ {order.total_amount.toFixed(2)}
+            </span>
+            {order.order_status === "in_route" && (
+              <Button
+                size="sm"
+                onClick={() => markAsDelivered(order.id)}
+                className="h-8"
+              >
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Confirmar
+              </Button>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </Card>
   );
 
-  const OrderList = ({ status, emptyIcon, emptyMessage }: { status: string; emptyIcon: any; emptyMessage: string }) => {
+  const OrderList = ({ status }: { status: string }) => {
     const filteredOrders = filterOrdersByStatus(status);
+    const groupedOrders = groupOrdersByDate(filteredOrders);
 
     if (filteredOrders.length === 0) {
+      const emptyMessages: Record<string, string> = {
+        preparing: "Nenhum pedido em preparação",
+        in_route: "Nenhum pedido a caminho",
+        delivered: "Nenhum pedido entregue",
+      };
+
       return (
-        <EmptyState
-          icon={emptyIcon}
-          title="Nenhum pedido"
-          description={emptyMessage}
-        />
+        <div className="text-center py-16">
+          <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
+          <p className="text-muted-foreground">{emptyMessages[status]}</p>
+        </div>
       );
     }
 
     return (
-      <div className="space-y-4">
-        {filteredOrders.map((order) => (
-          <OrderCard key={order.id} order={order} />
+      <div className="space-y-6">
+        {Object.entries(groupedOrders).map(([dateLabel, orders]) => (
+          <div key={dateLabel}>
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-1">
+              {dateLabel}
+            </h3>
+            <div className="space-y-3">
+              {orders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -283,9 +285,8 @@ export default function Orders() {
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background pb-20">
-        <Header />
-        <div className="flex items-center justify-center h-[60vh]">
-          <LoadingSpinner />
+        <div className="flex items-center justify-center h-screen">
+          <LoadingSpinner size="lg" />
         </div>
         <BottomNavigation />
       </div>
@@ -294,67 +295,50 @@ export default function Orders() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-6">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-4 hover:bg-accent/60 transition-all duration-300"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar para Início
-        </Button>
-      </div>
-      
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Meus Pedidos</h1>
-          <p className="text-muted-foreground">Acompanhe o status dos seus pedidos</p>
+      {/* Simple Header */}
+      <div className="sticky top-0 z-30 bg-background border-b">
+        <div className="max-w-md mx-auto px-4 py-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/")}
+              className="p-2 hover:bg-muted rounded-full transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <h1 className="text-xl font-bold">Pedidos</h1>
+          </div>
         </div>
+      </div>
 
+      {/* Content */}
+      <div className="max-w-md mx-auto px-4 py-6">
         <Tabs defaultValue="preparing" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="preparing" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Em Preparação
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="preparing" className="text-xs">
+              Preparando
             </TabsTrigger>
-            <TabsTrigger value="in_route" className="flex items-center gap-2">
-              <Truck className="h-4 w-4" />
-              Em Rota
+            <TabsTrigger value="in_route" className="text-xs">
+              A caminho
             </TabsTrigger>
-            <TabsTrigger value="delivered" className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
+            <TabsTrigger value="delivered" className="text-xs">
               Entregues
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="preparing" className="mt-6">
-            <OrderList
-              status="preparing"
-              emptyIcon={Clock}
-              emptyMessage="Você não tem pedidos em preparação"
-            />
+          <TabsContent value="preparing">
+            <OrderList status="preparing" />
           </TabsContent>
 
-          <TabsContent value="in_route" className="mt-6">
-            <OrderList
-              status="in_route"
-              emptyIcon={Truck}
-              emptyMessage="Você não tem pedidos em rota de entrega"
-            />
+          <TabsContent value="in_route">
+            <OrderList status="in_route" />
           </TabsContent>
 
-          <TabsContent value="delivered" className="mt-6">
-            <OrderList
-              status="delivered"
-              emptyIcon={CheckCircle}
-              emptyMessage="Nenhum pedido entregue ainda"
-            />
+          <TabsContent value="delivered">
+            <OrderList status="delivered" />
           </TabsContent>
         </Tabs>
-      </main>
-      
+      </div>
+
       <BottomNavigation />
     </div>
   );
