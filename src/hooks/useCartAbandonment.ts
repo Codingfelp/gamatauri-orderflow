@@ -45,29 +45,6 @@ export const useCartAbandonment = (cart: CartItem[], userId?: string) => {
       }
     };
   }, [cart, userId]);
-
-  // Verificar se há carrinho abandonado ao carregar
-  useEffect(() => {
-    const checkAbandonedCart = () => {
-      const abandonedData = localStorage.getItem('gamatauri-abandoned-cart');
-      if (abandonedData) {
-        const { items, abandonedAt } = JSON.parse(abandonedData);
-        const abandonedTime = new Date(abandonedAt).getTime();
-        const now = new Date().getTime();
-        const minutesElapsed = (now - abandonedTime) / (1000 * 60);
-
-        if (minutesElapsed < 120) { // 2 horas
-          toast({
-            title: "Você tem itens no carrinho! 🛒",
-            description: `${items.length} produto(s) te esperando`,
-            duration: 8000,
-          });
-        }
-      }
-    };
-
-    checkAbandonedCart();
-  }, []);
 };
 
 async function scheduleCartAbandonmentNotification(cart: CartItem[]) {
