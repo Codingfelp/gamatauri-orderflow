@@ -140,11 +140,6 @@ const Order = () => {
         quantity: 1,
       }];
     });
-
-    toast({
-      title: "Adicionado ao carrinho",
-      description: `${product.name} foi adicionado`,
-    });
   };
 
   const updateQuantity = (id: string, quantity: number) => {

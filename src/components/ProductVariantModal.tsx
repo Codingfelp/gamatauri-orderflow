@@ -72,10 +72,6 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
       category: baseProduct.category,
       available: variant.available
     });
-    toast({
-      title: "✅ Adicionado ao carrinho!",
-      description: `${variant.name} - R$ ${variant.price.toFixed(2)}`
-    });
     onClose();
   };
   

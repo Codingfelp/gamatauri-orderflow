@@ -25,7 +25,7 @@ interface Address {
 
 const Addresses = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
@@ -40,12 +40,14 @@ const Addresses = () => {
   });
 
   useEffect(() => {
-    if (!user) {
+    if (!authLoading && !user) {
       navigate("/auth");
       return;
     }
-    fetchAddresses();
-  }, [user]);
+    if (user) {
+      fetchAddresses();
+    }
+  }, [user, authLoading, navigate]);
 
   const fetchAddresses = async () => {
     try {
