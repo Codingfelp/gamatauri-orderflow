@@ -89,3 +89,27 @@ export function formatAddress(parsed: ParsedAddress): string {
 
   return parts.join(', ');
 }
+
+export function isAddressComplete(address: string | null): { complete: boolean; reason: string | null } {
+  if (!address || address.length < 10) {
+    return { complete: false, reason: 'Endereço não cadastrado ou muito curto' };
+  }
+  
+  const hasNumber = /\d+/.test(address);
+  if (!hasNumber) {
+    return { complete: false, reason: 'Endereço sem número da residência' };
+  }
+  
+  const parts = address.split(',').map(p => p.trim());
+  if (parts.length < 2) {
+    return { complete: false, reason: 'Endereço sem bairro (use vírgula para separar)' };
+  }
+  
+  // Verificar se tem bairro válido (não pode ser só número ou muito curto)
+  const neighborhoodPart = parts[1];
+  if (!neighborhoodPart || neighborhoodPart.length < 3 || /^\d+$/.test(neighborhoodPart)) {
+    return { complete: false, reason: 'Bairro inválido ou ausente' };
+  }
+  
+  return { complete: true, reason: null };
+}

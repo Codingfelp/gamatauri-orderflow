@@ -256,6 +256,7 @@ export type Database = {
           id: string
           name: string
           phone: string | null
+          shipping_fee: number | null
           updated_at: string
           user_id: string
         }
@@ -268,6 +269,7 @@ export type Database = {
           id?: string
           name: string
           phone?: string | null
+          shipping_fee?: number | null
           updated_at?: string
           user_id: string
         }
@@ -280,6 +282,7 @@ export type Database = {
           id?: string
           name?: string
           phone?: string | null
+          shipping_fee?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -318,6 +321,7 @@ export type Database = {
           is_primary: boolean
           neighborhood: string
           number: string
+          shipping_fee: number | null
           state: string
           street: string
           updated_at: string
@@ -331,6 +335,7 @@ export type Database = {
           is_primary?: boolean
           neighborhood: string
           number: string
+          shipping_fee?: number | null
           state: string
           street: string
           updated_at?: string
@@ -344,6 +349,7 @@ export type Database = {
           is_primary?: boolean
           neighborhood?: string
           number?: string
+          shipping_fee?: number | null
           state?: string
           street?: string
           updated_at?: string

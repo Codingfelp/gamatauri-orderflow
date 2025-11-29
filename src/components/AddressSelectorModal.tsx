@@ -17,6 +17,7 @@ interface Address {
   city: string;
   state: string;
   is_primary: boolean;
+  shipping_fee: number | null;
 }
 
 interface AddressSelectorModalProps {
@@ -148,6 +149,20 @@ export const AddressSelectorModal = ({
                       <p className="text-xs text-muted-foreground">
                         {address.neighborhood}, {address.city} - {address.state}
                       </p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      {address.shipping_fee !== null ? (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Frete</p>
+                          <p className="font-bold text-primary">
+                            R$ {address.shipping_fee.toFixed(2)}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">
+                          Calcular frete
+                        </p>
+                      )}
                     </div>
                   </div>
                 </Card>
