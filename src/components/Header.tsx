@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { ActiveOrderBanner } from "@/components/ActiveOrderBanner";
 import { AddressSelectorModal } from "@/components/AddressSelectorModal";
 import { ProfileIncompleteAlert } from "@/components/ProfileIncompleteAlert";
+import { AddressIncompleteAlert } from "@/components/AddressIncompleteAlert";
+import { isAddressComplete } from "@/utils/addressValidator";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/gamatauri-logo.png";
 
@@ -28,11 +30,13 @@ export const Header = () => {
   const [userAddress, setUserAddress] = useState<string>("");
   const [showAddressSelector, setShowAddressSelector] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [addressIncompleteReason, setAddressIncompleteReason] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       loadUserAddress();
       checkProfileComplete();
+      checkAddressComplete();
     }
   }, [user]);
 
@@ -86,9 +90,31 @@ export const Header = () => {
     }
   };
 
+  const checkAddressComplete = async () => {
+    if (!user) return;
+    
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('address')
+        .eq('user_id', user.id)
+        .single();
+      
+      const validation = isAddressComplete(profile?.address);
+      if (!validation.complete) {
+        setAddressIncompleteReason(validation.reason);
+      } else {
+        setAddressIncompleteReason(null);
+      }
+    } catch (error) {
+      console.error("Error checking address:", error);
+    }
+  };
+
   const handleAddressSelect = (address: Address) => {
     const fullAddress = `${address.street}, ${address.number}${address.complement ? ` - ${address.complement}` : ""} - ${address.neighborhood}`;
     setUserAddress(fullAddress);
+    checkAddressComplete();
   };
 
   return (
@@ -181,6 +207,7 @@ export const Header = () => {
         </div>
       </header>
       <ProfileIncompleteAlert missingFields={missingFields} />
+      {addressIncompleteReason && <AddressIncompleteAlert reason={addressIncompleteReason} />}
       <ActiveOrderBanner />
       
       {user && (

@@ -12,7 +12,7 @@ import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
-import { validateAddress } from "@/utils/addressValidator";
+import { validateAddress, isAddressComplete } from "@/utils/addressValidator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type CartItem = OrderItem;
@@ -40,6 +40,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [addressError, setAddressError] = useState<string>("");
+  const [canSubmit, setCanSubmit] = useState(true);
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -68,6 +69,13 @@ const Checkout = () => {
             customer_phone: data.phone || '',
             customer_address: preFilledAddress || data.address || '',
           }));
+          
+          // Validar endereço do perfil
+          const validation = isAddressComplete(data.address);
+          setCanSubmit(validation.complete);
+          if (!validation.complete) {
+            setAddressError(validation.reason || "Endereço incompleto");
+          }
         }
       };
       fetchProfile();
@@ -431,15 +439,20 @@ const Checkout = () => {
               </div>
               <Button
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || !canSubmit}
                 size="lg"
-                className="w-full h-16 text-xl font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] relative overflow-hidden group"
+                className="w-full h-16 text-xl font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 <span className="relative z-10 flex items-center justify-center">
                   {loading ? (
                     <>
                       <Loader2 className="w-6 h-6 mr-3 animate-spin" />
                       Processando...
+                    </>
+                  ) : !canSubmit ? (
+                    <>
+                      <span className="mr-2">⚠️</span>
+                      Complete seu endereço
                     </>
                   ) : (
                     <>

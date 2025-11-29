@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,7 @@ const Order = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const { toast } = useToast();
+  const productsRef = useRef<HTMLDivElement>(null);
   
   const { isListening, isSupported, startListening } = useVoiceSearch((text) => {
     setSearchQuery(text);
@@ -87,6 +88,10 @@ const Order = () => {
       return () => clearTimeout(timer);
     }
   }, [authLoading, user]);
+
+  const scrollToProducts = () => {
+    productsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const loadProducts = async () => {
     try {
@@ -261,6 +266,7 @@ const Order = () => {
           onCategoryChange={(cat) => {
             setSelectedCategory(cat);
             setSelectedBrand("");
+            if (cat) scrollToProducts();
           }}
           selectedCategory={selectedCategory}
         />
@@ -270,6 +276,7 @@ const Order = () => {
           onBrandClick={(brand) => {
             setSelectedBrand(brand);
             setSelectedCategory("");
+            if (brand) scrollToProducts();
           }}
           selectedBrand={selectedBrand}
         />
@@ -285,7 +292,7 @@ const Order = () => {
         )}
 
         {/* 5. PRODUTOS */}
-
+        <div ref={productsRef} className="scroll-mt-20">
         {Object.entries(groupedProducts).length === 0 ? (
           <EmptyState
             icon={Package}
@@ -304,6 +311,7 @@ const Order = () => {
             ))}
           </>
         )}
+        </div>
       </main>
 
       <Cart
