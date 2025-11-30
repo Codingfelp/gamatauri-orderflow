@@ -75,6 +75,8 @@ const Addresses = () => {
     }
 
     try {
+      const isPrimary = editingAddress?.is_primary || addresses.length === 0;
+      
       if (editingAddress) {
         const { error } = await supabase
           .from("user_addresses")
@@ -89,11 +91,21 @@ const Addresses = () => {
           .insert({
             ...formData,
             user_id: user!.id,
-            is_primary: addresses.length === 0,
+            is_primary: isPrimary,
           });
 
         if (error) throw error;
         toast.success("Endereço adicionado");
+      }
+
+      // Sincronizar profiles.address se for endereço primário
+      if (isPrimary) {
+        const fullAddress = `${formData.street}, ${formData.number}${formData.complement ? ', ' + formData.complement : ''}, ${formData.neighborhood}, ${formData.city} - ${formData.state}`;
+        
+        await supabase
+          .from('profiles')
+          .update({ address: fullAddress })
+          .eq('user_id', user!.id);
       }
 
       setShowDialog(false);
@@ -128,6 +140,23 @@ const Addresses = () => {
         .eq("id", addressId);
 
       if (error) throw error;
+      
+      // Sincronizar profiles.address com o novo endereço primário
+      const { data: newPrimaryAddress } = await supabase
+        .from("user_addresses")
+        .select("*")
+        .eq("id", addressId)
+        .single();
+      
+      if (newPrimaryAddress) {
+        const fullAddress = `${newPrimaryAddress.street}, ${newPrimaryAddress.number}${newPrimaryAddress.complement ? ', ' + newPrimaryAddress.complement : ''}, ${newPrimaryAddress.neighborhood}, ${newPrimaryAddress.city} - ${newPrimaryAddress.state}`;
+        
+        await supabase
+          .from('profiles')
+          .update({ address: fullAddress })
+          .eq('user_id', user!.id);
+      }
+      
       toast.success("Endereço principal atualizado");
       fetchAddresses();
     } catch (error) {

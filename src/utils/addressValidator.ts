@@ -90,6 +90,34 @@ export function formatAddress(parsed: ParsedAddress): string {
   return parts.join(', ');
 }
 
+export interface StructuredAddress {
+  street: string;
+  number: string;
+  neighborhood: string;
+  city?: string;
+  state?: string;
+}
+
+export function isStructuredAddressComplete(address: StructuredAddress | null): { complete: boolean; reason: string | null } {
+  if (!address) {
+    return { complete: false, reason: 'Endereço não cadastrado' };
+  }
+  
+  if (!address.street || address.street.trim().length < 3) {
+    return { complete: false, reason: 'Rua não informada' };
+  }
+  
+  if (!address.number || address.number.trim().length === 0) {
+    return { complete: false, reason: 'Número da residência não informado' };
+  }
+  
+  if (!address.neighborhood || address.neighborhood.trim().length < 2) {
+    return { complete: false, reason: 'Bairro não informado' };
+  }
+  
+  return { complete: true, reason: null };
+}
+
 export function isAddressComplete(address: string | null): { complete: boolean; reason: string | null } {
   if (!address || address.length < 10) {
     return { complete: false, reason: 'Endereço não cadastrado ou muito curto' };

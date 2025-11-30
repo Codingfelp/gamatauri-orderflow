@@ -10,7 +10,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { AddressSelectorModal } from "./AddressSelectorModal";
-import { isAddressComplete } from "@/utils/addressValidator";
+import { isStructuredAddressComplete } from "@/utils/addressValidator";
 
 interface CartItem {
   id: string;
@@ -75,9 +75,14 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       if (address) {
         setSelectedAddress(address);
         
-        // Validar endereço
-        const fullAddress = `${address.street}, ${address.number}, ${address.neighborhood}`;
-        const validation = isAddressComplete(fullAddress);
+        // Validar endereço usando estrutura direta
+        const validation = isStructuredAddressComplete({
+          street: address.street,
+          number: address.number,
+          neighborhood: address.neighborhood,
+          city: address.city,
+          state: address.state
+        });
         setAddressValid(validation.complete);
         
         if (!validation.complete) {
@@ -86,14 +91,14 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
             description: validation.reason || "Complete seu endereço para continuar",
             variant: "destructive",
           });
-          return;
+          // Não retornar aqui - permitir que o usuário veja o endereço e possa corrigir
         }
         
-        // Se já tem frete calculado, usar
-        if (address.shipping_fee !== null) {
+        // Calcular frete mesmo se endereço incompleto (mas não permitir checkout)
+        if (address.shipping_fee !== null && validation.complete) {
           setShippingFee(address.shipping_fee);
-        } else {
-          // Calcular frete automaticamente
+        } else if (validation.complete) {
+          // Calcular frete automaticamente apenas se endereço válido
           await calculateAndSaveShipping(address);
         }
       }
@@ -143,9 +148,14 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const handleAddressSelect = async (address: Address) => {
     setSelectedAddress(address);
     
-    // Validar endereço
-    const fullAddress = `${address.street}, ${address.number}, ${address.neighborhood}`;
-    const validation = isAddressComplete(fullAddress);
+    // Validar endereço usando estrutura direta
+    const validation = isStructuredAddressComplete({
+      street: address.street,
+      number: address.number,
+      neighborhood: address.neighborhood,
+      city: address.city,
+      state: address.state
+    });
     setAddressValid(validation.complete);
     
     if (!validation.complete) {
@@ -154,6 +164,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         description: validation.reason || "Complete seu endereço",
         variant: "destructive",
       });
+      setShippingFee(0); // Resetar frete
       return;
     }
     
