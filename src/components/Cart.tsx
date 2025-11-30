@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronRight, Tag } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronDown, Tag } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
@@ -339,7 +339,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                   ) : selectedAddress && !addressValid ? (
                     <span className="text-xs text-destructive">Incompleto</span>
                   ) : null}
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </div>
               </button>
 
@@ -352,7 +352,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                       {appliedCoupon ? appliedCoupon.description : "Adicionar cupom"}
                     </span>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="flex gap-2 px-4 pb-3">
