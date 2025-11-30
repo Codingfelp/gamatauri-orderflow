@@ -96,6 +96,16 @@ const Checkout = () => {
       return;
     }
 
+    // VALIDAÇÃO CRÍTICA: Verificar se o frete foi calculado
+    if (shippingFee === 0) {
+      toast({
+        title: "Frete não calculado",
+        description: "O valor do frete ainda não foi calculado. Volte ao carrinho e aguarde o cálculo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validar endereço completo
     const addressValidation = validateAddress(formData.customer_address);
     if (!addressValidation.valid) {

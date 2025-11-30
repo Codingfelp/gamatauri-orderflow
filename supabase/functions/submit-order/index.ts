@@ -36,7 +36,7 @@ const OrderSchema = z.object({
   payment_timing: z.string().optional(),
   items: z.array(OrderItemSchema).min(1).max(50),
   notes: z.string().max(1000).trim().optional().nullable(),
-  delivery_fee: z.number().min(0).max(1000).default(0),
+  delivery_fee: z.number().nonnegative().max(1000),
   change_for: z.string().max(50).optional().nullable(),
   card_info: z.object({
     holder: z.string().max(100),
@@ -54,6 +54,34 @@ serve(async (req) => {
   try {
     const rawData = await req.json();
     const orderData = OrderSchema.parse(rawData);
+
+    // VALIDAÇÃO CRÍTICA: Verificar se o frete foi calculado
+    if (orderData.delivery_fee === 0 || orderData.delivery_fee === null || orderData.delivery_fee === undefined) {
+      console.error('❌ ERRO CRÍTICO: Pedido enviado sem valor de frete calculado', {
+        customer_phone: orderData.customer_phone,
+        customer_address: orderData.customer_address,
+        delivery_fee: orderData.delivery_fee,
+        timestamp: new Date().toISOString()
+      });
+      
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'O valor do frete não foi calculado. Por favor, recarregue o carrinho e tente novamente.',
+          code: 'MISSING_SHIPPING_FEE'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    console.log('✅ Pedido recebido com frete calculado:', {
+      customer_phone: orderData.customer_phone,
+      delivery_fee: orderData.delivery_fee,
+      timestamp: new Date().toISOString()
+    });
 
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
