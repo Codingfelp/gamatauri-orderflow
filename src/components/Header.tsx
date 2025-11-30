@@ -9,7 +9,7 @@ import { ActiveOrderBanner } from "@/components/ActiveOrderBanner";
 import { AddressSelectorModal } from "@/components/AddressSelectorModal";
 import { ProfileIncompleteAlert } from "@/components/ProfileIncompleteAlert";
 import { AddressIncompleteAlert } from "@/components/AddressIncompleteAlert";
-import { isAddressComplete } from "@/utils/addressValidator";
+import { isStructuredAddressComplete } from "@/utils/addressValidator";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/gamatauri-logo.png";
 
@@ -94,13 +94,14 @@ export const Header = () => {
     if (!user) return;
     
     try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('address')
+      const { data: address } = await supabase
+        .from('user_addresses')
+        .select('street, number, neighborhood, city, state')
         .eq('user_id', user.id)
-        .single();
+        .eq('is_primary', true)
+        .maybeSingle();
       
-      const validation = isAddressComplete(profile?.address);
+      const validation = isStructuredAddressComplete(address);
       if (!validation.complete) {
         setAddressIncompleteReason(validation.reason);
       } else {
