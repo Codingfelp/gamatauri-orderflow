@@ -128,16 +128,31 @@ export function isAddressComplete(address: string | null): { complete: boolean; 
     return { complete: false, reason: 'Endereço sem número da residência' };
   }
   
-  const parts = address.split(',').map(p => p.trim());
-  if (parts.length < 2) {
-    return { complete: false, reason: 'Endereço sem bairro (use vírgula para separar)' };
-  }
-  
-  // Verificar se tem bairro válido (não pode ser só número ou muito curto)
-  const neighborhoodPart = parts[1];
-  if (!neighborhoodPart || neighborhoodPart.length < 3 || /^\d+$/.test(neighborhoodPart)) {
-    return { complete: false, reason: 'Bairro inválido ou ausente' };
-  }
-  
   return { complete: true, reason: null };
+}
+
+/**
+ * Validação flexível para checkout que confia no cálculo de frete.
+ * Se o frete foi calculado com sucesso (> 0), o endereço é considerado válido.
+ */
+export function isAddressValidForCheckout(
+  address: string | null, 
+  shippingFee: number
+): { valid: boolean; reason: string | null } {
+  // Se o frete foi calculado com sucesso, endereço é válido
+  if (shippingFee > 0) {
+    return { valid: true, reason: null };
+  }
+  
+  // Validação básica se não tem frete ainda
+  if (!address || address.trim().length < 10) {
+    return { valid: false, reason: 'Endereço muito curto' };
+  }
+  
+  // Deve ter pelo menos um número (da residência)
+  if (!/\d+/.test(address)) {
+    return { valid: false, reason: 'Endereço sem número' };
+  }
+  
+  return { valid: true, reason: null };
 }

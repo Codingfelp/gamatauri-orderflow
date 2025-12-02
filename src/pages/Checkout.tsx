@@ -12,7 +12,7 @@ import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
-import { validateAddress, isAddressComplete } from "@/utils/addressValidator";
+import { isAddressValidForCheckout } from "@/utils/addressValidator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type CartItem = OrderItem;
@@ -70,11 +70,13 @@ const Checkout = () => {
             customer_address: preFilledAddress || data.address || '',
           }));
           
-          // Validar endereço do perfil
-          const validation = isAddressComplete(data.address);
-          setCanSubmit(validation.complete);
-          if (!validation.complete) {
+          // Validar endereço - se frete já veio calculado, endereço é válido
+          const validation = isAddressValidForCheckout(preFilledAddress || data.address, shippingFee);
+          setCanSubmit(validation.valid);
+          if (!validation.valid) {
             setAddressError(validation.reason || "Endereço incompleto");
+          } else {
+            setAddressError("");
           }
         }
       };
@@ -106,13 +108,12 @@ const Checkout = () => {
       return;
     }
 
-    // Validar endereço completo
-    const addressValidation = validateAddress(formData.customer_address);
-    if (!addressValidation.valid) {
-      setAddressError(addressValidation.errors.join('. '));
+    // Validação mínima: tem conteúdo e tem número
+    if (!formData.customer_address || formData.customer_address.trim().length < 10) {
+      setAddressError("Endereço muito curto");
       toast({
-        title: "Endereço incompleto",
-        description: "Por favor, complete seu endereço com rua, número e bairro",
+        title: "Endereço inválido",
+        description: "Por favor, informe um endereço de entrega válido",
         variant: "destructive",
       });
       return;
@@ -269,12 +270,12 @@ const Checkout = () => {
                         setFormData({ ...formData, customer_address: e.target.value });
                         setAddressError("");
                       }}
-                      placeholder="Ex: Rua Arauá, 220, São Paulo (bairro), Belo Horizonte - MG"
+                      placeholder="Ex: Rua Arauá 220 São Paulo, Belo Horizonte"
                       rows={3}
                       className={`text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none bg-background ${addressError ? 'border-destructive' : ''}`}
                     />
                     <p className="text-xs text-muted-foreground">
-                      💡 Informe rua, número, bairro e cidade (separados por vírgula)
+                      💡 Informe rua, número, bairro e cidade
                     </p>
                     {addressError && (
                       <Alert variant="destructive" className="mt-2">
