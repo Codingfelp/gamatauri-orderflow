@@ -922,8 +922,8 @@ export const getProductColor = (productName: string, flavor: string, category?: 
     return { type: 'color', value: BRAND_COLORS[firstTwoWords] };
   }
   
-  // 5. Fallback padrão
-  return { type: 'color', value: '#4169E1' };
+  // 5. Fallback padrão - cinza quase branco (elegante e neutro)
+  return { type: 'color', value: '#F5F5F5' };
 };
 
 export function groupProductsByVariants(
@@ -977,7 +977,7 @@ export function groupProductsByVariants(
         priceRange: { min: Infinity, max: -Infinity },
         brandColor: (() => {
           const bg = getProductColor(product.name, parsed.flavor);
-          return bg.type === 'color' ? bg.value : '#4169E1';
+          return bg.type === 'color' ? bg.value : '#F5F5F5';
         })(),
         availableCount: 0
       };

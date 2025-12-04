@@ -61,7 +61,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
     ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { background: productBg.value };
   
-  const buttonColor = productBg.type === 'color' ? productBg.value : '#4169E1';
+  const buttonColor = productBg.type === 'color' ? productBg.value : '#F5F5F5';
   
   return (
     <>
