@@ -1,9 +1,11 @@
-import { Sparkles, RefreshCw } from "lucide-react";
+import { Sparkles, RefreshCw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CategoryProductRow } from "./CategoryProductRow";
+import { CompactProductCard } from "./CompactProductCard";
 import { useRecommendations } from "@/hooks/useRecommendations";
 import type { Product } from "@/services/productsService";
 import { motion } from "framer-motion";
+import useEmblaCarousel from "embla-carousel-react";
+import { useCallback, useEffect, useState } from "react";
 
 interface RecommendedSectionProps {
   allProducts: Product[];
@@ -18,17 +20,50 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
     refreshRecommendations,
     getTopRecurrentProducts,
     getSimilarProducts,
-    getComboProducts,
   } = useRecommendations(allProducts);
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+    align: 'start',
+    containScroll: 'trimSnaps',
+    dragFree: true,
+  });
+
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    const onSelect = () => {
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+    
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    onSelect();
+    
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi]);
 
   if (loading) {
     return (
-      <div className="mb-8 bg-card/30 rounded-2xl border border-border/40 p-5 animate-pulse">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="h-5 w-5 bg-primary/20 rounded-full" />
-          <div className="h-5 w-32 bg-primary/20 rounded" />
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-3 px-1">
+          <div className="h-4 w-4 bg-primary/10 rounded animate-pulse" />
+          <div className="h-4 w-28 bg-primary/10 rounded animate-pulse" />
         </div>
-        <div className="h-32 bg-muted/20 rounded-xl" />
+        <div className="flex gap-3 overflow-hidden">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="w-[100px] h-[140px] bg-muted/30 rounded-xl animate-pulse flex-shrink-0" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -44,13 +79,13 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
     allRecommended = [
       ...getTopRecurrentProducts(allProducts),
       ...getSimilarProducts(allProducts),
-    ].slice(0, 8);
+    ].slice(0, 10);
   } else {
     // Novo usuário - produtos populares
     title = "Produtos em destaque";
     allRecommended = allProducts
       .filter(p => p.available)
-      .slice(0, 8);
+      .slice(0, 10);
   }
 
   // Não mostrar se não houver produtos
@@ -60,43 +95,61 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mb-8 bg-card/30 backdrop-blur-sm rounded-2xl border border-border/40 p-5"
+      className="mb-6"
     >
-      {/* Header minimalista */}
-      <div className="flex items-center justify-between mb-3">
+      {/* Header elegante */}
+      <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary/60" />
-          <h2 className="text-sm font-medium text-muted-foreground">
+          <div className="p-1 rounded-md bg-primary/10">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+          </div>
+          <h2 className="text-sm font-semibold text-foreground">
             {title}
           </h2>
+          {totalOrders > 0 && (
+            <span className="text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">
+              {totalOrders} {totalOrders === 1 ? 'pedido' : 'pedidos'}
+            </span>
+          )}
         </div>
         
         <Button
           variant="ghost"
           size="sm"
           onClick={refreshRecommendations}
-          className="h-7 w-7 p-0 hover:bg-accent"
+          className="h-7 px-2 text-muted-foreground hover:text-foreground"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </Button>
       </div>
 
-      {/* Carousel único */}
-      <CategoryProductRow
-        category=""
-        products={allRecommended}
-        onAddToCart={onAddToCart}
-      />
-
-      {/* Footer discreto */}
-      {totalOrders > 0 && (
-        <p className="text-[10px] text-muted-foreground/60 mt-3">
-          Baseado em {totalOrders} {totalOrders === 1 ? 'pedido' : 'pedidos'}
-        </p>
-      )}
+      {/* Carrossel fluido */}
+      <div className="relative">
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex gap-3">
+            {allRecommended.map((product) => (
+              <CompactProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+              />
+            ))}
+          </div>
+        </div>
+        
+        {/* Botão de scroll discreto */}
+        {canScrollNext && (
+          <button
+            onClick={scrollNext}
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all z-10"
+          >
+            <ChevronRight className="h-4 w-4 text-foreground" />
+          </button>
+        )}
+      </div>
     </motion.div>
   );
 };
