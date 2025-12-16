@@ -49,11 +49,11 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         onClick={() => setIsModalOpen(true)}
       >
         {/* Card chip-style com animação hover */}
-        <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible">
+        <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible pt-6">
           {/* Área colorida menor */}
           <div className="relative px-2 pt-2">
             <div
-              className="relative h-[40px] sm:h-[48px] rounded-xl overflow-hidden flex items-center justify-center"
+              className="relative h-[40px] sm:h-[48px] rounded-xl flex items-center justify-center"
               style={backgroundStyle}
             >
               {isOutOfStock && (
@@ -63,26 +63,29 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                   </span>
                 </div>
               )}
+
+              {/* Badge de variantes */}
+              {variants.length > 1 && (
+                <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[8px] px-1.5 py-0.5 rounded-full z-20">
+                  +{variants.length - 1}
+                </div>
+              )}
+            </div>
+            {/* Imagem posicionada acima do fundo colorido */}
+            <div className="absolute inset-x-2 top-0 h-[70px] sm:h-[80px] flex items-center justify-center pointer-events-none">
               {displayImage ? (
                 <img
                   src={displayImage}
                   alt={`${baseProduct.brand} ${baseProduct.size || ""}`}
                   loading="lazy"
                   decoding="async"
-                  className="max-w-[85%] max-h-[90%] object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="max-w-[80%] max-h-[65px] sm:max-h-[75px] object-contain transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />
               ) : (
-                <Package className="w-8 h-8 text-white/40" />
-              )}
-
-              {/* Badge de variantes */}
-              {variants.length > 1 && (
-                <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[8px] px-1.5 py-0.5 rounded-full">
-                  +{variants.length - 1}
-                </div>
+                <Package className="w-8 h-8 text-muted-foreground/40" />
               )}
             </div>
           </div>

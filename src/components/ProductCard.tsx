@@ -39,11 +39,11 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
       }`}
     >
       {/* Card chip-style com animação hover */}
-      <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible">
+      <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible pt-6">
         {/* Área colorida menor */}
         <div className="relative px-2 pt-2">
           <div
-            className="relative h-[40px] sm:h-[48px] rounded-xl overflow-hidden flex items-center justify-center"
+            className="relative h-[40px] sm:h-[48px] rounded-xl flex items-center justify-center"
             style={backgroundStyle}
           >
             {isOutOfStock && (
@@ -51,6 +51,9 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
                 <span className="text-[8px] font-bold text-white bg-destructive px-1.5 py-0.5 rounded">Esgotado</span>
               </div>
             )}
+          </div>
+          {/* Imagem posicionada acima do fundo colorido */}
+          <div className="absolute inset-x-2 top-0 h-[70px] sm:h-[80px] flex items-center justify-center pointer-events-none">
             {product.image_url &&
             product.image_url !== "SIM" &&
             !product.image_url.startsWith("data:image") &&
@@ -60,13 +63,13 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className="max-w-[85%] max-h-[90%] object-contain transition-transform duration-300 group-hover:scale-105"
+                className="max-w-[80%] max-h-[65px] sm:max-h-[75px] object-contain transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
               />
             ) : (
-              <Package className="w-8 h-8 text-white/40" />
+              <Package className="w-8 h-8 text-muted-foreground/40" />
             )}
           </div>
         </div>

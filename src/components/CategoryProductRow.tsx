@@ -51,17 +51,6 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
 
   return (
     <div className="mb-3 px-4">
-      <div className="flex items-center justify-end mb-2">
-        {totalCount > 8 && (
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="w-7 h-7 bg-primary hover:bg-primary/90 rounded-lg flex items-center justify-center text-white font-bold text-sm transition-colors"
-          >
-            {showAll ? "−" : "+"}
-          </button>
-        )}
-      </div>
-
       {!showAll ? (
         <div className="relative group">
           {canScrollPrev && (
@@ -76,7 +65,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
           )}
 
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-2 pl-1 pr-4 py-2">
+            <div className="flex gap-2 pl-1 pr-4 py-2 items-center">
               {hasVariants ? (
                 itemsToDisplay.map((group: any) => (
                   <div key={group.groupKey} className="flex-[0_0_115px] sm:flex-[0_0_135px] md:flex-[0_0_155px]">
@@ -93,6 +82,17 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
                   </div>
                 ))
               )}
+              {/* Botão + no final do carrossel */}
+              {totalCount > 8 && (
+                <div className="flex-[0_0_40px] flex items-center justify-center">
+                  <button
+                    onClick={() => setShowAll(true)}
+                    className="w-8 h-8 bg-primary hover:bg-primary/90 rounded-lg flex items-center justify-center text-white font-bold text-sm transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -108,24 +108,35 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-3">
-          {hasVariants ? (
-            itemsToDisplay.map((group: any) => (
-              <ProductVariantCard
-                key={group.groupKey}
-                productGroup={group}
-                onAddToCart={onAddToCart}
-              />
-            ))
-          ) : (
-            itemsToDisplay.map((product: any) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-              />
-            ))
-          )}
+        <div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-3">
+            {hasVariants ? (
+              itemsToDisplay.map((group: any) => (
+                <ProductVariantCard
+                  key={group.groupKey}
+                  productGroup={group}
+                  onAddToCart={onAddToCart}
+                />
+              ))
+            ) : (
+              itemsToDisplay.map((product: any) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={onAddToCart}
+                />
+              ))
+            )}
+          </div>
+          {/* Botão − para recolher */}
+          <div className="flex justify-center mt-3">
+            <button
+              onClick={() => setShowAll(false)}
+              className="w-8 h-8 bg-primary hover:bg-primary/90 rounded-lg flex items-center justify-center text-white font-bold text-sm transition-colors"
+            >
+              −
+            </button>
+          </div>
         </div>
       )}
     </div>
