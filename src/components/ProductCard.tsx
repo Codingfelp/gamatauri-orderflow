@@ -39,11 +39,12 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
       }`}
     >
       {/* Card chip-style com animação hover */}
-      <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible pt-6">
-        {/* Área colorida menor */}
-        <div className="relative px-2 pt-2">
+      <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden">
+        {/* Área da imagem com fundo colorido na parte inferior */}
+        <div className="relative h-[75px] sm:h-[85px] mx-2 mt-2">
+          {/* Fundo colorido posicionado na metade inferior */}
           <div
-            className="relative h-[40px] sm:h-[48px] rounded-xl flex items-center justify-center"
+            className="absolute bottom-0 left-0 right-0 h-[40px] sm:h-[45px] rounded-xl"
             style={backgroundStyle}
           >
             {isOutOfStock && (
@@ -52,8 +53,8 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
               </div>
             )}
           </div>
-          {/* Imagem posicionada acima do fundo colorido */}
-          <div className="absolute inset-x-2 top-0 h-[70px] sm:h-[80px] flex items-center justify-center pointer-events-none">
+          {/* Imagem centralizada, "vazando" para cima do fundo colorido */}
+          <div className="absolute inset-0 flex items-center justify-center">
             {product.image_url &&
             product.image_url !== "SIM" &&
             !product.image_url.startsWith("data:image") &&
@@ -63,7 +64,7 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className="max-w-[80%] max-h-[65px] sm:max-h-[75px] object-contain transition-transform duration-300 group-hover:scale-105"
+                className="max-w-[85%] max-h-[70px] sm:max-h-[80px] object-contain transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
