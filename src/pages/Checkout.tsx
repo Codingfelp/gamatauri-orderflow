@@ -316,31 +316,16 @@ const Checkout = () => {
                   </div>
                   <div className={`
                     relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'credito' 
+                    ${formData.payment_method === 'cartao' 
                       ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-lg scale-[1.02]' 
                       : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40 hover:bg-[hsl(var(--card-payment))]/5'}
                   `}>
-                    <RadioGroupItem value="credito" id="credito" className="scale-125" />
-                    <Label htmlFor="credito" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'credito' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
+                    <RadioGroupItem value="cartao" id="cartao" className="scale-125" />
+                    <Label htmlFor="cartao" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
+                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'cartao' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
                       <div>
-                        <div className="font-bold">Pagar na entrega com Cartão de Crédito</div>
+                        <div className="font-bold">Pagar na entrega com Cartão</div>
                         <div className="text-xs text-muted-foreground">Débito ou crédito</div>
-                      </div>
-                    </Label>
-                  </div>
-                  <div className={`
-                    relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'debito' 
-                      ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-lg scale-[1.02]' 
-                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40 hover:bg-[hsl(var(--card-payment))]/5'}
-                  `}>
-                    <RadioGroupItem value="debito" id="debito" className="scale-125" />
-                    <Label htmlFor="debito" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'debito' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
-                      <div>
-                        <div className="font-bold">Pagar na entrega com Cartão de Débito</div>
-                        <div className="text-xs text-muted-foreground">Débito</div>
                       </div>
                     </Label>
                   </div>

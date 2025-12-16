@@ -103,7 +103,7 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
       {/* Header - mesma fonte de Marcas Famosas */}
       <div className="flex items-center justify-between mb-4 px-4">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-bold text-card-foreground">
+          <h2 className="text-2xl font-bold text-card-foreground uppercase">
             {title}
           </h2>
           {totalOrders > 0 && (

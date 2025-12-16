@@ -40,10 +40,10 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
     >
       {/* Card chip-style com animação hover */}
       <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible">
-        {/* Área colorida menor com produto vazando mais */}
+        {/* Área colorida menor */}
         <div className="relative px-2 pt-2">
           <div
-            className="relative h-[82px] sm:h-[92px] rounded-xl overflow-hidden flex items-center justify-center"
+            className="relative h-[40px] sm:h-[48px] rounded-xl overflow-hidden flex items-center justify-center"
             style={backgroundStyle}
           >
             {isOutOfStock && (

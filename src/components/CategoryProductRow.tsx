@@ -50,17 +50,15 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
   }, [emblaApi]);
 
   return (
-    <div className="mb-6 px-4">
-      <div className="flex items-center justify-end mb-3">
+    <div className="mb-3 px-4">
+      <div className="flex items-center justify-end mb-2">
         {totalCount > 8 && (
-          <Button
+          <button
             onClick={() => setShowAll(!showAll)}
-            variant="ghost"
-            size="sm"
-            className="text-primary hover:text-primary/80 text-xs"
+            className="w-7 h-7 bg-primary hover:bg-primary/90 rounded-lg flex items-center justify-center text-white font-bold text-sm transition-colors"
           >
-            {showAll ? "Ver menos" : `Ver todos (${totalCount})`}
-          </Button>
+            {showAll ? "−" : "+"}
+          </button>
         )}
       </div>
 
