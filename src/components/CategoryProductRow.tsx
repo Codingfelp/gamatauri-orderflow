@@ -81,7 +81,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
             <div className="flex gap-2 pl-1 pr-4">
               {hasVariants ? (
                 itemsToDisplay.map((group: any) => (
-                  <div key={group.groupKey} className="flex-[0_0_100px] sm:flex-[0_0_120px] md:flex-[0_0_140px]">
+                  <div key={group.groupKey} className="flex-[0_0_115px] sm:flex-[0_0_135px] md:flex-[0_0_155px]">
                     <ProductVariantCard
                       productGroup={group}
                       onAddToCart={onAddToCart}
@@ -90,7 +90,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
                 ))
               ) : (
                 itemsToDisplay.map((product: any) => (
-                  <div key={product.id} className="flex-[0_0_100px] sm:flex-[0_0_120px] md:flex-[0_0_140px]">
+                  <div key={product.id} className="flex-[0_0_115px] sm:flex-[0_0_135px] md:flex-[0_0_155px]">
                     <ProductCard product={product} onAddToCart={onAddToCart} />
                   </div>
                 ))

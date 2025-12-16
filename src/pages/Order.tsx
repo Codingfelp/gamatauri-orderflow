@@ -237,26 +237,26 @@ const Order = () => {
 
         {/* 2. BUSCA COM VOZ */}
         <div className="mb-8 px-4 max-w-2xl mx-auto relative">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground pointer-events-none" />
           <Input
             type="text"
-            placeholder={isListening ? "Ouvindo..." : "Buscar produtos ou diga o que procura..."}
+            placeholder={isListening ? "Ouvindo..." : "Buscar produtos..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-lg py-7 pl-14 pr-16 rounded-xl bg-white shadow-sm border border-border/50 focus:shadow-lg focus:shadow-primary/20 focus:border-primary/50 transition-all duration-300 focus-visible:outline-none focus-visible:ring-0"
+            className="w-full text-sm sm:text-lg py-4 sm:py-7 pl-12 sm:pl-14 pr-12 sm:pr-16 rounded-xl bg-white shadow-sm border border-border/50 focus:shadow-lg focus:shadow-primary/20 focus:border-primary/50 transition-all duration-300 focus-visible:outline-none focus-visible:ring-0"
           />
           {isSupported && (
             <button
               onClick={startListening}
               disabled={isListening}
-              className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
+              className={`absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 rounded-lg transition-colors ${
                 isListening 
                   ? 'bg-primary text-primary-foreground animate-pulse' 
                   : 'hover:bg-accent'
               }`}
               aria-label="Buscar por voz"
             >
-              {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              {isListening ? <MicOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Mic className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
           )}
         </div>

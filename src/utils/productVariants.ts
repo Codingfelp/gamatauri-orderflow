@@ -166,82 +166,99 @@ const BRAND_COLORS: Record<string, string> = {
   'santa carolina': '#3E2723',
   'aurora': '#3E2723',
   
-  // DESTILADOS - WHISKY
-  'red label': '#B31B1B',
-  'johnnie walker red': '#B31B1B',
-  'johnnie walker black': '#1C1C1C',
-  'johnnie walker': '#D4AF37',
-  'jack daniels': '#1C1C1C',
-  "jack daniel's": '#1C1C1C',
-  'jack daniel': '#1C1C1C',
-  'ballantines': '#FFD700',
-  "ballantine's": '#FFD700',
-  'chivas': '#8B4513',
-  'old parr': '#D4AF37',
-  'whisky': '#D2691E',
-  'whiskey': '#D2691E',
+  // DESTILADOS - WHISKY (tons âmbar, dourado, amadeirados)
+  'red label': '#B8860B',                      // Dourado escuro
+  'johnnie walker red': '#B8860B',
+  'johnnie walker black': '#2D2D2D',           // Preto elegante
+  'johnnie walker': '#DAA520',                 // Dourado clássico
+  'jack daniels': '#2F1B0C',                   // Marrom whisky escuro
+  "jack daniel's": '#2F1B0C',
+  'jack daniel': '#2F1B0C',
+  'ballantines': '#D4A64D',                    // Âmbar dourado
+  "ballantine's": '#D4A64D',
+  'chivas': '#8B4513',                         // Marrom amadeirado
+  'old parr': '#C9A961',                       // Dourado envelhecido
+  'jameson': '#006600',                        // Verde irlandês
+  'whisky': '#D4A64D',                         // Âmbar padrão
+  'whiskey': '#D4A64D',
   
-  // DESTILADOS - GIN
-  'beefeater pink': '#FFB6C1',
-  'beefeater': '#D3D3D3',
-  'tanqueray ten': '#8B008B',
-  'tanqueray': '#006B3F',
-  'gordons': '#FFD700',
-  "gordon's": '#FFD700',
-  'bombay sapphire': '#4169E1',
-  'bombay': '#4169E1',
+  // DESTILADOS - GIN (tons botânicos, verdes, frescos)
+  'beefeater pink': '#F48FB1',                 // Rosa morango
+  'beefeater': '#D32F2F',                      // Vermelho icônico
+  'tanqueray ten': '#00897B',                  // Verde-azulado premium
+  'tanqueray': '#006B54',                      // Verde botânico escuro
+  'gordons': '#FFE135',                        // Amarelo dourado
+  "gordon's": '#FFE135',
+  'bombay sapphire': '#4FC3F7',                // Azul safira cristalino
+  'bombay': '#4FC3F7',
+  'hendricks': '#2E7D32',                      // Verde pepino
   'eternity strawberry': '#FF69B4',
   'eternity tropical': '#FFA500',
   'eternity watermelon': '#FF1493',
   'eternity maca verde': '#90EE90',
   'eternity pessego': '#FFB6C1',
-  'eternity': '#8A2BE2',
-  'seagers': '#4169E1',
-  'gin': '#90EE90',
+  'eternity': '#9C27B0',                       // Roxo premium
+  'seagers': '#1E88E5',                        // Azul elegante
+  'gin': '#81C784',                            // Verde botânico suave
   
-  // DESTILADOS - VODKA
-  'absolut': '#4169E1',
-  'smirnoff': '#DC143C',
-  'ciroc': '#8A2BE2',
-  'skyy': '#4169E1',
-  'orloff': '#D3D3D3',
-  'vodka': '#D3D3D3',
+  // DESTILADOS - VODKA (tons gelados, cristalinos)
+  'absolut citron': '#F0E68C',                 // Limão suave
+  'absolut vanilia': '#FFF8DC',                // Baunilha creme
+  'absolut': '#B8C6D6',                        // Azul acinzentado gelado
+  'smirnoff': '#CC0000',                       // Vermelho icônico
+  'ciroc': '#A855F7',                          // Roxo luxuoso
+  'skyy': '#4A90D9',                           // Azul céu vibrante
+  'orloff': '#E8E8E8',                         // Prata elegante
+  'grey goose': '#F5F5F5',                     // Branco premium
+  'vodka': '#E5E7EB',                          // Cinza claro neutro
   
-  // DESTILADOS - RUM
-  'bacardi': '#FF1493',
-  'bacardi gold': '#FFD700',
-  'captain morgan': '#8B4513',
-  'montilla': '#8B4513',
-  'rum': '#8B4513',
+  // DESTILADOS - RUM (tons caramelo, dourado tropical)
+  'bacardi gold': '#DAA520',                   // Dourado
+  'bacardi oakheart': '#8B4513',               // Marrom carvalho
+  'bacardi': '#E0E0E0',                        // Branco/prata
+  'captain morgan': '#D4790A',                 // Laranja/caramelo
+  'montilla': '#C9A961',                       // Dourado envelhecido
+  'havana club': '#B8860B',                    // Dourado cubano
+  'malibu': '#00BCD4',                         // Azul tropical (coco)
+  'rum': '#C9A961',                            // Dourado padrão
   
   // DESTILADOS - TEQUILA
   'jose cuervo': '#FFD700',
   'olmeca': '#FFD700',
   'tequila': '#FFD700',
   
-  // DESTILADOS - CACHAÇA
-  'ypioca ouro': '#FFD700',
+  // DESTILADOS - CACHAÇA (tons de mel, palha)
+  'ypioca ouro': '#DAA520',                    // Ouro intenso
   'ypioca 150': '#D4AF37',
   'ypioca 160': '#C0C0C0',
   'ypioca cinco chaves': '#8B4513',
-  'ypioca': '#FFD700',
-  'ypióca': '#FFD700',
-  '51 ouro': '#FFD700',
-  '51': '#FFD700',
+  'ypioca': '#F0C75E',                         // Dourado mel
+  'ypióca': '#F0C75E',
+  '51 ouro': '#D4AF37',
+  '51': '#E6B800',                             // Amarelo dourado vibrante
   'cabare ouro': '#FFD700',
   'cabare amburana': '#8B4513',
-  'cabare': '#DC143C',
-  'cabaré': '#DC143C',
-  'seleta': '#90EE90',
-  'velho barreiro': '#D2691E',
+  'cabare': '#C41E3A',                         // Vermelho cereja
+  'cabaré': '#C41E3A',
+  'seleta': '#90EE90',                         // Verde refrescante
+  'velho barreiro': '#CD853F',                 // Marrom mel
+  'cachaça': '#F0C75E',
   
-  // DESTILADOS - OUTROS
-  'jagermeister': '#FF6600',
-  'jägermeister': '#FF6600',
-  'hennessy': '#8B4513',
-  'conhaque dreher': '#8B4513',
-  'dreher': '#8B4513',
-  'presidente': '#D4AF37',
+  // DESTILADOS - CONHAQUE E LICORES
+  'jagermeister': '#1B5E20',                   // Verde escuro herbal
+  'jägermeister': '#1B5E20',
+  'hennessy': '#B8860B',                       // Âmbar profundo
+  'courvoisier': '#C9A961',
+  'remy martin': '#D4A64D',
+  'conhaque dreher': '#A0522D',                // Marrom âmbar
+  'dreher': '#A0522D',
+  'presidente': '#DAA520',
+  'conhaque': '#B8860B',
+  'amarula': '#DEB887',                        // Creme caramelo
+  'kahlua': '#3E2723',                         // Marrom café
+  'baileys': '#D7CCC8',                        // Creme irlandês
+  'aperol': '#FF6600',                         // Laranja vibrante
+  'campari': '#DC143C',                        // Vermelho intenso
   
   // CHOCOLATES - BIS
   'bis oreo': 'linear-gradient(to bottom, #87CEEB 0%, #1C3D5A 100%)', // Azul claro → azul escuro
