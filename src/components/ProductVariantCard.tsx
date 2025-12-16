@@ -28,21 +28,26 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
     ? getProductColor(selectedVariant.name, selectedVariant.flavor, productGroup.baseProduct.category)
     : getProductColor(initialVariant.name, initialVariant.flavor, productGroup.baseProduct.category);
   
+  // Determinar o estilo de background baseado no tipo
+  const backgroundStyle = productBg.type === 'image' 
+    ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : { background: productBg.value };
+  
   return (
     <>
       <div 
         className={`flex-shrink-0 w-full group transition-all duration-300 cursor-pointer ${
-          isOutOfStock ? 'opacity-50' : ''
+          isOutOfStock ? 'opacity-50' : 'hover:-translate-y-1'
         }`}
         onClick={() => setIsModalOpen(true)}
       >
-        {/* Card chip-style compacto */}
-        <div className="bg-white rounded-2xl border border-border/20 shadow-sm hover:shadow-lg transition-all duration-300 overflow-visible">
+        {/* Card chip-style com animação hover */}
+        <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible">
           {/* Área colorida menor com produto vazando mais */}
           <div className="relative px-2 pt-2">
             <div 
-              className="relative h-[50px] sm:h-[60px] rounded-xl overflow-visible flex items-center justify-center"
-              style={{ background: productBg.value }}
+              className="relative h-[65px] sm:h-[75px] rounded-xl overflow-visible flex items-center justify-center"
+              style={backgroundStyle}
             >
               {isOutOfStock && (
                 <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-xl">

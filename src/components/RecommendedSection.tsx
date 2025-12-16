@@ -1,4 +1,4 @@
-import { Sparkles, RefreshCw, ChevronRight } from "lucide-react";
+import { RefreshCw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CompactProductCard } from "./CompactProductCard";
 import { useRecommendations } from "@/hooks/useRecommendations";
@@ -100,17 +100,14 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
       transition={{ duration: 0.3 }}
       className="mb-6"
     >
-      {/* Header elegante */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
-          <div className="p-1 rounded-md bg-primary/10">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-          </div>
-          <h2 className="text-sm font-semibold text-foreground">
+      {/* Header - mesma fonte de Marcas Famosas */}
+      <div className="flex items-center justify-between mb-4 px-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-2xl font-bold text-card-foreground">
             {title}
           </h2>
           {totalOrders > 0 && (
-            <span className="text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded-full">
+            <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
               {totalOrders} {totalOrders === 1 ? 'pedido' : 'pedidos'}
             </span>
           )}
@@ -120,9 +117,9 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
           variant="ghost"
           size="sm"
           onClick={refreshRecommendations}
-          className="h-7 px-2 text-muted-foreground hover:text-foreground"
+          className="h-8 px-2 text-muted-foreground hover:text-foreground"
         >
-          <RefreshCw className="h-3.5 w-3.5" />
+          <RefreshCw className="h-4 w-4" />
         </Button>
       </div>
 
