@@ -28,8 +28,8 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
   const hasVariants = productGroups.length > 0;
   
   const itemsToDisplay = hasVariants 
-    ? (showAll ? productGroups : productGroups.slice(0, 6))
-    : (showAll ? products : products.slice(0, 6));
+    ? (showAll ? productGroups : productGroups.slice(0, 8))
+    : (showAll ? products : products.slice(0, 8));
   
   const totalCount = hasVariants ? productGroups.length : products.length;
 
@@ -51,13 +51,13 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
 
   return (
     <div className="mb-6 px-4">
-      <div className="flex items-center justify-end mb-4">
-        {totalCount > 6 && (
+      <div className="flex items-center justify-end mb-3">
+        {totalCount > 8 && (
           <Button
             onClick={() => setShowAll(!showAll)}
             variant="ghost"
             size="sm"
-            className="text-primary hover:text-primary/80"
+            className="text-primary hover:text-primary/80 text-xs"
           >
             {showAll ? "Ver menos" : `Ver todos (${totalCount})`}
           </Button>
@@ -71,17 +71,17 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
               onClick={scrollPrev}
               variant="ghost"
               size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <ChevronLeft className="h-8 w-8" />
+              <ChevronLeft className="h-6 w-6" />
             </Button>
           )}
 
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-3 pl-4 pr-4">
+            <div className="flex gap-2 pl-1 pr-4">
               {hasVariants ? (
                 itemsToDisplay.map((group: any) => (
-                  <div key={group.groupKey} className="flex-[0_0_120px] sm:flex-[0_0_160px] md:flex-[0_0_180px]">
+                  <div key={group.groupKey} className="flex-[0_0_100px] sm:flex-[0_0_120px] md:flex-[0_0_140px]">
                     <ProductVariantCard
                       productGroup={group}
                       onAddToCart={onAddToCart}
@@ -90,7 +90,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
                 ))
               ) : (
                 itemsToDisplay.map((product: any) => (
-                  <div key={product.id} className="flex-[0_0_120px] sm:flex-[0_0_160px] md:flex-[0_0_180px]">
+                  <div key={product.id} className="flex-[0_0_100px] sm:flex-[0_0_120px] md:flex-[0_0_140px]">
                     <ProductCard product={product} onAddToCart={onAddToCart} />
                   </div>
                 ))
@@ -103,14 +103,14 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
               onClick={scrollNext}
               variant="ghost"
               size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <ChevronRight className="h-8 w-8" />
+              <ChevronRight className="h-6 w-6" />
             </Button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 md:gap-3">
           {hasVariants ? (
             itemsToDisplay.map((group: any) => (
               <ProductVariantCard
