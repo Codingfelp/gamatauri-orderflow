@@ -53,7 +53,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           {/* Área colorida menor com produto vazando mais */}
           <div className="relative px-2 pt-2">
             <div
-              className="relative h-[82px] sm:h-[92px] rounded-xl overflow-visible flex items-center justify-center"
+              className="relative h-[82px] sm:h-[92px] rounded-xl overflow-hidden flex items-center justify-center"
               style={backgroundStyle}
             >
               {isOutOfStock && (
@@ -69,7 +69,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                   alt={`${baseProduct.brand} ${baseProduct.size || ""}`}
                   loading="lazy"
                   decoding="async"
-                  className="w-[95%] h-[160%] object-contain transition-transform duration-300 group-hover:scale-110 -translate-y-5"
+                  className="max-w-[85%] max-h-[90%] object-contain transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
