@@ -15,9 +15,14 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
   
   const productBg = getProductColor(product.name, '', product.category || '');
   
+  // Determinar o estilo de background baseado no tipo
+  const backgroundStyle = productBg.type === 'image' 
+    ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : { background: productBg.value };
+  
   return (
     <div 
-      className={`flex-shrink-0 w-[110px] sm:w-[130px] group transition-all duration-300 ${
+      className={`flex-shrink-0 w-[120px] sm:w-[140px] group transition-all duration-300 ${
         isOutOfStock ? 'opacity-50' : 'hover:-translate-y-1'
       }`}
     >
@@ -26,8 +31,8 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
         {/* Área colorida com produto vazando */}
         <div className="relative px-2 pt-2">
           <div 
-            className="relative h-[70px] sm:h-[85px] rounded-xl overflow-visible flex items-center justify-center"
-            style={{ background: productBg.value }}
+            className="relative h-[75px] sm:h-[90px] rounded-xl overflow-visible flex items-center justify-center"
+            style={backgroundStyle}
           >
             {isOutOfStock && (
               <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-xl">
