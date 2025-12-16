@@ -38,10 +38,10 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
       >
         {/* Card chip-style compacto */}
         <div className="bg-white rounded-2xl border border-border/20 shadow-sm hover:shadow-lg transition-all duration-300 overflow-visible">
-          {/* Área colorida menor com produto vazando */}
+          {/* Área colorida menor com produto vazando mais */}
           <div className="relative px-2 pt-2">
             <div 
-              className="relative h-[80px] sm:h-[100px] rounded-xl overflow-visible flex items-center justify-center"
+              className="relative h-[50px] sm:h-[60px] rounded-xl overflow-visible flex items-center justify-center"
               style={{ background: productBg.value }}
             >
               {isOutOfStock && (
@@ -57,7 +57,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                   alt={`${baseProduct.brand} ${baseProduct.size || ''}`}
                   loading="lazy"
                   decoding="async"
-                  className="w-[85%] h-[120%] object-contain transition-transform duration-300 group-hover:scale-110 -translate-y-2"
+                  className="w-[95%] h-[160%] object-contain transition-transform duration-300 group-hover:scale-110 -translate-y-5"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
