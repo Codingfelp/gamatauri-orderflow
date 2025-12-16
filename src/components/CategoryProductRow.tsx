@@ -77,8 +77,8 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
             </Button>
           )}
 
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-2 pl-1 pr-4">
+          <div className="overflow-x-hidden overflow-y-visible" ref={emblaRef}>
+            <div className="flex gap-2 pl-1 pr-4 pt-5 pb-4">
               {hasVariants ? (
                 itemsToDisplay.map((group: any) => (
                   <div key={group.groupKey} className="flex-[0_0_115px] sm:flex-[0_0_135px] md:flex-[0_0_155px]">
