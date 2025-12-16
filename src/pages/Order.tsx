@@ -90,7 +90,13 @@ const Order = () => {
   }, [authLoading, user]);
 
   const scrollToProducts = () => {
-    productsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const el = productsRef.current;
+    if (!el) return;
+
+    // Offset para não colar no header/navegação fixa
+    const headerOffset = 96;
+    const top = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   };
 
   const loadProducts = async () => {
