@@ -1,13 +1,14 @@
 // ========================================
-// GAMATAURI PWA SERVICE WORKER v2.0
+// GAMATAURI PWA SERVICE WORKER v3.0
+// Auto-update system with aggressive cache busting
 // ========================================
 
-const CACHE_VERSION = 'v2.0.0';
+const CACHE_VERSION = 'v3.0.0';
 const CACHE_NAME = `gamatauri-${CACHE_VERSION}`;
 const API_CACHE = `gamatauri-api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `gamatauri-images-${CACHE_VERSION}`;
 
-// Assets críticos para cache (serão baixados na instalação)
+// Assets críticos para cache
 const STATIC_CACHE_URLS = [
   '/',
   '/index.html',
@@ -20,15 +21,28 @@ const API_URLS = [
 ];
 
 // ========================================
-// INSTALAÇÃO - Cachear assets críticos
+// INSTALAÇÃO - Cachear assets e limpar tudo antigo
 // ========================================
 self.addEventListener('install', (event) => {
   console.log('[SW] Instalando Service Worker v' + CACHE_VERSION);
   
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Cacheando assets críticos');
-      return cache.addAll(STATIC_CACHE_URLS);
+    // Limpar TODOS os caches antigos primeiro
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName.startsWith('gamatauri-')) {
+            console.log('[SW] Limpando cache antigo:', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => {
+      // Depois cachear assets novos
+      return caches.open(CACHE_NAME).then((cache) => {
+        console.log('[SW] Cacheando assets críticos');
+        return cache.addAll(STATIC_CACHE_URLS);
+      });
     }).catch((err) => {
       console.error('[SW] Erro ao cachear:', err);
     })
@@ -39,7 +53,7 @@ self.addEventListener('install', (event) => {
 });
 
 // ========================================
-// ATIVAÇÃO - Limpar caches antigos
+// ATIVAÇÃO - Garantir limpeza completa
 // ========================================
 self.addEventListener('activate', (event) => {
   console.log('[SW] Ativando Service Worker v' + CACHE_VERSION);
@@ -48,16 +62,27 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName.startsWith('gamatauri-') && cacheName !== CACHE_NAME && cacheName !== API_CACHE && cacheName !== IMAGE_CACHE) {
-            console.log('[SW] Deletando cache antigo:', cacheName);
+          // Limpar qualquer cache que não seja da versão atual
+          if (cacheName.startsWith('gamatauri-') && 
+              cacheName !== CACHE_NAME && 
+              cacheName !== API_CACHE && 
+              cacheName !== IMAGE_CACHE) {
+            console.log('[SW] Deletando cache obsoleto:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      // Notificar todos os clientes sobre a atualização
+      return self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'SW_UPDATED', version: CACHE_VERSION });
+        });
+      });
     })
   );
   
-  // Assumir controle imediatamente
+  // Assumir controle de todas as páginas imediatamente
   self.clients.claim();
 });
 
@@ -80,7 +105,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cachear apenas respostas bem-sucedidas
           if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(API_CACHE).then((cache) => {
@@ -90,13 +114,11 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Se falhar, tentar cache
           return caches.match(request).then((cached) => {
             if (cached) {
               console.log('[SW] API offline - servindo do cache:', request.url);
               return cached;
             }
-            // Fallback para offline page
             return caches.match('/index.html');
           });
         })
@@ -121,7 +143,6 @@ self.addEventListener('fetch', (event) => {
             }
             return response;
           }).catch(() => {
-            // Placeholder se imagem não carregar offline
             return new Response(
               '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#ccc"/></svg>',
               { headers: { 'Content-Type': 'image/svg+xml' } }
@@ -134,7 +155,29 @@ self.addEventListener('fetch', (event) => {
   }
   
   // ===============================
-  // ESTRATÉGIA 3: Outros Assets - Cache First
+  // ESTRATÉGIA 3: JS/CSS - Network First para garantir atualizações
+  // ===============================
+  if (request.destination === 'script' || request.destination === 'style') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+  
+  // ===============================
+  // ESTRATÉGIA 4: Outros Assets - Cache First
   // ===============================
   event.respondWith(
     caches.match(request).then((cached) => {
@@ -143,7 +186,6 @@ self.addEventListener('fetch', (event) => {
       }
       
       return fetch(request).then((response) => {
-        // Cachear apenas GET e respostas bem-sucedidas
         if (request.method === 'GET' && response && response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -152,7 +194,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       }).catch(() => {
-        // Fallback para index.html
         if (request.mode === 'navigate') {
           return caches.match('/index.html');
         }
@@ -162,7 +203,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 // ========================================
-// BACKGROUND SYNC - Sincronizar pedidos offline
+// BACKGROUND SYNC
 // ========================================
 self.addEventListener('sync', (event) => {
   console.log('[SW] Background Sync disparado:', event.tag);
@@ -174,7 +215,6 @@ self.addEventListener('sync', (event) => {
 
 async function syncPendingOrders() {
   console.log('[SW] Sincronizando pedidos pendentes...');
-  // Sincronização será implementada via IndexedDB
 }
 
 // ========================================
@@ -182,11 +222,26 @@ async function syncPendingOrders() {
 // ========================================
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] Recebido SKIP_WAITING, ativando nova versão');
     self.skipWaiting();
   }
   
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_VERSION });
+  }
+  
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName.startsWith('gamatauri-')) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    );
   }
 });
 
@@ -223,7 +278,7 @@ self.addEventListener('push', (event) => {
 });
 
 // ========================================
-// NOTIFICATION CLICK - Deep linking
+// NOTIFICATION CLICK
 // ========================================
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notificação clicada:', event.action);
@@ -239,10 +294,8 @@ self.addEventListener('notificationclick', (event) => {
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Se já tem uma janela aberta, focar nela
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
-          // Se tem carrinho, enviar mensagem para restaurar
           if (cartItems) {
             client.postMessage({
               type: 'RESTORE_CART',
@@ -253,11 +306,9 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       
-      // Se não tem janela aberta, abrir nova
       if (clients.openWindow) {
         let finalUrl = urlToOpen;
         if (cartItems) {
-          // Passar carrinho via query string
           finalUrl += `?restoreCart=true`;
         }
         return clients.openWindow(finalUrl);

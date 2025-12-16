@@ -17,45 +17,47 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
   
   return (
     <div 
-      className={`flex-shrink-0 w-[100px] sm:w-[110px] group transition-all duration-300 ${
-        isOutOfStock ? 'opacity-50' : ''
+      className={`flex-shrink-0 w-[110px] sm:w-[130px] group transition-all duration-300 ${
+        isOutOfStock ? 'opacity-50' : 'hover:-translate-y-1'
       }`}
     >
-      {/* Card vertical compacto */}
-      <div className="bg-white rounded-xl border border-border/30 shadow-sm hover:shadow-md transition-all overflow-hidden">
-        {/* Imagem quadrada */}
-        <div 
-          className="relative aspect-square w-full flex items-center justify-center p-2"
-          style={{ background: productBg.value }}
-        >
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
-              <span className="text-[8px] font-bold text-white bg-destructive px-1.5 py-0.5 rounded">
-                Esgotado
-              </span>
-            </div>
-          )}
-          {product.image_url && 
-           product.image_url !== 'SIM' && 
-           !product.image_url.startsWith('data:image') && 
-           product.image_url.length > 10 ? (
-            <img
-              src={product.image_url} 
-              alt={product.name}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          ) : (
-            <Package className="w-6 h-6 text-muted-foreground/30" />
-          )}
+      {/* Card chip-style para Recomendados - levemente maior com sombra hover */}
+      <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-visible">
+        {/* Área colorida com produto vazando */}
+        <div className="relative px-2 pt-2">
+          <div 
+            className="relative h-[70px] sm:h-[85px] rounded-xl overflow-visible flex items-center justify-center"
+            style={{ background: productBg.value }}
+          >
+            {isOutOfStock && (
+              <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-xl">
+                <span className="text-[8px] font-bold text-white bg-destructive px-1.5 py-0.5 rounded">
+                  Esgotado
+                </span>
+              </div>
+            )}
+            {product.image_url && 
+             product.image_url !== 'SIM' && 
+             !product.image_url.startsWith('data:image') && 
+             product.image_url.length > 10 ? (
+              <img
+                src={product.image_url} 
+                alt={product.name}
+                loading="lazy"
+                decoding="async"
+                className="w-[80%] h-[115%] object-contain transition-transform duration-300 group-hover:scale-110 -translate-y-1"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : (
+              <Package className="w-6 h-6 text-white/40" />
+            )}
+          </div>
         </div>
         
         {/* Info */}
-        <div className="p-2 space-y-1">
+        <div className="p-2 pt-1 space-y-1">
           <p className="text-[10px] font-medium text-foreground line-clamp-2 leading-tight min-h-[24px]">
             {product.name}
           </p>

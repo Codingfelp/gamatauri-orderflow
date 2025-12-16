@@ -6,7 +6,7 @@ import { toast } from "sonner";
 createRoot(document.getElementById("root")!).render(<App />);
 
 // ========================================
-// SERVICE WORKER REGISTRATION
+// SERVICE WORKER REGISTRATION - Auto-update system
 // ========================================
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -15,21 +15,33 @@ if ('serviceWorker' in navigator) {
       .then((registration) => {
         console.log('✓ Service Worker registrado:', registration.scope);
         
-        // Verificar atualizações a cada 1 hora
-        setInterval(() => {
-          registration.update();
-        }, 60 * 60 * 1000);
+        // Verificar atualizações a cada 5 minutos
+        const checkForUpdates = () => {
+          registration.update().catch(console.error);
+        };
         
-        // Detectar nova versão disponível e atualizar automaticamente
+        setInterval(checkForUpdates, 5 * 60 * 1000);
+        
+        // Verificar também quando a aba voltar a ficar visível
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') {
+            checkForUpdates();
+          }
+        });
+        
+        // Verificar ao reconectar à internet
+        window.addEventListener('online', checkForUpdates);
+        
+        // Detectar nova versão disponível
         registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Atualizar automaticamente sem toast
+                console.log('[SW] Nova versão detectada, atualizando...');
+                // Força atualização silenciosa
                 newWorker.postMessage({ type: 'SKIP_WAITING' });
-                // O controllerchange listener abaixo já vai recarregar a página
               }
             });
           }
@@ -44,7 +56,15 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (!refreshing) {
         refreshing = true;
+        console.log('[SW] Novo Service Worker ativo, recarregando...');
         window.location.reload();
+      }
+    });
+    
+    // Ouvir mensagens do Service Worker
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data && event.data.type === 'SW_UPDATED') {
+        console.log('[SW] Atualizado para versão:', event.data.version);
       }
     });
   });
