@@ -312,6 +312,30 @@ export type Database = {
         }
         Relationships: []
       }
+      store_settings: {
+        Row: {
+          closed_message: string | null
+          closed_reason: string | null
+          id: string
+          is_open: boolean
+          updated_at: string
+        }
+        Insert: {
+          closed_message?: string | null
+          closed_reason?: string | null
+          id?: string
+          is_open?: boolean
+          updated_at?: string
+        }
+        Update: {
+          closed_message?: string | null
+          closed_reason?: string | null
+          id?: string
+          is_open?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_addresses: {
         Row: {
           city: string

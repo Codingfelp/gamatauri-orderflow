@@ -3,6 +3,21 @@ import { supabase } from "@/integrations/supabase/client";
 
 type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
+interface OrderItem {
+  product_name: string;
+  quantity: number;
+  product_price: number;
+  subtotal: number;
+}
+
+interface CancelledOrderDetails {
+  orderId: string;
+  orderNumber: string;
+  totalAmount: number;
+  createdAt: string;
+  items: OrderItem[];
+}
+
 interface ActiveOrder {
   orderId: string;
   orderNumber: string;
@@ -14,6 +29,8 @@ interface ActiveOrderContextType {
   activeOrder: ActiveOrder | null;
   setActiveOrder: (order: ActiveOrder) => void;
   clearActiveOrder: () => void;
+  cancelledOrderDetails: CancelledOrderDetails | null;
+  clearCancelledOrder: () => void;
 }
 
 const ActiveOrderContext = createContext<ActiveOrderContextType | undefined>(undefined);
@@ -23,6 +40,7 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
     const stored = localStorage.getItem("activeOrder");
     return stored ? JSON.parse(stored) : null;
   });
+  const [cancelledOrderDetails, setCancelledOrderDetails] = useState<CancelledOrderDetails | null>(null);
 
   const setActiveOrder = (order: ActiveOrder) => {
     setActiveOrderState(order);
@@ -32,6 +50,47 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
   const clearActiveOrder = () => {
     setActiveOrderState(null);
     localStorage.removeItem("activeOrder");
+  };
+
+  const clearCancelledOrder = () => {
+    setCancelledOrderDetails(null);
+  };
+
+  // Fetch order items when an order is cancelled
+  const fetchCancelledOrderDetails = async (orderId: string) => {
+    try {
+      // Fetch order and its items
+      const { data: orderData, error: orderError } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("id", orderId)
+        .single();
+
+      if (orderError) {
+        console.error("Error fetching cancelled order:", orderError);
+        return;
+      }
+
+      const { data: itemsData, error: itemsError } = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", orderId);
+
+      if (itemsError) {
+        console.error("Error fetching order items:", itemsError);
+        return;
+      }
+
+      setCancelledOrderDetails({
+        orderId: orderData.id,
+        orderNumber: orderData.external_order_number || orderId.slice(0, 8).toUpperCase(),
+        totalAmount: orderData.total_amount,
+        createdAt: orderData.created_at,
+        items: itemsData || [],
+      });
+    } catch (error) {
+      console.error("Error fetching cancelled order details:", error);
+    }
   };
 
   // Subscribe to realtime updates for the active order
@@ -52,6 +111,13 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
           console.log("Order status updated via Realtime:", payload);
           const newStatus = payload.new.order_status as OrderStatus;
           
+          // Handle cancelled orders
+          if (newStatus === "cancelled") {
+            fetchCancelledOrderDetails(activeOrder.orderId);
+            clearActiveOrder();
+            return;
+          }
+
           // Update active order with new status
           setActiveOrder({
             ...activeOrder,
@@ -74,7 +140,13 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
   }, [activeOrder?.orderId]);
 
   return (
-    <ActiveOrderContext.Provider value={{ activeOrder, setActiveOrder, clearActiveOrder }}>
+    <ActiveOrderContext.Provider value={{ 
+      activeOrder, 
+      setActiveOrder, 
+      clearActiveOrder,
+      cancelledOrderDetails,
+      clearCancelledOrder 
+    }}>
       {children}
     </ActiveOrderContext.Provider>
   );
