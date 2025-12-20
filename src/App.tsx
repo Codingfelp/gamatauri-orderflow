@@ -6,7 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { OnlineStatus } from "@/components/OnlineStatus";
-import { ActiveOrderProvider } from "@/contexts/ActiveOrderContext";
+import { ActiveOrderProvider, useActiveOrder } from "@/contexts/ActiveOrderContext";
+import { StoreStatusProvider } from "@/contexts/StoreStatusContext";
+import { StoreClosedOverlay } from "@/components/StoreClosedOverlay";
+import { CancelledOrderModal } from "@/components/CancelledOrderModal";
 import { InstallPrompt } from "@/components/InstallPrompt";
 
 const Order = lazy(() => import("./pages/Order"));
@@ -33,41 +36,60 @@ const queryClient = new QueryClient({
   },
 });
 
+// Inner component to access ActiveOrder context
+const AppContent = () => {
+  const { cancelledOrderDetails, clearCancelledOrder } = useActiveOrder();
+
+  return (
+    <>
+      <CancelledOrderModal
+        isOpen={!!cancelledOrderDetails}
+        onClose={clearCancelledOrder}
+        orderDetails={cancelledOrderDetails}
+      />
+      <StoreClosedOverlay />
+      <BrowserRouter>
+        <Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center">
+            <LoadingSpinner size="lg" />
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<Order />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/success" element={<Success />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/busca" element={<Search />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/addresses" element={<Addresses />} />
+            <Route path="/install" element={<Install />} />
+            <Route path="/offline" element={<Offline />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/admin-sync" element={<AdminSync />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ActiveOrderProvider>
-      <TooltipProvider>
-        <OnlineStatus />
-        <InstallPrompt />
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center">
-              <LoadingSpinner size="lg" />
-            </div>
-          }>
-            <Routes>
-              <Route path="/" element={<Order />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/success" element={<Success />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/orders" element={<Orders />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/busca" element={<Search />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/addresses" element={<Addresses />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/offline" element={<Offline />} />
-              <Route path="/tasks" element={<Tasks />} />
-              <Route path="/admin-sync" element={<AdminSync />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ActiveOrderProvider>
+    <StoreStatusProvider>
+      <ActiveOrderProvider>
+        <TooltipProvider>
+          <OnlineStatus />
+          <InstallPrompt />
+          <Toaster />
+          <Sonner />
+          <AppContent />
+        </TooltipProvider>
+      </ActiveOrderProvider>
+    </StoreStatusProvider>
   </QueryClientProvider>
 );
 
