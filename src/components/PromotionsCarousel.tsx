@@ -7,7 +7,7 @@ export const PromotionsCarousel = () => {
         <img
           src={beatsPraiaBanner}
           alt="Combo BEATS - Leve 3 por 20"
-          className="w-full h-56 md:h-[220px] object-cover"
+          className="w-full h-36 md:h-[160px] object-cover"
         />
       </div>
     </div>
