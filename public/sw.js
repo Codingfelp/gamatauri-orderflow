@@ -1,13 +1,13 @@
 // ========================================
-// GAMATAURI PWA SERVICE WORKER v3.0
+// GAMATAURI PWA SERVICE WORKER v4.0
 // Auto-update system with aggressive cache busting
+// HTML always Network First - never cache stale app
 // ========================================
 
-const CACHE_VERSION = 'v3.0.0';
+const CACHE_VERSION = 'v4.0.0';
 const CACHE_NAME = `gamatauri-${CACHE_VERSION}`;
 const API_CACHE = `gamatauri-api-${CACHE_VERSION}`;
 const IMAGE_CACHE = `gamatauri-images-${CACHE_VERSION}`;
-
 // Assets críticos para cache
 const STATIC_CACHE_URLS = [
   '/',
@@ -95,6 +95,33 @@ self.addEventListener('fetch', (event) => {
   
   // Ignorar extensões do Chrome e requests não-HTTP
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return;
+  }
+  
+  // ===============================
+  // ESTRATÉGIA 0: HTML/Navegação - SEMPRE Network First
+  // CRÍTICO: HTML velho = app inteiro velho
+  // ===============================
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Cachear HTML atualizado para fallback offline
+          if (response && response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Offline: servir do cache
+          return caches.match(request).then((cached) => {
+            return cached || caches.match('/index.html');
+          });
+        })
+    );
     return;
   }
   
