@@ -102,6 +102,7 @@ serve(async (req) => {
       customer_phone: orderData.customer_phone,
       delivery_fee: orderData.delivery_fee,
       items_count: orderData.items.length,
+      change_for: orderData.change_for || null,
       timestamp: new Date().toISOString()
     });
 
@@ -131,6 +132,7 @@ serve(async (req) => {
         order_status: 'preparing',
         total_amount: totalPrice,
         notes: orderData.notes || null,
+        change_for: orderData.change_for || null,
       })
       .select()
       .single();
@@ -178,6 +180,24 @@ serve(async (req) => {
       notes: orderData.notes?.trim() || null,
       change_for: orderData.change_for || null,
     };
+
+    // Log de confirmação do envio do change_for para API externa
+    if (orderData.payment_method === 'dinheiro' && orderData.change_for) {
+      console.log('💵 Troco para pagamento em dinheiro:', {
+        customer_phone: normalizedPhone,
+        change_for: orderData.change_for,
+        payment_method: 'dinheiro',
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    console.log('📤 Enviando payload para API externa:', {
+      external_order_id: gamatauriPayload.external_order_id,
+      payment_method: gamatauriPayload.payment_method,
+      change_for: gamatauriPayload.change_for,
+      total_price: gamatauriPayload.total_price,
+      timestamp: new Date().toISOString()
+    });
 
     let externalOrderNumber = null;
     let lastError: Error | null = null;

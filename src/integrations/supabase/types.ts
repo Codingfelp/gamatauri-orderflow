@@ -144,6 +144,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          change_for: string | null
           coupon_id: string | null
           created_at: string
           customer_address: string | null
@@ -163,6 +164,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          change_for?: string | null
           coupon_id?: string | null
           created_at?: string
           customer_address?: string | null
@@ -182,6 +184,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          change_for?: string | null
           coupon_id?: string | null
           created_at?: string
           customer_address?: string | null
