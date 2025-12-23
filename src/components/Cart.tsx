@@ -287,7 +287,14 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
+                            onClick={() => {
+                              if (item.quantity <= 1) {
+                                onRemove(item.id);
+                                toast({ title: "Item removido do carrinho" });
+                              } else {
+                                onUpdateQuantity(item.id, item.quantity - 1);
+                              }
+                            }}
                             className="h-7 w-7 rounded-l-full hover:bg-accent"
                           >
                             <Minus className="h-3 w-3" />
