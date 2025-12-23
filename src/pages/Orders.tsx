@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Package, Clock, Truck, CheckCircle, ArrowLeft, Store } from "lucide-react";
+import { Package, Clock, Truck, CheckCircle, ArrowLeft, XCircle } from "lucide-react";
 import { format, isToday, isYesterday, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { normalizePhone } from "@/utils/phoneUtils";
@@ -157,6 +157,7 @@ export default function Orders() {
       preparing: { label: "Preparando", variant: "secondary", icon: Clock },
       in_route: { label: "A caminho", variant: "default", icon: Truck },
       delivered: { label: "Entregue", variant: "outline", icon: CheckCircle },
+      cancelled: { label: "Cancelado", variant: "destructive", icon: XCircle },
     };
     const { label, variant, icon: Icon } = config[status] || config.preparing;
     return (
@@ -254,6 +255,7 @@ export default function Orders() {
         preparing: "Nenhum pedido em preparação",
         in_route: "Nenhum pedido a caminho",
         delivered: "Nenhum pedido entregue",
+        cancelled: "Nenhum pedido cancelado",
       };
 
       return (
@@ -313,7 +315,7 @@ export default function Orders() {
       {/* Content */}
       <div className="max-w-md mx-auto px-4 py-6">
         <Tabs defaultValue="preparing" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="preparing" className="text-xs">
               Preparando
             </TabsTrigger>
@@ -322,6 +324,9 @@ export default function Orders() {
             </TabsTrigger>
             <TabsTrigger value="delivered" className="text-xs">
               Entregues
+            </TabsTrigger>
+            <TabsTrigger value="cancelled" className="text-xs">
+              Cancelados
             </TabsTrigger>
           </TabsList>
 
@@ -335,6 +340,10 @@ export default function Orders() {
 
           <TabsContent value="delivered">
             <OrderList status="delivered" />
+          </TabsContent>
+
+          <TabsContent value="cancelled">
+            <OrderList status="cancelled" />
           </TabsContent>
         </Tabs>
       </div>

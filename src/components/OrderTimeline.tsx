@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle, Clock, Bike, Package } from "lucide-react";
+import { CheckCircle, Clock, Bike, Package, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface OrderTimelineProps {
@@ -8,7 +8,7 @@ interface OrderTimelineProps {
   createdAt: string;
 }
 
-type OrderStatus = "received" | "preparing" | "delivering" | "delivered";
+type OrderStatus = "received" | "preparing" | "delivering" | "delivered" | "cancelled";
 
 export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimelineProps) => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>("received");
@@ -96,9 +96,10 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
       case 'delivered':
         return 'delivered';
       
-      // Cancelado (mostrar como received por enquanto)
+      // Cancelado
       case 'cancelled':
-        return 'received';
+      case 'cancelado':
+        return 'cancelled';
       
       // Status antigos (fallback para compatibilidade)
       case 'separacao':
@@ -112,9 +113,6 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
       
       case 'entregue':
         return 'delivered';
-      
-      case 'cancelado':
-        return 'received';
       
       default:
         console.warn(`Status desconhecido: "${dbStatus}" - usando 'received' como padrão`);
@@ -215,6 +213,32 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
     { key: "delivering", label: "Em Rota", icon: Bike, time: "~35 min" },
     { key: "delivered", label: "Entregue", icon: CheckCircle, time: "Concluído" },
   ];
+
+  // Render cancelled state
+  if (currentStatus === "cancelled") {
+    return (
+      <div className="w-full max-w-4xl mx-auto px-4">
+        <div className="mb-12 text-center animate-fade-in">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-destructive/20 to-destructive/5 mb-4 animate-scale-in">
+            <XCircle className="w-10 h-10 text-destructive" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-destructive mb-4">
+            Pedido Cancelado
+          </h1>
+          <div className="inline-block backdrop-blur-sm bg-white/60 dark:bg-black/60 px-6 py-3 rounded-2xl border border-destructive/20 shadow-lg">
+            <p className="text-sm text-muted-foreground mb-1">Número do Pedido</p>
+            <p className="text-2xl font-mono font-bold text-destructive">{orderNumber}</p>
+          </div>
+        </div>
+
+        <div className="text-center backdrop-blur-sm bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-2xl p-6 border border-destructive/20 shadow-lg animate-fade-in">
+          <p className="text-lg font-semibold text-destructive">
+            Infelizmente seu pedido foi cancelado. Entre em contato conosco para mais informações.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4">
