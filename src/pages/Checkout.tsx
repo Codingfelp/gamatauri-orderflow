@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, AlertCircle, ChevronDown, MessageSquare, ShoppingBag, Eye } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, AlertCircle, ChevronDown, MessageSquare, ShoppingBag, Eye, ShieldCheck } from "lucide-react";
 import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,15 @@ import { isAddressValidForCheckout } from "@/utils/addressValidator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 type CartItem = OrderItem;
+
+// Constantes para o lock de processamento
+const LOCK_DURATION_MS = 60000; // 1 minuto
+const LOCK_KEY_PREFIX = 'checkout_processing_';
+
+interface ProcessingLock {
+  timestamp: number;
+  phone: string;
+}
 
 const Checkout = () => {
   const location = useLocation();
@@ -49,6 +58,7 @@ const Checkout = () => {
   const [canSubmit, setCanSubmit] = useState(true);
   const [notesOpen, setNotesOpen] = useState(false);
   const [showItemsModal, setShowItemsModal] = useState(false);
+  const [isProcessingLocked, setIsProcessingLocked] = useState(false);
   const notesRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     customer_name: "",
@@ -60,6 +70,40 @@ const Checkout = () => {
     notes: "",
     change_for: "",
   });
+
+  // Verificar lock de processamento ao carregar
+  useEffect(() => {
+    const checkExistingLock = () => {
+      const phone = formData.customer_phone.replace(/\D/g, '');
+      if (!phone) return;
+      
+      const lockKey = `${LOCK_KEY_PREFIX}${phone}`;
+      const existingLock = localStorage.getItem(lockKey);
+      
+      if (existingLock) {
+        try {
+          const lockData: ProcessingLock = JSON.parse(existingLock);
+          const elapsed = Date.now() - lockData.timestamp;
+          
+          if (elapsed < LOCK_DURATION_MS) {
+            setIsProcessingLocked(true);
+            console.log('🔒 Lock de processamento ativo:', {
+              elapsed_seconds: Math.floor(elapsed / 1000),
+              remaining_seconds: Math.floor((LOCK_DURATION_MS - elapsed) / 1000)
+            });
+          } else {
+            // Lock expirou, remover
+            localStorage.removeItem(lockKey);
+            setIsProcessingLocked(false);
+          }
+        } catch {
+          localStorage.removeItem(lockKey);
+        }
+      }
+    };
+    
+    checkExistingLock();
+  }, [formData.customer_phone]);
 
   useEffect(() => {
     if (user) {
@@ -96,8 +140,34 @@ const Checkout = () => {
   const total = subtotal + shippingFee;
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  const setProcessingLock = (phone: string) => {
+    const lockKey = `${LOCK_KEY_PREFIX}${phone.replace(/\D/g, '')}`;
+    const lockData: ProcessingLock = {
+      timestamp: Date.now(),
+      phone: phone.replace(/\D/g, '')
+    };
+    localStorage.setItem(lockKey, JSON.stringify(lockData));
+    setIsProcessingLocked(true);
+  };
+
+  const clearProcessingLock = (phone: string) => {
+    const lockKey = `${LOCK_KEY_PREFIX}${phone.replace(/\D/g, '')}`;
+    localStorage.removeItem(lockKey);
+    setIsProcessingLocked(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Verificar lock ativo
+    if (isProcessingLocked) {
+      toast({
+        title: "Pedido em processamento",
+        description: "Seu pedido anterior ainda está sendo processado. Aguarde um momento.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // VALIDAÇÃO: Verificar itens com quantidade ou preço zerado
     const invalidItems = cart.filter(item => item.quantity <= 0 || item.price <= 0);
@@ -139,6 +209,9 @@ const Checkout = () => {
     }
     
     setAddressError("");
+    
+    // Ativar lock ANTES de iniciar loading
+    setProcessingLock(formData.customer_phone);
     setLoading(true);
     
     try {
@@ -177,6 +250,9 @@ const Checkout = () => {
       });
 
       localStorage.removeItem('gamatauri-cart');
+      
+      // Limpar lock após sucesso
+      clearProcessingLock(formData.customer_phone);
 
       toast({
         title: "Pedido realizado com sucesso!",
@@ -191,6 +267,10 @@ const Checkout = () => {
       });
     } catch (error: any) {
       console.error('Error submitting order:', error);
+      
+      // Limpar lock em caso de erro
+      clearProcessingLock(formData.customer_phone);
+      
       toast({
         title: "Erro ao processar pedido",
         description: error.message,
@@ -216,6 +296,22 @@ const Checkout = () => {
 
   return (
     <div className="min-h-screen bg-background pb-28 md:pb-8">
+      {/* Overlay de processamento */}
+      {loading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <Card className="p-8 text-center max-w-sm w-full mx-4 shadow-2xl">
+            <div className="relative w-16 h-16 mx-auto mb-4">
+              <Loader2 className="w-16 h-16 animate-spin text-primary" />
+              <ShieldCheck className="w-6 h-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary" />
+            </div>
+            <h2 className="text-lg font-bold mb-2">Processando seu pedido</h2>
+            <p className="text-muted-foreground text-sm">
+              Por favor, aguarde e não feche esta tela...
+            </p>
+          </Card>
+        </div>
+      )}
+      
       {/* Header compacto */}
       <header className="bg-card/95 backdrop-blur-md shadow-sm border-b sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 md:py-4">
@@ -225,6 +321,7 @@ const Checkout = () => {
               size="icon"
               onClick={() => navigate('/')}
               className="shrink-0"
+              disabled={loading}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -261,6 +358,7 @@ const Checkout = () => {
                         placeholder="Seu nome"
                         required={!userProfile}
                         className="h-10 md:h-11 text-sm"
+                        disabled={loading}
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -273,6 +371,7 @@ const Checkout = () => {
                         placeholder="(00) 00000-0000"
                         required
                         className="h-10 md:h-11 text-sm"
+                        disabled={loading}
                       />
                     </div>
                   </div>
@@ -290,6 +389,7 @@ const Checkout = () => {
                       placeholder="Rua, número, bairro, cidade"
                       rows={2}
                       className={`text-sm resize-none ${addressError ? 'border-destructive' : ''}`}
+                      disabled={loading}
                     />
                     {addressError && (
                       <Alert variant="destructive" className="py-2">
@@ -308,6 +408,7 @@ const Checkout = () => {
                   value={formData.payment_method}
                   onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
                   className="grid grid-cols-3 md:grid-cols-1 gap-2 md:space-y-2"
+                  disabled={loading}
                 >
                   {/* PIX */}
                   <Label
@@ -318,6 +419,7 @@ const Checkout = () => {
                       ${formData.payment_method === 'pix' 
                         ? 'bg-[hsl(var(--pix))]/10 border-[hsl(var(--pix))] shadow-md' 
                         : 'bg-accent/30 border-transparent hover:border-[hsl(var(--pix))]/40'}
+                      ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="pix" id="pix" className="sr-only md:not-sr-only" />
@@ -334,6 +436,7 @@ const Checkout = () => {
                       ${formData.payment_method === 'cartao' 
                         ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-md' 
                         : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40'}
+                      ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="cartao" id="cartao" className="sr-only md:not-sr-only" />
@@ -350,6 +453,7 @@ const Checkout = () => {
                       ${formData.payment_method === 'dinheiro' 
                         ? 'bg-[hsl(var(--cash))]/10 border-[hsl(var(--cash))] shadow-md' 
                         : 'bg-accent/30 border-transparent hover:border-[hsl(var(--cash))]/40'}
+                      ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="dinheiro" id="dinheiro" className="sr-only md:not-sr-only" />
@@ -375,6 +479,7 @@ const Checkout = () => {
                           setFormData({ ...formData, change_for: value });
                         }}
                         className="h-10 pl-10 text-sm"
+                        disabled={loading}
                       />
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">Deixe vazio se não precisar</p>
@@ -386,16 +491,18 @@ const Checkout = () => {
               <Collapsible 
                 open={notesOpen} 
                 onOpenChange={(open) => {
-                  setNotesOpen(open);
-                  if (open) {
-                    setTimeout(() => {
-                      notesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
+                  if (!loading) {
+                    setNotesOpen(open);
+                    if (open) {
+                      setTimeout(() => {
+                        notesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 100);
+                    }
                   }
                 }}
               >
                 <Card className="p-0 shadow-md overflow-hidden">
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors">
+                  <CollapsibleTrigger className={`w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
                     <span className="flex items-center gap-2 text-sm font-medium">
                       <MessageSquare className="w-4 h-4 text-muted-foreground" />
                       {formData.notes ? 'Observação adicionada' : 'Adicionar observação'}
@@ -411,6 +518,7 @@ const Checkout = () => {
                         rows={2}
                         className="text-sm resize-none"
                         autoFocus
+                        disabled={loading}
                       />
                     </div>
                   </CollapsibleContent>
@@ -424,6 +532,7 @@ const Checkout = () => {
                 size="sm"
                 onClick={() => setShowItemsModal(true)}
                 className="w-full lg:hidden"
+                disabled={loading}
               >
                 <Eye className="w-4 h-4 mr-2" />
                 Ver {itemCount} {itemCount === 1 ? 'item' : 'itens'}
@@ -468,7 +577,7 @@ const Checkout = () => {
               </div>
               <Button
                 onClick={handleSubmit}
-                disabled={loading || !canSubmit}
+                disabled={loading || !canSubmit || isProcessingLocked}
                 size="lg"
                 className="w-full mt-4"
               >
@@ -476,6 +585,11 @@ const Checkout = () => {
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Processando...
+                  </>
+                ) : isProcessingLocked ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Aguarde...
                   </>
                 ) : !canSubmit ? (
                   "Complete seu endereço"
@@ -501,7 +615,7 @@ const Checkout = () => {
         </div>
         <Button 
           onClick={handleSubmit}
-          disabled={loading || !canSubmit}
+          disabled={loading || !canSubmit || isProcessingLocked}
           size="lg"
           className="w-full h-12"
         >
@@ -509,6 +623,11 @@ const Checkout = () => {
             <>
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Processando...
+            </>
+          ) : isProcessingLocked ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Pedido em processamento...
             </>
           ) : !canSubmit ? (
             <>
