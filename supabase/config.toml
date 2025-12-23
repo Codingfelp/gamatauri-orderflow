@@ -16,5 +16,5 @@ verify_jwt = false
 [functions.store-status]
 verify_jwt = false
 
-# Admin functions require authentication (JWT verified internally)
-# verify_jwt removed to allow custom admin role checking
+[functions.update-order-status]
+verify_jwt = false
