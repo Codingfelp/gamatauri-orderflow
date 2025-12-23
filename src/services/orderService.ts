@@ -27,12 +27,43 @@ export interface OrderPayload {
 export interface OrderResponse {
   success: boolean;
   message: string;
+  already_processed?: boolean;
   data: {
     order_id: string;
     order_number: string;
     status: string;
     total: number;
   };
+}
+
+/**
+ * Gera uma chave de idempotência baseada em:
+ * - Telefone do cliente (normalizado)
+ * - Hash dos itens do carrinho
+ * - Janela de tempo de 5 minutos
+ */
+function generateIdempotencyKey(phone: string, items: OrderItem[]): string {
+  const normalizedPhone = phone.replace(/\D/g, '');
+  
+  // Criar hash dos itens ordenados por ID
+  const sortedItems = [...items]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map(item => `${item.id}:${item.quantity}`)
+    .join('|');
+  
+  // Hash simples
+  let hash = 0;
+  for (let i = 0; i < sortedItems.length; i++) {
+    const char = sortedItems.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  const hashStr = Math.abs(hash).toString(36);
+  
+  // Janela de tempo de 5 minutos
+  const timeWindow = Math.floor(Date.now() / 300000);
+  
+  return `${normalizedPhone}_${hashStr}_${timeWindow}`;
 }
 
 /**
@@ -65,6 +96,11 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
     throw new Error('Telefone inválido. Use o formato (DD) 9XXXX-XXXX');
   }
 
+  // Gerar chave de idempotência
+  const idempotencyKey = generateIdempotencyKey(sanitizedPhone, orderData.items);
+  
+  console.log('🔑 Idempotency key gerada:', idempotencyKey);
+
   const payload = {
     customer_name: orderData.customer_name.trim(),
     customer_phone: sanitizedPhone,
@@ -76,6 +112,7 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
     delivery_fee: orderData.delivery_fee || 0,
     notes: orderData.notes?.trim(),
     change_for: orderData.change_for,
+    idempotency_key: idempotencyKey,
     card_holder: orderData.card_holder,
     card_number: orderData.card_number,
     card_expiry: orderData.card_expiry,
@@ -93,6 +130,11 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
 
   if (!data.success) {
     throw new Error(data.error || 'Falha ao criar pedido');
+  }
+
+  // Verificar se foi pedido duplicado
+  if (data.already_processed) {
+    console.log('⚠️ Pedido já havia sido processado anteriormente:', data.data);
   }
 
   console.log('Order created successfully:', data.data);

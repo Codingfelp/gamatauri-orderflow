@@ -154,6 +154,7 @@ export type Database = {
           discount_amount: number | null
           external_order_number: string | null
           id: string
+          idempotency_key: string | null
           notes: string | null
           order_status: string | null
           payment_method: string
@@ -174,6 +175,7 @@ export type Database = {
           discount_amount?: number | null
           external_order_number?: string | null
           id?: string
+          idempotency_key?: string | null
           notes?: string | null
           order_status?: string | null
           payment_method: string
@@ -194,6 +196,7 @@ export type Database = {
           discount_amount?: number | null
           external_order_number?: string | null
           id?: string
+          idempotency_key?: string | null
           notes?: string | null
           order_status?: string | null
           payment_method?: string

@@ -38,6 +38,7 @@ const OrderSchema = z.object({
   notes: z.string().max(1000).trim().optional().nullable(),
   delivery_fee: z.number().nonnegative().max(1000),
   change_for: z.string().max(50).optional().nullable(),
+  idempotency_key: z.string().max(200).optional().nullable(),
   card_info: z.object({
     holder: z.string().max(100),
     number: z.string().max(19),
@@ -45,6 +46,40 @@ const OrderSchema = z.object({
     cvv: z.string().max(4),
   }).optional().nullable(),
 });
+
+/**
+ * Gera uma chave de idempotência baseada em:
+ * - Telefone do cliente (normalizado)
+ * - Hash dos itens do carrinho (IDs + quantidades ordenados)
+ * - Janela de tempo de 5 minutos
+ */
+function generateIdempotencyKey(phone: string, items: any[]): string {
+  const normalizedPhone = phone.replace(/\D/g, '');
+  
+  // Criar hash dos itens ordenados por ID
+  const sortedItems = [...items]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map(item => `${item.id}:${item.quantity}`)
+    .join('|');
+  
+  // Janela de tempo de 5 minutos (300000ms)
+  const timeWindow = Math.floor(Date.now() / 300000);
+  
+  return `${normalizedPhone}_${simpleHash(sortedItems)}_${timeWindow}`;
+}
+
+/**
+ * Hash simples para string (não criptográfico, apenas para identificação)
+ */
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -98,20 +133,72 @@ serve(async (req) => {
       );
     }
 
-    console.log('✅ Pedido recebido com frete calculado:', {
-      customer_phone: orderData.customer_phone,
-      delivery_fee: orderData.delivery_fee,
-      items_count: orderData.items.length,
-      change_for: orderData.change_for || null,
-      timestamp: new Date().toISOString()
-    });
-
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     const normalizedPhone = orderData.customer_phone.replace(/\D/g, '');
+    
+    // IDEMPOTÊNCIA: Gerar chave única para este pedido
+    const idempotencyKey = orderData.idempotency_key || generateIdempotencyKey(normalizedPhone, orderData.items);
+    
+    console.log('🔑 Verificando idempotência:', {
+      idempotency_key: idempotencyKey,
+      customer_phone: normalizedPhone,
+      items_count: orderData.items.length,
+      timestamp: new Date().toISOString()
+    });
+
+    // Verificar se já existe pedido com essa chave
+    const { data: existingOrder, error: existingOrderError } = await supabaseAdmin
+      .from('orders')
+      .select('id, external_order_number, order_status, created_at')
+      .eq('idempotency_key', idempotencyKey)
+      .maybeSingle();
+
+    if (existingOrderError) {
+      console.error('❌ Erro ao verificar idempotência:', existingOrderError);
+    }
+
+    // Se existe pedido com mesma chave e não está cancelado, retornar o existente
+    if (existingOrder && existingOrder.order_status !== 'cancelled') {
+      console.log('⚠️ PEDIDO DUPLICADO DETECTADO - Retornando pedido existente:', {
+        existing_order_id: existingOrder.id,
+        existing_order_number: existingOrder.external_order_number,
+        existing_status: existingOrder.order_status,
+        created_at: existingOrder.created_at,
+        idempotency_key: idempotencyKey,
+        timestamp: new Date().toISOString()
+      });
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Pedido já processado',
+          already_processed: true,
+          data: {
+            order_id: existingOrder.id,
+            order_number: existingOrder.external_order_number || `ORD-${existingOrder.id.slice(0, 8).toUpperCase()}`,
+            status: existingOrder.order_status,
+            total: orderData.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) + orderData.delivery_fee,
+          },
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    console.log('✅ Pedido novo - prosseguindo com criação:', {
+      customer_phone: normalizedPhone,
+      delivery_fee: orderData.delivery_fee,
+      items_count: orderData.items.length,
+      idempotency_key: idempotencyKey,
+      change_for: orderData.change_for || null,
+      timestamp: new Date().toISOString()
+    });
     
     const itemsTotal = orderData.items.reduce((sum: number, item: any) => 
       sum + (item.price * item.quantity), 0
@@ -133,11 +220,44 @@ serve(async (req) => {
         total_amount: totalPrice,
         notes: orderData.notes || null,
         change_for: orderData.change_for || null,
+        idempotency_key: idempotencyKey,
       })
       .select()
       .single();
 
     if (localOrderError || !localOrder) {
+      // Verificar se foi erro de duplicata (unique constraint)
+      if (localOrderError?.code === '23505' && localOrderError?.message?.includes('idempotency_key')) {
+        console.log('⚠️ Conflito de idempotência detectado (race condition) - buscando pedido existente');
+        
+        const { data: raceOrder } = await supabaseAdmin
+          .from('orders')
+          .select('id, external_order_number, order_status')
+          .eq('idempotency_key', idempotencyKey)
+          .single();
+
+        if (raceOrder) {
+          return new Response(
+            JSON.stringify({
+              success: true,
+              message: 'Pedido já processado',
+              already_processed: true,
+              data: {
+                order_id: raceOrder.id,
+                order_number: raceOrder.external_order_number || `ORD-${raceOrder.id.slice(0, 8).toUpperCase()}`,
+                status: raceOrder.order_status,
+                total: totalPrice,
+              },
+            }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            }
+          );
+        }
+      }
+      
+      console.error('❌ Erro ao salvar pedido:', localOrderError);
       throw new Error('Falha ao salvar pedido no banco de dados');
     }
 
@@ -207,6 +327,7 @@ serve(async (req) => {
       payment_method: gamatauriPayload.payment_method,
       change_for: changeForNumeric,
       total_price: gamatauriPayload.total_price,
+      idempotency_key: idempotencyKey,
       timestamp: new Date().toISOString()
     });
 
@@ -269,6 +390,7 @@ serve(async (req) => {
           JSON.stringify({
             success: true,
             message: 'Pedido criado com sucesso',
+            already_processed: false,
             data: {
               order_id: internalOrderId,
               order_number: result.data.order_number,
