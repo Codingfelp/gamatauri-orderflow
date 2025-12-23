@@ -189,6 +189,19 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       return;
     }
 
+    // Verificar cupons expirados conhecidos no frontend
+    const expiredCoupons = ['TAURIFRETEOFF'];
+    if (expiredCoupons.includes(couponCode.toUpperCase().trim())) {
+      setCouponError('');
+      toast({
+        variant: "destructive",
+        title: "Cupom expirado",
+        description: "Este cupom não está mais disponível.",
+      });
+      setCouponCode('');
+      return;
+    }
+
     setCouponLoading(true);
     setCouponError('');
 
