@@ -235,7 +235,7 @@ const Order = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
       <Header />
       
-      <main className="container mx-auto px-0 py-6 md:py-10">
+      <main className="container mx-auto px-0 py-6 md:py-10 pb-32 md:pb-10">
         {/* 1. PROMOÇÕES */}
         <div className="mb-8 px-4">
           <PromotionsCarousel />

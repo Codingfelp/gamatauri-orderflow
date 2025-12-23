@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, AlertCircle, ChevronDown, MessageSquare, ShoppingBag } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, AlertCircle, ChevronDown, MessageSquare, ShoppingBag, Eye } from "lucide-react";
 import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +48,8 @@ const Checkout = () => {
   const [addressError, setAddressError] = useState<string>("");
   const [canSubmit, setCanSubmit] = useState(true);
   const [notesOpen, setNotesOpen] = useState(false);
+  const [showItemsModal, setShowItemsModal] = useState(false);
+  const notesRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -379,7 +383,17 @@ const Checkout = () => {
               </Card>
 
               {/* Observações - Colapsável */}
-              <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+              <Collapsible 
+                open={notesOpen} 
+                onOpenChange={(open) => {
+                  setNotesOpen(open);
+                  if (open) {
+                    setTimeout(() => {
+                      notesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 100);
+                  }
+                }}
+              >
                 <Card className="p-0 shadow-md overflow-hidden">
                   <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors">
                     <span className="flex items-center gap-2 text-sm font-medium">
@@ -389,18 +403,31 @@ const Checkout = () => {
                     <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <div className="px-4 pb-4">
+                    <div ref={notesRef} className="px-4 pb-4">
                       <Textarea
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         placeholder="Ex: Deixar na portaria, apartamento 101..."
                         rows={2}
                         className="text-sm resize-none"
+                        autoFocus
                       />
                     </div>
                   </CollapsibleContent>
                 </Card>
               </Collapsible>
+
+              {/* Botão Ver itens - Mobile apenas */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowItemsModal(true)}
+                className="w-full lg:hidden"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Ver {itemCount} {itemCount === 1 ? 'item' : 'itens'}
+              </Button>
             </form>
           </div>
 
@@ -493,6 +520,43 @@ const Checkout = () => {
           )}
         </Button>
       </div>
+
+      {/* Modal Ver Itens - Mobile */}
+      <Sheet open={showItemsModal} onOpenChange={setShowItemsModal}>
+        <SheetContent side="bottom" className="h-[70vh] rounded-t-2xl">
+          <SheetHeader className="pb-4 border-b">
+            <SheetTitle className="text-lg font-bold">
+              Itens do Pedido ({itemCount})
+            </SheetTitle>
+          </SheetHeader>
+          <ScrollArea className="h-[calc(100%-120px)] pr-4 mt-4">
+            <div className="space-y-3">
+              {cart.map((item) => (
+                <div key={item.id} className="flex justify-between items-center py-3 border-b">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 text-primary font-bold text-sm shrink-0">
+                      {item.quantity}
+                    </span>
+                    <span className="truncate text-sm font-medium">{item.name}</span>
+                  </div>
+                  <span className="font-bold text-primary ml-2">
+                    R$ {(item.price * item.quantity).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t bg-card">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-bold text-lg">R$ {subtotal.toFixed(2)}</span>
+            </div>
+            <Button onClick={() => setShowItemsModal(false)} className="w-full">
+              Fechar
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

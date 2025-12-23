@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useEmblaCarousel from "embla-carousel-react";
+import laysLogo from "@/assets/brands/lays.png";
 
 interface Brand {
   id: string;
@@ -137,7 +138,7 @@ const brands: Brand[] = [
     id: "16", 
     name: "Lays", 
     searchTerm: "lays",
-    logo: "https://pbs.twimg.com/profile_images/1174678997374033920/5_6IucF8_400x400.png",
+    logo: laysLogo,
     filterLogic: (name) => {
       const normalized = name.toLowerCase();
       return normalized.includes("lays") || normalized.includes("lay's");
