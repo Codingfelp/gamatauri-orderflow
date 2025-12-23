@@ -39,6 +39,7 @@ const OrderSchema = z.object({
   delivery_fee: z.number().nonnegative().max(1000),
   change_for: z.string().max(50).optional().nullable(),
   idempotency_key: z.string().max(200).optional().nullable(),
+  user_id: z.string().uuid().optional().nullable(),
   card_info: z.object({
     holder: z.string().max(100),
     number: z.string().max(19),
@@ -221,6 +222,7 @@ serve(async (req) => {
         notes: orderData.notes || null,
         change_for: orderData.change_for || null,
         idempotency_key: idempotencyKey,
+        user_id: orderData.user_id || null,
       })
       .select()
       .single();

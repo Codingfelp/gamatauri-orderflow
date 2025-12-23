@@ -22,6 +22,7 @@ export interface OrderPayload {
   card_number?: string;
   card_expiry?: string;
   card_cvv?: string;
+  user_id?: string;
 }
 
 export interface OrderResponse {
@@ -113,6 +114,7 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
     notes: orderData.notes?.trim(),
     change_for: orderData.change_for,
     idempotency_key: idempotencyKey,
+    user_id: orderData.user_id,
     card_holder: orderData.card_holder,
     card_number: orderData.card_number,
     card_expiry: orderData.card_expiry,

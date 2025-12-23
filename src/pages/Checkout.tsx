@@ -226,6 +226,7 @@ const Checkout = () => {
         delivery_fee: shippingFee,
         notes: formData.notes || undefined,
         change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
+        user_id: user?.id,
       });
 
       if (couponId && user) {
