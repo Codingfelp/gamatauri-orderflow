@@ -204,6 +204,8 @@ serve(async (req) => {
 
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
+        console.log(`🔄 Tentativa ${attempt}/3 de criar pedido externo...`);
+        
         const response = await fetch(
           'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/create-external-order',
           {
@@ -216,9 +218,18 @@ serve(async (req) => {
           }
         );
 
+        console.log(`📥 Resposta da API externa - Status: ${response.status}`);
+
         const result = await response.json();
+        console.log('📦 Resultado da API externa:', JSON.stringify(result).substring(0, 500));
 
         if (!response.ok) {
+          console.error(`❌ API externa retornou erro (tentativa ${attempt}):`, {
+            status: response.status,
+            error: result.error || result.message || 'Unknown error',
+            timestamp: new Date().toISOString()
+          });
+          
           lastError = new Error(result.error || 'Failed to create order');
           
           if (response.status === 400 || response.status === 401) {
