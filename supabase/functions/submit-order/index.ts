@@ -160,6 +160,16 @@ serve(async (req) => {
       console.error('Failed to save order items:', itemsError);
     }
 
+    // Converter change_for do formato brasileiro ("150,00") para número decimal
+    let changeForNumeric: number | null = null;
+    if (orderData.change_for) {
+      const cleanedValue = orderData.change_for.replace(/\./g, '').replace(',', '.');
+      const parsed = parseFloat(cleanedValue);
+      if (!isNaN(parsed)) {
+        changeForNumeric = parsed;
+      }
+    }
+
     const gamatauriPayload = {
       external_order_id: internalOrderId,
       external_webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`,
@@ -178,14 +188,15 @@ serve(async (req) => {
       total_price: totalPrice,
       delivery_fee: deliveryFee,
       notes: orderData.notes?.trim() || null,
-      change_for: orderData.change_for || null,
+      change_for: changeForNumeric,
     };
 
     // Log de confirmação do envio do change_for para API externa
-    if (orderData.payment_method === 'dinheiro' && orderData.change_for) {
+    if (orderData.payment_method === 'dinheiro' && changeForNumeric) {
       console.log('💵 Troco para pagamento em dinheiro:', {
         customer_phone: normalizedPhone,
-        change_for: orderData.change_for,
+        change_for_original: orderData.change_for,
+        change_for_numeric: changeForNumeric,
         payment_method: 'dinheiro',
         timestamp: new Date().toISOString()
       });
@@ -194,7 +205,7 @@ serve(async (req) => {
     console.log('📤 Enviando payload para API externa:', {
       external_order_id: gamatauriPayload.external_order_id,
       payment_method: gamatauriPayload.payment_method,
-      change_for: gamatauriPayload.change_for,
+      change_for: changeForNumeric,
       total_price: gamatauriPayload.total_price,
       timestamp: new Date().toISOString()
     });
