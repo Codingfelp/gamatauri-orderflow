@@ -13,7 +13,7 @@ const OrderItemSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(200),
   price: z.number().positive().max(99999),
-  quantity: z.number().int().positive().max(999),
+  quantity: z.number().int().min(1, 'Quantidade mínima é 1').max(999),
 });
 
 const OrderSchema = z.object({
@@ -77,9 +77,31 @@ serve(async (req) => {
       );
     }
 
+    // VALIDAÇÃO: Verificar itens com quantidade ou preço inválido
+    const invalidItems = orderData.items.filter(item => item.quantity < 1 || item.price <= 0);
+    if (invalidItems.length > 0) {
+      console.error('❌ ERRO: Pedido contém itens inválidos', {
+        invalidItems: invalidItems.map(i => ({ name: i.name, qty: i.quantity, price: i.price })),
+        timestamp: new Date().toISOString()
+      });
+      
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Pedido com valor incorreto. Alguns itens estão com quantidade ou valor zerado.',
+          code: 'INVALID_ITEMS'
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     console.log('✅ Pedido recebido com frete calculado:', {
       customer_phone: orderData.customer_phone,
       delivery_fee: orderData.delivery_fee,
+      items_count: orderData.items.length,
       timestamp: new Date().toISOString()
     });
 

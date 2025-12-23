@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, Copy, AlertCircle } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, AlertCircle, ChevronDown, MessageSquare, ShoppingBag } from "lucide-react";
 import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +24,9 @@ const Checkout = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { setActiveOrder } = useActiveOrder();
-  const cart = (location.state?.cart as CartItem[]) || (() => {
+  
+  // Filtrar itens com quantidade <= 0 ao carregar
+  const rawCart = (location.state?.cart as CartItem[]) || (() => {
     try {
       const saved = localStorage.getItem('gamatauri-cart');
       return saved ? JSON.parse(saved) : [];
@@ -31,6 +34,7 @@ const Checkout = () => {
       return [];
     }
   })();
+  const cart = rawCart.filter(item => item.quantity > 0 && item.price > 0);
 
   const shippingFee = location.state?.shippingFee || 0;
   const preFilledAddress = location.state?.deliveryAddress || '';
@@ -41,6 +45,7 @@ const Checkout = () => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [addressError, setAddressError] = useState<string>("");
   const [canSubmit, setCanSubmit] = useState(true);
+  const [notesOpen, setNotesOpen] = useState(false);
   const [formData, setFormData] = useState({
     customer_name: "",
     customer_phone: "",
@@ -70,7 +75,6 @@ const Checkout = () => {
             customer_address: preFilledAddress || data.address || '',
           }));
           
-          // Validar endereço - se frete já veio calculado, endereço é válido
           const validation = isAddressValidForCheckout(preFilledAddress || data.address, shippingFee);
           setCanSubmit(validation.valid);
           if (!validation.valid) {
@@ -84,10 +88,23 @@ const Checkout = () => {
     }
   }, [user, preFilledAddress]);
 
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + shippingFee;
+  const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = subtotal + shippingFee;
+  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // VALIDAÇÃO: Verificar itens com quantidade ou preço zerado
+    const invalidItems = cart.filter(item => item.quantity <= 0 || item.price <= 0);
+    if (invalidItems.length > 0 || cart.length === 0) {
+      toast({
+        title: "Pedido com valor incorreto",
+        description: "Alguns itens estão com quantidade ou valor zerado. Volte ao carrinho.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if ((!formData.customer_name && !userProfile) || !formData.customer_phone || !formData.payment_method) {
       toast({
@@ -98,7 +115,6 @@ const Checkout = () => {
       return;
     }
 
-    // VALIDAÇÃO CRÍTICA: Verificar se o frete foi calculado
     if (shippingFee === 0) {
       toast({
         title: "Frete não calculado",
@@ -108,7 +124,6 @@ const Checkout = () => {
       return;
     }
 
-    // Validação mínima: tem conteúdo e tem número
     if (!formData.customer_address || formData.customer_address.trim().length < 10) {
       setAddressError("Endereço muito curto");
       toast({
@@ -120,7 +135,6 @@ const Checkout = () => {
     }
     
     setAddressError("");
-
     setLoading(true);
     
     try {
@@ -137,15 +151,12 @@ const Checkout = () => {
         change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
       });
 
-      // Save coupon usage if coupon was applied
       if (couponId && user) {
-        // Update order with coupon info first
         await supabase.from('orders').update({
           coupon_id: couponId,
           discount_amount: discountAmount
         }).eq('id', orderResult.order_id);
 
-        // Register coupon usage
         await supabase.from('coupon_usage').insert({
           coupon_id: couponId,
           user_id: user.id,
@@ -154,7 +165,6 @@ const Checkout = () => {
         });
       }
 
-      // Set active order in context
       setActiveOrder({
         orderId: orderResult.order_id,
         orderNumber: orderResult.order_number,
@@ -162,7 +172,6 @@ const Checkout = () => {
         createdAt: new Date().toISOString(),
       });
 
-      // Clear cart from localStorage after successful order
       localStorage.removeItem('gamatauri-cart');
 
       toast({
@@ -190,77 +199,81 @@ const Checkout = () => {
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Carrinho vazio</h2>
-          <p className="text-muted-foreground mb-6">Adicione produtos para continuar</p>
-          <Button onClick={() => navigate('/')}>Voltar para produtos</Button>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="p-6 text-center max-w-sm w-full">
+          <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-xl font-bold mb-2">Carrinho vazio</h2>
+          <p className="text-muted-foreground text-sm mb-4">Adicione produtos para continuar</p>
+          <Button onClick={() => navigate('/')} className="w-full">Voltar para produtos</Button>
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10 animate-fade-in">
-      <header className="bg-card/95 backdrop-blur-md shadow-lg border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-6">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/')}
-            className="mb-4 hover:bg-accent/60 transition-all duration-300"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar
-          </Button>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            Finalizar Pedido
-          </h1>
+    <div className="min-h-screen bg-background pb-28 md:pb-8">
+      {/* Header compacto */}
+      <header className="bg-card/95 backdrop-blur-md shadow-sm border-b sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-3 md:py-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/')}
+              className="shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-lg md:text-2xl font-bold truncate">Finalizar Pedido</h1>
+            <span className="ml-auto text-sm text-muted-foreground hidden md:block">
+              {itemCount} {itemCount === 1 ? 'item' : 'itens'}
+            </span>
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-10">
-        <div className="grid lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-10 animate-fade-in">
-              <Card className="p-8 shadow-xl backdrop-blur-sm bg-card/80 border-2 border-border hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-                <h2 className="text-2xl font-bold mb-6 flex items-center text-foreground">
-                  <User className="mr-3 h-6 w-6 text-primary" />
+      <main className="container mx-auto px-4 py-4 md:py-8">
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
+          {/* Coluna principal */}
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+              {/* Card Contato - Compacto */}
+              <Card className="p-4 md:p-6 shadow-md">
+                <h2 className="text-base md:text-xl font-bold mb-3 md:mb-4 flex items-center">
+                  <User className="mr-2 h-4 w-4 md:h-5 md:w-5 text-primary" />
                   Dados de Contato
                 </h2>
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-base font-semibold text-foreground">
-                      Nome {userProfile ? '(opcional)' : '*'}
-                    </Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      value={formData.customer_name}
-                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                      placeholder="Seu nome completo"
-                      required={!userProfile}
-                      className="h-12 text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 bg-background"
-                    />
-                    {userProfile && formData.customer_name && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <span className="text-primary">✓</span> Usando nome do perfil
-                      </p>
-                    )}
+                <div className="space-y-3 md:space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="name" className="text-sm font-medium">
+                        Nome {userProfile ? '(opcional)' : '*'}
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.customer_name}
+                        onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+                        placeholder="Seu nome"
+                        required={!userProfile}
+                        className="h-10 md:h-11 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone" className="text-sm font-medium">Telefone *</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.customer_phone}
+                        onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
+                        placeholder="(00) 00000-0000"
+                        required
+                        className="h-10 md:h-11 text-sm"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-base font-semibold text-foreground">Telefone *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.customer_phone}
-                      onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
-                      placeholder="(00) 00000-0000"
-                      required
-                      className="h-12 text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 bg-background"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-base font-semibold text-foreground">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="address" className="text-sm font-medium">
                       Endereço de Entrega *
                     </Label>
                     <Textarea
@@ -270,199 +283,216 @@ const Checkout = () => {
                         setFormData({ ...formData, customer_address: e.target.value });
                         setAddressError("");
                       }}
-                      placeholder="Ex: Rua Arauá 220 São Paulo, Belo Horizonte"
-                      rows={3}
-                      className={`text-base border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 resize-none bg-background ${addressError ? 'border-destructive' : ''}`}
+                      placeholder="Rua, número, bairro, cidade"
+                      rows={2}
+                      className={`text-sm resize-none ${addressError ? 'border-destructive' : ''}`}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      💡 Informe rua, número, bairro e cidade
-                    </p>
                     {addressError && (
-                      <Alert variant="destructive" className="mt-2">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{addressError}</AlertDescription>
+                      <Alert variant="destructive" className="py-2">
+                        <AlertCircle className="h-3 w-3" />
+                        <AlertDescription className="text-xs">{addressError}</AlertDescription>
                       </Alert>
                     )}
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-8 shadow-xl backdrop-blur-sm bg-card/80 border-2 border-border hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
-                <h2 className="text-2xl font-bold mb-6 text-foreground">Forma de Pagamento (na entrega)</h2>
+              {/* Card Pagamento - Grid 2x2 no mobile */}
+              <Card className="p-4 md:p-6 shadow-md">
+                <h2 className="text-base md:text-xl font-bold mb-3 md:mb-4">Forma de Pagamento</h2>
                 <RadioGroup
                   value={formData.payment_method}
-                  onValueChange={(value) => {
-                    setFormData({ 
-                      ...formData, 
-                      payment_method: value
-                    });
-                  }}
-                  className="space-y-3"
+                  onValueChange={(value) => setFormData({ ...formData, payment_method: value })}
+                  className="grid grid-cols-3 md:grid-cols-1 gap-2 md:space-y-2"
                 >
-                  <div className={`
-                    relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'pix' 
-                      ? 'bg-[hsl(var(--pix))]/10 border-[hsl(var(--pix))] shadow-lg scale-[1.02]' 
-                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--pix))]/40 hover:bg-[hsl(var(--pix))]/5'}
-                  `}>
-                    <RadioGroupItem value="pix" id="pix" className="scale-125" />
-                    <Label htmlFor="pix" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <Smartphone className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'pix' ? 'text-[hsl(var(--pix))]' : 'text-muted-foreground'}`} />
-                      <div>
-                        <div className="font-bold">Pagar na entrega com PIX</div>
-                        <div className="text-xs text-muted-foreground">Instantâneo e gratuito</div>
-                      </div>
-                    </Label>
-                  </div>
-                  <div className={`
-                    relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'cartao' 
-                      ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-lg scale-[1.02]' 
-                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40 hover:bg-[hsl(var(--card-payment))]/5'}
-                  `}>
-                    <RadioGroupItem value="cartao" id="cartao" className="scale-125" />
-                    <Label htmlFor="cartao" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <CreditCard className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'cartao' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
-                      <div>
-                        <div className="font-bold">Pagar na entrega com Cartão</div>
-                        <div className="text-xs text-muted-foreground">Débito ou crédito</div>
-                      </div>
-                    </Label>
-                  </div>
-                  <div className={`
-                    relative flex items-center space-x-4 p-5 rounded-2xl cursor-pointer border-2 transition-all duration-300
-                    ${formData.payment_method === 'dinheiro' 
-                      ? 'bg-[hsl(var(--cash))]/10 border-[hsl(var(--cash))] shadow-lg scale-[1.02]' 
-                      : 'bg-accent/30 border-transparent hover:border-[hsl(var(--cash))]/40 hover:bg-[hsl(var(--cash))]/5'}
-                  `}>
-                    <RadioGroupItem value="dinheiro" id="dinheiro" className="scale-125" />
-                    <Label htmlFor="dinheiro" className="flex items-center cursor-pointer flex-1 font-semibold text-base">
-                      <Banknote className={`w-7 h-7 mr-4 transition-colors ${formData.payment_method === 'dinheiro' ? 'text-[hsl(var(--cash))]' : 'text-muted-foreground'}`} />
-                      <div>
-                        <div className="font-bold">Pagar na entrega com Dinheiro</div>
-                        <div className="text-xs text-muted-foreground">Pagamento em espécie</div>
-                      </div>
-                    </Label>
-                  </div>
+                  {/* PIX */}
+                  <Label
+                    htmlFor="pix"
+                    className={`
+                      flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 
+                      p-3 md:p-4 rounded-xl cursor-pointer border-2 transition-all
+                      ${formData.payment_method === 'pix' 
+                        ? 'bg-[hsl(var(--pix))]/10 border-[hsl(var(--pix))] shadow-md' 
+                        : 'bg-accent/30 border-transparent hover:border-[hsl(var(--pix))]/40'}
+                    `}
+                  >
+                    <RadioGroupItem value="pix" id="pix" className="sr-only md:not-sr-only" />
+                    <Smartphone className={`w-6 h-6 ${formData.payment_method === 'pix' ? 'text-[hsl(var(--pix))]' : 'text-muted-foreground'}`} />
+                    <span className="text-xs md:text-base font-medium text-center md:text-left">PIX</span>
+                  </Label>
+
+                  {/* Cartão */}
+                  <Label
+                    htmlFor="cartao"
+                    className={`
+                      flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 
+                      p-3 md:p-4 rounded-xl cursor-pointer border-2 transition-all
+                      ${formData.payment_method === 'cartao' 
+                        ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-md' 
+                        : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40'}
+                    `}
+                  >
+                    <RadioGroupItem value="cartao" id="cartao" className="sr-only md:not-sr-only" />
+                    <CreditCard className={`w-6 h-6 ${formData.payment_method === 'cartao' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
+                    <span className="text-xs md:text-base font-medium text-center md:text-left">Cartão</span>
+                  </Label>
+
+                  {/* Dinheiro */}
+                  <Label
+                    htmlFor="dinheiro"
+                    className={`
+                      flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 
+                      p-3 md:p-4 rounded-xl cursor-pointer border-2 transition-all
+                      ${formData.payment_method === 'dinheiro' 
+                        ? 'bg-[hsl(var(--cash))]/10 border-[hsl(var(--cash))] shadow-md' 
+                        : 'bg-accent/30 border-transparent hover:border-[hsl(var(--cash))]/40'}
+                    `}
+                  >
+                    <RadioGroupItem value="dinheiro" id="dinheiro" className="sr-only md:not-sr-only" />
+                    <Banknote className={`w-6 h-6 ${formData.payment_method === 'dinheiro' ? 'text-[hsl(var(--cash))]' : 'text-muted-foreground'}`} />
+                    <span className="text-xs md:text-base font-medium text-center md:text-left">Dinheiro</span>
+                  </Label>
                 </RadioGroup>
 
-                {/* Cash Change Input */}
+                {/* Troco - apenas se dinheiro */}
                 {formData.payment_method === 'dinheiro' && (
-                  <div className="mt-8 p-6 border-2 border-[hsl(var(--cash))]/30 rounded-2xl bg-gradient-to-br from-[hsl(var(--cash))]/5 to-[hsl(var(--cash))]/10 animate-fade-in backdrop-blur-sm">
-                    <h3 className="text-lg font-bold mb-4 text-[hsl(var(--cash))]">Pagamento em Dinheiro</h3>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="change_for" className="text-base font-semibold text-foreground">Troco para:</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-bold">
-                          R$
-                        </span>
-                        <Input
-                          id="change_for"
-                          type="text"
-                          placeholder="0,00"
-                          value={formData.change_for}
-                          onChange={(e) => {
-                            let value = e.target.value.replace(/\D/g, '');
-                            value = (Number(value) / 100).toFixed(2).replace('.', ',');
-                            setFormData({ ...formData, change_for: value });
-                          }}
-                          className="h-12 pl-10 text-lg font-bold bg-background border-2 focus:border-[hsl(var(--cash))] focus:ring-2 focus:ring-[hsl(var(--cash))]/20 transition-all duration-300"
-                        />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Deixe vazio se não precisar de troco
-                      </p>
+                  <div className="mt-4 p-3 border rounded-xl bg-[hsl(var(--cash))]/5">
+                    <Label htmlFor="change_for" className="text-sm font-medium">Troco para:</Label>
+                    <div className="relative mt-1.5">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">R$</span>
+                      <Input
+                        id="change_for"
+                        type="text"
+                        placeholder="0,00"
+                        value={formData.change_for}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, '');
+                          value = (Number(value) / 100).toFixed(2).replace('.', ',');
+                          setFormData({ ...formData, change_for: value });
+                        }}
+                        className="h-10 pl-10 text-sm"
+                      />
                     </div>
+                    <p className="text-xs text-muted-foreground mt-1">Deixe vazio se não precisar</p>
                   </div>
                 )}
               </Card>
 
-              <Card className="p-8 shadow-lg border-2 hover:border-primary/50 transition-all duration-300">
-                <h2 className="text-2xl font-bold mb-6 text-card-foreground">Observações</h2>
-                <Textarea
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Ex: Deixar na portaria, trocar porta, etc..."
-                  rows={4}
-                  className="text-base border-2 focus:border-primary transition-all resize-none"
-                />
-              </Card>
+              {/* Observações - Colapsável */}
+              <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+                <Card className="p-0 shadow-md overflow-hidden">
+                  <CollapsibleTrigger className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors">
+                    <span className="flex items-center gap-2 text-sm font-medium">
+                      <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                      {formData.notes ? 'Observação adicionada' : 'Adicionar observação'}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="px-4 pb-4">
+                      <Textarea
+                        value={formData.notes}
+                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                        placeholder="Ex: Deixar na portaria, apartamento 101..."
+                        rows={2}
+                        className="text-sm resize-none"
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
             </form>
           </div>
 
-          <div className="lg:col-span-1">
-            <Card className="p-8 sticky top-24 shadow-2xl border-2 border-primary/20 bg-gradient-to-br from-card via-card to-primary/5">
-              <h2 className="text-2xl font-bold mb-6 text-card-foreground">Resumo do Pedido</h2>
-              <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2">
+          {/* Resumo - Desktop apenas */}
+          <div className="hidden lg:block lg:col-span-1">
+            <Card className="p-6 sticky top-20 shadow-lg border-primary/20">
+              <h2 className="text-lg font-bold mb-4">Resumo do Pedido</h2>
+              <div className="space-y-2 mb-4 max-h-[200px] overflow-y-auto">
                 {cart.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center p-3 rounded-lg bg-accent/30 border border-primary/10 hover:border-primary/30 transition-all">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 text-primary font-bold text-sm">
-                          {item.quantity}
-                        </span>
-                        <span className="font-medium text-card-foreground text-sm">{item.name}</span>
-                      </div>
+                  <div key={item.id} className="flex justify-between items-center py-2 text-sm">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/20 text-primary font-bold text-xs shrink-0">
+                        {item.quantity}
+                      </span>
+                      <span className="truncate">{item.name}</span>
                     </div>
-                    <span className="font-bold text-primary ml-2">
+                    <span className="font-medium text-primary ml-2">
                       R$ {(item.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="border-t-2 border-primary/20 pt-6 mb-8 bg-gradient-to-r from-primary/5 to-transparent p-4 rounded-xl">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-lg font-semibold text-muted-foreground">Subtotal:</span>
-                  <span className="text-xl font-bold text-card-foreground">
-                    R$ {cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
-                  </span>
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>R$ {subtotal.toFixed(2)}</span>
                 </div>
                 {shippingFee > 0 && (
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-lg font-semibold text-muted-foreground">Frete:</span>
-                    <span className="text-xl font-bold text-primary">
-                      R$ {shippingFee.toFixed(2)}
-                    </span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Frete</span>
+                    <span className="text-primary font-medium">R$ {shippingFee.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center pt-2 border-t">
-                  <span className="text-2xl font-bold text-card-foreground">Total:</span>
-                  <span className="text-4xl font-bold text-primary animate-pulse">
-                    R$ {total.toFixed(2)}
-                  </span>
+                <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                  <span>Total</span>
+                  <span className="text-primary">R$ {total.toFixed(2)}</span>
                 </div>
               </div>
               <Button
                 onClick={handleSubmit}
                 disabled={loading || !canSubmit}
                 size="lg"
-                className="w-full h-16 text-xl font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.03] relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full mt-4"
               >
-                <span className="relative z-10 flex items-center justify-center">
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-6 h-6 mr-3 animate-spin" />
-                      Processando...
-                    </>
-                  ) : !canSubmit ? (
-                    <>
-                      <span className="mr-2">⚠️</span>
-                      Complete seu endereço
-                    </>
-                  ) : (
-                    <>
-                      <span className="mr-2">✓</span>
-                      Confirmar Pedido
-                    </>
-                  )}
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-white/20 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processando...
+                  </>
+                ) : !canSubmit ? (
+                  "Complete seu endereço"
+                ) : (
+                  "Confirmar Pedido"
+                )}
               </Button>
             </Card>
           </div>
         </div>
       </main>
+
+      {/* Footer fixo - Mobile apenas */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-2xl p-4 lg:hidden z-50 safe-area-bottom">
+        <div className="flex justify-between items-center mb-2">
+          <div>
+            <span className="text-xs text-muted-foreground">{itemCount} {itemCount === 1 ? 'item' : 'itens'}</span>
+            {shippingFee > 0 && (
+              <span className="text-xs text-muted-foreground ml-2">+ Frete R$ {shippingFee.toFixed(2)}</span>
+            )}
+          </div>
+          <span className="text-xl font-bold text-primary">R$ {total.toFixed(2)}</span>
+        </div>
+        <Button 
+          onClick={handleSubmit}
+          disabled={loading || !canSubmit}
+          size="lg"
+          className="w-full h-12"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Processando...
+            </>
+          ) : !canSubmit ? (
+            <>
+              <AlertCircle className="w-4 h-4 mr-2" />
+              Complete o endereço
+            </>
+          ) : (
+            "Confirmar Pedido"
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
