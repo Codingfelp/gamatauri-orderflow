@@ -1,0 +1,1 @@
+UPDATE coupons SET is_active = false, updated_at = now() WHERE code = 'TAURIFRETEOFF';
