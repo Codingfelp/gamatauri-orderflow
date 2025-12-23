@@ -65,10 +65,11 @@ export default function Orders() {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      if (!user || !userProfile) return;
+      // Fetch orders as soon as user exists - don't depend on userProfile
+      if (!user) return;
 
       try {
-        // Simply fetch all orders - RLS now handles phone normalization in the database
+        // Fetch orders using user_id directly (RLS handles filtering)
         const { data, error } = await supabase
           .from("orders")
           .select(`
@@ -80,6 +81,7 @@ export default function Orders() {
               subtotal
             )
           `)
+          .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
         if (error) {
@@ -87,7 +89,7 @@ export default function Orders() {
           throw error;
         }
         
-        console.log(`[Orders] Fetched ${data?.length || 0} orders for user`);
+        console.log(`[Orders] Fetched ${data?.length || 0} orders for user ${user.id}`);
         setOrders(data || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -96,10 +98,8 @@ export default function Orders() {
       }
     };
 
-    if (userProfile) {
-      fetchOrders();
-    }
-  }, [user, userProfile]);
+    fetchOrders();
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;

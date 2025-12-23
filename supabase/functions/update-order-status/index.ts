@@ -14,19 +14,24 @@ serve(async (req) => {
   }
 
   try {
-    // Validate API key for security (optional but recommended)
-    const apiKey = req.headers.get('x-api-key');
+    // Validate API key for security - accepts header OR query param
+    const url = new URL(req.url);
+    const apiKeyFromHeader = req.headers.get('x-api-key');
+    const apiKeyFromQuery = url.searchParams.get('key');
+    const providedKey = apiKeyFromHeader || apiKeyFromQuery;
     const expectedKey = Deno.env.get('WEBHOOK_SECRET');
     
     // If WEBHOOK_SECRET is configured, validate it
-    if (expectedKey && apiKey !== expectedKey) {
+    if (expectedKey && providedKey !== expectedKey) {
       console.warn('=== UNAUTHORIZED WEBHOOK CALL ===');
-      console.warn('Received x-api-key:', apiKey ? '[REDACTED]' : 'null');
+      console.warn('Received key from:', apiKeyFromHeader ? 'header' : apiKeyFromQuery ? 'query' : 'none');
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    console.log('✅ Webhook authenticated via:', apiKeyFromHeader ? 'header' : apiKeyFromQuery ? 'query param' : 'no auth required');
 
     const webhookData = await req.json();
     
