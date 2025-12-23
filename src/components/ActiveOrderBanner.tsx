@@ -86,27 +86,77 @@ export const ActiveOrderBanner = () => {
   const statusInfo = getStatusInfo();
   const StatusIcon = statusInfo.icon;
 
+  const bannerBgColor = activeOrder.status === 'cancelled' ? 'bg-destructive/90' : 'bg-primary/90';
+
   return (
     <>
-      <div className={`sticky top-20 z-40 w-full bg-red-500/90 backdrop-blur-sm shadow-lg transition-all duration-500 ${isTransitioning ? 'scale-105' : 'scale-100'}`}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-14 gap-4">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
+      <div className={`sticky top-16 z-50 w-full ${bannerBgColor} backdrop-blur-sm shadow-lg transition-all duration-500 ${isTransitioning ? 'scale-[1.02]' : 'scale-100'}`}>
+        <div className="container mx-auto px-3 py-2">
+          {/* Mobile: Two lines layout */}
+          <div className="flex flex-col gap-2 sm:hidden">
+            {/* Line 1: Order number + Time */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse flex-shrink-0" />
+                <span className="text-white font-bold text-sm">
+                  #{activeOrder.orderNumber}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 text-white/90">
+                <Clock className="w-3 h-3" />
+                <span className="text-xs font-medium">{elapsedTime}</span>
+              </div>
+            </div>
+            
+            {/* Line 2: Status + Actions */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-white/90">
+                <StatusIcon className="w-4 h-4" />
+                <span className="text-sm font-medium">{statusInfo.label}</span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDetails(true)}
+                  className="text-white hover:bg-white/20 h-10 px-3 text-xs min-w-[80px]"
+                >
+                  Detalhes
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+                
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearActiveOrder}
+                  className="text-white hover:bg-white/20 h-10 w-10"
+                  title="Fechar"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop: Single line layout */}
+          <div className="hidden sm:flex items-center justify-between h-12 gap-4">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                <span className="text-white font-bold text-sm md:text-base whitespace-nowrap">
+                <span className="text-white font-bold text-base whitespace-nowrap">
                   Pedido #{activeOrder.orderNumber}
                 </span>
               </div>
               
-              <div className="hidden sm:flex items-center gap-2 text-white/90">
+              <div className="flex items-center gap-2 text-white/90">
                 <Clock className="w-4 h-4" />
                 <span className="text-sm font-medium">{elapsedTime}</span>
               </div>
 
               <div className="flex items-center gap-2 text-white/90">
                 <StatusIcon className="w-4 h-4" />
-                <span className="text-sm font-medium truncate">{statusInfo.label}</span>
+                <span className="text-sm font-medium">{statusInfo.label}</span>
               </div>
             </div>
 
@@ -115,7 +165,7 @@ export const ActiveOrderBanner = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowDetails(true)}
-                className="text-white hover:bg-white/20 h-9 text-xs md:text-sm"
+                className="text-white hover:bg-white/20 h-10 text-sm"
               >
                 Ver Detalhes
                 <ChevronRight className="w-4 h-4 ml-1" />
@@ -125,10 +175,10 @@ export const ActiveOrderBanner = () => {
                 variant="ghost"
                 size="icon"
                 onClick={clearActiveOrder}
-                className="text-white hover:bg-white/20 h-9 w-9"
+                className="text-white hover:bg-white/20 h-10 w-10"
                 title="Fechar"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -146,7 +196,7 @@ export const ActiveOrderBanner = () => {
             createdAt={activeOrder.createdAt} 
           />
           
-          {activeOrder.status !== 'delivered' && (
+          {activeOrder.status !== 'delivered' && activeOrder.status !== 'cancelled' && (
             <div className="flex justify-center gap-4 mt-6 pt-6 border-t">
               <Button
                 onClick={markAsDelivered}

@@ -146,7 +146,7 @@ const Success = () => {
         )}
         
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in" style={{ animationDelay: '600ms' }}>
-          {orderStatus !== 'delivered' && (
+          {orderStatus !== 'delivered' && orderStatus !== 'cancelled' && (
             <Button
               onClick={markAsDelivered}
               size="lg"
