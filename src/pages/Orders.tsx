@@ -68,8 +68,7 @@ export default function Orders() {
       if (!user || !userProfile) return;
 
       try {
-        const normalizedProfilePhone = normalizePhone(userProfile.phone);
-
+        // Simply fetch all orders - RLS now handles phone normalization in the database
         const { data, error } = await supabase
           .from("orders")
           .select(`
@@ -81,10 +80,14 @@ export default function Orders() {
               subtotal
             )
           `)
-          .or(`customer_phone.eq.${normalizedProfilePhone},customer_email.eq.${user.email}`)
           .order("created_at", { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error("Error fetching orders:", error);
+          throw error;
+        }
+        
+        console.log(`[Orders] Fetched ${data?.length || 0} orders for user`);
         setOrders(data || []);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -155,9 +158,12 @@ export default function Orders() {
   const getStatusBadge = (status: string) => {
     const config: Record<string, { label: string; variant: any; icon: any }> = {
       preparing: { label: "Preparando", variant: "secondary", icon: Clock },
+      separacao: { label: "Preparando", variant: "secondary", icon: Clock },
       in_route: { label: "A caminho", variant: "default", icon: Truck },
       delivered: { label: "Entregue", variant: "outline", icon: CheckCircle },
+      entregue: { label: "Entregue", variant: "outline", icon: CheckCircle },
       cancelled: { label: "Cancelado", variant: "destructive", icon: XCircle },
+      cancelado: { label: "Cancelado", variant: "destructive", icon: XCircle },
     };
     const { label, variant, icon: Icon } = config[status] || config.preparing;
     return (
@@ -178,6 +184,22 @@ export default function Orders() {
   };
 
   const filterOrdersByStatus = (status: string) => {
+    // Handle multiple status values that map to the same tab
+    if (status === 'preparing') {
+      return orders.filter((order) => 
+        order.order_status === 'preparing' || order.order_status === 'separacao'
+      );
+    }
+    if (status === 'delivered') {
+      return orders.filter((order) => 
+        order.order_status === 'delivered' || order.order_status === 'entregue'
+      );
+    }
+    if (status === 'cancelled') {
+      return orders.filter((order) => 
+        order.order_status === 'cancelled' || order.order_status === 'cancelado'
+      );
+    }
     return orders.filter((order) => order.order_status === status);
   };
 

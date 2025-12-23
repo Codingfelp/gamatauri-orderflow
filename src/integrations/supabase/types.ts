@@ -466,6 +466,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      normalize_phone: { Args: { p_phone: string }; Returns: string }
       validate_coupon: {
         Args: { p_code: string; p_shipping_fee: number; p_user_id: string }
         Returns: Json
