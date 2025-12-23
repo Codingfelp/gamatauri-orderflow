@@ -292,9 +292,14 @@ serve(async (req) => {
       }
     }
 
+    // Build webhook URL with auth key as query param for external system compatibility
+    const webhookSecret = Deno.env.get('WEBHOOK_SECRET');
+    const webhookBaseUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`;
+    const webhookUrl = webhookSecret ? `${webhookBaseUrl}?key=${webhookSecret}` : webhookBaseUrl;
+    
     const gamatauriPayload = {
       external_order_id: internalOrderId,
-      external_webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/update-order-status`,
+      external_webhook_url: webhookUrl,
       customer_name: orderData.customer_name,
       customer_phone: normalizedPhone,
       customer_address: orderData.customer_address || null,

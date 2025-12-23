@@ -60,6 +60,9 @@ export const ActiveOrderBanner = () => {
       
       toast.success('Pedido marcado como entregue! 🎉');
       setShowDetails(false);
+      
+      // Clear immediately after successful update - don't wait for realtime
+      clearActiveOrder();
     } catch (error) {
       console.error('Error marking as delivered:', error);
       toast.error('Erro ao marcar pedido como entregue');

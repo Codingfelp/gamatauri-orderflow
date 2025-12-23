@@ -93,6 +93,25 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Map database status to canonical status
+  const mapDbStatusToCanonical = (dbStatus: string): OrderStatus => {
+    const normalized = dbStatus?.toLowerCase()?.trim() || 'preparing';
+    
+    // Cancelled statuses
+    if (normalized === 'cancelled' || normalized === 'cancelado') return 'cancelled';
+    
+    // Delivered statuses
+    if (normalized === 'delivered' || normalized === 'entregue' || normalized === 'concluido' || normalized === 'finalizado') return 'delivered';
+    
+    // In route statuses
+    if (normalized === 'in_route' || normalized === 'em_rota' || normalized === 'saiu_para_entrega' || 
+        normalized === 'out_for_delivery' || normalized === 'delivering' || normalized === 'pronto' ||
+        normalized === 'ready' || normalized === 'ready_for_delivery') return 'in_route';
+    
+    // Default to preparing
+    return 'preparing';
+  };
+
   // Subscribe to realtime updates for the active order
   useEffect(() => {
     if (!activeOrder?.orderId) return;
@@ -109,7 +128,10 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
         },
         (payload) => {
           console.log("Order status updated via Realtime:", payload);
-          const newStatus = payload.new.order_status as OrderStatus;
+          const rawStatus = payload.new.order_status as string;
+          const newStatus = mapDbStatusToCanonical(rawStatus);
+          
+          console.log(`Status mapping: "${rawStatus}" -> "${newStatus}"`);
           
           // Handle cancelled orders
           if (newStatus === "cancelled") {
