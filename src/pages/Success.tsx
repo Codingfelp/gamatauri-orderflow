@@ -5,18 +5,19 @@ import { OrderTimeline } from "@/components/OrderTimeline";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 
 type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
 const Success = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { setActiveOrder } = useActiveOrder();
+  const { setActiveOrder, cancelledOrderDetails, clearCancelledOrder } = useActiveOrder();
   const orderNumber = location.state?.orderNumber;
   const orderId = location.state?.orderId;
   const [orderStatus, setOrderStatus] = useState<string>('preparing');
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
+  const [isCancelled, setIsCancelled] = useState(false);
 
   // Mapear status do banco para tipo esperado pelo contexto
   const mapDbStatusToContextStatus = (dbStatus: string): OrderStatus => {
@@ -38,11 +39,19 @@ const Success = () => {
     }
   };
 
+  // Check if we came from a cancelled order via context
   useEffect(() => {
-    if (!orderNumber && !orderId) {
+    if (cancelledOrderDetails) {
+      setIsCancelled(true);
+      setOrderStatus('cancelled');
+    }
+  }, [cancelledOrderDetails]);
+
+  useEffect(() => {
+    if (!orderNumber && !orderId && !cancelledOrderDetails) {
       navigate('/');
     }
-  }, [orderNumber, orderId, navigate]);
+  }, [orderNumber, orderId, cancelledOrderDetails, navigate]);
 
   useEffect(() => {
     if (!orderId) return;
@@ -58,13 +67,18 @@ const Success = () => {
         setOrderStatus(data.order_status);
         setCreatedAt(data.created_at);
         
-        // Atualizar contexto com status real do banco
-        setActiveOrder({
-          orderId,
-          orderNumber: orderNumber || '',
-          status: mapDbStatusToContextStatus(data.order_status),
-          createdAt: data.created_at,
-        });
+        // Check if order is cancelled
+        if (data.order_status === 'cancelled' || data.order_status === 'cancelado') {
+          setIsCancelled(true);
+        } else {
+          // Atualizar contexto com status real do banco
+          setActiveOrder({
+            orderId,
+            orderNumber: orderNumber || '',
+            status: mapDbStatusToContextStatus(data.order_status),
+            createdAt: data.created_at,
+          });
+        }
       }
     };
     
@@ -84,6 +98,12 @@ const Success = () => {
           console.log('[Success] Status atualizado em Success:', payload.new.order_status);
           const newStatus = payload.new.order_status;
           setOrderStatus(newStatus);
+          
+          // Check if cancelled
+          if (newStatus === 'cancelled' || newStatus === 'cancelado') {
+            setIsCancelled(true);
+            return;
+          }
           
           // Atualizar contexto quando status mudar via realtime
           setActiveOrder({
@@ -133,6 +153,57 @@ const Success = () => {
       toast.error('Erro ao marcar pedido como entregue');
     }
   };
+
+  // Cancelled order view
+  if (isCancelled || orderStatus === 'cancelled') {
+    const displayOrderNumber = orderNumber || cancelledOrderDetails?.orderNumber || 'N/A';
+    
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-destructive/5 to-destructive/10 p-4 py-20 animate-fade-in">
+        <div className="max-w-lg w-full text-center">
+          {/* Cancelled Icon */}
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-destructive/20 to-destructive/5 mb-6 animate-scale-in">
+            <XCircle className="w-12 h-12 text-destructive" />
+          </div>
+          
+          {/* Title */}
+          <h1 className="text-3xl md:text-4xl font-bold text-destructive mb-4">
+            Pedido Cancelado
+          </h1>
+          
+          {/* Order Number */}
+          <div className="inline-block backdrop-blur-sm bg-white/60 dark:bg-black/60 px-6 py-3 rounded-2xl border border-destructive/20 shadow-lg mb-6">
+            <p className="text-sm text-muted-foreground mb-1">Número do Pedido</p>
+            <p className="text-2xl font-mono font-bold text-destructive">{displayOrderNumber}</p>
+          </div>
+          
+          {/* Message */}
+          <div className="backdrop-blur-sm bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-2xl p-6 border border-destructive/20 shadow-lg mb-8">
+            <AlertTriangle className="w-8 h-8 text-destructive mx-auto mb-3" />
+            <p className="text-lg font-semibold text-destructive">
+              Infelizmente seu pedido foi cancelado.
+            </p>
+            <p className="text-muted-foreground mt-2">
+              Entre em contato conosco para mais informações.
+            </p>
+          </div>
+          
+          {/* Action Button */}
+          <Button
+            onClick={() => {
+              clearCancelledOrder();
+              navigate('/');
+            }}
+            size="lg"
+            className="px-12 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <span className="mr-2 text-xl">←</span>
+            Fazer Novo Pedido
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-primary/5 p-4 py-20 animate-fade-in">
