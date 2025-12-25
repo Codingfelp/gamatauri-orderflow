@@ -175,114 +175,109 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900 border-none max-h-[90vh] overflow-y-auto">
-        {/* Progress Bar */}
-        <div className="sticky top-0 z-20 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm">
-          <div className="h-1.5 bg-zinc-200 dark:bg-zinc-700">
-            <motion.div
-              className="h-full bg-gradient-to-r from-amber-500 to-yellow-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-            />
-          </div>
-          <div className="flex items-center justify-between px-5 py-3">
-            <div className="flex items-center gap-2">
-              <motion.span 
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="text-xl"
-              >
-                🎄
-              </motion.span>
-              <span className="font-semibold text-foreground text-sm">
-                Montando seu pedido
-              </span>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-card border border-border max-h-[85vh] overflow-y-auto">
+        {/* Header with progress */}
+        <div className="sticky top-0 z-20 bg-card/95 backdrop-blur-sm border-b border-border">
+          <div className="px-5 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🎄</span>
+                <div>
+                  <h3 className="font-semibold text-foreground text-sm">
+                    Montando seu pedido
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Passo {step + 1} de 3
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-1">
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    i <= step ? "bg-amber-500" : "bg-zinc-300 dark:bg-zinc-600"
-                  }`}
-                />
-              ))}
+            {/* Progress bar */}
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-amber-500 rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
             </div>
           </div>
         </div>
 
-        <div className="px-5 pb-6">
+        <div className="px-5 py-4">
           <AnimatePresence mode="wait">
             {/* STEP 0: Momento */}
             {step === 0 && (
               <motion.div
                 key="step0"
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
               >
-                <h2 className="text-xl font-bold text-foreground mb-1">
-                  Pra qual momento é esse pedido?
+                <h2 className="text-base font-semibold text-foreground mb-0.5">
+                  Qual é o clima dessa celebração?
                 </h2>
-                <p className="text-muted-foreground text-sm mb-5">
-                  Escolha a ocasião perfeita
+                <p className="text-xs text-muted-foreground mb-4">
+                  Isso ajuda a gente a escolher melhor
                 </p>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
                   {momentoOptions.map((opt) => {
-                    const Icon = opt.icon;
                     const selected = momento === opt.value;
                     return (
                       <motion.button
                         key={opt.value}
-                        whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleMomentoSelect(opt.value)}
                         className={`
-                          relative p-4 rounded-2xl text-left transition-all border-2
+                          w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all
                           ${selected 
-                            ? "border-amber-500 bg-amber-50 dark:bg-amber-900/30 shadow-lg shadow-amber-500/20" 
-                            : "border-transparent bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                            ? "bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500" 
+                            : "bg-muted/50 border-2 border-transparent hover:bg-muted"
                           }
                         `}
                       >
+                        <span className="text-xl">{opt.emoji}</span>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-foreground text-sm">{opt.label}</h3>
+                          <p className="text-[11px] text-muted-foreground truncate">{opt.tip}</p>
+                        </div>
                         {selected && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="absolute top-2 right-2 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center"
+                            className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0"
                           >
                             <Check className="w-3 h-3 text-white" />
                           </motion.div>
                         )}
-                        <span className="text-3xl mb-2 block">{opt.emoji}</span>
-                        <h3 className="font-semibold text-foreground text-sm">{opt.label}</h3>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">{opt.tip}</p>
                       </motion.button>
                     );
                   })}
                 </div>
 
-                {momento && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-5"
-                  >
-                    <p className="text-center text-sm text-amber-600 dark:text-amber-400 font-medium mb-4">
-                      {getMomentoFeedback()}
-                    </p>
-                    <Button
-                      onClick={nextStep}
-                      className="w-full h-12 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-900 font-bold rounded-xl"
+                <AnimatePresence>
+                  {momento && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-4 space-y-3"
                     >
-                      Continuar
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </motion.div>
-                )}
+                      <p className="text-center text-xs text-amber-600 dark:text-amber-400 font-medium">
+                        {getMomentoFeedback()}
+                      </p>
+                      <Button
+                        onClick={nextStep}
+                        className="w-full h-10 bg-foreground hover:bg-foreground/90 text-background font-medium rounded-lg"
+                      >
+                        Continuar
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
 
@@ -290,69 +285,71 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
             {step === 1 && (
               <motion.div
                 key="step1"
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
               >
                 <button
                   onClick={prevStep}
-                  className="text-sm text-muted-foreground hover:text-foreground mb-3 flex items-center gap-1"
+                  className="text-xs text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1"
                 >
                   ← Voltar
                 </button>
                 
-                <h2 className="text-xl font-bold text-foreground mb-1">
+                <h2 className="text-base font-semibold text-foreground mb-0.5">
                   Quantas pessoas vão brindar?
                 </h2>
-                <p className="text-muted-foreground text-sm mb-5">
+                <p className="text-xs text-muted-foreground mb-4">
                   Assim calculamos a quantidade ideal
                 </p>
 
-                <div className="flex gap-3">
+                <div className="grid grid-cols-4 gap-2">
                   {pessoasOptions.map((opt) => {
                     const selected = pessoas === opt.value;
                     return (
                       <motion.button
                         key={opt.value}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => handlePessoasSelect(opt.value)}
                         className={`
-                          flex-1 py-4 rounded-xl text-center transition-all border-2
+                          py-3 rounded-lg text-center transition-all
                           ${selected 
-                            ? "border-amber-500 bg-amber-50 dark:bg-amber-900/30" 
-                            : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                            ? "bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500" 
+                            : "bg-muted/50 border-2 border-transparent hover:bg-muted"
                           }
                         `}
                       >
-                        <span className="text-xl font-bold text-foreground block">{opt.label}</span>
-                        <span className="text-[10px] text-muted-foreground">{opt.subtitle}</span>
+                        <span className="text-sm font-bold text-foreground block">{opt.label}</span>
+                        <span className="text-[9px] text-muted-foreground">{opt.subtitle}</span>
                       </motion.button>
                     );
                   })}
                 </div>
 
-                {pessoas && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-5"
-                  >
-                    <div className="bg-amber-100 dark:bg-amber-900/30 rounded-xl p-3 text-center mb-4">
-                      <span className="text-amber-700 dark:text-amber-300 text-sm">
-                        Boa! Isso costuma dar <strong>~{getBottleEstimate(pessoas)} garrafas</strong> 🍾
-                      </span>
-                    </div>
-                    <Button
-                      onClick={nextStep}
-                      className="w-full h-12 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-zinc-900 font-bold rounded-xl"
+                <AnimatePresence>
+                  {pessoas && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-4 space-y-3"
                     >
-                      Continuar
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </motion.div>
-                )}
+                      <div className="bg-muted/50 rounded-lg p-2.5 text-center">
+                        <span className="text-muted-foreground text-xs">
+                          Isso costuma dar <strong className="text-foreground">~{getBottleEstimate(pessoas)} garrafas</strong> 🍾
+                        </span>
+                      </div>
+                      <Button
+                        onClick={nextStep}
+                        className="w-full h-10 bg-foreground hover:bg-foreground/90 text-background font-medium rounded-lg"
+                      >
+                        Continuar
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
 
@@ -360,57 +357,56 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
             {step === 2 && (
               <motion.div
                 key="step2"
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.25 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
               >
                 <button
                   onClick={prevStep}
-                  className="text-sm text-muted-foreground hover:text-foreground mb-3 flex items-center gap-1"
+                  className="text-xs text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1"
                 >
                   ← Voltar
                 </button>
 
-                <h2 className="text-xl font-bold text-foreground mb-1">
+                <h2 className="text-base font-semibold text-foreground mb-0.5">
                   Qual o estilo ideal?
                 </h2>
-                <p className="text-muted-foreground text-sm mb-5">
+                <p className="text-xs text-muted-foreground mb-4">
                   Escolha o perfil de sabor
                 </p>
 
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {perfilOptions.map((opt) => {
                     const Icon = opt.icon;
                     const selected = perfil === opt.value;
                     return (
                       <motion.button
                         key={opt.value}
-                        whileHover={{ x: 4 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handlePerfilSelect(opt.value)}
                         className={`
-                          w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all border-2
+                          w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all
                           ${selected 
-                            ? "border-amber-500 bg-amber-50 dark:bg-amber-900/30" 
-                            : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800"
+                            ? "bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500" 
+                            : "bg-muted/50 border-2 border-transparent hover:bg-muted"
                           }
                         `}
                       >
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${opt.color} flex items-center justify-center`}>
-                          <Icon className="w-6 h-6 text-white" />
+                        <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${opt.color} flex items-center justify-center flex-shrink-0`}>
+                          <Icon className="w-4 h-4 text-white" />
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground">{opt.label}</h3>
-                          <p className="text-xs text-muted-foreground">{opt.tip}</p>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-foreground text-sm">{opt.label}</h3>
+                          <p className="text-[11px] text-muted-foreground truncate">{opt.tip}</p>
                         </div>
                         {selected && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center"
+                            className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0"
                           >
-                            <Check className="w-4 h-4 text-white" />
+                            <Check className="w-3 h-3 text-white" />
                           </motion.div>
                         )}
                       </motion.button>
@@ -418,38 +414,38 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                   })}
                 </div>
 
-                {perfil && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-5"
-                  >
-                    <Button
-                      onClick={handleFinish}
-                      disabled={isLoading}
-                      className="w-full h-12 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold rounded-xl"
+                <AnimatePresence>
+                  {perfil && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-4"
                     >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Pensando na sua ceia...
-                        </>
-                      ) : (
-                        <>
-                          Montar meu pedido
-                          <Sparkles className="w-4 h-4 ml-2" />
-                        </>
-                      )}
-                    </Button>
-                  </motion.div>
-                )}
+                      <Button
+                        onClick={handleFinish}
+                        disabled={isLoading}
+                        className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Pensando na sua ceia...
+                          </>
+                        ) : (
+                          <>
+                            Montar meu pedido
+                            <Sparkles className="w-4 h-4 ml-2" />
+                          </>
+                        )}
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-
-        {/* Footer decoration */}
-        <div className="h-1 bg-gradient-to-r from-red-500 via-amber-500 to-emerald-500" />
       </DialogContent>
     </Dialog>
   );
