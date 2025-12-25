@@ -1,0 +1,5887 @@
+[
+  {
+    "id": "b88ac51b-cebb-4243-b374-bc5b91d84266",
+    "nome": "Absolut 1L",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "500d6333-0dda-4ac0-8912-f2340d5b98ff",
+    "nome": "Absolut 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "b7f2c356-ead7-4e98-8e5a-6e5c74118742",
+    "nome": "Absolut Citron 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "39ef11b7-5029-47d0-9cf2-5d430d8cac7a",
+    "nome": "Absolut Mango 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e6aec664-8846-475e-8654-f39495c9a3bc",
+    "nome": "Absolut Raspberry 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "403257f3-4bb0-4248-aeb9-d68e225010fd",
+    "nome": "Absolut Vanilla 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ccb97ad8-3d43-49c8-aaa6-b50154f95964",
+    "nome": "Amstel 355ml                                                                                                                                                                              ",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "0cb97639-a3d1-43a4-9370-a5f9ad4d522a",
+    "nome": "Amstel 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "974e8a9f-e6a2-4ba4-b760-97598ed25e97",
+    "nome": "Amstel Ultra Long Neck 275ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "fd80993f-8b33-41da-a5d8-462618cef488",
+    "nome": "Antarctica 300ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d6d24645-c856-4bc1-89e3-e888abd51e52",
+    "nome": "Antarctica 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f912a675-825d-465c-a271-093644873ac6",
+    "nome": "Antarctica 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "7f1b3a5a-4c21-485d-89e7-281222dd2cba",
+    "nome": "Antarctica Sub Zero 473ml ",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e4d22948-e3dc-47dc-9aa1-a890d63d2e18",
+    "nome": "Bacardi Big Apple 980ml",
+    "categoria": "rum",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1d1c6c1e-9502-42c1-8448-abb3d4fbb020",
+    "nome": "Bacardi Carta Branca 980ml",
+    "categoria": "rum",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "37369c78-be07-4877-be98-541c89d06781",
+    "nome": "Bacardi Carta Ouro 980ml",
+    "categoria": "rum",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3cb20dbe-1c14-4010-bc16-e37c3de7ed7f",
+    "nome": "Ballantines 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d3b84a8f-cc40-45a2-ab16-ed59aaaeabdb",
+    "nome": "Beats Caipirinha 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "622fdba6-bb1a-40fd-a886-b6951ae6a4d0",
+    "nome": "Beats Caipirinha Long Neck 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "a2688b20-da75-4072-9a04-e47c164da444",
+    "nome": "Beats Green Mix 269ml ",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f325d105-660a-433d-94c1-8b76af2168a8",
+    "nome": "Beats Green Mix Long Neck 269ml ",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9fe78cf3-fc73-45ed-99ee-ffdbd46aabbd",
+    "nome": "Beats GT 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "eb22d662-242d-464e-a85c-b4d8b23b803e",
+    "nome": "Beats GT 473ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1e945c11-80a5-4f97-83a2-278c4d72770a",
+    "nome": "Beats GT Long Neck 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "fed3d4dc-2937-4cd9-ae6d-03871d718e27",
+    "nome": "Beats Red Mix 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1f319445-96ae-4a00-8efd-c5f99c7d830e",
+    "nome": "Beats Red Mix 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "22492f3c-7838-451d-b37f-f936d2da48b0",
+    "nome": "Beats Red Mix Long Neck 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d4ff69e8-d2b4-40fb-b6b8-990686bd4c7a",
+    "nome": "Beats Senses 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "b4ee70ae-98c6-4535-bb7e-3da46bb1e6b9",
+    "nome": "Beats Senses 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e8a97e29-d762-487e-a66a-dd3444d2ee98",
+    "nome": "Beats Senses 473ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f01223ff-3754-42db-bc65-bb1814f3150a",
+    "nome": "Beats Senses Long Neck 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "fe091759-7c2a-45bf-98e8-302bc6ea6fca",
+    "nome": "Beats Tropical 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3409d276-84d0-465d-86f2-494eacc18895",
+    "nome": "Beats Tropical Long Neck 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f60cae3a-b5cd-4097-9c69-db4406176b73",
+    "nome": "Beefeater 750ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c05c8f2d-c07b-4f93-a8a4-ada5c2f7298c",
+    "nome": "Beefeater Black Berry 750ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3c0de7bf-9dc3-49a1-9e23-51e5caabf5b4",
+    "nome": "Beefeater Bothanics 750ml ",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "85ddcbaf-32ae-4cb0-93b3-405436c3d74d",
+    "nome": "Beefeater Pink 750ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ce7fe71f-8a66-489d-8711-4f6c2323fafc",
+    "nome": "BG 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "48238895-e9fa-4805-b408-495e1b04e4a1",
+    "nome": "Black Label 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6eb595f3-d0e8-4d96-899a-3514ed2faee4",
+    "nome": "Black Label 750ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "39547c66-12d1-41af-b5ee-4d00d567ff56",
+    "nome": "Bohemia 300ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "645bc208-e460-4dd7-9666-b20f99689f68",
+    "nome": "Bohemia 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "db17cde0-7d81-49ed-b1cb-059f2de94602",
+    "nome": "Bombay Sapphire 750ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3d8f6bfe-1577-41fc-8702-89b25cfe3428",
+    "nome": "Brahma 300ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "222deb5d-07e8-49d2-b074-2e4706a5f3b6",
+    "nome": "Brahma 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "62643b7a-9749-488d-b10d-2cb251c9d940",
+    "nome": "Brahma 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c6b3d210-2c50-4d54-9b51-de8bc06998b4",
+    "nome": "Brahma 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "bc3b3f35-b861-4a18-a75a-1831324d6577",
+    "nome": "Brahma Duplo Malte 300ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "7ae3d5be-52ec-4982-b01b-864ef796f251",
+    "nome": "Brahma Duplo Malte 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f8f71650-99fd-43bc-954e-20356dd4bfda",
+    "nome": "Brahma Duplo Malte 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "83e7bed2-1a47-4286-a23f-1ded89fdd658",
+    "nome": "Brahma Malzibier 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "198bec80-9095-4df6-9ce9-6772279d9865",
+    "nome": "Brahma Zero 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ac26f03c-e69f-4f82-b59b-69a6f3a3d63c",
+    "nome": "Brutal Fruit Spritzer",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c0a84c46-4054-456b-be9f-56cc4094a704",
+    "nome": "Buchanannanas 750ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d494f1f5-2311-48bf-9620-80065d113f3a",
+    "nome": "Buchanannans 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ed93e436-3a03-4e6a-b9e7-d2bf6c4e94b2",
+    "nome": "Buchanannans Master 750ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "44354982-5d3b-4424-bc75-ed24c9f6ad05",
+    "nome": "Budweiser 300ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "26e5f77c-5c66-4e10-b9bc-45c8a6de55f8",
+    "nome": "Budweiser 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "94541aea-c1ab-4ff4-9391-6df4f86fbede",
+    "nome": "Budweiser 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "039f7616-bd0d-4608-89bd-3cad36129a92",
+    "nome": "Budweiser 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9b79be75-2c0c-462d-8c75-17692114be03",
+    "nome": "Budweiser Zero 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1334b995-c91d-4705-9251-162cff82f9c5",
+    "nome": "Budweiser Zero 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "4dc53a75-e75d-4ee3-b75b-331344330f96",
+    "nome": "Campo Largo Branco 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "5c7cfa51-c0f3-4088-9e4a-49f63ee2ec85",
+    "nome": "Campo Largo Rose 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "321cbc64-13a2-4547-a372-baae7af532fe",
+    "nome": "Campo Largo Tinto Seco 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "21d7c55a-4b25-49a5-9e22-74f423b54670",
+    "nome": "Campo Largo Tinto Suave 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "67bf683c-dbd4-4511-93b7-5350fb338051",
+    "nome": "Canção Tinto Seco 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "02fb292c-3a01-43d0-a405-b2bdb2d3aa2f",
+    "nome": "Canção Tinto Suave 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "e0f51a84-f2a8-4be4-a8c7-ff719a5c4c12",
+    "nome": "Caracu 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "04c6ea09-147e-4d03-98dc-e945d1843207",
+    "nome": "Casal Garcia Branco Sweet 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "52839f2b-af78-4f0d-bc2d-807ce12de1b7",
+    "nome": "Casal Garcia Rose 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "afbaa6be-16a1-4f40-8819-898f44582060",
+    "nome": "Casal Garcia Tinto 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "5d34db78-d5c9-4d84-b3e6-b0ef8fef51f4",
+    "nome": "Casal Garcia Tinto Sweet 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "de2b04c8-5f72-4f20-ac05-1792d23a491d",
+    "nome": "Casal Garcia Verde 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "f79d49a3-e9e7-4188-be0b-5a63f39e64b6",
+    "nome": "Casillero Del Diablo Belight Branco 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "35e00bf2-6778-4f4d-a929-072523525bb7",
+    "nome": "Casillero Del Diablo Belight Rose 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "ae3faa32-0651-457b-b05f-d46fe2fbe75f",
+    "nome": "Casillero Del Diablo Cabernet Sauvignon 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "35e8b5e3-adbf-4fb3-ac6d-10b75994902f",
+    "nome": "Casillero Del Diablo Carmenere 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "fccc92ff-3a0e-42d4-a86e-e7d8af7a2322",
+    "nome": "Casillero Del Diablo Malbec 750ml ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "0f7db464-9b3b-4a9e-979e-fa954d7e8d34",
+    "nome": "Casillero Del Diablo Merlot 750ml ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "d6b8518c-178b-4f93-ac7f-1716bfef6d9f",
+    "nome": "Casillero Del Diablo Pedro Jimenez 750ml ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "3406d50f-d8cd-4b2f-9f3f-f3a28a803a1a",
+    "nome": "Casillero Del Diablo Red Blend 750ml ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "1aa5943f-5c2a-4491-b56c-83f5939ab1f2",
+    "nome": "Casillero Del Diablo Rose 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "fb73e9bd-d8e2-4ca5-91d7-dd91663edab6",
+    "nome": "Casillero Del Diablo Sauvignon Blanc 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "709f3f5a-42c0-43a8-9c64-b2cf1890a02e",
+    "nome": "Cerveja Draft Chopp de Vinho  600ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "644e5340-2179-4152-99a6-4cb00b87800b",
+    "nome": "Chandon Brut Rose 750ml",
+    "categoria": "espumante",
+    "docura": "seco",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "76ed97ba-9ed5-4a72-be15-0b6d26a7891e",
+    "nome": "Chandon Demi Sec 750ml",
+    "categoria": "espumante",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "b6c026b9-59d2-470a-b824-e66c051b4d36",
+    "nome": "Chivas 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "7aecc2d3-1da0-4938-a9ee-f6c2daf48083",
+    "nome": "Ciroc 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "2f27e903-3c90-410e-82bb-128573222e16",
+    "nome": "Ciroc Red 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ee5e5d4e-6e8f-46eb-8d56-1256f816f9ac",
+    "nome": "Colorado Appia 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "fa05fd65-3baa-4a76-aed6-cc85f327731c",
+    "nome": "Colorado Cauim 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c57c80e5-530a-44ef-83d7-3db7267088bd",
+    "nome": "Colorado Demoiselle 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "0729bbda-1195-4cc2-968e-48dc545f34c3",
+    "nome": "Colorado Indica 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "49b8d57b-afed-40bf-919e-f6ad04938e08",
+    "nome": "Colorado Kuya 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e79d4046-f77c-41e4-b476-2812b562c5d2",
+    "nome": "Colorado Ribeirao 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "fe9bf87a-f8e0-444b-9303-8ca61f4c3d5a",
+    "nome": "Colorado Vixnu 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e9bce659-df04-4af2-9c69-11baac7e8bd5",
+    "nome": "Concha Y Toro Blanc Spriter 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "8d7f23ae-2f25-4cc5-b67c-0c5aaf7be334",
+    "nome": "Concha Y Toro Cabernet Sauvignon 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "14b79c98-70ad-4dda-bd88-d91872075e28",
+    "nome": "Concha Y Toro Carmenere 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "070aebce-3580-429b-a2ea-db971be19956",
+    "nome": "Concha Y Toro Chardonnay 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "1c09e86f-87d3-4243-b1fc-774c31b492df",
+    "nome": "Concha Y Toro Malbec 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "5cea8ede-8157-45fe-999a-9fb5439da535",
+    "nome": "Concha Y Toro Merlot 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "c10415bd-673d-4856-83a7-98e9e4eb29d1",
+    "nome": "Concha Y Toro Rose Spritzer 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "0c5803bf-3b4b-4afd-bd15-ed8c031d9aca",
+    "nome": "Concha y Toro Sauvignon Blanc 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "05531e16-89dd-4cdd-b864-9dc34c3c1683",
+    "nome": "Concha Y Toro Sweet Rose 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "184efe46-4769-4f8c-98ef-d26fcc67423b",
+    "nome": "Concha Y Toro Sweet White 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "d8513075-958e-43aa-b15e-3ff4394ec6ac",
+    "nome": "Conhaque Domus 900ml",
+    "categoria": "conhaque",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9ff42dd6-cb37-41f3-ba0a-d72e453bc281",
+    "nome": "Corona 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "dfc405f8-4e35-488d-912c-aa483581bbf1",
+    "nome": "Corona 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "4db65473-d91f-4de2-a547-5b7a2918fc7c",
+    "nome": "Corona 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3cba281f-fff1-430a-81fe-b8569cfe4732",
+    "nome": "Corona 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "46ddbe65-4bc8-45ad-8a3d-2d65f6dcecb2",
+    "nome": "Corona Zero 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c08fba58-350f-420b-91e9-e401640357da",
+    "nome": "Corona Zero 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "cb1ca6a9-8043-4634-84c3-51b2eb812e66",
+    "nome": "Coronita 210ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6ad5d550-643d-42f8-ba68-d155d30c7166",
+    "nome": "Dose Dreher 50ml",
+    "categoria": "conhaque",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "db8aa55d-f633-4839-ad94-fa9c915c2c37",
+    "nome": "Dose Presidente 50ml",
+    "categoria": "conhaque",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6b93c303-cb41-45d2-952a-c90188f3db27",
+    "nome": "Dreher 900ml",
+    "categoria": "conhaque",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "b18ff9b0-e94c-4efc-a62b-95ff86d71f0a",
+    "nome": "Equilibrista Gingibre 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e7c78b5b-4f7b-4f5d-be11-576f9153fcab",
+    "nome": "Equilibrista Rubra 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6b2cf87c-f11b-44ee-a2da-8dc444ee257a",
+    "nome": "Equilibrista Veneta 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e8473165-72bf-48a3-aa42-81d083a3dc09",
+    "nome": "Eternity 950ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "b28d5045-cc8a-4a74-8b99-2482e7b05f2c",
+    "nome": "Eternity Maca Verde 900ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ef244c2d-b9d9-468f-aa84-91e9a5bffe56",
+    "nome": "Eternity Pessego e Framboesa 900ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "2f53c23a-baaf-44fe-8758-454a31b9d5dc",
+    "nome": "Eternity Strawberry 950ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "8c75bf51-79e5-428c-af06-cdd87405bc35",
+    "nome": "Eternity Tropical 950ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "8ec71f4d-2c25-4eed-89c8-6d9cc2d8c4c4",
+    "nome": "Eternity Watermelon 900ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "500ee732-0ffe-4a6a-88c2-e963344db30b",
+    "nome": "Fardo de Itaipava 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "74f7da9b-566b-41f3-813e-780943609d10",
+    "nome": "Fardo de Kaiser 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "2e2c3e48-0ea1-468a-b336-98c2f3f74914",
+    "nome": "Fardo de Petra 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "7600a25c-b226-4676-8d52-d67410be0549",
+    "nome": "Gato Negro Cabernet Sauvignon 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "5698dc9a-e8a9-4396-b90f-0b2f7b8eb86c",
+    "nome": "Gato Negro Carmenere 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "9435ebef-7325-446d-94bc-d57772441f07",
+    "nome": "Gato Negro Malbec 750ml ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "6ce1b2da-e345-431d-b408-c2ca9c22a33d",
+    "nome": "Gato Negro Merlot 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "e8d35229-e544-490b-9efc-6949a47cd780",
+    "nome": "Gato Negro Pinot Noar 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "9f19d94a-0dc4-4f4c-ad70-27fc2c72b433",
+    "nome": "Gato Negro Rosé 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "35711bc5-9f32-4950-9019-32ac56c4156c",
+    "nome": "Gato Negro Sauvignon Blanc 750ml ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "5a542311-f891-4a28-b7e3-5078e2064a11",
+    "nome": "Gold Label 750ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6513067c-6d3d-4a07-8a63-46a2511255e0",
+    "nome": "Goose Island IPA 355ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1e3e035e-7de8-41ac-911f-405a4ad18af0",
+    "nome": "Goose Island Midway 355ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f8893ec3-0848-4d45-92f7-e26bd5ce641a",
+    "nome": "Gordons 750ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ed5b0112-2030-4116-adae-637f9e0b9751",
+    "nome": "Gordons Pink 700ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "5c6218bb-cfd8-4f09-ac92-1f057364bad0",
+    "nome": "Gordons Sicilian Lemon 700ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "4c238590-2657-4f2e-98df-eb86e1ba4f79",
+    "nome": "Grey Goose 750ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "8424a112-0112-42da-b142-9980cfde5540",
+    "nome": "Heineken 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "704b45a3-c6bc-4f29-a29d-0a35de39cc36",
+    "nome": "Heineken 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9068e29c-9a18-4efa-80d0-5b594bf97db3",
+    "nome": "Heineken 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "2c0bff66-264b-4442-8089-0a7cc5437feb",
+    "nome": "Heineken 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f5e1e2bf-23ef-44c7-af8b-a51129617cb2",
+    "nome": "Heineken Keg 5L",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "dbe2e0aa-9e82-4133-8a93-6ecd850cea04",
+    "nome": "Heineken Zero 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "81ffd761-3631-4e20-89b5-19cf24592fd2",
+    "nome": "Heineken Zero 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "a8b05ad7-c3a5-447d-97b8-d4914bf60288",
+    "nome": "Hoegaarden 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6b20da26-e473-43ac-99ca-377dfec530c1",
+    "nome": "Ice Syn Kiwi 300ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "dd761536-bb38-47c9-b9cd-94d000b72ece",
+    "nome": "Ice Syn Limão 300ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "79844268-46de-4c78-9417-57a04a11f938",
+    "nome": "Ice Syn Maca Verde 300ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "027c6088-1fcf-4701-bbff-39aa68e7baa7",
+    "nome": "Ice Syn Melancia 300ml ",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "5e412e39-9173-478f-b658-fdd83ca94c90",
+    "nome": "Ice Syn Morango 300ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9c43ca33-5df0-4304-9cb0-d18e014f6df4",
+    "nome": "Ice Syn Tropical 300ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "8da37d8c-2e1e-430a-946f-da2f74452794",
+    "nome": "Intencion 900ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d2124ab0-1ce1-42b8-8ce6-54c845a1408f",
+    "nome": "Itaipava 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "4a1806aa-37f1-4831-9df4-54984fdc0e19",
+    "nome": "Itaipava 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "58c91271-7c24-41b4-8dfb-50458705932b",
+    "nome": "Jack Daniels 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "46abc853-3b1b-4c5a-8a6a-c815ca1e9223",
+    "nome": "Jack Daniels 375ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "566b6b53-9ee6-4747-800a-b64e31960ab3",
+    "nome": "Jack Daniels Apple 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c026432b-d93f-4293-8fac-0d28fed05add",
+    "nome": "Jack Daniels Honey 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "bb7cf62b-7b5f-4387-ac4e-e00fc27ae39f",
+    "nome": "Jim Beam Apple 1L ",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6d2e3bf3-0c65-41a6-8217-5d8afbe62b8a",
+    "nome": "Jim Beam White 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "61d57e39-b186-4bc0-95d6-c13a4b4c75e6",
+    "nome": "Johnnie Walker Blonde 750ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "cbd4aef3-69c3-4d4c-834a-ed02e82411d6",
+    "nome": "Kaiser 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "cda6d022-7d0d-4530-8791-603c5157f5ae",
+    "nome": "Lambe-Lambe Limonada Rosa 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6c37c641-dd15-48c3-8a85-88b5d8c80617",
+    "nome": "Lambe-Lambe Tangerina 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "42eb94b5-a39e-44e2-884b-e56d101a3d1a",
+    "nome": "Laut De Leve 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e555d6ef-485e-4d0b-bba3-5884094e7f17",
+    "nome": "Laut Fuel 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "b2ee3565-8f44-46a4-9ee9-f4b063e727c9",
+    "nome": "Laut Pale Ale 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "fb8f660b-9465-49bc-832d-b0740f235440",
+    "nome": "Laut Pilsen  600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3355e0b5-30ff-4524-9e29-dc6d476f0f7e",
+    "nome": "Laut Ska Lault  600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "7b03cc00-dc03-404a-a249-b1efbd90b829",
+    "nome": "Malibu Coco 750ml",
+    "categoria": "rum",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "62474979-edc6-42f8-b953-254312ad4470",
+    "nome": "Mansão Maromba 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "0778dc57-ca19-47d8-9a18-af756f2ab9c4",
+    "nome": "Mansão Maromba Coco 1L ",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "2426f5e7-7696-4651-82b9-c3707a212705",
+    "nome": "Mansão Maromba Colors Berry 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "70be96e4-6391-4331-9ff2-022daba72d72",
+    "nome": "Mansão Maromba Combo Maça Verde 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "a5b4ab89-ab6f-467e-9954-4e77f481a49c",
+    "nome": "Mansão Maromba Combo Tigrinho Manga + Maracujá",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "67f44fd9-3098-4913-90c4-d55bfcb071bf",
+    "nome": "Mansão Maromba Combo Tigrinho Tropical 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "32102312-1c3e-403f-9012-8aadb74cdd98",
+    "nome": "Mansão Maromba Double Darkness 1L ",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "5806ce3a-d9b7-4bfe-9f21-188852da5b18",
+    "nome": "Mansão Maromba Gin + Melancia 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "aee2d0d2-66b6-4f3c-b490-90716b29c165",
+    "nome": "Mansão Maromba Gin Cut Original 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "994cbc6e-8365-447b-83af-0c26ada1d290",
+    "nome": "Mansão Maromba Vodka Combo 1L",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d7516155-8d86-4fce-8ef5-6bdefb5938a4",
+    "nome": "Michelob 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "219c2d1d-2e8c-434b-887f-06aec8668f96",
+    "nome": "Michelob 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "54d2c4e6-5783-4ba7-bbd5-537e738cb3cf",
+    "nome": "Montilla Carta Branca 1L",
+    "categoria": "rum",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3cd6c468-a7cd-4430-82b8-95fc1f4a7c05",
+    "nome": "Montilla Carta Ouro 1L",
+    "categoria": "rum",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "869e5248-e18b-4857-a0e4-937b588b26db",
+    "nome": "Moscow Mule 473ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ef24f46d-db33-4c3f-8dcc-98409f6e110c",
+    "nome": "Novecento cabernet 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "b717e73f-1e27-4da7-83ec-e3075fc9270f",
+    "nome": "Novecento Malbec ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "95c76f1f-e961-43fb-88a8-6afe17f44824",
+    "nome": "Old Eight 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c396c647-cfbb-4740-b6fb-8224a94bb69c",
+    "nome": "Old Parr 12 anos 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "83a9dabf-e91a-4054-a074-2ef576b2013a",
+    "nome": "Old Parr 750ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ece5a3e2-b1ac-4258-8073-88724b2945c4",
+    "nome": "Original 300ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e0c8a333-dac7-454f-84ea-f37230adcf8e",
+    "nome": "Original 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e83d4d0e-f2c7-4e68-82b3-04b434810d58",
+    "nome": "Original 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "26e1d87b-ad42-4204-a3aa-48b9c271d7e2",
+    "nome": "Original 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "08e133f6-31e8-451b-9c55-f307ef085814",
+    "nome": "Orloff 1L",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "15feec01-c561-4fcd-979b-df868da54732",
+    "nome": "Patagonia Amber 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9ea98b28-ba74-45e3-851d-8eba20ea2db4",
+    "nome": "Patagonia Amber 355ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "cbf6d7c6-35d2-4b22-9b5a-fa9cabf8c812",
+    "nome": "Patagonia Amber 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "07af0e40-c452-4221-9b2b-c6d549f2034f",
+    "nome": "Patagonia Amber 740ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "65821bed-78d3-47bb-b7dc-0f942146d1a8",
+    "nome": "Patagonia IPA 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "742c56a6-808d-4699-8cf3-b5e062a0930b",
+    "nome": "Patagonia Weisse 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "51b0192d-2ec7-4f35-a604-8655cd88e74c",
+    "nome": "Patagonia Weisse 355ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "bf73d966-54a8-4b7b-a57b-67a45a097bd8",
+    "nome": "Patagonia Weisse 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1d61fee8-8055-44ee-b0dd-39105d09033b",
+    "nome": "Patagonia Weisse 740ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "30799132-9ddf-4cd1-903b-54ca5148036f",
+    "nome": "Pergola Tinto Seco 1L",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "a710265d-8a1d-4aa8-8197-a5a5a4e30dd1",
+    "nome": "Pergola Tinto Suave 1,45L",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "b68bbf82-b99b-4df0-80c7-0dca57ca572b",
+    "nome": "Pergola Tinto Suave 1L ",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "ca44d64f-563e-4cdf-bde4-dd4782f41cb3",
+    "nome": "Pergola Tinto Suave 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "385ced04-eb8c-4f77-ae30-921acc2756e6",
+    "nome": "Petra 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "895a525b-b38e-406d-9442-a05c29ec037a",
+    "nome": "Petra 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6b372e66-4a53-4e2e-a022-51f9b4c975aa",
+    "nome": "Praya 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "5be67538-6daa-4c72-9140-9cbc2d7512a8",
+    "nome": "Presidente 900ml",
+    "categoria": "conhaque",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "979b2b0f-75df-4f96-82ac-efa9e660b7ab",
+    "nome": "Red Label 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "980eb29a-2ffd-40dd-8df6-6d2b59d4655e",
+    "nome": "Red Label 750ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c7aa35ac-2c17-494e-8c99-5592f31a404f",
+    "nome": "Rocks 1L",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "90586b79-3400-4ca0-9b1a-ecb4c58b6f35",
+    "nome": "Rocks Strawberry 1L",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "45f36136-7db3-41e2-948c-7137b9d966a6",
+    "nome": "Rocks Sunset 1L",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "22ee84ad-c9a1-44eb-89ea-46d181b9d332",
+    "nome": "Rocks Watermelon 1L",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9caf633a-b473-4a48-a36f-bf01bac56342",
+    "nome": "Salton Brut 750ml",
+    "categoria": "espumante",
+    "docura": "seco",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "849da92d-9699-4d86-9309-0b53ea42dc86",
+    "nome": "Salton Brut Rose 750ml",
+    "categoria": "espumante",
+    "docura": "seco",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "9d1337b8-2e9a-4d36-abad-6e52c8340828",
+    "nome": "Salton Demi Sec 750ml",
+    "categoria": "espumante",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "3c5fc3d5-6360-454f-9e1e-28742e10d285",
+    "nome": "Santa Carolina Cabernet Sauvignon 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "959660a9-5ee5-4c1d-b871-3c8644ccec52",
+    "nome": "Santa Carolina Carmenere 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "50aa20ad-af76-4d8f-8a03-059be57cacbb",
+    "nome": "Santa Carolina Chardonnay 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "30d7dcfa-1548-4468-8833-4394c586da10",
+    "nome": "Santa Carolina Malbec 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "25a5ad3b-16b3-4e1b-a239-307f0a39804c",
+    "nome": "Santa Carolina Merlot 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "a41ee82a-5055-4f44-b9d1-cf7881f09cad",
+    "nome": "Santa Carolina Rose 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "c819c239-b500-4703-88d9-495dc7bdd44b",
+    "nome": "Santa Carolina Sauvignon Blanc 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "3952ddf6-a84e-466e-a0f4-74bb9877f4ff",
+    "nome": "Santa Helena Cabernet Sauvignon 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "b82ebfcd-3693-4f6b-afb2-d46ec914810a",
+    "nome": "Santa Helena Carmenere 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "12b7a913-e0d6-4548-bffe-d60b38ea56db",
+    "nome": "Santa Helena Chardonnay 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "f7c2564c-d9f6-4e66-8b27-c2366cace099",
+    "nome": "Santa Helena Malbec 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "4cd405fb-7c41-42ca-a449-9ec8da4f6702",
+    "nome": "Santa Helena Merlot 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "f7fa879e-40a5-4561-9815-a8d4b30e5da2",
+    "nome": "Santa Helena Rose 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "76bd3ace-70d8-47cc-b49c-6909f07add6b",
+    "nome": "Santa Helena Sauvignon Blanc 750ml",
+    "categoria": "vinho",
+    "docura": "suave",
+    "intensidade": "leve",
+    "ocasioes": [
+      "jantar",
+      "brinde"
+    ],
+    "harmoniza": [
+      "queijos",
+      "massas"
+    ],
+    "publico": [
+      "iniciante"
+    ],
+    "temperatura": "adega",
+    "garrafas_por_pessoa": 0.25,
+    "prioridade_natal": 8
+  },
+  {
+    "id": "aefcd8f3-9a91-4abb-ac30-341e13a4419b",
+    "nome": "Seagers 1L",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "8c9b627e-774e-4a84-b290-e3c4c2d1f2fd",
+    "nome": "Serramalte 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "4756d42e-43d9-4cdb-9204-ae05172de496",
+    "nome": "Serramalte Descartavel 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1afe9929-c889-42e2-b0b8-bae943558f03",
+    "nome": "Skol 300ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f488c51d-1fdb-461f-b641-38c7631e6a2b",
+    "nome": "Skol 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "169bef10-8827-4380-b878-71b9979bb737",
+    "nome": "Skol 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "a33683f3-6140-4b6c-a486-dc6385dfc9fd",
+    "nome": "Skol 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f7e43ceb-eb51-49fb-a1db-e5666c08ecae",
+    "nome": "Smirnoff 600ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "2b864525-3915-4801-b508-12282818b803",
+    "nome": "Smirnoff 998ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "b578c991-a9b4-400f-9dd7-5a680442045f",
+    "nome": "Smirnoff Ice 269ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "02603fc9-4cae-4d6b-942c-3083f316e142",
+    "nome": "Smirnoff Ice Long Neck 275ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "520826d6-3891-4f88-bc71-aebfb28830b3",
+    "nome": "Spaten 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "158d6e25-a774-48b2-b262-19be76306ad4",
+    "nome": "Spaten 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e145fa0d-0eed-4502-bfc7-59e1faa1f44d",
+    "nome": "Spaten 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "448871b0-6bac-47b5-a5ac-1ca1bdc4987b",
+    "nome": "Spaten 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c7a3f266-c1c5-42d3-9c10-3ae1660a4100",
+    "nome": "Spaten Descartavel 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "76350b78-a20a-4f26-a451-c461ffaa9c87",
+    "nome": "Stella 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d0e544ff-b6d5-48be-b33a-f39b51a93205",
+    "nome": "Stella 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "1e7f4f9a-a40f-4f88-9dcd-37c8274092ba",
+    "nome": "Stella 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "53d1d852-e3c3-4a75-89cb-293138d70b7b",
+    "nome": "Stella 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "28870bdb-7ed0-4101-98fd-f4ce2ae85428",
+    "nome": "Stella Descartavel 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "b9b4167f-0628-4c1f-8ea7-8db91e0e4f5c",
+    "nome": "Stella Pure Gold 330ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ae1ee864-bcf4-4dec-8adf-08e0f538b7ee",
+    "nome": "Stella Pure Gold 350ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e3cc9a86-b40d-43c5-b6b4-fbdc3a1ffc18",
+    "nome": "Stella Pure Gold 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "f32034e0-67c7-47c2-b59a-8f18403c2131",
+    "nome": "Tanqueray 375ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "4c3dd98b-7ff9-47f0-a817-0114481debcf",
+    "nome": "Tanqueray 50ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ff51b807-c818-47f0-b216-8ea19734629f",
+    "nome": "Tanqueray 750ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "94b566bf-a8d5-4dc9-882f-fd16110b469e",
+    "nome": "Tanqueray Bossa Nova 700ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "2de7fbfa-5faa-462d-bdc1-16182566d3f1",
+    "nome": "Tanqueray N10 50ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "34ea6838-821e-4d6d-a0a5-5fe322a85998",
+    "nome": "Tanqueray N10 750ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "082a59bb-31ce-4fd0-b10d-15fe68a8b774",
+    "nome": "Tanqueray Rangpur 50ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "4c4a63fb-0457-4e1c-9ecb-84504f2e85bf",
+    "nome": "Tanqueray Rangpur 700ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "60ec27bd-3c66-4629-b9aa-cce6add67320",
+    "nome": "Tanqueray Royale 700ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "af0eee3b-2655-4e45-988e-345c19656517",
+    "nome": "Tanqueray Sevilla 50ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "531a711f-401f-4716-88ed-ee1bfabd9d5a",
+    "nome": "Tanqueray Sevilla 700ml",
+    "categoria": "gin",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d53aff40-fcdc-4020-a6c3-3097bd376419",
+    "nome": "Vanfall Fizz Mexerica e Hortelã 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c9a31f93-9469-4b03-ba48-a16c8789a298",
+    "nome": "Vanfall Ruby Frutas Vermelhas 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "12cfbf0d-671d-4ece-b61b-a88bea747810",
+    "nome": "Vanfall Vibra Maracujá 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "c608cdb0-3468-466a-a734-59d090b89f42",
+    "nome": "Vodka Kriskoff 900ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "aae4a263-05a5-4183-ae7f-a5ddaa998616",
+    "nome": "Vodka Kriskoff Apple 900ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "5f9c11b0-d9c6-47bd-9ef9-4ebd3ef4433f",
+    "nome": "Vodka Kriskoff Blue 900ml ",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "d0e2d054-7c4c-4fba-a27a-f1814b243440",
+    "nome": "Vodka Kriskoff Lemon 900ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "e8cc5571-5107-4040-90e8-7ffd07f310f8",
+    "nome": "Vodka Kriskoff Melancia 900ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3cdb32c0-7e8f-488c-aba5-d61f3ecb5322",
+    "nome": "Vodka Kriskoff Red Fruit 900ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "7e636787-a1cd-4725-b10a-9987de240413",
+    "nome": "Vodka Kriskoff Yellow Fruits 900ml",
+    "categoria": "vodka",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "50001820-4c13-4f5d-a5a9-ec0d29c9d44f",
+    "nome": "Wals Belgian Witte 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3d4c9ae8-aca7-4332-8cd1-027475ebc3d7",
+    "nome": "Wals Bohemian Pilsen 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "5025daed-371e-4565-bcb3-392ea9883460",
+    "nome": "Wals Dubbel 375ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "34c23b47-d7f3-439c-b5fd-1c3ef8edca5b",
+    "nome": "Wals Hopcorn 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "fab9cbe5-9bd7-4fad-ab4e-57d986874dc3",
+    "nome": "Wals Lager 473ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "6b5c2ce0-eab0-427f-923d-29769b6ea659",
+    "nome": "Wals Lagoinha 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "8d765cc1-421e-4a10-84b7-a92d8bdd66eb",
+    "nome": "Wals Quadruppel 375ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "8b443656-bfa3-42bd-bae8-18832a07ab82",
+    "nome": "Wals Session Citra 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "9279fd64-987a-4220-91b5-99111ce5ba6c",
+    "nome": "Wals Trippel 375ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "3c9ec1e2-8396-4a25-abd6-e27f602e7d72",
+    "nome": "Wals Verano 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "ce78cec9-c4a1-40d2-8228-20aa46679668",
+    "nome": "White Horse 1L",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "db7da7d5-f3a5-45ce-9371-49300c480cf4",
+    "nome": "White Horse 700ml",
+    "categoria": "whisky",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "ambiente",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "cc532c97-8cc1-4768-996f-a9075937382f",
+    "nome": "X Walls 600ml",
+    "categoria": "cerveja",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "05fbf139-f01d-42be-b377-d55c16e830c5",
+    "nome": "Xá de Cana 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "71340185-3767-48f6-9a68-463e0428cd06",
+    "nome": "Xeque Mate 355ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  },
+  {
+    "id": "07d59342-97dc-4633-ae8f-e168ef52ed69",
+    "nome": "Xeque Mate 473ml",
+    "categoria": "drink",
+    "intensidade": "media",
+    "ocasioes": [
+      "festa",
+      "presente"
+    ],
+    "harmoniza": [
+      "petiscos"
+    ],
+    "publico": [
+      "geral"
+    ],
+    "temperatura": "gelado",
+    "garrafas_por_pessoa": 0.15,
+    "prioridade_natal": 7
+  }
+]
