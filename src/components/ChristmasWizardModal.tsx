@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Wine, Gift, PartyPopper, Sparkles, Users, Flame, Scale, Flower2, ChevronRight, Check, Loader2 } from "lucide-react";
+import { Wine, Gift, PartyPopper, Sparkles, Flame, Scale, Flower2, ChevronRight, Check, Loader2 } from "lucide-react";
+import { filterProductsByWizard, getPrimaryCategoryFromFilter, ScoredProduct } from "@/services/christmasFilterService";
 
 interface ChristmasWizardModalProps {
   open: boolean;
@@ -15,13 +16,7 @@ export interface WizardResult {
   pessoas: string;
   perfil: string;
   suggestedCategory: string;
-  suggestedProducts: SuggestedProduct[];
-}
-
-interface SuggestedProduct {
-  category: string;
-  reason: string;
-  quantity: number;
+  filteredProducts: ScoredProduct[];
 }
 
 const momentoOptions = [
@@ -39,70 +34,14 @@ const pessoasOptions = [
 ];
 
 const perfilOptions = [
-  { value: "suave", label: "Suave", icon: Flower2, tip: "Perfeito pra quem não gosta de bebida forte", color: "from-pink-400 to-rose-500" },
-  { value: "equilibrado", label: "Equilibrado", icon: Scale, tip: "O meio-termo ideal", color: "from-amber-400 to-orange-500" },
-  { value: "forte", label: "Forte", icon: Flame, tip: "Pra quem aprecia sabor intenso", color: "from-red-500 to-red-700" },
+  { value: "suave", label: "Suave", icon: Flower2, tip: "Perfeito pra quem não gosta de bebida forte", color: "from-rose-400 to-red-500" },
+  { value: "equilibrado", label: "Equilibrado", icon: Scale, tip: "O meio-termo ideal", color: "from-red-400 to-red-600" },
+  { value: "forte", label: "Forte", icon: Flame, tip: "Pra quem aprecia sabor intenso", color: "from-red-600 to-red-800" },
 ];
 
 const getBottleEstimate = (pessoas: string): number => {
   const map: Record<string, number> = { "1-2": 1, "3-5": 2, "6-10": 4, "10+": 6 };
   return map[pessoas] || 2;
-};
-
-const getSuggestions = (momento: string, perfil: string, pessoas: string): SuggestedProduct[] => {
-  const qty = getBottleEstimate(pessoas);
-  
-  if (momento === "presente") {
-    return [
-      { category: "Destilados", reason: "Presente sofisticado", quantity: 1 },
-      { category: "Vinhos", reason: "Clássico que agrada", quantity: 1 },
-    ];
-  }
-  
-  if (momento === "brinde_meia_noite") {
-    return [
-      { category: "Vinhos", reason: "Espumante pro brinde", quantity: Math.ceil(qty / 2) },
-    ];
-  }
-  
-  if (momento === "amigos_festa") {
-    if (perfil === "forte") {
-      return [
-        { category: "Destilados", reason: "Pra drinks fortes", quantity: 2 },
-        { category: "Cervejas", reason: "Cerveja gelada", quantity: qty * 2 },
-      ];
-    }
-    return [
-      { category: "Drinks", reason: "Prático e saboroso", quantity: qty * 2 },
-      { category: "Cervejas", reason: "Sempre cai bem", quantity: qty },
-    ];
-  }
-  
-  // ceia_familia
-  if (perfil === "suave") {
-    return [
-      { category: "Vinhos", reason: "Vinho suave pra ceia", quantity: qty },
-      { category: "Sucos", reason: "Pra quem não bebe", quantity: 2 },
-    ];
-  }
-  if (perfil === "forte") {
-    return [
-      { category: "Vinhos", reason: "Vinho tinto encorpado", quantity: qty },
-      { category: "Destilados", reason: "Digestivo", quantity: 1 },
-    ];
-  }
-  return [
-    { category: "Vinhos", reason: "Vinho pra harmonizar", quantity: qty },
-    { category: "Vinhos", reason: "Espumante pro brinde", quantity: 1 },
-  ];
-};
-
-const getPrimaryCategory = (momento: string, perfil: string): string => {
-  if (momento === "presente") return "Destilados";
-  if (momento === "brinde_meia_noite") return "Vinhos";
-  if (momento === "amigos_festa") return perfil === "forte" ? "Destilados" : "Drinks";
-  if (perfil === "forte") return "Destilados";
-  return "Vinhos";
 };
 
 export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: ChristmasWizardModalProps) => {
@@ -128,7 +67,6 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
 
   const handleMomentoSelect = (value: string) => {
     setMomento(value);
-    // Vibration feedback on mobile
     if (navigator.vibrate) navigator.vibrate(10);
   };
 
@@ -147,15 +85,20 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
 
   const handleFinish = () => {
     setIsLoading(true);
-    // Simulate "thinking"
+    
     setTimeout(() => {
+      const criteria = { momento, pessoas, perfil };
+      const filteredProducts = filterProductsByWizard(criteria);
+      const suggestedCategory = getPrimaryCategoryFromFilter(criteria);
+      
       const result: WizardResult = {
         momento,
         pessoas,
         perfil,
-        suggestedCategory: getPrimaryCategory(momento, perfil),
-        suggestedProducts: getSuggestions(momento, perfil, pessoas),
+        suggestedCategory,
+        filteredProducts,
       };
+      
       onComplete(result);
       onOpenChange(false);
     }, 1500);
@@ -192,10 +135,10 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                 </div>
               </div>
             </div>
-            {/* Progress bar */}
+            {/* Progress bar - RED */}
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-amber-500 rounded-full"
+                className="h-full bg-red-500 rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
@@ -233,7 +176,7 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                         className={`
                           w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all
                           ${selected 
-                            ? "bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500" 
+                            ? "bg-red-50 dark:bg-red-900/20 border-2 border-red-400 dark:border-red-500" 
                             : "bg-muted/50 border-2 border-transparent hover:bg-muted"
                           }
                         `}
@@ -247,7 +190,7 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0"
+                            className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0"
                           >
                             <Check className="w-3 h-3 text-white" />
                           </motion.div>
@@ -265,12 +208,12 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                       exit={{ opacity: 0, height: 0 }}
                       className="mt-4 space-y-3"
                     >
-                      <p className="text-center text-xs text-amber-600 dark:text-amber-400 font-medium">
+                      <p className="text-center text-xs text-red-600 dark:text-red-400 font-medium">
                         {getMomentoFeedback()}
                       </p>
                       <Button
                         onClick={nextStep}
-                        className="w-full h-10 bg-foreground hover:bg-foreground/90 text-background font-medium rounded-lg"
+                        className="w-full h-10 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg"
                       >
                         Continuar
                         <ChevronRight className="w-4 h-4 ml-1" />
@@ -315,7 +258,7 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                         className={`
                           py-3 rounded-lg text-center transition-all
                           ${selected 
-                            ? "bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500" 
+                            ? "bg-red-50 dark:bg-red-900/20 border-2 border-red-400 dark:border-red-500" 
                             : "bg-muted/50 border-2 border-transparent hover:bg-muted"
                           }
                         `}
@@ -335,14 +278,14 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                       exit={{ opacity: 0, height: 0 }}
                       className="mt-4 space-y-3"
                     >
-                      <div className="bg-muted/50 rounded-lg p-2.5 text-center">
-                        <span className="text-muted-foreground text-xs">
-                          Isso costuma dar <strong className="text-foreground">~{getBottleEstimate(pessoas)} garrafas</strong> 🍾
+                      <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-2.5 text-center border border-red-200 dark:border-red-800/50">
+                        <span className="text-red-700 dark:text-red-300 text-xs">
+                          Isso costuma dar <strong className="text-red-800 dark:text-red-200">~{getBottleEstimate(pessoas)} garrafas</strong> 🍾
                         </span>
                       </div>
                       <Button
                         onClick={nextStep}
-                        className="w-full h-10 bg-foreground hover:bg-foreground/90 text-background font-medium rounded-lg"
+                        className="w-full h-10 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg"
                       >
                         Continuar
                         <ChevronRight className="w-4 h-4 ml-1" />
@@ -388,7 +331,7 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                         className={`
                           w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all
                           ${selected 
-                            ? "bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-500" 
+                            ? "bg-red-50 dark:bg-red-900/20 border-2 border-red-400 dark:border-red-500" 
                             : "bg-muted/50 border-2 border-transparent hover:bg-muted"
                           }
                         `}
@@ -404,7 +347,7 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0"
+                            className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0"
                           >
                             <Check className="w-3 h-3 text-white" />
                           </motion.div>
@@ -425,7 +368,7 @@ export const ChristmasWizardModal = ({ open, onOpenChange, onComplete }: Christm
                       <Button
                         onClick={handleFinish}
                         disabled={isLoading}
-                        className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg"
+                        className="w-full h-10 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg"
                       >
                         {isLoading ? (
                           <>

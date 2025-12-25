@@ -47,9 +47,10 @@ const christmasMoments: ChristmasMoment[] = [
 
 interface ChristmasSectionProps {
   onCategoryClick?: (category: string) => void;
+  onFilteredProducts?: (productIds: string[]) => void;
 }
 
-export const ChristmasSection = ({ onCategoryClick }: ChristmasSectionProps) => {
+export const ChristmasSection = ({ onCategoryClick, onFilteredProducts }: ChristmasSectionProps) => {
   const [wizardOpen, setWizardOpen] = useState(false);
   const { toast } = useToast();
 
@@ -62,9 +63,13 @@ export const ChristmasSection = ({ onCategoryClick }: ChristmasSectionProps) => 
   const handleWizardComplete = (result: WizardResult) => {
     toast({
       title: "Seleção pronta! 🎄",
-      description: `Mostrando ${result.suggestedCategory} para você`,
+      description: `${result.filteredProducts.length} produtos selecionados para você`,
     });
-    if (onCategoryClick) {
+    
+    // Pass filtered product IDs to parent
+    if (onFilteredProducts && result.filteredProducts.length > 0) {
+      onFilteredProducts(result.filteredProducts.map(p => p.id));
+    } else if (onCategoryClick) {
       onCategoryClick(result.suggestedCategory);
     }
   };
@@ -79,21 +84,26 @@ export const ChristmasSection = ({ onCategoryClick }: ChristmasSectionProps) => 
         </h2>
       </div>
 
-      {/* Sophisticated CTA Button */}
+      {/* Sophisticated CTA Button with Santa Hat Icon */}
       <motion.button
         onClick={() => setWizardOpen(true)}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full mb-3 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200/60 dark:border-amber-700/40 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between group"
+        className="w-full mb-3 py-3 px-4 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border border-red-200/60 dark:border-red-800/40 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between group"
       >
         <div className="flex items-center gap-3">
-          <span className="text-lg">🎅</span>
-          <span className="text-sm font-medium text-amber-900 dark:text-amber-100">
+          {/* Santa Hat SVG Icon */}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-600 dark:text-red-400">
+            <path d="M12 2C10.5 2 9 3.5 9 5C9 5.5 9.1 6 9.3 6.4C7.4 7.5 6 9.5 6 12V19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V12C18 9.5 16.6 7.5 14.7 6.4C14.9 6 15 5.5 15 5C15 3.5 13.5 2 12 2Z" fill="currentColor"/>
+            <circle cx="12" cy="5" r="2" fill="white"/>
+            <path d="M6 19H18V21H6V19Z" fill="white"/>
+          </svg>
+          <span className="text-sm font-medium text-red-800 dark:text-red-200">
             A gente monta pra você
           </span>
         </div>
-        <ChevronRight className="w-4 h-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+        <ChevronRight className="w-4 h-4 text-red-500 dark:text-red-400 group-hover:translate-x-0.5 transition-transform" />
       </motion.button>
 
       {/* Cards with hierarchy */}
