@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { Wine, Gift, PartyPopper, Sparkles, ChevronRight, Wand2 } from "lucide-react";
+import { Wine, Gift, PartyPopper, Sparkles, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { ChristmasWizardModal, WizardResult } from "./ChristmasWizardModal";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "./ui/button";
 
 interface ChristmasMoment {
   id: string;
   icon: React.ReactNode;
   title: string;
   subtitle: string;
-  gradient: string;
   category: string;
+  isMain?: boolean;
 }
 
 const christmasMoments: ChristmasMoment[] = [
@@ -20,15 +19,14 @@ const christmasMoments: ChristmasMoment[] = [
     icon: <Wine className="w-4 h-4" />,
     title: "Ceia em Família",
     subtitle: "Vinhos e espumantes",
-    gradient: "from-amber-500 to-orange-600",
     category: "Vinhos",
+    isMain: true,
   },
   {
     id: "presentes",
     icon: <Gift className="w-4 h-4" />,
     title: "Presentes",
     subtitle: "Whiskies e kits",
-    gradient: "from-emerald-500 to-teal-600",
     category: "Destilados",
   },
   {
@@ -36,7 +34,6 @@ const christmasMoments: ChristmasMoment[] = [
     icon: <PartyPopper className="w-4 h-4" />,
     title: "Com Amigos",
     subtitle: "Drinks e combos",
-    gradient: "from-rose-500 to-pink-600",
     category: "Drinks",
   },
   {
@@ -44,7 +41,6 @@ const christmasMoments: ChristmasMoment[] = [
     icon: <Sparkles className="w-4 h-4" />,
     title: "Meia-Noite",
     subtitle: "Espumantes",
-    gradient: "from-violet-500 to-purple-600",
     category: "Vinhos",
   },
 ];
@@ -75,33 +71,32 @@ export const ChristmasSection = ({ onCategoryClick }: ChristmasSectionProps) => 
 
   return (
     <section className="py-3 px-4">
-      {/* Header with prominent CTA */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-base">🎄</span>
-          <h2 className="text-sm font-bold text-foreground">
-            Natal que Brilha
-          </h2>
-        </div>
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-base">🎄</span>
+        <h2 className="text-sm font-bold text-foreground">
+          Natal que Brilha
+        </h2>
       </div>
 
-      {/* Prominent Wizard CTA Button */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
+      {/* Sophisticated CTA Button */}
+      <motion.button
+        onClick={() => setWizardOpen(true)}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-3"
+        whileTap={{ scale: 0.98 }}
+        className="w-full mb-3 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200/60 dark:border-amber-700/40 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between group"
       >
-        <Button
-          onClick={() => setWizardOpen(true)}
-          className="w-full h-12 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-600 text-zinc-900 font-bold rounded-xl shadow-lg shadow-amber-500/25 border-0"
-        >
-          <Wand2 className="w-5 h-5 mr-2" />
-          A gente monta pra você
-          <Sparkles className="w-4 h-4 ml-2 animate-pulse" />
-        </Button>
-      </motion.div>
+        <div className="flex items-center gap-3">
+          <span className="text-lg">🎅</span>
+          <span className="text-sm font-medium text-amber-900 dark:text-amber-100">
+            A gente monta pra você
+          </span>
+        </div>
+        <ChevronRight className="w-4 h-4 text-amber-600 dark:text-amber-400 group-hover:translate-x-0.5 transition-transform" />
+      </motion.button>
 
-      {/* Compact Horizontal Scroll Cards */}
+      {/* Cards with hierarchy */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
         {christmasMoments.map((moment, index) => (
           <motion.button
@@ -113,22 +108,25 @@ export const ChristmasSection = ({ onCategoryClick }: ChristmasSectionProps) => 
             onClick={() => handleCardClick(moment)}
             className={`
               flex-shrink-0 flex items-center gap-2 px-3 py-2.5 rounded-xl
-              bg-gradient-to-r ${moment.gradient}
-              text-white shadow-md hover:shadow-lg transition-shadow
+              transition-all duration-200
+              ${moment.isMain 
+                ? 'bg-red-600 text-white shadow-md hover:shadow-lg hover:bg-red-700' 
+                : 'bg-card text-foreground border border-border/50 shadow-sm hover:shadow-md hover:border-red-200 dark:hover:border-red-800'
+              }
             `}
           >
-            <span className="p-1.5 bg-white/20 rounded-lg">
+            <span className={`p-1.5 rounded-lg ${moment.isMain ? 'bg-white/20' : 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'}`}>
               {moment.icon}
             </span>
             <div className="text-left">
-              <h3 className="font-semibold text-xs leading-tight whitespace-nowrap">
+              <h3 className={`font-semibold text-xs leading-tight whitespace-nowrap ${moment.isMain ? '' : 'text-foreground'}`}>
                 {moment.title}
               </h3>
-              <p className="text-[10px] opacity-80 whitespace-nowrap">
+              <p className={`text-[10px] whitespace-nowrap ${moment.isMain ? 'opacity-80' : 'text-muted-foreground'}`}>
                 {moment.subtitle}
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 opacity-60 ml-1" />
+            <ChevronRight className={`w-4 h-4 ml-1 ${moment.isMain ? 'opacity-60' : 'text-muted-foreground'}`} />
           </motion.button>
         ))}
       </div>
