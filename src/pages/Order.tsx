@@ -64,6 +64,9 @@ const Order = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  
+  // Wizard-curated product IDs (when active, shows ONLY these products)
+  const [wizardProductIds, setWizardProductIds] = useState<string[] | null>(null);
   const { toast } = useToast();
   const productsRef = useRef<HTMLDivElement>(null);
   
@@ -196,6 +199,11 @@ const Order = () => {
   };
 
   const filteredProducts = products.filter((product) => {
+    // If wizard is active, ONLY show wizard-selected products
+    if (wizardProductIds && wizardProductIds.length > 0) {
+      return wizardProductIds.includes(product.id);
+    }
+    
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           product.description?.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -214,6 +222,11 @@ const Order = () => {
     const matchesCategory = categoryMatchesFilter(product.category || "", selectedCategory);
     return matchesSearch && matchesCategory && matchesBrand;
   });
+
+  // Clear wizard selection
+  const clearWizardSelection = () => {
+    setWizardProductIds(null);
+  };
 
   const groupedProducts = filteredProducts.reduce((acc, product) => {
     const category = normalizeCategory(product.category);
@@ -289,14 +302,45 @@ const Order = () => {
         />
 
         {/* 4.5. SEÇÃO ESPECIAL DE NATAL */}
-        {!selectedCategory && !selectedBrand && !searchQuery && (
+        {!selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (
           <ChristmasSection 
             onCategoryClick={(cat) => {
               setSelectedCategory(cat);
               setSelectedBrand("");
               scrollToProducts();
             }}
+            onFilteredProducts={(ids) => {
+              setWizardProductIds(ids);
+              setSelectedCategory("");
+              setSelectedBrand("");
+              scrollToProducts();
+            }}
           />
+        )}
+
+        {/* WIZARD ACTIVE BANNER */}
+        {wizardProductIds && wizardProductIds.length > 0 && (
+          <div className="px-4 mb-4">
+            <div className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border border-red-200 dark:border-red-800/50 rounded-xl p-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🎄</span>
+                <div>
+                  <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                    Seleção de Natal ativa
+                  </p>
+                  <p className="text-xs text-red-600 dark:text-red-400">
+                    {wizardProductIds.length} produtos selecionados para você
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={clearWizardSelection}
+                className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 font-medium px-3 py-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+              >
+                Limpar
+              </button>
+            </div>
+          </div>
         )}
 
         {/* 5. RECOMENDAÇÕES PERSONALIZADAS */}
