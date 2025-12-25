@@ -22,6 +22,7 @@ import { CategoryProductRow } from "@/components/CategoryProductRow";
 import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 import { RecommendedSection } from "@/components/RecommendedSection";
 import { BottomNavigation } from "@/components/BottomNavigation";
+import { ChristmasSection } from "@/components/ChristmasSection";
 
 
 
@@ -287,7 +288,18 @@ const Order = () => {
           selectedBrand={selectedBrand}
         />
 
-        {/* 4.5. RECOMENDAÇÕES PERSONALIZADAS */}
+        {/* 4.5. SEÇÃO ESPECIAL DE NATAL */}
+        {!selectedCategory && !selectedBrand && !searchQuery && (
+          <ChristmasSection 
+            onCategoryClick={(cat) => {
+              setSelectedCategory(cat);
+              setSelectedBrand("");
+              scrollToProducts();
+            }}
+          />
+        )}
+
+        {/* 5. RECOMENDAÇÕES PERSONALIZADAS */}
         {!selectedCategory && !selectedBrand && !searchQuery && (
           <div className="px-4">
             <RecommendedSection 
