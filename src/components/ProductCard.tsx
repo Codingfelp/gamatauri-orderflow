@@ -17,9 +17,15 @@ interface Product {
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
+  wizardMeta?: {
+    reasons: string[];
+    docura?: string;
+    intensidade?: string;
+    ocasioes?: string[];
+  };
 }
 
-export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => {
+export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isOutOfStock = !product.available;
@@ -80,6 +86,30 @@ export const ProductCard = memo(({ product, onAddToCart }: ProductCardProps) => 
           <p className="text-[10px] sm:text-[11px] font-medium text-foreground line-clamp-2 leading-tight min-h-[28px]">
             {product.name}
           </p>
+
+          {/* Por que escolhi isso (apenas quando seleção do wizard está ativa) */}
+          {wizardMeta && wizardMeta.reasons?.length > 0 && (
+            <div className="rounded-lg border border-border/40 bg-muted/30 p-1.5 space-y-1">
+              <p className="text-[9px] font-semibold text-foreground">Por que escolhi isso</p>
+              <ul className="text-[9px] text-muted-foreground space-y-0.5">
+                {wizardMeta.reasons.slice(0, 3).map((r, idx) => (
+                  <li key={idx} className="leading-tight">• {r}</li>
+                ))}
+              </ul>
+              {(wizardMeta.docura || wizardMeta.intensidade) && (
+                <p className="text-[9px] text-muted-foreground leading-tight">
+                  {wizardMeta.docura ? `Doçura: ${wizardMeta.docura}` : ""}
+                  {wizardMeta.docura && wizardMeta.intensidade ? " • " : ""}
+                  {wizardMeta.intensidade ? `Intensidade: ${wizardMeta.intensidade}` : ""}
+                </p>
+              )}
+              {wizardMeta.ocasioes && wizardMeta.ocasioes.length > 0 && (
+                <p className="text-[9px] text-muted-foreground leading-tight line-clamp-1">
+                  Ocasiões: {wizardMeta.ocasioes.slice(0, 3).join(", ")}
+                </p>
+              )}
+            </div>
+          )}
 
           {user ? (
             <div className="flex items-center justify-between gap-1">

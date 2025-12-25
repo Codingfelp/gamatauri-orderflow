@@ -31,8 +31,9 @@ export interface ScoredProduct extends ProductTag {
 // =====================================================
 
 // Categories ALLOWED per momento (allowlist approach)
+// IMPORTANT: Ceia must be ONLY wines + espumantes (no beers).
 const allowedCategoriesPerMomento: Record<string, string[]> = {
-  ceia_familia: ["vinho", "vinho-tinto", "vinho-branco", "espumante", "cerveja", "suco"],
+  ceia_familia: ["vinho", "vinho-tinto", "vinho-branco", "espumante"],
   presente: ["whisky", "vodka", "gin", "rum", "vinho", "vinho-tinto", "espumante", "kit"],
   amigos_festa: ["vodka", "gin", "rum", "tequila", "cerveja", "drink", "espumante"],
   brinde_meia_noite: ["espumante", "vinho", "vinho-branco"],
@@ -216,7 +217,25 @@ export const filterProductsByWizard = (criteria: FilterCriteria): ScoredProduct[
   });
   
   console.log(`[ChristmasFilter] After category filter: ${filtered.length} products`);
-  
+
+  // Ceia MUST be strictly wines + espumantes (extra safety layer)
+  if (criteria.momento === "ceia_familia") {
+    filtered = filtered.filter(p => {
+      const cat = p.categoria.toLowerCase();
+      return cat.includes("vinho") || cat.includes("espumante");
+    });
+
+    // Special rule: Ceia + Suave => only wines with "sweet" or "suave" in the name
+    if (criteria.perfil === "suave") {
+      filtered = filtered.filter(p => {
+        const name = (p.nome || "").toLowerCase().trim();
+        return name.includes("sweet") || name.includes("suave");
+      });
+    }
+  }
+
+  console.log(`[ChristmasFilter] After ceia rules: ${filtered.length} products`);
+
   // STEP 2: Filter by intensity profile
   if (criteria.perfil === "suave") {
     filtered = filtered.filter(p => {
@@ -243,31 +262,20 @@ export const filterProductsByWizard = (criteria: FilterCriteria): ScoredProduct[
       return { ...p, docuraMatch: docuraMatches };
     }
     return { ...p, docuraMatch: true };
-  }).filter(p => {
-    // For ceia + suave, strictly enforce docura
-    if (criteria.momento === "ceia_familia" && criteria.perfil === "suave") {
+   }).filter(p => {
+    // Ceia + Forte => prioritize meio-seco/seco (avoid brut/extra-seco drifting to brinde)
+    if (criteria.momento === "ceia_familia" && criteria.perfil === "forte") {
       const cat = p.categoria.toLowerCase();
       if ((cat.includes("vinho") || cat.includes("espumante")) && p.docura) {
-        return targetDocuras.includes(p.docura.toLowerCase());
+        const doc = p.docura.toLowerCase();
+        return doc === "meio-seco" || doc === "seco";
       }
     }
+
     return true;
   });
   
   console.log(`[ChristmasFilter] After docura filter: ${filtered.length} products`);
-
-  // STEP 3.5: Ceia should prioritize wines/espumantes (avoid beers taking over the ranking)
-  if (criteria.momento === "ceia_familia") {
-    const wineFirst = filtered.filter(p => {
-      const cat = p.categoria.toLowerCase();
-      return cat.includes("vinho") || cat.includes("espumante");
-    });
-
-    if (wineFirst.length > 0) {
-      filtered = wineFirst;
-      console.log(`[ChristmasFilter] Ceia wine-first applied: ${filtered.length} products`);
-    }
-  }
 
   // STEP 4: Score and rank
   const scored: ScoredProduct[] = filtered.map(p => ({
@@ -276,13 +284,13 @@ export const filterProductsByWizard = (criteria: FilterCriteria): ScoredProduct[
     quantity: calculateQuantity(p, peopleCount),
     reasons: getReasons(p, criteria),
   }));
-  
+
   // Sort by score descending
   scored.sort((a, b) => b.score - a.score);
-  
+
   // Log top results
   console.log(`[ChristmasFilter] Top 6 results:`, scored.slice(0, 6).map(p => `${p.nome} (score: ${p.score})`));
-  
+
   // Return top 6 products
   return scored.slice(0, 6);
 };

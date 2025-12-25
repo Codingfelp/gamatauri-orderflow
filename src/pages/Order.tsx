@@ -64,9 +64,11 @@ const Order = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  
+
   // Wizard-curated product IDs (when active, shows ONLY these products)
   const [wizardProductIds, setWizardProductIds] = useState<string[] | null>(null);
+  const [wizardMetaById, setWizardMetaById] = useState<Record<string, { reasons: string[]; docura?: string; intensidade?: string; ocasioes?: string[] }> | null>(null);
+
   const { toast } = useToast();
   const productsRef = useRef<HTMLDivElement>(null);
   
@@ -226,6 +228,7 @@ const Order = () => {
   // Clear wizard selection
   const clearWizardSelection = () => {
     setWizardProductIds(null);
+    setWizardMetaById(null);
   };
 
   const groupedProducts = filteredProducts.reduce((acc, product) => {
@@ -309,8 +312,9 @@ const Order = () => {
               setSelectedBrand("");
               scrollToProducts();
             }}
-            onFilteredProducts={(ids) => {
+            onWizardSelection={({ ids, metaById }) => {
               setWizardProductIds(ids);
+              setWizardMetaById(metaById);
               setSelectedCategory("");
               setSelectedBrand("");
               scrollToProducts();
@@ -344,7 +348,7 @@ const Order = () => {
         )}
 
         {/* 5. RECOMENDAÇÕES PERSONALIZADAS */}
-        {!selectedCategory && !selectedBrand && !searchQuery && (
+        {!selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (
           <div className="px-4">
             <RecommendedSection 
               allProducts={products}
@@ -369,6 +373,7 @@ const Order = () => {
                 category={category}
                 products={categoryProducts}
                 onAddToCart={addToCart}
+                wizardMetaById={wizardMetaById}
               />
             ))}
           </>
