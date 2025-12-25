@@ -11,9 +11,10 @@ interface CategoryProductRowProps {
   category: string;
   products: Product[];
   onAddToCart: (product: Product) => void;
+  wizardMetaById?: Record<string, { reasons: string[]; docura?: string; intensidade?: string; ocasioes?: string[] }> | null;
 }
 
-export const CategoryProductRow = ({ category, products, onAddToCart }: CategoryProductRowProps) => {
+export const CategoryProductRow = ({ category, products, onAddToCart, wizardMetaById }: CategoryProductRowProps) => {
   const [showAll, setShowAll] = useState(false);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
@@ -78,7 +79,11 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
               ) : (
                 itemsToDisplay.map((product: any) => (
                   <div key={product.id} className="flex-[0_0_115px] sm:flex-[0_0_135px] md:flex-[0_0_155px]">
-                    <ProductCard product={product} onAddToCart={onAddToCart} />
+                    <ProductCard
+                      product={product}
+                      onAddToCart={onAddToCart}
+                      wizardMeta={wizardMetaById?.[product.id]}
+                    />
                   </div>
                 ))
               )}
@@ -124,6 +129,7 @@ export const CategoryProductRow = ({ category, products, onAddToCart }: Category
                   key={product.id}
                   product={product}
                   onAddToCart={onAddToCart}
+                  wizardMeta={wizardMetaById?.[product.id]}
                 />
               ))
             )}

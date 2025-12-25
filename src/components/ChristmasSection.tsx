@@ -45,12 +45,20 @@ const christmasMoments: ChristmasMoment[] = [
   },
 ];
 
-interface ChristmasSectionProps {
-  onCategoryClick?: (category: string) => void;
-  onFilteredProducts?: (productIds: string[]) => void;
+export interface WizardProductMeta {
+  id: string;
+  reasons: string[];
+  docura?: string;
+  intensidade?: string;
+  ocasioes?: string[];
 }
 
-export const ChristmasSection = ({ onCategoryClick, onFilteredProducts }: ChristmasSectionProps) => {
+interface ChristmasSectionProps {
+  onCategoryClick?: (category: string) => void;
+  onWizardSelection?: (payload: { ids: string[]; metaById: Record<string, WizardProductMeta> }) => void;
+}
+
+export const ChristmasSection = ({ onCategoryClick, onWizardSelection }: ChristmasSectionProps) => {
   const [wizardOpen, setWizardOpen] = useState(false);
   const { toast } = useToast();
 
@@ -65,11 +73,25 @@ export const ChristmasSection = ({ onCategoryClick, onFilteredProducts }: Christ
       title: "Seleção pronta! 🎄",
       description: `${result.filteredProducts.length} produtos selecionados para você`,
     });
-    
-    // Pass filtered product IDs to parent
-    if (onFilteredProducts && result.filteredProducts.length > 0) {
-      onFilteredProducts(result.filteredProducts.map(p => p.id));
-    } else if (onCategoryClick) {
+
+    if (onWizardSelection && result.filteredProducts.length > 0) {
+      const ids = result.filteredProducts.map((p) => p.id);
+      const metaById: Record<string, WizardProductMeta> = {};
+      result.filteredProducts.forEach((p) => {
+        metaById[p.id] = {
+          id: p.id,
+          reasons: p.reasons,
+          docura: p.docura,
+          intensidade: p.intensidade,
+          ocasioes: p.ocasioes,
+        };
+      });
+      onWizardSelection({ ids, metaById });
+      return;
+    }
+
+    // fallback
+    if (onCategoryClick) {
       onCategoryClick(result.suggestedCategory);
     }
   };
