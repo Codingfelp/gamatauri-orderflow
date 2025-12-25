@@ -26,7 +26,27 @@ export interface ScoredProduct extends ProductTag {
   reasons: string[];
 }
 
-// Map wizard momento to product ocasioes
+// =====================================================
+// CATEGORY RULES PER MOMENTO (CRITICAL FOR INTELLIGENCE)
+// =====================================================
+
+// Categories ALLOWED per momento (allowlist approach)
+const allowedCategoriesPerMomento: Record<string, string[]> = {
+  ceia_familia: ["vinho", "vinho-tinto", "vinho-branco", "espumante", "cerveja", "suco"],
+  presente: ["whisky", "vodka", "gin", "rum", "vinho", "vinho-tinto", "espumante", "kit"],
+  amigos_festa: ["vodka", "gin", "rum", "tequila", "cerveja", "drink", "espumante"],
+  brinde_meia_noite: ["espumante", "vinho", "vinho-branco"],
+};
+
+// Categories BLOCKED per momento (explicit blocklist)
+const blockedCategoriesPerMomento: Record<string, string[]> = {
+  ceia_familia: ["whisky", "vodka", "gin", "rum", "tequila", "cachaca"], // No spirits for family dinner
+  presente: [], // Most things can be gifts
+  amigos_festa: [], // Party is flexible
+  brinde_meia_noite: ["whisky", "vodka", "gin", "rum", "tequila", "cachaca", "cerveja"], // Champagne/wine only
+};
+
+// Map wizard momento to product ocasioes (for scoring, not filtering)
 const momentoToOcasioes: Record<string, string[]> = {
   ceia_familia: ["ceia", "familia", "harmoniza"],
   presente: ["presente", "premium"],
@@ -34,17 +54,18 @@ const momentoToOcasioes: Record<string, string[]> = {
   brinde_meia_noite: ["brinde", "especial", "comemoracao"],
 };
 
-// Map wizard perfil to product attributes
+// Map wizard perfil to allowed intensidade
 const perfilToIntensidade: Record<string, string[]> = {
   suave: ["leve", "media"],
   equilibrado: ["media", "medio"],
-  forte: ["alta", "forte", "intensa"],
+  forte: ["media", "alta", "forte", "intensa"],
 };
 
+// Map wizard perfil to allowed docura (for wines)
 const perfilToDocura: Record<string, string[]> = {
   suave: ["suave", "doce", "meio-seco"],
   equilibrado: ["meio-seco", "seco"],
-  forte: ["seco", "extra-seco"],
+  forte: ["seco", "extra-seco", "brut"],
 };
 
 // Get number of people from range
@@ -64,6 +85,21 @@ const calculateQuantity = (product: ProductTag, peopleCount: number): number => 
   return Math.max(1, Math.ceil(base));
 };
 
+// Check if category is allowed for the momento
+const isCategoryAllowedForMomento = (categoria: string, momento: string): boolean => {
+  const cat = categoria.toLowerCase();
+  
+  // Check blocklist first (explicit blocks)
+  const blocked = blockedCategoriesPerMomento[momento] || [];
+  if (blocked.some(b => cat.includes(b))) {
+    return false;
+  }
+  
+  // Check allowlist (must be in allowed categories)
+  const allowed = allowedCategoriesPerMomento[momento] || [];
+  return allowed.some(a => cat.includes(a));
+};
+
 // Get reasons why this product was selected
 const getReasons = (product: ProductTag, criteria: FilterCriteria): string[] => {
   const reasons: string[] = [];
@@ -78,122 +114,148 @@ const getReasons = (product: ProductTag, criteria: FilterCriteria): string[] => 
   }
   
   // Occasion match
-  if (criteria.momento === "ceia_familia" && product.ocasioes.includes("ceia")) {
-    reasons.push("Ideal para ceia");
-  }
-  if (criteria.momento === "presente" && product.ocasioes.includes("presente")) {
-    reasons.push("Excelente para presentear");
-  }
-  if (criteria.momento === "amigos_festa" && product.ocasioes.includes("festa")) {
-    reasons.push("Perfeito para festa");
-  }
-  if (criteria.momento === "brinde_meia_noite" && product.ocasioes.includes("brinde")) {
-    reasons.push("Especial pro brinde");
-  }
-  
-  // Harmonization
-  if (product.harmoniza.includes("sobremesa")) {
-    reasons.push("Harmoniza com sobremesa");
-  }
-  if (product.harmoniza.includes("carnes")) {
-    reasons.push("Combina com carnes");
+  const targetOcasioes = momentoToOcasioes[criteria.momento] || [];
+  if (product.ocasioes.some(o => targetOcasioes.includes(o))) {
+    if (criteria.momento === "ceia_familia") {
+      reasons.push("Ideal para ceia em família");
+    } else if (criteria.momento === "presente") {
+      reasons.push("Excelente para presentear");
+    } else if (criteria.momento === "amigos_festa") {
+      reasons.push("Perfeito para festa");
+    } else if (criteria.momento === "brinde_meia_noite") {
+      reasons.push("Especial pro brinde");
+    }
   }
   
-  // Temperature
+  // Harmonization for ceia
+  if (criteria.momento === "ceia_familia") {
+    if (product.harmoniza.includes("carnes")) {
+      reasons.push("Combina com carnes");
+    }
+    if (product.harmoniza.includes("sobremesa")) {
+      reasons.push("Harmoniza com sobremesa");
+    }
+  }
+  
+  // Temperature tip
   if (product.temperatura === "gelado") {
-    reasons.push("Servir bem gelado");
+    reasons.push("Servir bem gelado 🧊");
   }
   
-  // Priority
-  if (product.prioridade_natal >= 8) {
-    reasons.push("Queridinho do Natal");
+  // Priority badge
+  if (product.prioridade_natal >= 9) {
+    reasons.push("⭐ Queridinho do Natal");
   }
   
   return reasons.slice(0, 3); // Max 3 reasons
 };
 
-// Calculate score for ranking
+// Calculate score for ranking (momento match is now critical since we pre-filter)
 const calculateScore = (product: ProductTag, criteria: FilterCriteria): number => {
   let score = 0;
+  
+  // Ocasioes match (weight: 10 - highest priority)
+  const targetOcasioes = momentoToOcasioes[criteria.momento] || [];
+  const ocasionMatches = product.ocasioes.filter(o => targetOcasioes.includes(o)).length;
+  score += ocasionMatches * 10;
   
   // Christmas priority (weight: 3)
   score += product.prioridade_natal * 3;
   
-  // Moment match (weight: 5)
-  const targetOcasioes = momentoToOcasioes[criteria.momento] || [];
-  const ocasionMatch = product.ocasioes.some(o => targetOcasioes.includes(o));
-  if (ocasionMatch) score += 5;
-  
-  // Intensity/profile match (weight: 4)
+  // Intensity/profile match (weight: 8)
   const targetIntensidades = perfilToIntensidade[criteria.perfil] || [];
-  if (targetIntensidades.includes(product.intensidade || "")) {
-    score += 4;
+  if (targetIntensidades.includes(product.intensidade || "media")) {
+    score += 8;
   }
   
-  // Docura match for wines (weight: 3)
-  if (product.categoria.includes("vinho") || product.categoria.includes("espumante")) {
+  // Docura match for wines/espumantes (weight: 6)
+  const cat = product.categoria.toLowerCase();
+  if (cat.includes("vinho") || cat.includes("espumante")) {
     const targetDocuras = perfilToDocura[criteria.perfil] || [];
     if (targetDocuras.includes(product.docura || "")) {
-      score += 3;
+      score += 6;
     }
   }
   
-  // Public match (weight: 2)
+  // Public match (weight: 4)
   if (criteria.perfil === "suave" && product.publico.includes("iniciante")) {
-    score += 2;
+    score += 4;
   }
   if (product.publico.includes("geral")) {
-    score += 1;
+    score += 2;
+  }
+  
+  // Harmonization bonus for ceia (weight: 3)
+  if (criteria.momento === "ceia_familia") {
+    if (product.harmoniza.includes("carnes") || product.harmoniza.includes("ceia")) {
+      score += 3;
+    }
   }
   
   return score;
 };
 
-// Main filtering function
+// =====================================================
+// MAIN FILTERING FUNCTION (INTELLIGENT)
+// =====================================================
 export const filterProductsByWizard = (criteria: FilterCriteria): ScoredProduct[] => {
   const products = productTags as ProductTag[];
   const peopleCount = getPeopleCount(criteria.pessoas);
-  const targetOcasioes = momentoToOcasioes[criteria.momento] || [];
-  const targetIntensidades = perfilToIntensidade[criteria.perfil] || [];
   
-  // Step 1: Filter by moment (ocasioes)
+  console.log(`[ChristmasFilter] Starting filter: momento=${criteria.momento}, perfil=${criteria.perfil}, pessoas=${criteria.pessoas}`);
+  
+  // STEP 1: HARD FILTER by category allowlist/blocklist for the momento
+  // This is the CRITICAL fix - categories are strictly enforced
   let filtered = products.filter(p => {
-    // Check if any product occasion matches target
-    return p.ocasioes.some(o => targetOcasioes.includes(o)) || 
-           // Also include high priority products
-           p.prioridade_natal >= 7;
+    const allowed = isCategoryAllowedForMomento(p.categoria, criteria.momento);
+    if (!allowed) {
+      console.log(`[ChristmasFilter] Blocked: ${p.nome} (${p.categoria}) - not allowed for ${criteria.momento}`);
+    }
+    return allowed;
   });
   
-  // Step 2: Filter by profile (intensity)
+  console.log(`[ChristmasFilter] After category filter: ${filtered.length} products`);
+  
+  // STEP 2: Filter by intensity profile
   if (criteria.perfil === "suave") {
     filtered = filtered.filter(p => {
-      const intensity = p.intensidade || "media";
-      return ["leve", "media"].includes(intensity);
+      const intensity = (p.intensidade || "media").toLowerCase();
+      return ["leve", "media", "suave"].includes(intensity);
     });
   } else if (criteria.perfil === "forte") {
     filtered = filtered.filter(p => {
-      const intensity = p.intensidade || "media";
-      return ["media", "alta", "forte", "intensa"].includes(intensity);
+      const intensity = (p.intensidade || "media").toLowerCase();
+      return ["media", "alta", "forte", "intensa", "encorpado"].includes(intensity);
     });
   }
+  // "equilibrado" accepts all intensities
   
-  // Step 3: Exclude specific combinations
-  if (criteria.momento === "ceia_familia" && criteria.perfil === "suave") {
-    // Exclude strong spirits for family dinner with suave preference
-    filtered = filtered.filter(p => {
-      if (["whisky", "vodka", "rum", "gin"].includes(p.categoria)) {
-        return false;
+  console.log(`[ChristmasFilter] After intensity filter: ${filtered.length} products`);
+  
+  // STEP 3: For wines, also filter by docura
+  const targetDocuras = perfilToDocura[criteria.perfil] || [];
+  filtered = filtered.map(p => {
+    const cat = p.categoria.toLowerCase();
+    if ((cat.includes("vinho") || cat.includes("espumante")) && p.docura) {
+      const docuraMatches = targetDocuras.includes(p.docura.toLowerCase());
+      // Add a penalty flag for mismatched docura (will affect scoring)
+      return { ...p, docuraMatch: docuraMatches };
+    }
+    return { ...p, docuraMatch: true };
+  }).filter(p => {
+    // For ceia + suave, strictly enforce docura
+    if (criteria.momento === "ceia_familia" && criteria.perfil === "suave") {
+      const cat = p.categoria.toLowerCase();
+      if ((cat.includes("vinho") || cat.includes("espumante")) && p.docura) {
+        return targetDocuras.includes(p.docura.toLowerCase());
       }
-      return true;
-    });
-  }
+    }
+    return true;
+  });
   
-  if (criteria.momento === "presente") {
-    // Prioritize premium for gifts
-    filtered = filtered.sort((a, b) => b.prioridade_natal - a.prioridade_natal);
-  }
+  console.log(`[ChristmasFilter] After docura filter: ${filtered.length} products`);
   
-  // Step 4: Score and rank
+  // STEP 4: Score and rank
   const scored: ScoredProduct[] = filtered.map(p => ({
     ...p,
     score: calculateScore(p, criteria),
@@ -203,6 +265,9 @@ export const filterProductsByWizard = (criteria: FilterCriteria): ScoredProduct[
   
   // Sort by score descending
   scored.sort((a, b) => b.score - a.score);
+  
+  // Log top results
+  console.log(`[ChristmasFilter] Top 6 results:`, scored.slice(0, 6).map(p => `${p.nome} (score: ${p.score})`));
   
   // Return top 6 products
   return scored.slice(0, 6);
@@ -214,40 +279,13 @@ export const getFilteredProductIds = (criteria: FilterCriteria): string[] => {
   return filtered.map(p => p.id);
 };
 
-// Get primary category based on criteria
+// Get primary category based on criteria (fallback)
 export const getPrimaryCategoryFromFilter = (criteria: FilterCriteria): string => {
-  const filtered = filterProductsByWizard(criteria);
-  if (filtered.length === 0) return "Vinhos";
-  
-  // Count categories
-  const categoryCount: Record<string, number> = {};
-  filtered.forEach(p => {
-    const cat = normalizeCategoryForDisplay(p.categoria);
-    categoryCount[cat] = (categoryCount[cat] || 0) + 1;
-  });
-  
-  // Return most common
-  const sorted = Object.entries(categoryCount).sort((a, b) => b[1] - a[1]);
-  return sorted[0]?.[0] || "Vinhos";
-};
-
-// Normalize product category to display category
-const normalizeCategoryForDisplay = (categoria: string): string => {
-  const mapping: Record<string, string> = {
-    vinho: "Vinhos",
-    "vinho-tinto": "Vinhos",
-    "vinho-branco": "Vinhos",
-    espumante: "Vinhos",
-    whisky: "Destilados",
-    vodka: "Destilados",
-    gin: "Destilados",
-    rum: "Destilados",
-    tequila: "Destilados",
-    cachaca: "Destilados",
-    cerveja: "Cervejas",
-    drink: "Drinks",
-    suco: "Sucos",
+  const momentoToCategory: Record<string, string> = {
+    ceia_familia: "Vinhos",
+    presente: "Destilados",
+    amigos_festa: "Drinks",
+    brinde_meia_noite: "Vinhos",
   };
-  
-  return mapping[categoria.toLowerCase()] || "Vinhos";
+  return momentoToCategory[criteria.momento] || "Vinhos";
 };

@@ -84,7 +84,7 @@ export const ChristmasSection = ({ onCategoryClick, onFilteredProducts }: Christ
         </h2>
       </div>
 
-      {/* Sophisticated CTA Button with Santa Hat Icon */}
+      {/* Sophisticated CTA Button with Minimalist Santa Hat Icon */}
       <motion.button
         onClick={() => setWizardOpen(true)}
         initial={{ opacity: 0, y: 8 }}
@@ -93,11 +93,16 @@ export const ChristmasSection = ({ onCategoryClick, onFilteredProducts }: Christ
         className="w-full mb-3 py-3 px-4 rounded-xl bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border border-red-200/60 dark:border-red-800/40 shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-between group"
       >
         <div className="flex items-center gap-3">
-          {/* Santa Hat SVG Icon */}
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-600 dark:text-red-400">
-            <path d="M12 2C10.5 2 9 3.5 9 5C9 5.5 9.1 6 9.3 6.4C7.4 7.5 6 9.5 6 12V19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V12C18 9.5 16.6 7.5 14.7 6.4C14.9 6 15 5.5 15 5C15 3.5 13.5 2 12 2Z" fill="currentColor"/>
-            <circle cx="12" cy="5" r="2" fill="white"/>
-            <path d="M6 19H18V21H6V19Z" fill="white"/>
+          {/* Minimalist Santa Hat SVG Icon */}
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-red-600 dark:text-red-400 flex-shrink-0">
+            {/* Hat base/brim */}
+            <path d="M4 20C4 19 5 18 8 18H16C19 18 20 19 20 20C20 21 19 22 12 22C5 22 4 21 4 20Z" fill="currentColor" opacity="0.9"/>
+            {/* Main hat cone */}
+            <path d="M7 18C7 18 8 8 12 4C16 8 17 18 17 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="currentColor"/>
+            {/* Pompom */}
+            <circle cx="12" cy="4" r="2.5" fill="white" stroke="currentColor" strokeWidth="0.5"/>
+            {/* Fur trim */}
+            <path d="M5 18H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
           </svg>
           <span className="text-sm font-medium text-red-800 dark:text-red-200">
             A gente monta pra você
