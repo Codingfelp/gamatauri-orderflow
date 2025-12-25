@@ -65,7 +65,8 @@ const perfilToIntensidade: Record<string, string[]> = {
 const perfilToDocura: Record<string, string[]> = {
   suave: ["suave", "doce", "meio-seco"],
   equilibrado: ["meio-seco", "seco"],
-  forte: ["seco", "extra-seco", "brut"],
+  // "forte" aqui significa mais estrutura/sabor; para ceia ainda faz sentido incluir meio-seco + seco
+  forte: ["meio-seco", "seco", "extra-seco", "brut"],
 };
 
 // Get number of people from range
@@ -254,7 +255,20 @@ export const filterProductsByWizard = (criteria: FilterCriteria): ScoredProduct[
   });
   
   console.log(`[ChristmasFilter] After docura filter: ${filtered.length} products`);
-  
+
+  // STEP 3.5: Ceia should prioritize wines/espumantes (avoid beers taking over the ranking)
+  if (criteria.momento === "ceia_familia") {
+    const wineFirst = filtered.filter(p => {
+      const cat = p.categoria.toLowerCase();
+      return cat.includes("vinho") || cat.includes("espumante");
+    });
+
+    if (wineFirst.length > 0) {
+      filtered = wineFirst;
+      console.log(`[ChristmasFilter] Ceia wine-first applied: ${filtered.length} products`);
+    }
+  }
+
   // STEP 4: Score and rank
   const scored: ScoredProduct[] = filtered.map(p => ({
     ...p,
