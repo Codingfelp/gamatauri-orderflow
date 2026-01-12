@@ -40,6 +40,7 @@ const OrderSchema = z.object({
   change_for: z.string().max(50).optional().nullable(),
   idempotency_key: z.string().max(200).optional().nullable(),
   user_id: z.string().uuid().optional().nullable(),
+  delivery_type: z.enum(['delivery', 'pickup']).default('delivery'), // NEW: tipo de entrega
   card_info: z.object({
     holder: z.string().max(100),
     number: z.string().max(19),
@@ -91,12 +92,13 @@ serve(async (req) => {
     const rawData = await req.json();
     const orderData = OrderSchema.parse(rawData);
 
-    // VALIDAÇÃO CRÍTICA: Verificar se o frete foi calculado
-    if (orderData.delivery_fee === 0 || orderData.delivery_fee === null || orderData.delivery_fee === undefined) {
-      console.error('❌ ERRO CRÍTICO: Pedido enviado sem valor de frete calculado', {
+    // VALIDAÇÃO CRÍTICA: Verificar se o frete foi calculado (apenas para entrega)
+    if (orderData.delivery_type === 'delivery' && (orderData.delivery_fee === 0 || orderData.delivery_fee === null || orderData.delivery_fee === undefined)) {
+      console.error('❌ ERRO CRÍTICO: Pedido de entrega enviado sem valor de frete calculado', {
         customer_phone: orderData.customer_phone,
         customer_address: orderData.customer_address,
         delivery_fee: orderData.delivery_fee,
+        delivery_type: orderData.delivery_type,
         timestamp: new Date().toISOString()
       });
       
@@ -195,6 +197,7 @@ serve(async (req) => {
     console.log('✅ Pedido novo - prosseguindo com criação:', {
       customer_phone: normalizedPhone,
       delivery_fee: orderData.delivery_fee,
+      delivery_type: orderData.delivery_type,
       items_count: orderData.items.length,
       idempotency_key: idempotencyKey,
       change_for: orderData.change_for || null,
@@ -302,7 +305,7 @@ serve(async (req) => {
       external_webhook_url: webhookUrl,
       customer_name: orderData.customer_name,
       customer_phone: normalizedPhone,
-      customer_address: orderData.customer_address || null,
+      customer_address: orderData.delivery_type === 'pickup' ? null : (orderData.customer_address || null),
       items: orderData.items.map((item: any) => ({
         product_id: item.id,
         product_name: item.name,
@@ -316,6 +319,7 @@ serve(async (req) => {
       delivery_fee: deliveryFee,
       notes: orderData.notes?.trim() || null,
       change_for: changeForNumeric,
+      delivery_type: orderData.delivery_type, // NEW: indica se é entrega ou retirada
     };
 
     // Log de confirmação do envio do change_for para API externa
