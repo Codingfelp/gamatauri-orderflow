@@ -401,7 +401,7 @@ const Checkout = () => {
                 {formData.delivery_type === 'pickup' && (
                   <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-xs text-green-700 dark:text-green-400 font-medium">
-                      📍 Retire na loja: Rua Exemplo, 123 - Centro
+                      Retire na loja: R. Aiuruoca, 192 - Loja 5 - Fernão Dias
                     </p>
                     <p className="text-xs text-green-600 dark:text-green-500 mt-1">
                       Avisaremos quando seu pedido estiver pronto!
