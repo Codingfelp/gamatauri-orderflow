@@ -10,7 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, AlertCircle, ChevronDown, MessageSquare, ShoppingBag, Eye, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, Loader2, User, AlertCircle, ChevronDown, MessageSquare, ShoppingBag, Eye, ShieldCheck, MapPin, Store } from "lucide-react";
 import { submitOrder, type OrderItem } from "@/services/orderService";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -69,6 +69,7 @@ const Checkout = () => {
     payment_timing: "entrega",
     notes: "",
     change_for: "",
+    delivery_type: "delivery" as 'delivery' | 'pickup', // NEW
   });
 
   // Verificar lock de processamento ao carregar
@@ -137,7 +138,9 @@ const Checkout = () => {
   }, [user, preFilledAddress]);
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const total = subtotal + shippingFee;
+  // Se for retirada, não cobra frete
+  const effectiveShippingFee = formData.delivery_type === 'pickup' ? 0 : shippingFee;
+  const total = subtotal + effectiveShippingFee;
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const setProcessingLock = (phone: string) => {
@@ -189,7 +192,8 @@ const Checkout = () => {
       return;
     }
 
-    if (shippingFee === 0) {
+    // Validação de frete - apenas para entrega
+    if (formData.delivery_type === 'delivery' && shippingFee === 0) {
       toast({
         title: "Frete não calculado",
         description: "O valor do frete ainda não foi calculado. Volte ao carrinho e aguarde o cálculo.",
@@ -198,14 +202,17 @@ const Checkout = () => {
       return;
     }
 
-    if (!formData.customer_address || formData.customer_address.trim().length < 10) {
-      setAddressError("Endereço muito curto");
-      toast({
-        title: "Endereço inválido",
-        description: "Por favor, informe um endereço de entrega válido",
-        variant: "destructive",
-      });
-      return;
+    // Validação de endereço - apenas para entrega
+    if (formData.delivery_type === 'delivery') {
+      if (!formData.customer_address || formData.customer_address.trim().length < 10) {
+        setAddressError("Endereço muito curto");
+        toast({
+          title: "Endereço inválido",
+          description: "Por favor, informe um endereço de entrega válido",
+          variant: "destructive",
+        });
+        return;
+      }
     }
     
     setAddressError("");
@@ -218,15 +225,16 @@ const Checkout = () => {
       const orderResult = await submitOrder({
         customer_name: formData.customer_name || userProfile?.name || formData.customer_email || formData.customer_phone,
         customer_phone: formData.customer_phone,
-        customer_address: formData.customer_address?.trim() || null,
+        customer_address: formData.delivery_type === 'pickup' ? null : (formData.customer_address?.trim() || null),
         items: cart,
         payment_method: formData.payment_method,
         payment_timing: formData.payment_timing,
         total: total,
-        delivery_fee: shippingFee,
+        delivery_fee: effectiveShippingFee,
         notes: formData.notes || undefined,
         change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
         user_id: user?.id,
+        delivery_type: formData.delivery_type,
       });
 
       if (couponId && user) {
@@ -339,6 +347,69 @@ const Checkout = () => {
           {/* Coluna principal */}
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
+              {/* Card Tipo de Entrega - NOVO */}
+              <Card className="p-4 md:p-6 shadow-md">
+                <h2 className="text-base md:text-xl font-bold mb-3 md:mb-4 flex items-center">
+                  <MapPin className="mr-2 h-4 w-4 md:h-5 md:w-5 text-primary" />
+                  Como você quer receber?
+                </h2>
+                <RadioGroup
+                  value={formData.delivery_type}
+                  onValueChange={(value: 'delivery' | 'pickup') => setFormData({ ...formData, delivery_type: value })}
+                  className="grid grid-cols-2 gap-3"
+                  disabled={loading}
+                >
+                  <Label
+                    htmlFor="delivery"
+                    className={`
+                      flex flex-col items-center gap-2 p-4 rounded-xl cursor-pointer border-2 transition-all
+                      ${formData.delivery_type === 'delivery' 
+                        ? 'bg-primary/10 border-primary shadow-md' 
+                        : 'bg-accent/30 border-transparent hover:border-primary/40'}
+                      ${loading ? 'opacity-50 pointer-events-none' : ''}
+                    `}
+                  >
+                    <RadioGroupItem value="delivery" id="delivery" className="sr-only" />
+                    <MapPin className={`w-6 h-6 ${formData.delivery_type === 'delivery' ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <span className="text-sm font-medium">Entrega</span>
+                    {shippingFee > 0 && (
+                      <span className={`text-xs ${formData.delivery_type === 'delivery' ? 'text-primary' : 'text-muted-foreground'}`}>
+                        + R$ {shippingFee.toFixed(2)}
+                      </span>
+                    )}
+                  </Label>
+
+                  <Label
+                    htmlFor="pickup"
+                    className={`
+                      flex flex-col items-center gap-2 p-4 rounded-xl cursor-pointer border-2 transition-all
+                      ${formData.delivery_type === 'pickup' 
+                        ? 'bg-green-500/10 border-green-500 shadow-md' 
+                        : 'bg-accent/30 border-transparent hover:border-green-500/40'}
+                      ${loading ? 'opacity-50 pointer-events-none' : ''}
+                    `}
+                  >
+                    <RadioGroupItem value="pickup" id="pickup" className="sr-only" />
+                    <Store className={`w-6 h-6 ${formData.delivery_type === 'pickup' ? 'text-green-600' : 'text-muted-foreground'}`} />
+                    <span className="text-sm font-medium">Retirada</span>
+                    <span className={`text-xs ${formData.delivery_type === 'pickup' ? 'text-green-600' : 'text-muted-foreground'}`}>
+                      Grátis
+                    </span>
+                  </Label>
+                </RadioGroup>
+                
+                {formData.delivery_type === 'pickup' && (
+                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                    <p className="text-xs text-green-700 dark:text-green-400 font-medium">
+                      📍 Retire na loja: Rua Exemplo, 123 - Centro
+                    </p>
+                    <p className="text-xs text-green-600 dark:text-green-500 mt-1">
+                      Avisaremos quando seu pedido estiver pronto!
+                    </p>
+                  </div>
+                )}
+              </Card>
+
               {/* Card Contato - Compacto */}
               <Card className="p-4 md:p-6 shadow-md">
                 <h2 className="text-base md:text-xl font-bold mb-3 md:mb-4 flex items-center">
@@ -376,29 +447,33 @@ const Checkout = () => {
                       />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="address" className="text-sm font-medium">
-                      Endereço de Entrega *
-                    </Label>
-                    <Textarea
-                      id="address"
-                      value={formData.customer_address}
-                      onChange={(e) => {
-                        setFormData({ ...formData, customer_address: e.target.value });
-                        setAddressError("");
-                      }}
-                      placeholder="Rua, número, bairro, cidade"
-                      rows={2}
-                      className={`text-sm resize-none ${addressError ? 'border-destructive' : ''}`}
-                      disabled={loading}
-                    />
-                    {addressError && (
-                      <Alert variant="destructive" className="py-2">
-                        <AlertCircle className="h-3 w-3" />
-                        <AlertDescription className="text-xs">{addressError}</AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
+                  
+                  {/* Endereço - Apenas para entrega */}
+                  {formData.delivery_type === 'delivery' && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="address" className="text-sm font-medium">
+                        Endereço de Entrega *
+                      </Label>
+                      <Textarea
+                        id="address"
+                        value={formData.customer_address}
+                        onChange={(e) => {
+                          setFormData({ ...formData, customer_address: e.target.value });
+                          setAddressError("");
+                        }}
+                        placeholder="Rua, número, bairro, cidade"
+                        rows={2}
+                        className={`text-sm resize-none ${addressError ? 'border-destructive' : ''}`}
+                        disabled={loading}
+                      />
+                      {addressError && (
+                        <Alert variant="destructive" className="py-2">
+                          <AlertCircle className="h-3 w-3" />
+                          <AlertDescription className="text-xs">{addressError}</AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                  )}
                 </div>
               </Card>
 
@@ -565,10 +640,15 @@ const Checkout = () => {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>R$ {subtotal.toFixed(2)}</span>
                 </div>
-                {shippingFee > 0 && (
+                {formData.delivery_type === 'pickup' ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Retirada</span>
+                    <span className="text-green-600 font-medium">Grátis</span>
+                  </div>
+                ) : effectiveShippingFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Frete</span>
-                    <span className="text-primary font-medium">R$ {shippingFee.toFixed(2)}</span>
+                    <span className="text-primary font-medium">R$ {effectiveShippingFee.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
@@ -608,8 +688,10 @@ const Checkout = () => {
         <div className="flex justify-between items-center mb-2">
           <div>
             <span className="text-xs text-muted-foreground">{itemCount} {itemCount === 1 ? 'item' : 'itens'}</span>
-            {shippingFee > 0 && (
-              <span className="text-xs text-muted-foreground ml-2">+ Frete R$ {shippingFee.toFixed(2)}</span>
+            {formData.delivery_type === 'pickup' ? (
+              <span className="text-xs text-green-600 ml-2">• Retirada grátis</span>
+            ) : effectiveShippingFee > 0 && (
+              <span className="text-xs text-muted-foreground ml-2">+ Frete R$ {effectiveShippingFee.toFixed(2)}</span>
             )}
           </div>
           <span className="text-xl font-bold text-primary">R$ {total.toFixed(2)}</span>

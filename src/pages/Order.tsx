@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Search, Package, Mic, MicOff } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { fetchProducts, type Product } from "@/services/productsService";
-import { categoryMatchesFilter, normalizeCategory } from "@/utils/categoryMapping";
+import { categoryMatchesFilter, normalizeCategory, CATEGORY_MAPPING } from "@/utils/categoryMapping";
 import { CategoryProductRow } from "@/components/CategoryProductRow";
 import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 import { RecommendedSection } from "@/components/RecommendedSection";
@@ -200,10 +200,23 @@ const Order = () => {
     });
   };
 
+  // Check if search matches a category name
+  const searchMatchesCategory = searchQuery.trim() 
+    ? Object.keys(CATEGORY_MAPPING).find(cat => 
+        cat.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        searchQuery.toLowerCase().includes(cat.toLowerCase())
+      )
+    : null;
+
   const filteredProducts = products.filter((product) => {
     // If wizard is active, ONLY show wizard-selected products
     if (wizardProductIds && wizardProductIds.length > 0) {
       return wizardProductIds.includes(product.id);
+    }
+    
+    // If search matches a category, filter by that category
+    if (searchMatchesCategory) {
+      return categoryMatchesFilter(product.category || "", searchMatchesCategory);
     }
     
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -284,25 +297,29 @@ const Order = () => {
           )}
         </div>
         
-        {/* 3. CHIPS DE CATEGORIAS (Padrão iFood) */}
-        <CategoryChips 
-          onCategoryChange={(cat) => {
-            setSelectedCategory(cat);
-            setSelectedBrand("");
-            if (cat) scrollToProducts();
-          }}
-          selectedCategory={selectedCategory}
-        />
+        {/* 3. CHIPS DE CATEGORIAS (Padrão iFood) - Esconde quando pesquisando */}
+        {!searchQuery && (
+          <CategoryChips 
+            onCategoryChange={(cat) => {
+              setSelectedCategory(cat);
+              setSelectedBrand("");
+              if (cat) scrollToProducts();
+            }}
+            selectedCategory={selectedCategory}
+          />
+        )}
 
-        {/* 4. MARCAS */}
-        <BrandsSection 
-          onBrandClick={(brand) => {
-            setSelectedBrand(brand);
-            setSelectedCategory("");
-            if (brand) scrollToProducts();
-          }}
-          selectedBrand={selectedBrand}
-        />
+        {/* 4. MARCAS - Esconde quando pesquisando */}
+        {!searchQuery && (
+          <BrandsSection 
+            onBrandClick={(brand) => {
+              setSelectedBrand(brand);
+              setSelectedCategory("");
+              if (brand) scrollToProducts();
+            }}
+            selectedBrand={selectedBrand}
+          />
+        )}
 
         {/* 4.5. SEÇÃO ESPECIAL DE NATAL */}
         {!selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (

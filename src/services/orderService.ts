@@ -10,7 +10,7 @@ export interface OrderItem {
 export interface OrderPayload {
   customer_name: string;
   customer_phone: string;
-  customer_address?: string;
+  customer_address?: string | null;
   items: OrderItem[];
   payment_method: string;
   payment_timing?: string;
@@ -23,6 +23,7 @@ export interface OrderPayload {
   card_expiry?: string;
   card_cvv?: string;
   user_id?: string;
+  delivery_type?: 'delivery' | 'pickup'; // NEW: tipo de entrega
 }
 
 export interface OrderResponse {
@@ -105,7 +106,7 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
   const payload = {
     customer_name: orderData.customer_name.trim(),
     customer_phone: sanitizedPhone,
-    customer_address: orderData.customer_address?.trim(),
+    customer_address: orderData.customer_address?.trim() || null,
     items: orderData.items,
     payment_method: orderData.payment_method,
     payment_timing: orderData.payment_timing,
@@ -119,6 +120,7 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
     card_number: orderData.card_number,
     card_expiry: orderData.card_expiry,
     card_cvv: orderData.card_cvv,
+    delivery_type: orderData.delivery_type || 'delivery', // NEW: default to delivery
   };
 
   const { data, error } = await supabase.functions.invoke('submit-order', {
