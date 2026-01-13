@@ -22,7 +22,7 @@ import { CategoryProductRow } from "@/components/CategoryProductRow";
 import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 import { RecommendedSection } from "@/components/RecommendedSection";
 import { BottomNavigation } from "@/components/BottomNavigation";
-import { ChristmasSection } from "@/components/ChristmasSection";
+import { HotDealsSection } from "@/components/HotDealsSection";
 
 
 
@@ -321,21 +321,11 @@ const Order = () => {
           />
         )}
 
-        {/* 4.5. SEÇÃO ESPECIAL DE NATAL */}
+        {/* 4.5. SEÇÃO PEGANDO FOGO (substitui Natal) */}
         {!selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (
-          <ChristmasSection 
-            onCategoryClick={(cat) => {
-              setSelectedCategory(cat);
-              setSelectedBrand("");
-              scrollToProducts();
-            }}
-            onWizardSelection={({ ids, metaById }) => {
-              setWizardProductIds(ids);
-              setWizardMetaById(metaById);
-              setSelectedCategory("");
-              setSelectedBrand("");
-              scrollToProducts();
-            }}
+          <HotDealsSection 
+            products={products}
+            onAddToCart={addToCart}
           />
         )}
 

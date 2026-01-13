@@ -403,6 +403,14 @@ const Checkout = () => {
                     <p className="text-xs text-green-700 dark:text-green-400 font-medium">
                       Retire na loja: R. Aiuruoca, 192 - Loja 5 - Fernão Dias
                     </p>
+                    <a 
+                      href="https://www.google.com/maps/search/?api=1&query=R.+Aiuruoca,+192+-+Loja+5+-+Fernão+Dias"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-green-600 dark:text-green-500 mt-1 hover:underline inline-flex items-center gap-1"
+                    >
+                      📍 Ver no Google Maps
+                    </a>
                     <p className="text-xs text-green-600 dark:text-green-500 mt-1">
                       Avisaremos quando seu pedido estiver pronto!
                     </p>

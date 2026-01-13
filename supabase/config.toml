@@ -18,3 +18,6 @@ verify_jwt = false
 
 [functions.update-order-status]
 verify_jwt = false
+
+[functions.manage-promotions]
+verify_jwt = false
