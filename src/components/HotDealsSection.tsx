@@ -290,16 +290,18 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
   const isBeforePromo = now < promoStart;
   const isAfterPromo = now > promoEnd;
 
-  // Get products with promotions (show all promotions, active or not for preview)
-  const allPromotions = promotions.filter(p => p.is_active);
+  // Get products with promotions (mostra promo ativa OU agendada)
+  const allPromotions = promotions.filter((p) => (p.is_active ?? true));
   const promotionalProducts = products.filter((p) =>
     allPromotions.some((promo) => promo.product_id === p.id)
   );
 
-  // Don't show section if promotion ended or no promotions
-  if (loading || isAfterPromo || promotionalProducts.length === 0) {
+  // Não renderizar após encerrar a janela (16/01-18/01)
+  if (loading || isAfterPromo) {
     return null;
   }
+
+  const hasDeals = promotionalProducts.length > 0;
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
@@ -354,37 +356,47 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
         </p>
       </div>
 
-      {/* Promotional products carousel */}
-      <div className="relative">
-        <div className="overflow-hidden" ref={emblaRef}>
-          <div className="flex gap-3">
-            {promotionalProducts.map((product) => {
-              const promotion = allPromotions.find((p) => p.product_id === product.id);
-              if (!promotion) return null;
+       {/* Promotional products carousel */}
+       <div className="relative">
+         {hasDeals ? (
+           <>
+             <div className="overflow-hidden" ref={emblaRef}>
+               <div className="flex gap-3">
+                 {promotionalProducts.map((product) => {
+                   const promotion = allPromotions.find((p) => p.product_id === product.id);
+                   if (!promotion) return null;
 
-              return (
-                <HotDealCard
-                  key={product.id}
-                  product={product}
-                  promotion={promotion}
-                  onAddToCart={onAddToCart}
-                  isActive={isPromoActive}
-                />
-              );
-            })}
-          </div>
-        </div>
-        
-        {/* Scroll button */}
-        {canScrollNext && (
-          <button
-            onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all z-10"
-          >
-            <ChevronRight className="h-4 w-4 text-foreground" />
-          </button>
-        )}
-      </div>
+                   return (
+                     <HotDealCard
+                       key={product.id}
+                       product={product}
+                       promotion={promotion}
+                       onAddToCart={onAddToCart}
+                       isActive={isPromoActive}
+                     />
+                   );
+                 })}
+               </div>
+             </div>
+
+             {/* Scroll button */}
+             {canScrollNext && (
+               <button
+                 onClick={scrollNext}
+                 className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all z-10"
+               >
+                 <ChevronRight className="h-4 w-4 text-foreground" />
+               </button>
+             )}
+           </>
+         ) : (
+           <div className="border border-border/50 rounded-xl p-3 bg-card">
+             <p className="text-xs text-muted-foreground text-center">
+               Nenhuma promoção recebida ainda — aguardando sincronização do sistema externo.
+             </p>
+           </div>
+         )}
+       </div>
 
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
