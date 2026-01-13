@@ -150,7 +150,43 @@ const Search = () => {
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Check if search matches a category keyword
+  const getMatchingCategory = (search: string): string | null => {
+    if (!search.trim()) return null;
+    const searchLower = search.toLowerCase().trim();
+    
+    const keywordMap: Record<string, string[]> = {
+      "Águas": ["agua", "águas", "water", "mineral", "crystal", "minalba"],
+      "Sucos": ["suco", "sucos", "tial", "gatorade", "isoton", "del valle"],
+      "Cervejas": ["cerveja", "cervejas", "beer", "brahma", "skol", "heineken", "budweiser"],
+      "Destilados": ["whisky", "vodka", "cachaça", "rum", "tequila", "gin", "destilado"],
+      "Vinhos": ["vinho", "vinhos", "wine", "tinto", "branco", "rose"],
+      "Refrigerantes": ["refrigerante", "coca", "pepsi", "fanta", "guarana", "energetico", "red bull"],
+      "Drinks": ["drink", "drinks", "beats", "ice", "smirnoff"],
+      "Chocolates": ["chocolate", "chocolates", "bis", "oreo", "kitkat"],
+      "Snacks": ["snack", "snacks", "batata", "salgadinho", "doritos", "lays", "ruffles"],
+      "Doces": ["doce", "doces", "bala", "chiclete", "mentos"],
+      "Tabacaria": ["cigarro", "cigarros", "seda", "isqueiro", "tabaco"],
+      "Gelos": ["gelo", "gelos", "ice"],
+      "Copão": ["copao", "copão", "combo"],
+    };
+    
+    for (const [category, keywords] of Object.entries(keywordMap)) {
+      if (keywords.some(kw => searchLower.includes(kw) || kw.includes(searchLower))) {
+        return category;
+      }
+    }
+    return null;
+  };
+
+  const matchingCategory = getMatchingCategory(searchTerm);
+
   const filteredProducts = products.filter((product) => {
+    // If search matches a category, show all products from that category
+    if (matchingCategory) {
+      return categoryMatchesFilter(product.category || "", matchingCategory);
+    }
+    
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           product.description?.toLowerCase().includes(searchTerm.toLowerCase());
     
