@@ -1,10 +1,12 @@
 import { useState, useEffect, memo } from "react";
-import { Flame, Clock, ChevronRight, Package, Plus, Timer } from "lucide-react";
+import { Flame, Clock, ChevronRight, Package, Plus, Timer, CalendarClock } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePromotions, ProductPromotion } from "@/hooks/usePromotions";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { getProductColor } from "@/utils/productVariants";
+import useEmblaCarousel from "embla-carousel-react";
+import { useCallback } from "react";
 
 interface Product {
   id: string;
@@ -21,14 +23,36 @@ interface HotDealsSectionProps {
   onAddToCart: (product: Product) => void;
 }
 
+// Promotion dates configuration
+const PROMO_START = new Date("2025-01-16T00:00:00");
+const PROMO_END = new Date("2025-01-18T23:59:59");
+
 // Countdown timer component
-const CountdownTimer = memo(({ endDate }: { endDate: string }) => {
+const CountdownTimer = memo(({ endDate, startDate }: { endDate: Date; startDate: Date }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [isStarted, setIsStarted] = useState(false);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const end = new Date(endDate).getTime();
       const now = Date.now();
+      const start = startDate.getTime();
+      const end = endDate.getTime();
+
+      // Check if promotion has started
+      if (now < start) {
+        // Show time until start
+        const diff = start - now;
+        setIsStarted(false);
+        return {
+          days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((diff % (1000 * 60)) / 1000),
+        };
+      }
+
+      // Promotion is active - show time until end
+      setIsStarted(true);
       const diff = end - now;
 
       if (diff <= 0) {
@@ -46,17 +70,22 @@ const CountdownTimer = memo(({ endDate }: { endDate: string }) => {
     setTimeLeft(calculateTimeLeft());
     const interval = setInterval(() => setTimeLeft(calculateTimeLeft()), 1000);
     return () => clearInterval(interval);
-  }, [endDate]);
+  }, [endDate, startDate]);
 
   return (
-    <div className="flex items-center gap-1 text-xs font-mono">
-      <Timer className="w-3 h-3" />
-      <span className="tabular-nums">
-        {timeLeft.days > 0 && `${timeLeft.days}d `}
-        {String(timeLeft.hours).padStart(2, "0")}:
-        {String(timeLeft.minutes).padStart(2, "0")}:
-        {String(timeLeft.seconds).padStart(2, "0")}
+    <div className="flex flex-col items-end gap-0.5">
+      <span className="text-[9px] text-orange-200 font-medium">
+        {isStarted ? "Termina em" : "Começa em"}
       </span>
+      <div className="flex items-center gap-1 text-xs font-mono font-bold">
+        <Timer className="w-3 h-3" />
+        <span className="tabular-nums">
+          {timeLeft.days > 0 && `${timeLeft.days}d `}
+          {String(timeLeft.hours).padStart(2, "0")}:
+          {String(timeLeft.minutes).padStart(2, "0")}:
+          {String(timeLeft.seconds).padStart(2, "0")}
+        </span>
+      </div>
     </div>
   );
 });
@@ -67,11 +96,13 @@ CountdownTimer.displayName = "CountdownTimer";
 const HotDealCard = memo(({ 
   product, 
   promotion, 
-  onAddToCart 
+  onAddToCart,
+  isActive 
 }: { 
   product: Product; 
   promotion: ProductPromotion;
   onAddToCart: (product: Product) => void;
+  isActive: boolean;
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -90,17 +121,24 @@ const HotDealCard = memo(({
   const endDate = new Date(promotion.end_date);
   const formattedEndDate = endDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isOutOfStock || !isActive) return;
+    // Pass product with promotional price
+    onAddToCart({ ...product, price: promotion.promotional_price });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`flex-shrink-0 w-[140px] sm:w-[160px] ${isOutOfStock ? "opacity-50" : ""}`}
+      className={`flex-shrink-0 w-[140px] sm:w-[160px] ${isOutOfStock || !isActive ? "opacity-60" : ""}`}
     >
       <div className="bg-white rounded-2xl border-2 border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden relative">
         {/* Fire badge */}
-        <div className="absolute top-1 right-1 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+        <div className="absolute top-1 right-1 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
           <Flame className="w-2.5 h-2.5" />
           <span>-{discountPercent}%</span>
         </div>
@@ -111,9 +149,11 @@ const HotDealCard = memo(({
             className="absolute bottom-0 left-0 right-0 h-[45px] sm:h-[50px] rounded-xl"
             style={backgroundStyle}
           >
-            {isOutOfStock && (
+            {(isOutOfStock || !isActive) && (
               <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-xl">
-                <span className="text-[8px] font-bold text-white bg-destructive px-1.5 py-0.5 rounded">Esgotado</span>
+                <span className="text-[8px] font-bold text-white bg-destructive px-1.5 py-0.5 rounded">
+                  {isOutOfStock ? "Esgotado" : "Aguarde"}
+                </span>
               </div>
             )}
           </div>
@@ -158,16 +198,10 @@ const HotDealCard = memo(({
                   R$ {promotion.promotional_price.toFixed(2)}
                 </span>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isOutOfStock) {
-                      // Pass product with promotional price
-                      onAddToCart({ ...product, price: promotion.promotional_price });
-                    }
-                  }}
-                  disabled={isOutOfStock}
+                  onClick={handleAddToCart}
+                  disabled={isOutOfStock || !isActive}
                   className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${
-                    isOutOfStock
+                    isOutOfStock || !isActive
                       ? "bg-muted text-muted-foreground cursor-not-allowed"
                       : "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600"
                   }`}
@@ -198,25 +232,63 @@ const HotDealCard = memo(({
 HotDealCard.displayName = "HotDealCard";
 
 export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps) => {
-  const { getActivePromotions, loading } = usePromotions();
-  const activePromotions = getActivePromotions();
+  const { getActivePromotions, promotions, loading } = usePromotions();
+  const [now, setNow] = useState(new Date());
+  
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: false,
+    align: 'start',
+    containScroll: 'trimSnaps',
+    dragFree: true,
+  });
 
-  // Find earliest end date for the main timer
-  const earliestEndDate = activePromotions.length > 0
-    ? activePromotions.reduce((min, p) => {
-        const endDate = new Date(p.end_date);
-        return endDate < min ? endDate : min;
-      }, new Date(activePromotions[0].end_date))
-    : null;
+  const [canScrollNext, setCanScrollNext] = useState(false);
 
-  // Get products with active promotions
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    const onSelect = () => {
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+    
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    onSelect();
+    
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi]);
+
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Check if promotion period is active
+  const isPromoActive = now >= PROMO_START && now <= PROMO_END;
+  const isBeforePromo = now < PROMO_START;
+  const isAfterPromo = now > PROMO_END;
+
+  // Get products with promotions (show all promotions, active or not for preview)
+  const allPromotions = promotions.filter(p => p.is_active);
   const promotionalProducts = products.filter((p) =>
-    activePromotions.some((promo) => promo.product_id === p.id)
+    allPromotions.some((promo) => promo.product_id === p.id)
   );
 
-  if (loading || promotionalProducts.length === 0) {
+  // Don't show section if promotion ended or no promotions
+  if (loading || isAfterPromo || promotionalProducts.length === 0) {
     return null;
   }
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  };
 
   return (
     <section className="py-4 px-4">
@@ -228,46 +300,75 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
             <Flame className="w-6 h-6 text-red-500 absolute inset-0 animate-ping opacity-30" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-foreground flex items-center gap-1">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-1">
               Pegando Fogo
-              <span className="text-orange-500">🔥</span>
+              <Flame className="w-4 h-4 text-orange-500" />
+              <Flame className="w-4 h-4 text-red-500 -ml-2" />
             </h2>
-            <p className="text-[10px] text-muted-foreground">
-              Preços válidos apenas durante a promoção
+            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <CalendarClock className="w-3 h-3" />
+              {formatDate(PROMO_START)} até {formatDate(PROMO_END)}
             </p>
           </div>
         </div>
 
         {/* Main countdown */}
-        {earliestEndDate && (
-          <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-full shadow-lg">
-            <CountdownTimer endDate={earliestEndDate.toISOString()} />
-          </div>
-        )}
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-full shadow-lg">
+          <CountdownTimer startDate={PROMO_START} endDate={PROMO_END} />
+        </div>
       </div>
 
-      {/* Warning message */}
-      <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800/50 rounded-lg p-2 mb-3">
-        <p className="text-[10px] text-orange-700 dark:text-orange-300 text-center">
-          ⚠️ Preços promocionais válidos apenas dentro do período. Fora do prazo, o preço normal será aplicado.
+      {/* Status message */}
+      <div className={`border rounded-lg p-2 mb-3 ${
+        isPromoActive 
+          ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800/50" 
+          : "bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800/50"
+      }`}>
+        <p className={`text-[10px] text-center font-medium ${
+          isPromoActive 
+            ? "text-green-700 dark:text-green-300" 
+            : "text-orange-700 dark:text-orange-300"
+        }`}>
+          {isPromoActive ? (
+            <>🔥 Promoção ativa! Aproveite os preços especiais</>
+          ) : isBeforePromo ? (
+            <>⏳ Promoção começa em {formatDate(PROMO_START)}. Preços promocionais serão liberados na data.</>
+          ) : (
+            <>⚠️ Promoção encerrada. Preços normais aplicados.</>
+          )}
         </p>
       </div>
 
       {/* Promotional products carousel */}
-      <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-        {promotionalProducts.map((product) => {
-          const promotion = activePromotions.find((p) => p.product_id === product.id);
-          if (!promotion) return null;
+      <div className="relative">
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex gap-3">
+            {promotionalProducts.map((product) => {
+              const promotion = allPromotions.find((p) => p.product_id === product.id);
+              if (!promotion) return null;
 
-          return (
-            <HotDealCard
-              key={product.id}
-              product={product}
-              promotion={promotion}
-              onAddToCart={onAddToCart}
-            />
-          );
-        })}
+              return (
+                <HotDealCard
+                  key={product.id}
+                  product={product}
+                  promotion={promotion}
+                  onAddToCart={onAddToCart}
+                  isActive={isPromoActive}
+                />
+              );
+            })}
+          </div>
+        </div>
+        
+        {/* Scroll button */}
+        {canScrollNext && (
+          <button
+            onClick={scrollNext}
+            className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all z-10"
+          >
+            <ChevronRight className="h-4 w-4 text-foreground" />
+          </button>
+        )}
       </div>
 
       <style>{`

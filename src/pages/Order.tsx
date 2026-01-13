@@ -200,12 +200,41 @@ const Order = () => {
     });
   };
 
-  // Check if search matches a category name
+  // Check if search matches a category name or keyword
   const searchMatchesCategory = searchQuery.trim() 
-    ? Object.keys(CATEGORY_MAPPING).find(cat => 
-        cat.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        searchQuery.toLowerCase().includes(cat.toLowerCase())
-      )
+    ? (() => {
+        const searchLower = searchQuery.toLowerCase().trim();
+        // Direct category match
+        const directMatch = Object.keys(CATEGORY_MAPPING).find(cat => 
+          cat.toLowerCase().includes(searchLower) ||
+          searchLower.includes(cat.toLowerCase())
+        );
+        if (directMatch) return directMatch;
+        
+        // Check category keywords from categoryMapping
+        const keywordMap: Record<string, string[]> = {
+          "Águas": ["agua", "águas", "water", "mineral", "crystal", "minalba"],
+          "Sucos": ["suco", "sucos", "tial", "gatorade", "isoton", "del valle"],
+          "Cervejas": ["cerveja", "cervejas", "beer", "brahma", "skol", "heineken", "budweiser"],
+          "Destilados": ["whisky", "vodka", "cachaça", "rum", "tequila", "gin", "destilado"],
+          "Vinhos": ["vinho", "vinhos", "wine", "tinto", "branco", "rose"],
+          "Refrigerantes": ["refrigerante", "coca", "pepsi", "fanta", "guarana", "energetico", "red bull"],
+          "Drinks": ["drink", "drinks", "beats", "ice", "smirnoff"],
+          "Chocolates": ["chocolate", "chocolates", "bis", "oreo", "kitkat"],
+          "Snacks": ["snack", "snacks", "batata", "salgadinho", "doritos", "lays", "ruffles"],
+          "Doces": ["doce", "doces", "bala", "chiclete", "mentos"],
+          "Tabacaria": ["cigarro", "cigarros", "seda", "isqueiro", "tabaco"],
+          "Gelos": ["gelo", "gelos", "ice"],
+          "Copão": ["copao", "copão", "combo"],
+        };
+        
+        for (const [category, keywords] of Object.entries(keywordMap)) {
+          if (keywords.some(kw => searchLower.includes(kw) || kw.includes(searchLower))) {
+            return category;
+          }
+        }
+        return null;
+      })()
     : null;
 
   const filteredProducts = products.filter((product) => {
@@ -354,12 +383,13 @@ const Order = () => {
           </div>
         )}
 
-        {/* 5. RECOMENDAÇÕES PERSONALIZADAS */}
+        {/* 5. RECOMENDAÇÕES PERSONALIZADAS - Apenas para usuários com histórico */}
         {!selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (
           <div className="px-4">
             <RecommendedSection 
               allProducts={products}
               onAddToCart={addToCart}
+              hideForNewUsers={true}
             />
           </div>
         )}

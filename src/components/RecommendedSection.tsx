@@ -10,9 +10,10 @@ import { useCallback, useEffect, useState } from "react";
 interface RecommendedSectionProps {
   allProducts: Product[];
   onAddToCart: (product: Product) => void;
+  hideForNewUsers?: boolean;
 }
 
-export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSectionProps) => {
+export const RecommendedSection = ({ allProducts, onAddToCart, hideForNewUsers = false }: RecommendedSectionProps) => {
   const {
     recommendations,
     loading,
@@ -73,6 +74,7 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
   // Consolidar produtos recomendados ou usar populares como fallback
   let allRecommended: Product[] = [];
   let title = "Recomendado para você";
+  const isNewUser = !hasRecommendations || totalOrders === 0;
   
   if (hasRecommendations && totalOrders > 0) {
     // Usuário com histórico - recomendações personalizadas
@@ -82,6 +84,10 @@ export const RecommendedSection = ({ allProducts, onAddToCart }: RecommendedSect
     ].slice(0, 10);
   } else {
     // Novo usuário - produtos populares
+    // Se hideForNewUsers está ativo, não mostrar seção para novos usuários
+    if (hideForNewUsers) {
+      return null;
+    }
     title = "Produtos em destaque";
     allRecommended = allProducts
       .filter(p => p.available)
