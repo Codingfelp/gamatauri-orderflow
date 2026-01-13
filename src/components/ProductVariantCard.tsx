@@ -4,7 +4,8 @@ import { ProductVariantModal } from "./ProductVariantModal";
 import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, Package } from "lucide-react";
+import { Plus, Package, Flame, Clock } from "lucide-react";
+import { usePromotions } from "@/hooks/usePromotions";
 
 interface ProductVariantCardProps {
   productGroup: ProductGroup;
@@ -16,6 +17,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
+  const { getPromotionForProduct, isPromotionActive } = usePromotions();
   const { baseProduct, variants, mainImage, priceRange } = productGroup;
 
   const handleVariantSelected = (variant: ProductVariant) => {
@@ -40,7 +42,25 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         }
       : { background: productBg.value };
 
-  return (
+    const promoForSomeVariant = variants
+      .map((v) => getPromotionForProduct(v.id))
+      .find((p) => !!p);
+
+    const promoIsActive = promoForSomeVariant ? isPromotionActive(promoForSomeVariant) : false;
+
+    const promoMinPrice = promoForSomeVariant && promoIsActive
+      ? Math.min(
+          ...variants
+            .map((v) => {
+              const p = getPromotionForProduct(v.id);
+              return p && isPromotionActive(p) ? p.promotional_price : v.price;
+            })
+        )
+      : null;
+
+    const originalMinForDisplay = promoForSomeVariant && promoIsActive ? priceRange.min : null;
+
+    return (
     <>
       <div
         className={`flex-shrink-0 w-full group transition-all duration-300 cursor-pointer ${
@@ -49,7 +69,16 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         onClick={() => setIsModalOpen(true)}
       >
         {/* Card chip-style com animação hover */}
-        <div className="bg-white rounded-2xl border border-border/20 shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden">
+        <div className={`bg-white rounded-2xl border shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden relative ${
+          promoForSomeVariant ? "border-orange-200" : "border-border/20"
+        }`}>
+          {promoForSomeVariant && (
+            <div className="absolute top-1 left-1 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+              <Flame className="w-2 h-2" />
+              <span>{promoIsActive ? "PROMO" : "EM BREVE"}</span>
+            </div>
+          )}
+
           {/* Área da imagem com fundo colorido na parte inferior */}
           <div className="relative h-[75px] sm:h-[85px] mx-2 mt-2">
             {/* Fundo colorido posicionado na metade inferior */}
@@ -100,22 +129,34 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
             </p>
 
             {user ? (
-              <div className="flex items-center justify-between gap-1">
-                <div className="flex items-baseline gap-0.5">
-                  <span className="text-[8px] text-muted-foreground">De</span>
-                  <span className="text-xs sm:text-sm font-bold text-primary">R$ {priceRange.min.toFixed(2)}</span>
+              <div className="space-y-0.5">
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-[8px] text-muted-foreground">De</span>
+                    <span className="text-xs sm:text-sm font-bold text-foreground">
+                      R$ {(promoMinPrice ?? priceRange.min).toFixed(2)}
+                    </span>
+                  </div>
+                  <button
+                    disabled={isOutOfStock}
+                    className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${
+                      isOutOfStock
+                        ? "bg-muted text-muted-foreground cursor-not-allowed"
+                        : promoIsActive
+                          ? "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600"
+                          : "bg-muted/40 text-primary hover:bg-muted"
+                    }`}
+                    aria-label="Ver opções"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
                 </div>
-                <button
-                  disabled={isOutOfStock}
-                  className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${
-                    isOutOfStock
-                      ? "bg-muted text-muted-foreground cursor-not-allowed"
-                      : "bg-muted/40 text-primary hover:bg-muted"
-                  }`}
-                  aria-label="Ver opções"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
+
+                {originalMinForDisplay !== null && (
+                  <p className="text-[10px] text-muted-foreground line-through text-center">
+                    R$ {originalMinForDisplay.toFixed(2)}
+                  </p>
+                )}
               </div>
             ) : (
               <button

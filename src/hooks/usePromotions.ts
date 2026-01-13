@@ -17,16 +17,14 @@ export const usePromotions = () => {
 
   const fetchPromotions = async () => {
     try {
-      const now = new Date().toISOString();
       const { data, error } = await supabase
         .from("product_promotions")
         .select("*")
         .eq("is_active", true)
-        .lte("start_date", now)
-        .gte("end_date", now);
+        .order("start_date", { ascending: true });
 
       if (error) throw error;
-      
+
       setPromotions((data as ProductPromotion[]) || []);
     } catch (error) {
       console.error("Error fetching promotions:", error);
@@ -37,6 +35,11 @@ export const usePromotions = () => {
 
   useEffect(() => {
     fetchPromotions();
+
+    // Polling fallback (garante atualização mesmo se realtime não estiver ativo)
+    const poll = setInterval(() => {
+      fetchPromotions();
+    }, 20000);
 
     // Subscribe to realtime updates
     const channel = supabase
@@ -56,20 +59,31 @@ export const usePromotions = () => {
       .subscribe();
 
     return () => {
+      clearInterval(poll);
       supabase.removeChannel(channel);
     };
   }, []);
 
   // Get promotion for a specific product
+  // Regra: retorna 1 promoção relevante (ativa primeiro; senão, a próxima agendada)
   const getPromotionForProduct = (productId: string): ProductPromotion | null => {
-    const now = new Date();
-    const promo = promotions.find((p) => {
-      if (p.product_id !== productId || !p.is_active) return false;
-      const start = new Date(p.start_date);
-      const end = new Date(p.end_date);
+    const now = Date.now();
+
+    const productPromos = promotions.filter((p) => p.product_id === productId && !!p.is_active);
+    if (productPromos.length === 0) return null;
+
+    const active = productPromos.find((p) => {
+      const start = new Date(p.start_date).getTime();
+      const end = new Date(p.end_date).getTime();
       return now >= start && now <= end;
     });
-    return promo || null;
+    if (active) return active;
+
+    const upcoming = productPromos
+      .filter((p) => new Date(p.start_date).getTime() > now)
+      .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+
+    return upcoming[0] || null;
   };
 
   // Check if a promotion is currently active (within date range)

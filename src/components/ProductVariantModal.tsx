@@ -3,12 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Share2 } from "lucide-react";
+import { Check, X, Share2, Flame, Clock } from "lucide-react";
 import { shareProductWhatsApp } from "@/utils/shareUtils";
 import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { usePromotions } from "@/hooks/usePromotions";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { getPromotionForProduct, isPromotionActive } = usePromotions();
   
   // Carrossel mobile
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'start' });
@@ -58,19 +60,23 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   
   const handleVariantClick = (variant: typeof variants[0]) => {
     if (!variant.available) return;
-    
+
+    const promo = getPromotionForProduct(variant.id);
+    const promoActive = promo ? isPromotionActive(promo) : false;
+    const finalPrice = promoActive && promo ? promo.promotional_price : variant.price;
+
     if (onVariantSelected) {
       onVariantSelected(variant);
     }
-    
+
     onAddToCart({
       id: variant.id,
       name: variant.name,
-      price: variant.price,
+      price: finalPrice,
       image_url: variant.image_url,
       description: null,
       category: baseProduct.category,
-      available: variant.available
+      available: variant.available,
     });
     onClose();
   };
@@ -158,50 +164,78 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                 <p className="text-sm text-muted-foreground">{selectedVariant.size}</p>
               )}
             </div>
-            
-            {user ? (
-              <div className="space-y-3">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold text-primary">
-                    R$ {selectedVariant.price.toFixed(2)}
-                  </span>
+
+            {(() => {
+              const promo = getPromotionForProduct(selectedVariant.id);
+              const promoActive = promo ? isPromotionActive(promo) : false;
+              const displayPrice = promoActive && promo ? promo.promotional_price : selectedVariant.price;
+              const showOriginal = promoActive && promo;
+              const start = promo ? new Date(promo.start_date) : null;
+              const end = promo ? new Date(promo.end_date) : null;
+              const startFmt = start?.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+              const endFmt = end?.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+
+              return user ? (
+                <div className="space-y-3">
+                  {promo && (
+                    <div className="flex items-center gap-1 text-[11px] text-orange-600 font-medium">
+                      <Flame className="w-3.5 h-3.5" />
+                      <span>
+                        {promoActive ? (endFmt ? `Promo até ${endFmt}` : "Promo ativa") : startFmt ? `Começa ${startFmt}` : "Promo agendada"}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-foreground">
+                      R$ {displayPrice.toFixed(2)}
+                    </span>
+                    {showOriginal && (
+                      <span className="text-sm text-muted-foreground line-through">
+                        R$ {promo!.original_price.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => handleVariantClick(selectedVariant)}
+                      disabled={!selectedVariant.available || (!!promo && !promoActive)}
+                      className="flex-1 h-12 text-base font-semibold"
+                    >
+                      {selectedVariant.available
+                        ? promo && !promoActive
+                          ? "Aguarde a promoção"
+                          : "Adicionar ao Carrinho"
+                        : "Esgotado"}
+                    </Button>
+
+                    <Button
+                      onClick={() =>
+                        shareProductWhatsApp({
+                          name: selectedVariant.name,
+                          price: displayPrice,
+                          category: baseProduct.category,
+                        })
+                      }
+                      variant="outline"
+                      size="icon"
+                      className="h-12 w-12 flex-shrink-0"
+                      aria-label="Compartilhar no WhatsApp"
+                    >
+                      <Share2 className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => handleVariantClick(selectedVariant)}
-                    disabled={!selectedVariant.available}
-                    className="flex-1 h-12 text-base font-semibold"
-                  >
-                    {selectedVariant.available ? 'Adicionar ao Carrinho' : 'Esgotado'}
-                  </Button>
-                  
-                  <Button
-                    onClick={() => shareProductWhatsApp({ 
-                      name: selectedVariant.name, 
-                      price: selectedVariant.price, 
-                      category: baseProduct.category 
-                    })}
-                    variant="outline"
-                    size="icon"
-                    className="h-12 w-12 flex-shrink-0"
-                    aria-label="Compartilhar no WhatsApp"
-                  >
-                    <Share2 className="h-5 w-5" />
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">Faça login para ver preços e adicionar ao carrinho</p>
+                  <Button onClick={() => (window.location.href = "/auth")} className="w-full h-12 text-base font-semibold">
+                    Entrar
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">Faça login para ver preços e adicionar ao carrinho</p>
-                <Button
-                  onClick={() => window.location.href = '/auth'}
-                  className="w-full h-12 text-base font-semibold"
-                >
-                  Entrar
-                </Button>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
         
@@ -292,45 +326,72 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
               <div className="sticky top-0 left-0 right-0 h-6 bg-gradient-to-b from-background via-background to-transparent pointer-events-none z-10" />
               
               <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 space-y-2 scrollbar-hide pt-2">
-              {variants.map(variant => (
-                <motion.button
-                  key={variant.id}
-                  onClick={() => handleVariantClick(variant)}
-                  onMouseEnter={() => variant.available && setSelectedVariant(variant)}
-                  disabled={!variant.available}
-                  whileHover={variant.available ? { scale: 1.02 } : {}}
-                  whileTap={variant.available ? { scale: 0.98 } : {}}
-                  className={`w-full p-4 rounded-lg border-2 transition-all ${
-                    selectedVariant.id === variant.id
-                      ? 'border-primary bg-primary/5 shadow-md'
-                      : variant.available
-                      ? 'border-border hover:border-primary/50 bg-card hover:shadow-sm'
-                      : 'border-border bg-muted/30 opacity-60 cursor-not-allowed'
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="flex-1 text-left">
-                      <h4 className="font-semibold text-foreground">{variant.name}</h4>
-                      {variant.size && variant.size !== baseProduct.size && (
-                        <p className="text-xs text-muted-foreground mt-0.5">{variant.size}</p>
-                      )}
+              {variants.map(variant => {
+                const promo = getPromotionForProduct(variant.id);
+                const promoActive = promo ? isPromotionActive(promo) : false;
+                const displayPrice = promoActive && promo ? promo.promotional_price : variant.price;
+
+                return (
+                  <motion.button
+                    key={variant.id}
+                    onClick={() => handleVariantClick(variant)}
+                    onMouseEnter={() => variant.available && setSelectedVariant(variant)}
+                    disabled={!variant.available || (!!promo && !promoActive)}
+                    whileHover={variant.available ? { scale: 1.02 } : {}}
+                    whileTap={variant.available ? { scale: 0.98 } : {}}
+                    className={`w-full p-4 rounded-lg border-2 transition-all ${
+                      selectedVariant.id === variant.id
+                        ? 'border-primary bg-primary/5 shadow-md'
+                        : variant.available
+                        ? 'border-border hover:border-primary/50 bg-card hover:shadow-sm'
+                        : 'border-border bg-muted/30 opacity-60 cursor-not-allowed'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1 text-left">
+                        <h4 className="font-semibold text-foreground flex items-center gap-2">
+                          {variant.name}
+                          {promo && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-0.5 rounded-full">
+                              <Flame className="w-3 h-3" />
+                              {promoActive ? 'Promo' : 'Em breve'}
+                            </span>
+                          )}
+                        </h4>
+                        {variant.size && variant.size !== baseProduct.size && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{variant.size}</p>
+                        )}
+                        {promo && (
+                          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {promoActive
+                              ? `até ${new Date(promo.end_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`
+                              : `começa ${new Date(promo.start_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}`}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {user ? (
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-foreground">R$ {displayPrice.toFixed(2)}</p>
+                            {promoActive && promo && (
+                              <p className="text-xs text-muted-foreground line-through">R$ {promo.original_price.toFixed(2)}</p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">Faça login para ver</p>
+                        )}
+                        {!variant.available && <Badge variant="destructive" className="text-xs">Esgotado</Badge>}
+                        {variant.available && selectedVariant.id === variant.id && (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-4 h-4 text-primary-foreground" />
+                          </motion.div>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {user ? (
-                        <p className="text-lg font-bold text-primary">R$ {variant.price.toFixed(2)}</p>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">Faça login para ver</p>
-                      )}
-                      {!variant.available && <Badge variant="destructive" className="text-xs">Esgotado</Badge>}
-                      {variant.available && selectedVariant.id === variant.id && (
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                          <Check className="w-4 h-4 text-primary-foreground" />
-                        </motion.div>
-                      )}
-                    </div>
-                  </div>
-                </motion.button>
-              ))}
+                  </motion.button>
+                );
+              })}
               </div>
               
               <div className="sticky bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background via-background to-transparent pointer-events-none z-10" />

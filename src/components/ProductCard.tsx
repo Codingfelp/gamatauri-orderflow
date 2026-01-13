@@ -29,11 +29,12 @@ interface ProductCardProps {
 export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { getPromotionForProduct } = usePromotions();
+  const { getPromotionForProduct, isPromotionActive } = usePromotions();
   const isOutOfStock = !product.available;
 
   const promotion = getPromotionForProduct(product.id);
-  const hasActivePromo = !!promotion;
+  const hasPromo = !!promotion;
+  const promoIsActive = promotion ? isPromotionActive(promotion) : false;
 
   const productBg = getProductColor(product.name, "", product.category || "");
 
@@ -43,16 +44,20 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
       ? { backgroundImage: `url(${productBg.value})`, backgroundSize: "cover", backgroundPosition: "center" }
       : { background: productBg.value };
 
-  const displayPrice = hasActivePromo ? promotion.promotional_price : product.price;
-  const endDate = hasActivePromo ? new Date(promotion.end_date) : null;
+  const displayPrice = promoIsActive && promotion ? promotion.promotional_price : product.price;
+  const startDate = hasPromo ? new Date(promotion!.start_date) : null;
+  const endDate = hasPromo ? new Date(promotion!.end_date) : null;
+  const formattedStartDate = startDate?.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
   const formattedEndDate = endDate?.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    // Use promotional price if active
-    const productToAdd = hasActivePromo 
+
+    // Só aplica preço promocional dentro do período
+    const productToAdd = promoIsActive && promotion
       ? { ...product, price: promotion.promotional_price }
       : product;
+
     onAddToCart(productToAdd);
   };
 
@@ -63,16 +68,16 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
       }`}
     >
       {/* Card chip-style com animação hover */}
-      <div className={`bg-white rounded-2xl border shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden relative ${
-        hasActivePromo ? "border-orange-200" : "border-border/20"
-      }`}>
-        {/* Promo badge */}
-        {hasActivePromo && (
-          <div className="absolute top-1 left-1 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-            <Flame className="w-2 h-2" />
-            <span>PROMO</span>
-          </div>
-        )}
+       <div className={`bg-white rounded-2xl border shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden relative ${
+         hasPromo ? "border-orange-200" : "border-border/20"
+       }`}>
+         {/* Promo badge */}
+         {hasPromo && (
+           <div className="absolute top-1 left-1 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
+             <Flame className="w-2 h-2" />
+             <span>{promoIsActive ? "PROMO" : "EM BREVE"}</span>
+           </div>
+         )}
 
         {/* Área da imagem com fundo colorido na parte inferior */}
         <div className="relative h-[75px] sm:h-[85px] mx-2 mt-2">
@@ -115,13 +120,19 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
             {product.name}
           </p>
 
-          {/* Promo end date */}
-          {hasActivePromo && formattedEndDate && (
-            <div className="flex items-center gap-1 text-[9px] text-orange-600 font-medium">
-              <Clock className="w-2.5 h-2.5" />
-              <span>Até {formattedEndDate}</span>
-            </div>
-          )}
+           {/* Promo period info */}
+           {hasPromo && formattedEndDate && (
+             <div className="flex items-center gap-1 text-[9px] text-orange-600 font-medium">
+               <Clock className="w-2.5 h-2.5" />
+               <span>
+                 {promoIsActive
+                   ? `Até ${formattedEndDate}`
+                   : formattedStartDate
+                     ? `Começa ${formattedStartDate}`
+                     : `Até ${formattedEndDate}`}
+               </span>
+             </div>
+           )}
 
           {/* Por que escolhi isso (apenas quando seleção do wizard está ativa) */}
           {wizardMeta && wizardMeta.reasons?.length > 0 && (
@@ -150,33 +161,33 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
           {user ? (
             <div className="space-y-0.5">
               <div className="flex items-center justify-between gap-1">
-                <span className={`text-xs sm:text-sm font-bold ${hasActivePromo ? "text-foreground" : "text-foreground"}`}>
-                  R$ {displayPrice.toFixed(2)}
-                </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart();
-                  }}
-                  disabled={isOutOfStock}
-                  className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${
-                    isOutOfStock
-                      ? "bg-muted text-muted-foreground cursor-not-allowed"
-                      : hasActivePromo 
-                        ? "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600"
-                        : "bg-muted/40 text-primary hover:bg-muted"
-                  }`}
-                  aria-label="Adicionar ao carrinho"
-                >
+                 <span className="text-xs sm:text-sm font-bold text-foreground">
+                   R$ {displayPrice.toFixed(2)}
+                 </span>
+                 <button
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     handleAddToCart();
+                   }}
+                   disabled={isOutOfStock || (hasPromo && !promoIsActive)}
+                   className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${
+                     isOutOfStock || (hasPromo && !promoIsActive)
+                       ? "bg-muted text-muted-foreground cursor-not-allowed"
+                       : promoIsActive
+                         ? "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600"
+                         : "bg-muted/40 text-primary hover:bg-muted"
+                   }`}
+                   aria-label="Adicionar ao carrinho"
+                 >
                   <Plus className="h-4 w-4" />
                 </button>
               </div>
-              {/* Original price - crossed out */}
-              {hasActivePromo && (
-                <p className="text-[10px] text-muted-foreground line-through text-center">
-                  R$ {promotion.original_price.toFixed(2)}
-                </p>
-              )}
+               {/* Original price - crossed out */}
+               {promoIsActive && promotion && (
+                 <p className="text-[10px] text-muted-foreground line-through text-center">
+                   R$ {promotion.original_price.toFixed(2)}
+                 </p>
+               )}
             </div>
           ) : (
             <button
