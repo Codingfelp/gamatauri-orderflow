@@ -23,9 +23,21 @@ interface HotDealsSectionProps {
   onAddToCart: (product: Product) => void;
 }
 
-// Promotion dates configuration
-const PROMO_START = new Date("2025-01-16T00:00:00");
-const PROMO_END = new Date("2025-01-18T23:59:59");
+// Promotion dates configuration (fixo em 16/01 a 18/01; se já passou no ano atual, agenda para o próximo)
+const buildPromoWindow = (reference: Date) => {
+  const year = reference.getFullYear();
+  const start = new Date(year, 0, 16, 0, 0, 0);
+  const end = new Date(year, 0, 18, 23, 59, 59);
+
+  if (reference.getTime() > end.getTime()) {
+    return {
+      start: new Date(year + 1, 0, 16, 0, 0, 0),
+      end: new Date(year + 1, 0, 18, 23, 59, 59),
+    };
+  }
+
+  return { start, end };
+};
 
 // Countdown timer component
 const CountdownTimer = memo(({ endDate, startDate }: { endDate: Date; startDate: Date }) => {
@@ -270,10 +282,13 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
     return () => clearInterval(interval);
   }, []);
 
+  // Promo window (16/01 a 18/01)
+  const { start: promoStart, end: promoEnd } = buildPromoWindow(now);
+
   // Check if promotion period is active
-  const isPromoActive = now >= PROMO_START && now <= PROMO_END;
-  const isBeforePromo = now < PROMO_START;
-  const isAfterPromo = now > PROMO_END;
+  const isPromoActive = now >= promoStart && now <= promoEnd;
+  const isBeforePromo = now < promoStart;
+  const isAfterPromo = now > promoEnd;
 
   // Get products with promotions (show all promotions, active or not for preview)
   const allPromotions = promotions.filter(p => p.is_active);
@@ -307,14 +322,14 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
             </h2>
             <p className="text-[10px] text-muted-foreground flex items-center gap-1">
               <CalendarClock className="w-3 h-3" />
-              {formatDate(PROMO_START)} até {formatDate(PROMO_END)}
+              {formatDate(promoStart)} até {formatDate(promoEnd)}
             </p>
           </div>
         </div>
 
         {/* Main countdown */}
         <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-full shadow-lg">
-          <CountdownTimer startDate={PROMO_START} endDate={PROMO_END} />
+           <CountdownTimer startDate={promoStart} endDate={promoEnd} />
         </div>
       </div>
 
@@ -332,7 +347,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
           {isPromoActive ? (
             <>🔥 Promoção ativa! Aproveite os preços especiais</>
           ) : isBeforePromo ? (
-            <>⏳ Promoção começa em {formatDate(PROMO_START)}. Preços promocionais serão liberados na data.</>
+            <>⏳ Promoção começa em {formatDate(promoStart)}. Preços promocionais serão liberados na data.</>
           ) : (
             <>⚠️ Promoção encerrada. Preços normais aplicados.</>
           )}
