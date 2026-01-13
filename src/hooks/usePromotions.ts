@@ -20,7 +20,7 @@ export const usePromotions = () => {
       const { data, error } = await supabase
         .from("product_promotions")
         .select("*")
-        .eq("is_active", true)
+        .or("is_active.eq.true,is_active.is.null")
         .order("start_date", { ascending: true });
 
       if (error) throw error;
@@ -69,7 +69,7 @@ export const usePromotions = () => {
   const getPromotionForProduct = (productId: string): ProductPromotion | null => {
     const now = Date.now();
 
-    const productPromos = promotions.filter((p) => p.product_id === productId && !!p.is_active);
+    const productPromos = promotions.filter((p) => p.product_id === productId && (p.is_active ?? true));
     if (productPromos.length === 0) return null;
 
     const active = productPromos.find((p) => {
@@ -91,7 +91,7 @@ export const usePromotions = () => {
     const now = new Date();
     const start = new Date(promo.start_date);
     const end = new Date(promo.end_date);
-    return promo.is_active && now >= start && now <= end;
+    return (promo.is_active ?? true) && now >= start && now <= end;
   };
 
   // Get all active promotions with products
@@ -100,7 +100,7 @@ export const usePromotions = () => {
     return promotions.filter((p) => {
       const start = new Date(p.start_date);
       const end = new Date(p.end_date);
-      return p.is_active && now >= start && now <= end;
+      return (p.is_active ?? true) && now >= start && now <= end;
     });
   };
 
