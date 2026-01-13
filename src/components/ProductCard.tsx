@@ -113,7 +113,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
 
           {user ? (
             <div className="flex items-center justify-between gap-1">
-              <span className="text-xs sm:text-sm font-bold text-primary">R$ {product.price.toFixed(2)}</span>
+              <span className="text-xs sm:text-sm font-bold text-foreground">R$ {product.price.toFixed(2)}</span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();

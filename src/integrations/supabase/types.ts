@@ -151,6 +151,7 @@ export type Database = {
           customer_email: string | null
           customer_name: string
           customer_phone: string
+          delivery_type: string | null
           discount_amount: number | null
           external_order_number: string | null
           id: string
@@ -173,6 +174,7 @@ export type Database = {
           customer_email?: string | null
           customer_name: string
           customer_phone: string
+          delivery_type?: string | null
           discount_amount?: number | null
           external_order_number?: string | null
           id?: string
@@ -195,6 +197,7 @@ export type Database = {
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string
+          delivery_type?: string | null
           discount_amount?: number | null
           external_order_number?: string | null
           id?: string
@@ -218,6 +221,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      product_promotions: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          is_active: boolean | null
+          original_price: number
+          product_id: string
+          promotional_price: number
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          original_price: number
+          product_id: string
+          promotional_price: number
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          original_price?: number
+          product_id?: string
+          promotional_price?: number
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {

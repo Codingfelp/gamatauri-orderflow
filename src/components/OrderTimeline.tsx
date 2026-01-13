@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { CheckCircle, Clock, Bike, Package, XCircle } from "lucide-react";
+import { CheckCircle, Clock, Bike, Package, XCircle, Store } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface OrderTimelineProps {
   orderNumber: string;
   orderId: string;
   createdAt: string;
+  deliveryType?: 'delivery' | 'pickup';
 }
 
-type OrderStatus = "received" | "preparing" | "delivering" | "delivered" | "cancelled";
+type OrderStatus = "received" | "preparing" | "delivering" | "delivered" | "cancelled" | "ready_pickup";
 
-export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimelineProps) => {
+export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 'delivery' }: OrderTimelineProps) => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>("received");
   const [confettiShown, setConfettiShown] = useState(false);
   const [, setTick] = useState(0);
@@ -81,39 +82,46 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
   }, []);
 
   const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
-    console.log('Mapping DB status to UI:', dbStatus);
+    console.log('Mapping DB status to UI:', dbStatus, 'deliveryType:', deliveryType);
     
+    // For pickup orders, map "delivered" as ready for pickup confirmation
+    if (deliveryType === 'pickup') {
+      switch (dbStatus) {
+        case 'preparing':
+        case 'separacao':
+        case 'preparando':
+          return 'preparing';
+        case 'delivered':
+        case 'entregue':
+          return 'delivered';
+        case 'cancelled':
+        case 'cancelado':
+          return 'cancelled';
+        default:
+          return 'received';
+      }
+    }
+    
+    // Standard delivery flow
     switch (dbStatus) {
-      // Novo status padrão do banco
       case 'preparing':
         return 'preparing';
-      
-      // Em rota de entrega
       case 'in_route':
         return 'delivering';
-      
-      // Entregue
       case 'delivered':
         return 'delivered';
-      
-      // Cancelado
       case 'cancelled':
       case 'cancelado':
         return 'cancelled';
-      
-      // Status antigos (fallback para compatibilidade)
       case 'separacao':
       case 'preparando':
         return 'preparing';
-      
       case 'saiu_entrega':
       case 'rota':
       case 'em_rota':
         return 'delivering';
-      
       case 'entregue':
         return 'delivered';
-      
       default:
         console.warn(`Status desconhecido: "${dbStatus}" - usando 'received' como padrão`);
         return 'received';
@@ -207,12 +215,21 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
     };
   };
 
-  const statuses: { key: OrderStatus; label: string; icon: any; time: string }[] = [
+  // Different status flow for pickup vs delivery
+  const deliveryStatuses: { key: OrderStatus; label: string; icon: any; time: string }[] = [
     { key: "received", label: "Pedido Recebido", icon: Package, time: "Agora" },
     { key: "preparing", label: "Preparando", icon: Clock, time: "~10 min" },
     { key: "delivering", label: "Em Rota", icon: Bike, time: "~35 min" },
     { key: "delivered", label: "Entregue", icon: CheckCircle, time: "Concluído" },
   ];
+
+  const pickupStatuses: { key: OrderStatus; label: string; icon: any; time: string }[] = [
+    { key: "received", label: "Pedido Recebido", icon: Package, time: "Agora" },
+    { key: "preparing", label: "Preparando", icon: Clock, time: "~10 min" },
+    { key: "delivered", label: "Pronto para Retirada", icon: Store, time: "Aguardando" },
+  ];
+
+  const statuses = deliveryType === 'pickup' ? pickupStatuses : deliveryStatuses;
 
   // Render cancelled state
   if (currentStatus === "cancelled") {
@@ -340,8 +357,14 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt }: OrderTimeline
           {currentStatus === "received" && "Seu pedido foi recebido com sucesso!"}
           {currentStatus === "preparing" && "Seu pedido está sendo preparado com carinho!"}
           {currentStatus === "delivering" && "Pedido saiu para entrega! Aguarde a chegada!"}
-          {currentStatus === "delivered" && "Pedido entregue com sucesso! Obrigado pela preferência! 🎉"}
+          {currentStatus === "delivered" && deliveryType === 'pickup' && "Seu pedido está pronto! Retire na loja! 🎉"}
+          {currentStatus === "delivered" && deliveryType === 'delivery' && "Pedido entregue com sucesso! Obrigado pela preferência! 🎉"}
         </p>
+        {deliveryType === 'pickup' && currentStatus === 'delivered' && (
+          <p className="text-sm text-muted-foreground mt-2">
+            📍 R. Aiuruoca, 192 - Loja 5 - Fernão Dias
+          </p>
+        )}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { OrderTimeline } from "@/components/OrderTimeline";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Store } from "lucide-react";
 
 type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
@@ -18,6 +18,7 @@ const Success = () => {
   const [orderStatus, setOrderStatus] = useState<string>('preparing');
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
   const [isCancelled, setIsCancelled] = useState(false);
+  const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
 
   // Mapear status do banco para tipo esperado pelo contexto
   const mapDbStatusToContextStatus = (dbStatus: string): OrderStatus => {
@@ -59,13 +60,14 @@ const Success = () => {
     const fetchOrderStatus = async () => {
       const { data } = await supabase
         .from('orders')
-        .select('order_status, created_at')
+        .select('order_status, created_at, delivery_type')
         .eq('id', orderId)
         .single();
       
       if (data) {
         setOrderStatus(data.order_status);
         setCreatedAt(data.created_at);
+        setDeliveryType((data.delivery_type as 'delivery' | 'pickup') || 'delivery');
         
         // Check if order is cancelled
         if (data.order_status === 'cancelled' || data.order_status === 'cancelado') {
@@ -205,6 +207,52 @@ const Success = () => {
     );
   }
 
+  // Pickup order delivered view
+  if (deliveryType === 'pickup' && orderStatus === 'delivered') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-green-50/30 to-green-100/20 dark:from-background dark:via-green-950/10 dark:to-green-900/5 p-4 py-20 animate-fade-in">
+        <div className="max-w-lg w-full text-center">
+          {/* Success Icon */}
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 mb-6 animate-scale-in">
+            <Store className="w-12 h-12 text-green-600" />
+          </div>
+          
+          {/* Title */}
+          <h1 className="text-3xl md:text-4xl font-bold text-green-700 dark:text-green-400 mb-4">
+            Retirada Confirmada! 🎉
+          </h1>
+          
+          {/* Order Number */}
+          <div className="inline-block backdrop-blur-sm bg-white/60 dark:bg-black/60 px-6 py-3 rounded-2xl border border-green-200 dark:border-green-800 shadow-lg mb-6">
+            <p className="text-sm text-muted-foreground mb-1">Número do Pedido</p>
+            <p className="text-2xl font-mono font-bold text-green-600">{orderNumber}</p>
+          </div>
+          
+          {/* Message */}
+          <div className="backdrop-blur-sm bg-gradient-to-br from-green-100/50 to-green-50/30 dark:from-green-950/30 dark:to-green-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800 shadow-lg mb-8">
+            <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-3" />
+            <p className="text-lg font-semibold text-green-700 dark:text-green-400">
+              Seu pedido foi retirado com sucesso!
+            </p>
+            <p className="text-muted-foreground mt-2">
+              Obrigado pela preferência! Volte sempre! 🍺
+            </p>
+          </div>
+          
+          {/* Action Button */}
+          <Button
+            onClick={() => navigate('/')}
+            size="lg"
+            className="px-12 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          >
+            <span className="mr-2 text-xl">←</span>
+            Fazer Novo Pedido
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-primary/5 p-4 py-20 animate-fade-in">
       <div className="max-w-5xl w-full">
@@ -212,12 +260,13 @@ const Success = () => {
           <OrderTimeline 
             orderNumber={orderNumber} 
             orderId={orderId} 
-            createdAt={createdAt} 
+            createdAt={createdAt}
+            deliveryType={deliveryType}
           />
         )}
         
         <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in" style={{ animationDelay: '600ms' }}>
-          {orderStatus !== 'delivered' && orderStatus !== 'cancelled' && (
+          {orderStatus !== 'delivered' && orderStatus !== 'cancelled' && deliveryType === 'delivery' && (
             <Button
               onClick={markAsDelivered}
               size="lg"
