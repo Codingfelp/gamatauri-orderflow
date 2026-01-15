@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { CheckCircle, Clock, Bike, Package, XCircle, Store } from "lucide-react";
+import { CheckCircle, Clock, Bike, Package, XCircle, Store, MapPin, ThumbsUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 interface OrderTimelineProps {
   orderNumber: string;
@@ -9,12 +11,11 @@ interface OrderTimelineProps {
   deliveryType?: 'delivery' | 'pickup';
 }
 
-type OrderStatus = "received" | "preparing" | "delivering" | "delivered" | "cancelled" | "ready_pickup";
+type OrderStatus = "received" | "preparing" | "delivering" | "delivered" | "cancelled" | "accepted";
 
 export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 'delivery' }: OrderTimelineProps) => {
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>("received");
   const [confettiShown, setConfettiShown] = useState(false);
-  const [, setTick] = useState(0);
 
   // Buscar status inicial do banco
   useEffect(() => {
@@ -32,7 +33,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
     };
     
     fetchInitialStatus();
-  }, [orderId]);
+  }, [orderId, deliveryType]);
 
   // Escutar mudanças em tempo real
   useEffect(() => {
@@ -50,47 +51,37 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
           console.log('[OrderTimeline] Status atualizado:', payload.new.order_status);
           const newStatus = payload.new.order_status;
           const uiStatus = mapDbStatusToUI(newStatus);
-          console.log('[OrderTimeline] UI Status:', uiStatus);
           setCurrentStatus(uiStatus);
         }
       )
-      .subscribe((status) => {
-        console.log('[OrderTimeline] Subscription status:', status);
-      });
+      .subscribe();
 
     return () => {
-      console.log('[OrderTimeline] Unsubscribing channel');
       supabase.removeChannel(channel);
     };
-  }, [orderId]);
+  }, [orderId, deliveryType]);
 
-  // Confetti effect
+  // Confetti effect when delivered
   useEffect(() => {
-    if (!confettiShown) {
+    if (currentStatus === 'delivered' && !confettiShown) {
       setConfettiShown(true);
       createConfetti();
     }
-  }, [confettiShown]);
-
-  // Atualizar a cada minuto para mudança de cor das bordas
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTick(prev => prev + 1);
-    }, 60000);
-    
-    return () => clearInterval(interval);
-  }, []);
+  }, [currentStatus, confettiShown]);
 
   const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
-    console.log('Mapping DB status to UI:', dbStatus, 'deliveryType:', deliveryType);
-    
-    // For pickup orders, map "delivered" as ready for pickup confirmation
+    // For pickup orders
     if (deliveryType === 'pickup') {
       switch (dbStatus) {
         case 'preparing':
         case 'separacao':
         case 'preparando':
-          return 'preparing';
+          return 'accepted'; // Pedido Aceito for pickup
+        case 'in_route':
+        case 'saiu_entrega':
+        case 'rota':
+        case 'em_rota':
+          return 'accepted'; // Skip in_route for pickup, show as accepted
         case 'delivered':
         case 'entregue':
           return 'delivered';
@@ -105,72 +96,66 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
     // Standard delivery flow
     switch (dbStatus) {
       case 'preparing':
-        return 'preparing';
-      case 'in_route':
-        return 'delivering';
-      case 'delivered':
-        return 'delivered';
-      case 'cancelled':
-      case 'cancelado':
-        return 'cancelled';
       case 'separacao':
       case 'preparando':
         return 'preparing';
+      case 'in_route':
       case 'saiu_entrega':
       case 'rota':
       case 'em_rota':
         return 'delivering';
+      case 'delivered':
       case 'entregue':
         return 'delivered';
+      case 'cancelled':
+      case 'cancelado':
+        return 'cancelled';
       default:
-        console.warn(`Status desconhecido: "${dbStatus}" - usando 'received' como padrão`);
         return 'received';
     }
   };
 
   const createConfetti = () => {
-    const duration = 3000;
+    const duration = 4000;
     const animationEnd = Date.now() + duration;
-    const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+    const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
     const frame = () => {
       const timeLeft = animationEnd - Date.now();
-
       if (timeLeft <= 0) return;
 
-      const particleCount = 3;
-      for (let i = 0; i < particleCount; i++) {
+      for (let i = 0; i < 4; i++) {
         const particle = document.createElement('div');
-        particle.className = 'confetti-particle';
+        const size = Math.random() * 10 + 5;
+        const isCircle = Math.random() > 0.5;
+        
         particle.style.cssText = `
           position: fixed;
-          width: 10px;
-          height: 10px;
+          width: ${size}px;
+          height: ${size}px;
           background: ${colors[Math.floor(Math.random() * colors.length)]};
           left: ${Math.random() * 100}vw;
-          top: -10px;
-          border-radius: 50%;
+          top: -20px;
+          border-radius: ${isCircle ? '50%' : '2px'};
           pointer-events: none;
           z-index: 9999;
-          animation: confetti-fall ${2 + Math.random() * 2}s linear forwards;
+          animation: confetti-fall ${2.5 + Math.random() * 2}s linear forwards;
+          transform: rotate(${Math.random() * 360}deg);
         `;
         document.body.appendChild(particle);
-        setTimeout(() => particle.remove(), 4000);
+        setTimeout(() => particle.remove(), 5000);
       }
 
       requestAnimationFrame(frame);
     };
 
-    // Add CSS animation if not exists
     if (!document.getElementById('confetti-style')) {
       const style = document.createElement('style');
       style.id = 'confetti-style';
       style.textContent = `
         @keyframes confetti-fall {
-          to {
-            transform: translateY(100vh) rotate(360deg);
-            opacity: 0;
-          }
+          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
       `;
       document.head.appendChild(style);
@@ -179,193 +164,282 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
     frame();
   };
 
-  const getBorderColor = (statusKey: OrderStatus, createdAtTime: string) => {
-    if (currentStatus !== statusKey) return 'transparent';
-    
-    const now = Date.now();
-    const created = new Date(createdAtTime).getTime();
-    const elapsed = Math.floor((now - created) / 1000 / 60);
-    
-    if (statusKey === 'preparing') {
-      if (elapsed < 5) return '#10b981';
-      if (elapsed < 8) return '#f59e0b';
-      return '#ef4444';
-    }
-    
-    if (statusKey === 'delivering') {
-      if (elapsed < 20) return '#10b981';
-      if (elapsed < 30) return '#f59e0b';
-      return '#ef4444';
-    }
-    
-    return '#10b981';
-  };
-
-  const getStatusInfo = (status: OrderStatus) => {
-    const isActive = currentStatus === status;
-    const isPast = 
-      (status === "received") ||
-      (status === "preparing" && (currentStatus === "delivering" || currentStatus === "delivered")) ||
-      (status === "delivering" && currentStatus === "delivered");
-
-    return {
-      isActive,
-      isPast,
-      isComplete: isPast,
-    };
+  const openMaps = () => {
+    const address = "R. Aiuruoca, 192 - Loja 5 - Fernão Dias, Belo Horizonte - MG";
+    const encodedAddress = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
   };
 
   // Different status flow for pickup vs delivery
-  const deliveryStatuses: { key: OrderStatus; label: string; icon: any; time: string }[] = [
-    { key: "received", label: "Pedido Recebido", icon: Package, time: "Agora" },
-    { key: "preparing", label: "Preparando", icon: Clock, time: "~10 min" },
-    { key: "delivering", label: "Em Rota", icon: Bike, time: "~35 min" },
-    { key: "delivered", label: "Entregue", icon: CheckCircle, time: "Concluído" },
+  const deliveryStatuses: { key: OrderStatus; label: string; icon: any; subtitle: string }[] = [
+    { key: "received", label: "Recebido", icon: Package, subtitle: "Pedido confirmado" },
+    { key: "preparing", label: "Preparando", icon: Clock, subtitle: "~10 minutos" },
+    { key: "delivering", label: "Em Rota", icon: Bike, subtitle: "~35 minutos" },
+    { key: "delivered", label: "Entregue", icon: CheckCircle, subtitle: "Concluído" },
   ];
 
-  const pickupStatuses: { key: OrderStatus; label: string; icon: any; time: string }[] = [
-    { key: "received", label: "Pedido Recebido", icon: Package, time: "Agora" },
-    { key: "preparing", label: "Preparando", icon: Clock, time: "~10 min" },
-    { key: "delivered", label: "Pronto para Retirada", icon: Store, time: "Aguardando" },
+  const pickupStatuses: { key: OrderStatus; label: string; icon: any; subtitle: string }[] = [
+    { key: "received", label: "Recebido", icon: Package, subtitle: "Pedido confirmado" },
+    { key: "accepted", label: "Aceito", icon: ThumbsUp, subtitle: "Preparando" },
+    { key: "delivered", label: "Entregue", icon: Store, subtitle: "Pronto p/ retirar" },
   ];
 
   const statuses = deliveryType === 'pickup' ? pickupStatuses : deliveryStatuses;
 
-  // Render cancelled state
+  const getStatusIndex = (status: OrderStatus): number => {
+    return statuses.findIndex(s => s.key === status);
+  };
+
+  const currentIndex = getStatusIndex(currentStatus);
+
+  // Cancelled state
   if (currentStatus === "cancelled") {
     return (
-      <div className="w-full max-w-4xl mx-auto px-4">
-        <div className="mb-12 text-center animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-destructive/20 to-destructive/5 mb-4 animate-scale-in">
-            <XCircle className="w-10 h-10 text-destructive" />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md mx-auto px-4"
+      >
+        <div className="text-center">
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-destructive/10 mb-6"
+          >
+            <XCircle className="w-14 h-14 text-destructive" />
+          </motion.div>
+          
+          <h1 className="text-3xl font-bold text-destructive mb-3">Pedido Cancelado</h1>
+          
+          <div className="bg-card border border-border rounded-2xl p-4 mb-6 shadow-sm">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Número do Pedido</p>
+            <p className="text-xl font-mono font-bold text-primary">{orderNumber}</p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-destructive mb-4">
-            Pedido Cancelado
-          </h1>
-          <div className="inline-block backdrop-blur-sm bg-white/60 dark:bg-black/60 px-6 py-3 rounded-2xl border border-destructive/20 shadow-lg">
-            <p className="text-sm text-muted-foreground mb-1">Número do Pedido</p>
-            <p className="text-2xl font-mono font-bold text-destructive">{orderNumber}</p>
-          </div>
-        </div>
 
-        <div className="text-center backdrop-blur-sm bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-2xl p-6 border border-destructive/20 shadow-lg animate-fade-in">
-          <p className="text-lg font-semibold text-destructive">
-            Infelizmente seu pedido foi cancelado. Entre em contato conosco para mais informações.
+          <p className="text-muted-foreground">
+            Entre em contato conosco para mais informações.
           </p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
+  const progressWidth = statuses.length > 1 
+    ? (currentIndex / (statuses.length - 1)) * 100 
+    : 0;
+
   return (
-    <div className="w-full max-w-4xl mx-auto px-4">
-      <div className="mb-12 text-center animate-fade-in">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-success/20 to-success/5 mb-4 animate-scale-in">
-          <CheckCircle className="w-10 h-10 text-[hsl(var(--success))]" />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent mb-4">
-          Pedido Confirmado!
-        </h1>
-        <div className="inline-block backdrop-blur-sm bg-white/60 dark:bg-black/60 px-6 py-3 rounded-2xl border border-primary/20 shadow-lg">
-          <p className="text-sm text-muted-foreground mb-1">Número do Pedido</p>
-          <p className="text-2xl font-mono font-bold text-primary">{orderNumber}</p>
-        </div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="w-full max-w-md mx-auto px-4"
+    >
+      {/* Header */}
+      <div className="text-center mb-8">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.1 }}
+          className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/80 mb-4 shadow-lg shadow-primary/30"
+        >
+          <CheckCircle className="w-10 h-10 text-primary-foreground" />
+        </motion.div>
+        
+        <motion.h1 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-3xl font-bold text-primary mb-2"
+        >
+          {deliveryType === 'pickup' ? 'Pedido Confirmado!' : 'Pedido Confirmado!'}
+        </motion.h1>
+        
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-card border border-border rounded-2xl p-4 shadow-sm"
+        >
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Número do Pedido</p>
+          <p className="text-xl font-mono font-bold text-primary">{orderNumber}</p>
+        </motion.div>
       </div>
 
-      <div className="relative mb-16 animate-fade-in" style={{ animationDelay: '200ms' }}>
-        {/* Progress Line Background */}
-        <div className="absolute top-8 left-0 right-0 h-2 bg-muted/30 rounded-full overflow-hidden">
-          {/* Animated Progress */}
-          <div 
-            className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary/80 transition-all duration-1000 ease-out"
-            style={{
-              width: currentStatus === "received" ? "5%" 
-                : currentStatus === "preparing" ? "33%" 
-                : currentStatus === "delivering" ? "66%" 
-                : "100%"
-            }}
-          />
+      {/* Timeline Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-card border border-border rounded-3xl p-6 shadow-lg mb-6"
+      >
+        {/* Progress Bar */}
+        <div className="relative mb-8">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${progressWidth}%` }}
+              transition={{ duration: 0.8, ease: "easeOut", delay: 0.6 }}
+              className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full"
+            />
+          </div>
         </div>
 
-        {/* Status Points */}
-        <div className="relative flex justify-between items-start">
+        {/* Status Steps */}
+        <div className="flex justify-between items-start relative">
           {statuses.map((status, index) => {
-            const { isActive, isPast, isComplete } = getStatusInfo(status.key);
+            const isActive = currentIndex === index;
+            const isPast = currentIndex > index;
             const Icon = status.icon;
 
             return (
-              <div 
-                key={status.key} 
-                className="flex flex-col items-center flex-1 animate-fade-in"
-                style={{ animationDelay: `${300 + index * 100}ms` }}
+              <motion.div 
+                key={status.key}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+                className="flex flex-col items-center flex-1"
               >
-                {/* Icon Circle */}
-                <div
-                  className="relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-500"
-                  style={{
-                    background: isComplete 
-                      ? 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%)'
-                      : isActive 
-                        ? 'linear-gradient(135deg, hsl(var(--primary) / 0.8) 0%, hsl(var(--primary) / 0.6) 100%)'
-                        : 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.8) 100%)',
-                    boxShadow: isActive 
-                      ? `0 0 0 4px ${getBorderColor(status.key, createdAt)}, 0 4px 12px rgba(0,0,0,0.15)`
-                      : isComplete 
-                        ? '0 0 20px rgba(220, 38, 38, 0.3)'
-                        : 'none'
-                  }}
-                >
+                {/* Icon Container */}
+                <div className="relative mb-3">
+                  <motion.div
+                    animate={isActive ? { 
+                      scale: [1, 1.05, 1],
+                    } : {}}
+                    transition={{ 
+                      duration: 2,
+                      repeat: isActive ? Infinity : 0,
+                      ease: "easeInOut"
+                    }}
+                    className={`
+                      w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300
+                      ${isPast || isActive 
+                        ? 'bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20' 
+                        : 'bg-muted border-2 border-muted-foreground/20'
+                      }
+                    `}
+                  >
+                    <Icon className={`w-6 h-6 ${isPast || isActive ? 'text-primary-foreground' : 'text-muted-foreground/50'}`} />
+                  </motion.div>
+
+                  {/* Active indicator pulse */}
                   {isActive && (
-                    <div 
-                      className="absolute inset-0 rounded-full animate-ping"
-                      style={{ 
-                        border: `3px solid ${getBorderColor(status.key, createdAt)}`,
-                        opacity: 0.5 
-                      }}
+                    <motion.div
+                      initial={{ scale: 1, opacity: 0.5 }}
+                      animate={{ scale: 1.5, opacity: 0 }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="absolute inset-0 rounded-full bg-primary/30"
                     />
                   )}
-                  
-                  {status.key === "delivering" && isActive ? (
-                    <Bike className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground animate-bounce" />
-                  ) : (
-                    <Icon className="w-8 h-8 md:w-10 md:h-10 text-primary-foreground" />
-                  )}
-                  
-                  {isComplete && (
-                    <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-to-br from-[hsl(var(--success))] to-[hsl(var(--success))]/80 rounded-full flex items-center justify-center shadow-lg">
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    </div>
-                  )}
+
+                  {/* Completed checkmark */}
+                  <AnimatePresence>
+                    {isPast && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-md"
+                      >
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
 
                 {/* Label */}
-                <div className="mt-4 text-center">
-                  <p className={`font-bold text-sm md:text-base transition-colors ${isComplete || isActive ? 'text-primary' : 'text-muted-foreground'}`}>
-                    {status.label}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">{status.time}</p>
-                </div>
-              </div>
+                <p className={`text-xs font-semibold text-center transition-colors ${
+                  isPast || isActive ? 'text-primary' : 'text-muted-foreground/60'
+                }`}>
+                  {status.label}
+                </p>
+                <p className={`text-[10px] text-center mt-0.5 ${
+                  isActive ? 'text-muted-foreground' : 'text-muted-foreground/50'
+                }`}>
+                  {status.subtitle}
+                </p>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
       {/* Status Message */}
-      <div className="text-center backdrop-blur-sm bg-gradient-to-br from-accent/50 to-primary/5 rounded-2xl p-6 border border-primary/20 shadow-lg animate-fade-in" style={{ animationDelay: '500ms' }}>
-        <p className="text-lg font-semibold text-card-foreground">
-          {currentStatus === "received" && "Seu pedido foi recebido com sucesso!"}
-          {currentStatus === "preparing" && "Seu pedido está sendo preparado com carinho!"}
-          {currentStatus === "delivering" && "Pedido saiu para entrega! Aguarde a chegada!"}
-          {currentStatus === "delivered" && deliveryType === 'pickup' && "Seu pedido está pronto! Retire na loja! 🎉"}
-          {currentStatus === "delivered" && deliveryType === 'delivery' && "Pedido entregue com sucesso! Obrigado pela preferência! 🎉"}
-        </p>
-        {deliveryType === 'pickup' && currentStatus === 'delivered' && (
-          <p className="text-sm text-muted-foreground mt-2">
-            📍 R. Aiuruoca, 192 - Loja 5 - Fernão Dias
-          </p>
-        )}
-      </div>
-    </div>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="bg-accent/50 rounded-2xl p-5 text-center"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStatus}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+          >
+            {deliveryType === 'delivery' ? (
+              <>
+                {currentStatus === "received" && (
+                  <p className="text-foreground font-medium">Seu pedido foi recebido com sucesso! ✨</p>
+                )}
+                {currentStatus === "preparing" && (
+                  <p className="text-foreground font-medium">Seu pedido está sendo preparado com carinho! 🧑‍🍳</p>
+                )}
+                {currentStatus === "delivering" && (
+                  <p className="text-foreground font-medium">Pedido a caminho! Fique atento! 🛵</p>
+                )}
+                {currentStatus === "delivered" && (
+                  <p className="text-foreground font-medium">Entrega realizada! Obrigado! 🎉</p>
+                )}
+              </>
+            ) : (
+              <>
+                {currentStatus === "received" && (
+                  <p className="text-foreground font-medium">Seu pedido foi recebido! Aguarde confirmação. ✨</p>
+                )}
+                {currentStatus === "accepted" && (
+                  <p className="text-foreground font-medium">Pedido aceito! Estamos preparando. 🧑‍🍳</p>
+                )}
+                {currentStatus === "delivered" && (
+                  <p className="text-foreground font-medium">Pronto para retirada! Te esperamos! 🎉</p>
+                )}
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Pickup Store Address & Map Button */}
+      {deliveryType === 'pickup' && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="mt-4 bg-card border border-border rounded-2xl p-4"
+        >
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <MapPin className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">Local de Retirada</p>
+              <p className="text-sm text-muted-foreground">R. Aiuruoca, 192 - Loja 5</p>
+              <p className="text-xs text-muted-foreground">Fernão Dias, Belo Horizonte - MG</p>
+            </div>
+          </div>
+          
+          <Button 
+            onClick={openMaps}
+            variant="outline"
+            className="w-full gap-2"
+          >
+            <MapPin className="w-4 h-4" />
+            Abrir no Google Maps
+          </Button>
+        </motion.div>
+      )}
+    </motion.div>
   );
 };
