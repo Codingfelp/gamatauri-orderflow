@@ -229,10 +229,10 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
+      <main className="container mx-auto px-4 py-8 max-w-3xl">
         <Button
           variant="ghost"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/profile')}
           className="mb-6"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -241,7 +241,7 @@ export default function Settings() {
 
         <Card className="shadow-xl border-2 border-primary/10">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-3xl font-bold">Configurações</CardTitle>
+            <CardTitle className="text-2xl md:text-3xl font-bold">Dados da Conta</CardTitle>
             <CardDescription>
               Gerencie suas informações pessoais
             </CardDescription>
@@ -344,7 +344,7 @@ export default function Settings() {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="number" className="text-base font-semibold flex items-center gap-2">
                     <span>Número</span>
@@ -392,8 +392,8 @@ export default function Settings() {
                 />
               </div>
               
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2 space-y-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="col-span-2 sm:col-span-2 space-y-2">
                   <Label htmlFor="city" className="text-base font-semibold">
                     Cidade
                   </Label>
