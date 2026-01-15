@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-api-key",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-api-key, x-webhook-secret",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -24,20 +24,46 @@ serve(async (req) => {
   }
 
   try {
-    // Validate API key from header or query param
+    // Get API key from multiple sources for flexibility
     const url = new URL(req.url);
     const apiKeyFromQuery = url.searchParams.get("key");
     const apiKeyFromHeader = req.headers.get("x-api-key");
-    const apiKey = apiKeyFromHeader || apiKeyFromQuery;
+    const webhookSecretHeader = req.headers.get("x-webhook-secret");
+    
+    // Accept any of these authentication methods
+    const providedKey = apiKeyFromHeader || webhookSecretHeader || apiKeyFromQuery;
     const webhookSecret = Deno.env.get("WEBHOOK_SECRET");
 
-    if (!webhookSecret || apiKey !== webhookSecret) {
-      console.error("[manage-promotions] Invalid API key");
+    // Debug logging (without exposing actual values)
+    console.log("[manage-promotions] Auth check:", {
+      hasApiKeyHeader: !!apiKeyFromHeader,
+      hasWebhookSecretHeader: !!webhookSecretHeader,
+      hasQueryKey: !!apiKeyFromQuery,
+      hasEnvSecret: !!webhookSecret,
+      providedKeyLength: providedKey?.length || 0,
+      envSecretLength: webhookSecret?.length || 0,
+    });
+
+    if (!webhookSecret) {
+      console.error("[manage-promotions] WEBHOOK_SECRET not configured in environment");
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Server configuration error: WEBHOOK_SECRET not set" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!providedKey || providedKey !== webhookSecret) {
+      console.error("[manage-promotions] Invalid API key - authentication failed");
+      return new Response(
+        JSON.stringify({ 
+          error: "Unauthorized",
+          hint: "Provide valid key via x-api-key header, x-webhook-secret header, or ?key= query param"
+        }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("[manage-promotions] Authentication successful");
 
     const payload: PromotionPayload = await req.json();
     console.log("[manage-promotions] Received payload:", JSON.stringify(payload));
