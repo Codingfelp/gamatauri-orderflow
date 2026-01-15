@@ -107,15 +107,14 @@ export default function Auth() {
 
       console.log('📋 [PROFILE CHECK] Perfil encontrado:', profile);
 
-      // ✅ VERIFICAÇÃO CRÍTICA: cpf, phone e address são SEMPRE obrigatórios
-      // name pode vir do Google, mas os outros 3 campos precisam ser preenchidos
+      // ✅ VERIFICAÇÃO: Apenas phone é obrigatório no modal inicial
+      // CPF e address serão coletados depois, quando necessário
       const missingFields = {
-        cpf: !(profile as any).cpf,
         phone: !profile.phone,
-        address: !profile.address
+        name: !profile.name
       };
 
-      if (missingFields.cpf || missingFields.phone || missingFields.address) {
+      if (missingFields.phone || missingFields.name) {
         console.log('⚠️ [PROFILE CHECK] Perfil incompleto - faltam campos:', missingFields);
         setUserId(user.id);
         setShowProfileModal(true);

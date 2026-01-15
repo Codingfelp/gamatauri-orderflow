@@ -206,7 +206,7 @@ const Addresses = () => {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background border-b">
-        <div className="max-w-md mx-auto px-4 py-4">
+        <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <button
@@ -215,7 +215,7 @@ const Addresses = () => {
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
-              <h1 className="text-xl font-bold">Meus Endereços</h1>
+              <h1 className="text-xl md:text-2xl font-bold">Meus Endereços</h1>
             </div>
             <Button
               size="sm"
@@ -232,7 +232,7 @@ const Addresses = () => {
       </div>
 
       {/* Addresses List */}
-      <div className="max-w-md mx-auto px-4 py-6">
+      <div className="max-w-3xl mx-auto px-4 py-6">
         {addresses.length === 0 ? (
           <div className="text-center py-12">
             <MapPin className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
@@ -243,7 +243,7 @@ const Addresses = () => {
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {addresses.map((address) => (
               <Card key={address.id} className="p-4">
                 <div className="flex items-start justify-between mb-2">
@@ -268,11 +268,11 @@ const Addresses = () => {
                     </button>
                   </div>
                 </div>
-                <p className="text-sm font-medium mb-1">
+                <p className="text-sm md:text-base font-medium mb-1">
                   {address.street}, {address.number}
                   {address.complement && `, ${address.complement}`}
                 </p>
-                <p className="text-xs text-muted-foreground mb-3">
+                <p className="text-xs md:text-sm text-muted-foreground mb-3">
                   {address.neighborhood}, {address.city} - {address.state}
                 </p>
                 {!address.is_primary && (

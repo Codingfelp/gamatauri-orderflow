@@ -52,7 +52,7 @@ const Profile = () => {
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="bg-primary text-primary-foreground">
-        <div className="max-w-md mx-auto px-4 py-6">
+        <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex items-center gap-3 mb-6">
             <button
               onClick={() => navigate("/")}
@@ -78,7 +78,7 @@ const Profile = () => {
       </div>
 
       {/* Menu Items */}
-      <div className="max-w-md mx-auto px-4 py-6">
+      <div className="max-w-3xl mx-auto px-4 py-6">
         <Card className="divide-y">
           {menuItems.map((item, index) => {
             const Icon = item.icon;
@@ -88,12 +88,12 @@ const Profile = () => {
                 onClick={item.action}
                 className="w-full p-4 flex items-center gap-4 hover:bg-muted/50 transition-colors text-left"
               >
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Icon className="h-5 w-5 text-primary" />
+                <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm">{item.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">
+                  <p className="font-semibold text-sm md:text-base">{item.title}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">
                     {item.description}
                   </p>
                 </div>
@@ -106,7 +106,7 @@ const Profile = () => {
 
         <Button
           variant="outline"
-          className="w-full"
+          className="w-full md:w-auto"
           onClick={handleSignOut}
         >
           <LogOut className="h-4 w-4 mr-2" />

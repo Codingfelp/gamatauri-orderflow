@@ -238,6 +238,11 @@ const Order = () => {
     : null;
 
   const filteredProducts = products.filter((product) => {
+    // Filter out products with zero or negative price
+    if (!product.price || product.price <= 0) {
+      return false;
+    }
+
     // If wizard is active, ONLY show wizard-selected products
     if (wizardProductIds && wizardProductIds.length > 0) {
       return wizardProductIds.includes(product.id);
