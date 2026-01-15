@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Package, Bell, Settings as SettingsIcon } from "lucide-react";
+import { User, LogOut, Package, Bell, Settings as SettingsIcon, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -11,6 +11,7 @@ import { ProfileIncompleteAlert } from "@/components/ProfileIncompleteAlert";
 import { AddressIncompleteAlert } from "@/components/AddressIncompleteAlert";
 import { isStructuredAddressComplete } from "@/utils/addressValidator";
 import { supabase } from "@/integrations/supabase/client";
+import { useColorEditor } from "@/contexts/ColorEditorContext";
 import logo from "@/assets/gamatauri-logo.png";
 
 interface Address {
@@ -27,6 +28,7 @@ interface Address {
 export const Header = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { canEdit, isEditMode, toggleEditMode } = useColorEditor();
   const [userAddress, setUserAddress] = useState<string>("");
   const [showAddressSelector, setShowAddressSelector] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
@@ -154,6 +156,22 @@ export const Header = () => {
             <div className="flex items-center gap-2">
               {user ? (
                 <>
+                  {/* Edit Mode Button - Only for allowed user */}
+                  {canEdit && (
+                    <button
+                      onClick={toggleEditMode}
+                      className={`relative p-2 rounded-full transition-colors ${
+                        isEditMode 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'hover:bg-accent text-foreground'
+                      }`}
+                      aria-label="Modo de edição"
+                      title="Editar cores dos produtos"
+                    >
+                      <Palette className="h-5 w-5" />
+                    </button>
+                  )}
+                  
                   {/* Mobile: Ícone de Notificações */}
                   <button 
                     className="md:hidden relative p-2 hover:bg-accent rounded-full transition-colors"

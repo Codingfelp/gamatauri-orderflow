@@ -8,9 +8,11 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { OnlineStatus } from "@/components/OnlineStatus";
 import { ActiveOrderProvider, useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { StoreStatusProvider } from "@/contexts/StoreStatusContext";
+import { ColorEditorProvider } from "@/contexts/ColorEditorContext";
 import { StoreClosedOverlay } from "@/components/StoreClosedOverlay";
 import { CancelledOrderModal } from "@/components/CancelledOrderModal";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { EditModeToolbar } from "@/components/EditModeToolbar";
 
 const Order = lazy(() => import("./pages/Order"));
 const Checkout = lazy(() => import("./pages/Checkout"));
@@ -48,6 +50,7 @@ const AppContent = () => {
         orderDetails={cancelledOrderDetails}
       />
       <StoreClosedOverlay />
+      <EditModeToolbar />
       <BrowserRouter>
         <Suspense fallback={
           <div className="min-h-screen flex items-center justify-center">
@@ -81,13 +84,15 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <StoreStatusProvider>
       <ActiveOrderProvider>
-        <TooltipProvider>
-          <OnlineStatus />
-          <InstallPrompt />
-          <Toaster />
-          <Sonner />
-          <AppContent />
-        </TooltipProvider>
+        <ColorEditorProvider>
+          <TooltipProvider>
+            <OnlineStatus />
+            <InstallPrompt />
+            <Toaster />
+            <Sonner />
+            <AppContent />
+          </TooltipProvider>
+        </ColorEditorProvider>
       </ActiveOrderProvider>
     </StoreStatusProvider>
   </QueryClientProvider>

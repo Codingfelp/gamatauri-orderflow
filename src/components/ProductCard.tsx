@@ -4,6 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Plus, Package, Clock, Flame } from "lucide-react";
 import { getProductColor } from "@/utils/productVariants";
 import { usePromotions } from "@/hooks/usePromotions";
+import { useColorEditor } from "@/contexts/ColorEditorContext";
+import { ColorPicker } from "@/components/ColorPicker";
 
 interface Product {
   id: string;
@@ -30,19 +32,28 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getPromotionForProduct, isPromotionActive } = usePromotions();
+  const { isEditMode, getProductColors, updateColor } = useColorEditor();
   const isOutOfStock = !product.available;
 
   const promotion = getPromotionForProduct(product.id);
   const hasPromo = !!promotion;
   const promoIsActive = promotion ? isPromotionActive(promotion) : false;
 
-  const productBg = getProductColor(product.name, "", product.category || "");
+  // Get custom colors if they exist
+  const customColors = getProductColors(product.name, product.category);
+  
+  // Default product background color
+  const defaultProductBg = getProductColor(product.name, "", product.category || "");
 
-  // Determinar o estilo de background baseado no tipo
-  const backgroundStyle =
-    productBg.type === "image"
-      ? { backgroundImage: `url(${productBg.value})`, backgroundSize: "cover", backgroundPosition: "center" }
-      : { background: productBg.value };
+  // Determine background style - custom colors take priority
+  const backgroundStyle = customColors?.card_bg_color
+    ? { background: customColors.card_bg_color }
+    : defaultProductBg.type === "image"
+      ? { backgroundImage: `url(${defaultProductBg.value})`, backgroundSize: "cover", backgroundPosition: "center" }
+      : { background: defaultProductBg.value };
+
+  // Text color from custom colors
+  const textColor = customColors?.card_text_color;
 
   const displayPrice = promoIsActive && promotion ? promotion.promotional_price : product.price;
   const startDate = hasPromo ? new Date(promotion!.start_date) : null;
@@ -76,6 +87,22 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
            <div className="absolute top-1 left-1 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
              <Flame className="w-2 h-2" />
              <span>{promoIsActive ? "PROMO" : "EM BREVE"}</span>
+           </div>
+         )}
+
+         {/* Edit mode color pickers */}
+         {isEditMode && (
+           <div className="absolute top-1 right-1 z-20 flex gap-1">
+             <ColorPicker
+               currentColor={customColors?.card_bg_color || '#ffffff'}
+               onChange={(color) => updateColor(product.name, product.category, 'card_bg_color', color)}
+               label="BG"
+             />
+             <ColorPicker
+               currentColor={customColors?.card_text_color || '#000000'}
+               onChange={(color) => updateColor(product.name, product.category, 'card_text_color', color)}
+               label="TXT"
+             />
            </div>
          )}
 
@@ -116,7 +143,10 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
 
         {/* Info compacta */}
         <div className="p-2 pt-1 space-y-1.5">
-          <p className="text-[10px] sm:text-[11px] font-medium text-foreground line-clamp-2 leading-tight min-h-[28px]">
+          <p 
+            className="text-[10px] sm:text-[11px] font-medium line-clamp-2 leading-tight min-h-[28px]"
+            style={textColor ? { color: textColor } : undefined}
+          >
             {product.name}
           </p>
 
@@ -161,7 +191,10 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
           {user ? (
             <div className="space-y-0.5">
               <div className="flex items-center justify-between gap-1">
-                 <span className="text-xs sm:text-sm font-bold text-foreground">
+                 <span 
+                   className="text-xs sm:text-sm font-bold"
+                   style={textColor ? { color: textColor } : undefined}
+                 >
                    R$ {displayPrice.toFixed(2)}
                  </span>
                  <button

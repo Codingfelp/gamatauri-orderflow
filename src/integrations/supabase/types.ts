@@ -222,6 +222,42 @@ export type Database = {
           },
         ]
       }
+      product_custom_colors: {
+        Row: {
+          card_bg_color: string | null
+          card_text_color: string | null
+          category: string | null
+          created_at: string
+          id: string
+          modal_bg_color: string | null
+          modal_text_color: string | null
+          product_name: string
+          updated_at: string
+        }
+        Insert: {
+          card_bg_color?: string | null
+          card_text_color?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          modal_bg_color?: string | null
+          modal_text_color?: string | null
+          product_name: string
+          updated_at?: string
+        }
+        Update: {
+          card_bg_color?: string | null
+          card_text_color?: string | null
+          category?: string | null
+          created_at?: string
+          id?: string
+          modal_bg_color?: string | null
+          modal_text_color?: string | null
+          product_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_promotions: {
         Row: {
           created_at: string
