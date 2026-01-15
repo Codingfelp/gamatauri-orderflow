@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle, Clock, Bike, Package, XCircle, Store, MapPin, ThumbsUp } from "lucide-react";
+import { CheckCircle, Clock, Package, XCircle, Store, MapPin, ThumbsUp, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -174,14 +174,14 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
   const deliveryStatuses: { key: OrderStatus; label: string; icon: any; subtitle: string }[] = [
     { key: "received", label: "Recebido", icon: Package, subtitle: "Pedido confirmado" },
     { key: "preparing", label: "Preparando", icon: Clock, subtitle: "~10 minutos" },
-    { key: "delivering", label: "Em Rota", icon: Bike, subtitle: "~35 minutos" },
+    { key: "delivering", label: "Em Rota", icon: Truck, subtitle: "~35 minutos" },
     { key: "delivered", label: "Entregue", icon: CheckCircle, subtitle: "Concluído" },
   ];
 
   const pickupStatuses: { key: OrderStatus; label: string; icon: any; subtitle: string }[] = [
-    { key: "received", label: "Recebido", icon: Package, subtitle: "Pedido confirmado" },
-    { key: "accepted", label: "Aceito", icon: ThumbsUp, subtitle: "Preparando" },
-    { key: "delivered", label: "Entregue", icon: Store, subtitle: "Pronto p/ retirar" },
+    { key: "received", label: "Pedido Recebido", icon: Package, subtitle: "Pedido confirmado" },
+    { key: "accepted", label: "Pedido Aceito", icon: ThumbsUp, subtitle: "Em preparação" },
+    { key: "delivered", label: "Pedido Entregue", icon: Store, subtitle: "Retirada confirmada" },
   ];
 
   const statuses = deliveryType === 'pickup' ? pickupStatuses : deliveryStatuses;
