@@ -21,3 +21,6 @@ verify_jwt = false
 
 [functions.manage-promotions]
 verify_jwt = false
+
+[functions.sync-promotions]
+verify_jwt = false
