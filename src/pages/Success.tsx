@@ -6,7 +6,7 @@ import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, AlertTriangle, Store, ArrowLeft, MapPin } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
@@ -25,6 +25,7 @@ const Success = () => {
     switch (dbStatus) {
       case 'preparing':
       case 'separacao':
+      case 'accepted':
         return 'preparing';
       case 'in_route':
       case 'em_rota':
@@ -95,6 +96,7 @@ const Success = () => {
         },
         (payload: any) => {
           const newStatus = payload.new.order_status;
+          console.log('[Success] Status update received:', newStatus);
           setOrderStatus(newStatus);
           
           if (newStatus === 'cancelled' || newStatus === 'cancelado') {
@@ -140,10 +142,10 @@ const Success = () => {
         createdAt,
       });
       
-      toast.success('Pedido marcado como entregue! 🎉');
+      toast.success(deliveryType === 'pickup' ? 'Retirada confirmada! 🎉' : 'Pedido marcado como entregue! 🎉');
     } catch (error) {
       console.error('Error marking as delivered:', error);
-      toast.error('Erro ao marcar pedido como entregue');
+      toast.error('Erro ao confirmar');
     }
   };
 
@@ -318,14 +320,28 @@ const Success = () => {
           transition={{ delay: 1 }}
           className="mt-8 space-y-3"
         >
-          {orderStatus !== 'delivered' && orderStatus !== 'cancelled' && deliveryType === 'delivery' && (
+          {/* Botão de confirmar entrega/retirada - só aparece se não entregue */}
+          {orderStatus !== 'delivered' && orderStatus !== 'cancelled' && (
             <Button
               onClick={markAsDelivered}
               size="lg"
               className="w-full h-14 text-base font-semibold bg-green-600 hover:bg-green-700 text-white gap-2"
             >
               <CheckCircle className="w-5 h-5" />
-              Confirmar Entrega
+              {deliveryType === 'pickup' ? 'Confirmar Retirada' : 'Confirmar Entrega'}
+            </Button>
+          )}
+          
+          {/* Botão do Google Maps - apenas para retirada e se ainda não foi retirado */}
+          {deliveryType === 'pickup' && orderStatus !== 'delivered' && (
+            <Button
+              onClick={openMaps}
+              size="lg"
+              variant="outline"
+              className="w-full h-14 text-base font-semibold gap-2 border-primary text-primary hover:bg-primary/5"
+            >
+              <MapPin className="w-5 h-5" />
+              Ver Endereço no Maps
             </Button>
           )}
           

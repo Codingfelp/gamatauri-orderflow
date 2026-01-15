@@ -27,6 +27,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
         .single();
       
       if (data?.order_status) {
+        console.log('[OrderTimeline] Initial status:', data.order_status, 'deliveryType:', deliveryType);
         const uiStatus = mapDbStatusToUI(data.order_status);
         setCurrentStatus(uiStatus);
       }
@@ -48,7 +49,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
           filter: `id=eq.${orderId}`
         },
         (payload: any) => {
-          console.log('[OrderTimeline] Status atualizado:', payload.new.order_status);
+          console.log('[OrderTimeline] Realtime status update:', payload.new.order_status);
           const newStatus = payload.new.order_status;
           const uiStatus = mapDbStatusToUI(newStatus);
           setCurrentStatus(uiStatus);
@@ -70,26 +71,32 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
   }, [currentStatus, confettiShown]);
 
   const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
-    // For pickup orders
+    console.log('[OrderTimeline] Mapping status:', dbStatus, 'for deliveryType:', deliveryType);
+    
+    // For pickup orders - different flow
     if (deliveryType === 'pickup') {
       switch (dbStatus) {
         case 'preparing':
         case 'separacao':
         case 'preparando':
-          return 'accepted'; // Pedido Aceito for pickup
+        case 'accepted':
+          return 'accepted'; // Pedido Aceito
         case 'in_route':
         case 'saiu_entrega':
         case 'rota':
         case 'em_rota':
-          return 'accepted'; // Skip in_route for pickup, show as accepted
+          return 'accepted'; // Pickup doesn't have "em rota", keep as accepted
         case 'delivered':
         case 'entregue':
-          return 'delivered';
+          return 'delivered'; // Pedido Entregue
         case 'cancelled':
         case 'cancelado':
           return 'cancelled';
+        case 'received':
+        case 'pending':
+        case 'confirmado':
         default:
-          return 'received';
+          return 'received'; // Pedido Recebido
       }
     }
     
@@ -110,6 +117,9 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
       case 'cancelled':
       case 'cancelado':
         return 'cancelled';
+      case 'received':
+      case 'pending':
+      case 'confirmado':
       default:
         return 'received';
     }
@@ -178,8 +188,9 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
     { key: "delivered", label: "Entregue", icon: CheckCircle, subtitle: "Concluído" },
   ];
 
+  // PICKUP: Only 3 phases - Recebido, Aceito, Entregue
   const pickupStatuses: { key: OrderStatus; label: string; icon: any; subtitle: string }[] = [
-    { key: "received", label: "Pedido Recebido", icon: Package, subtitle: "Pedido confirmado" },
+    { key: "received", label: "Pedido Recebido", icon: Package, subtitle: "Aguardando confirmação" },
     { key: "accepted", label: "Pedido Aceito", icon: ThumbsUp, subtitle: "Em preparação" },
     { key: "delivered", label: "Pedido Entregue", icon: Store, subtitle: "Retirada confirmada" },
   ];
@@ -252,7 +263,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
           transition={{ delay: 0.2 }}
           className="text-3xl font-bold text-primary mb-2"
         >
-          {deliveryType === 'pickup' ? 'Pedido Confirmado!' : 'Pedido Confirmado!'}
+          Pedido Confirmado!
         </motion.h1>
         
         <motion.div 
@@ -400,10 +411,10 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
                   <p className="text-foreground font-medium">Seu pedido foi recebido! Aguarde confirmação. ✨</p>
                 )}
                 {currentStatus === "accepted" && (
-                  <p className="text-foreground font-medium">Pedido aceito! Estamos preparando. 🧑‍🍳</p>
+                  <p className="text-foreground font-medium">Pedido aceito! Estamos preparando para retirada. 🧑‍🍳</p>
                 )}
                 {currentStatus === "delivered" && (
-                  <p className="text-foreground font-medium">Pronto para retirada! Te esperamos! 🎉</p>
+                  <p className="text-foreground font-medium">Retirada confirmada! Obrigado! 🎉</p>
                 )}
               </>
             )}
@@ -412,7 +423,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
       </motion.div>
 
       {/* Pickup Store Address & Map Button */}
-      {deliveryType === 'pickup' && (
+      {deliveryType === 'pickup' && currentStatus !== 'delivered' && (
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -433,7 +444,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
           <Button 
             onClick={openMaps}
             variant="outline"
-            className="w-full gap-2"
+            className="w-full gap-2 border-primary text-primary hover:bg-primary/5"
           >
             <MapPin className="w-4 h-4" />
             Abrir no Google Maps
