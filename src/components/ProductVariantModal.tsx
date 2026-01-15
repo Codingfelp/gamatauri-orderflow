@@ -10,6 +10,8 @@ import { Product } from "@/services/productsService";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePromotions } from "@/hooks/usePromotions";
+import { useColorEditor } from "@/contexts/ColorEditorContext";
+import { ColorPicker } from "@/components/ColorPicker";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +30,7 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   const { toast } = useToast();
   const { user } = useAuth();
   const { getPromotionForProduct, isPromotionActive } = usePromotions();
+  const { isEditMode, getProductColors, updateColor } = useColorEditor();
   
   // Carrossel mobile
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'start' });
