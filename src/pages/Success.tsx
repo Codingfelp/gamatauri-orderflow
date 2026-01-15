@@ -5,7 +5,8 @@ import { OrderTimeline } from "@/components/OrderTimeline";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, AlertTriangle, Store } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Store, ArrowLeft, MapPin } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
@@ -20,7 +21,6 @@ const Success = () => {
   const [isCancelled, setIsCancelled] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
 
-  // Mapear status do banco para tipo esperado pelo contexto
   const mapDbStatusToContextStatus = (dbStatus: string): OrderStatus => {
     switch (dbStatus) {
       case 'preparing':
@@ -40,7 +40,6 @@ const Success = () => {
     }
   };
 
-  // Check if we came from a cancelled order via context
   useEffect(() => {
     if (cancelledOrderDetails) {
       setIsCancelled(true);
@@ -69,11 +68,9 @@ const Success = () => {
         setCreatedAt(data.created_at);
         setDeliveryType((data.delivery_type as 'delivery' | 'pickup') || 'delivery');
         
-        // Check if order is cancelled
         if (data.order_status === 'cancelled' || data.order_status === 'cancelado') {
           setIsCancelled(true);
         } else {
-          // Atualizar contexto com status real do banco
           setActiveOrder({
             orderId,
             orderNumber: orderNumber || '',
@@ -97,17 +94,14 @@ const Success = () => {
           filter: `id=eq.${orderId}`
         },
         (payload: any) => {
-          console.log('[Success] Status atualizado em Success:', payload.new.order_status);
           const newStatus = payload.new.order_status;
           setOrderStatus(newStatus);
           
-          // Check if cancelled
           if (newStatus === 'cancelled' || newStatus === 'cancelado') {
             setIsCancelled(true);
             return;
           }
           
-          // Atualizar contexto quando status mudar via realtime
           setActiveOrder({
             orderId,
             orderNumber: orderNumber || '',
@@ -116,14 +110,12 @@ const Success = () => {
           });
         }
       )
-      .subscribe((status) => {
-        console.log('[Success] Subscription status:', status);
-      });
+      .subscribe();
     
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [orderId, orderNumber, setActiveOrder]);
+  }, [orderId, orderNumber, setActiveOrder, createdAt]);
 
   const markAsDelivered = async () => {
     if (!orderId) return;
@@ -141,7 +133,6 @@ const Success = () => {
       
       setOrderStatus('delivered');
       
-      // Atualizar contexto
       setActiveOrder({
         orderId,
         orderNumber: orderNumber || '',
@@ -156,106 +147,162 @@ const Success = () => {
     }
   };
 
+  const openMaps = () => {
+    const address = "R. Aiuruoca, 192 - Loja 5 - Fernão Dias, Belo Horizonte - MG";
+    const encodedAddress = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+  };
+
   // Cancelled order view
   if (isCancelled || orderStatus === 'cancelled') {
     const displayOrderNumber = orderNumber || cancelledOrderDetails?.orderNumber || 'N/A';
     
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-destructive/5 to-destructive/10 p-4 py-20 animate-fade-in">
-        <div className="max-w-lg w-full text-center">
-          {/* Cancelled Icon */}
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-destructive/20 to-destructive/5 mb-6 animate-scale-in">
-            <XCircle className="w-12 h-12 text-destructive" />
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 py-20">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full text-center"
+        >
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-destructive/10 mb-6"
+          >
+            <XCircle className="w-14 h-14 text-destructive" />
+          </motion.div>
           
-          {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold text-destructive mb-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-3xl font-bold text-destructive mb-4"
+          >
             Pedido Cancelado
-          </h1>
+          </motion.h1>
           
-          {/* Order Number */}
-          <div className="inline-block backdrop-blur-sm bg-white/60 dark:bg-black/60 px-6 py-3 rounded-2xl border border-destructive/20 shadow-lg mb-6">
-            <p className="text-sm text-muted-foreground mb-1">Número do Pedido</p>
-            <p className="text-2xl font-mono font-bold text-destructive">{displayOrderNumber}</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-card border border-border rounded-2xl p-4 mb-6 shadow-sm"
+          >
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Número do Pedido</p>
+            <p className="text-xl font-mono font-bold text-destructive">{displayOrderNumber}</p>
+          </motion.div>
           
-          {/* Message */}
-          <div className="backdrop-blur-sm bg-gradient-to-br from-destructive/10 to-destructive/5 rounded-2xl p-6 border border-destructive/20 shadow-lg mb-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5 mb-8"
+          >
             <AlertTriangle className="w-8 h-8 text-destructive mx-auto mb-3" />
-            <p className="text-lg font-semibold text-destructive">
+            <p className="text-foreground font-medium">
               Infelizmente seu pedido foi cancelado.
             </p>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground text-sm mt-2">
               Entre em contato conosco para mais informações.
             </p>
-          </div>
+          </motion.div>
           
-          {/* Action Button */}
-          <Button
-            onClick={() => {
-              clearCancelledOrder();
-              navigate('/');
-            }}
-            size="lg"
-            className="px-12 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
           >
-            <span className="mr-2 text-xl">←</span>
-            Fazer Novo Pedido
-          </Button>
-        </div>
+            <Button
+              onClick={() => {
+                clearCancelledOrder();
+                navigate('/');
+              }}
+              size="lg"
+              className="w-full h-14 text-base font-semibold gap-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Fazer Novo Pedido
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
     );
   }
 
-  // Pickup order delivered view
+  // Pickup order completed view
   if (deliveryType === 'pickup' && orderStatus === 'delivered') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-green-50/30 to-green-100/20 dark:from-background dark:via-green-950/10 dark:to-green-900/5 p-4 py-20 animate-fade-in">
-        <div className="max-w-lg w-full text-center">
-          {/* Success Icon */}
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-green-500/20 to-green-500/5 mb-6 animate-scale-in">
-            <Store className="w-12 h-12 text-green-600" />
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4 py-20">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full text-center"
+        >
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-500/10 mb-6"
+          >
+            <Store className="w-14 h-14 text-green-600" />
+          </motion.div>
           
-          {/* Title */}
-          <h1 className="text-3xl md:text-4xl font-bold text-green-700 dark:text-green-400 mb-4">
+          <motion.h1 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-3xl font-bold text-green-600 mb-4"
+          >
             Retirada Confirmada! 🎉
-          </h1>
+          </motion.h1>
           
-          {/* Order Number */}
-          <div className="inline-block backdrop-blur-sm bg-white/60 dark:bg-black/60 px-6 py-3 rounded-2xl border border-green-200 dark:border-green-800 shadow-lg mb-6">
-            <p className="text-sm text-muted-foreground mb-1">Número do Pedido</p>
-            <p className="text-2xl font-mono font-bold text-green-600">{orderNumber}</p>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-card border border-border rounded-2xl p-4 mb-6 shadow-sm"
+          >
+            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Número do Pedido</p>
+            <p className="text-xl font-mono font-bold text-green-600">{orderNumber}</p>
+          </motion.div>
           
-          {/* Message */}
-          <div className="backdrop-blur-sm bg-gradient-to-br from-green-100/50 to-green-50/30 dark:from-green-950/30 dark:to-green-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-800 shadow-lg mb-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-green-500/5 border border-green-500/20 rounded-2xl p-5 mb-8"
+          >
             <CheckCircle className="w-8 h-8 text-green-600 mx-auto mb-3" />
-            <p className="text-lg font-semibold text-green-700 dark:text-green-400">
+            <p className="text-foreground font-medium">
               Seu pedido foi retirado com sucesso!
             </p>
-            <p className="text-muted-foreground mt-2">
+            <p className="text-muted-foreground text-sm mt-2">
               Obrigado pela preferência! Volte sempre! 🍺
             </p>
-          </div>
+          </motion.div>
           
-          {/* Action Button */}
-          <Button
-            onClick={() => navigate('/')}
-            size="lg"
-            className="px-12 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
           >
-            <span className="mr-2 text-xl">←</span>
-            Fazer Novo Pedido
-          </Button>
-        </div>
+            <Button
+              onClick={() => navigate('/')}
+              size="lg"
+              className="w-full h-14 text-base font-semibold gap-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Fazer Novo Pedido
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-accent/10 to-primary/5 p-4 py-20 animate-fade-in">
-      <div className="max-w-5xl w-full">
+    <div className="min-h-screen bg-background p-4 py-12 md:py-20">
+      <div className="max-w-md mx-auto">
         {orderNumber && orderId && (
           <OrderTimeline 
             orderNumber={orderNumber} 
@@ -265,14 +312,19 @@ const Success = () => {
           />
         )}
         
-        <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in" style={{ animationDelay: '600ms' }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+          className="mt-8 space-y-3"
+        >
           {orderStatus !== 'delivered' && orderStatus !== 'cancelled' && deliveryType === 'delivery' && (
             <Button
               onClick={markAsDelivered}
               size="lg"
-              className="px-8 h-14 text-lg font-bold bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+              className="w-full h-14 text-base font-semibold bg-green-600 hover:bg-green-700 text-white gap-2"
             >
-              <CheckCircle className="mr-2 h-5 w-5" />
+              <CheckCircle className="w-5 h-5" />
               Confirmar Entrega
             </Button>
           )}
@@ -281,12 +333,12 @@ const Success = () => {
             onClick={() => navigate('/')}
             size="lg"
             variant={orderStatus === 'delivered' ? 'default' : 'outline'}
-            className="px-12 h-14 text-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+            className="w-full h-14 text-base font-semibold gap-2"
           >
-            <span className="mr-2 text-xl group-hover:animate-bounce inline-block">←</span>
+            <ArrowLeft className="w-5 h-5" />
             Fazer Novo Pedido
           </Button>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
