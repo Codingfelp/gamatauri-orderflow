@@ -1,450 +1,306 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft, User, Phone, CreditCard, MapPin, Mail, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { formatCPF, validateCPF } from "@/utils/cpfValidator";
-import { useAddressByCEP } from "@/hooks/useAddressByCEP";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function Settings() {
-  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const { user, loading: authLoading } = useAuth();
+  
   const [formData, setFormData] = useState({
     name: "",
-    cpf: "",
     phone: "",
-    cep: "",
-    street: "",
-    number: "",
-    complement: "",
-    neighborhood: "",
-    city: "",
-    state: "",
+    cpf: "",
   });
-  const { fetchAddress, loading: cepLoading, error: cepError } = useAddressByCEP();
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/auth');
-      return;
+      navigate("/auth");
     }
-    
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
     if (user) {
       loadProfile();
     }
-  }, [user, authLoading]);
+  }, [user]);
 
   const loadProfile = async () => {
     if (!user) return;
-
+    
+    setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('name, cpf, phone, address')
-        .eq('user_id', user.id)
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== "PGRST116") {
+        console.error("Error loading profile:", error);
+        return;
+      }
 
-      if (data) {
-        // Parsear endereço existente
-        const address = data.address || "";
-        const parts = address.split(',').map((p: string) => p.trim());
-        
-        // Tentar extrair número da primeira parte
-        const streetPart = parts[0] || '';
-        const numberMatch = streetPart.match(/\d+[A-Za-z]?$/);
-        const street = numberMatch ? streetPart.replace(/\d+[A-Za-z]?$/, '').trim() : streetPart;
-        const number = numberMatch ? numberMatch[0] : '';
-        
-        // Extrair complemento se existir (procurar por palavras como Apto, Bloco, etc)
-        const complement = parts[1]?.match(/(Apto|Apt|Bloco|Casa|Lote).*/i)?.[0] || '';
-        const neighborhood = complement ? parts[2] || '' : parts[1] || '';
-        const cityState = parts[parts.length - 1] || '';
-        const [city, state] = cityState.split('-').map((s: string) => s.trim());
-        
+      if (profile) {
         setFormData({
-          name: data.name || "",
-          cpf: formatCPF((data as any).cpf || ""),
-          phone: data.phone || "",
-          cep: "",
-          street: street,
-          number: number,
-          complement: complement,
-          neighborhood: neighborhood,
-          city: city || "",
-          state: state || "",
+          name: profile.name || "",
+          phone: profile.phone || "",
+          cpf: profile.cpf ? formatCPF(profile.cpf) : "",
         });
       }
     } catch (error) {
-      console.error('Erro ao carregar perfil:', error);
-    }
-  };
-
-  const handleCEPSearch = async () => {
-    if (formData.cep.length < 8) return;
-    
-    const addressData = await fetchAddress(formData.cep);
-    
-    if (addressData) {
-      setFormData(prev => ({ 
-        ...prev, 
-        street: addressData.logradouro,
-        neighborhood: addressData.bairro,
-        city: addressData.localidade,
-        state: addressData.uf,
-      }));
-      toast({
-        title: "Endereço encontrado!",
-        description: "Agora informe o número da sua casa",
-      });
-    } else if (cepError) {
-      toast({
-        title: "CEP não encontrado",
-        description: cepError,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!user) return;
-
-    // Validações
-    if (!formData.name.trim()) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Por favor, preencha seu nome completo",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const cpfValidation = validateCPF(formData.cpf);
-    if (!cpfValidation.valid) {
-      toast({
-        title: "CPF inválido",
-        description: cpfValidation.error,
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const cpfDigits = formData.cpf.replace(/\D/g, '');
-
-    if (!formData.phone.trim()) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Por favor, preencha seu telefone",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.street.trim()) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Por favor, preencha a rua",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.number.trim()) {
-      toast({
-        title: "Número obrigatório",
-        description: "Por favor, informe o número da sua casa/prédio",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.neighborhood.trim()) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Por favor, preencha o bairro",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Montar endereço completo
-    const fullAddress = `${formData.street}, ${formData.number}${formData.complement ? ', ' + formData.complement : ''}, ${formData.neighborhood}, ${formData.city} - ${formData.state}`;
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          name: formData.name.trim(),
-          cpf: cpfDigits,
-          phone: formData.phone.trim(),
-          address: fullAddress,
-        })
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Perfil atualizado!",
-        description: "Suas informações foram salvas com sucesso.",
-      });
-      
-      // Recarregar página para atualizar header
-      window.location.reload();
-    } catch (error: any) {
-      toast({
-        title: "Erro ao salvar",
-        description: error.message,
-        variant: "destructive",
-      });
+      console.error("Error loading profile:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (authLoading) {
+  const formatPhone = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 2) return numbers;
+    if (numbers.length <= 7) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, "");
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}.${numbers.slice(3)}`;
+    if (numbers.length <= 9) return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6)}`;
+    return `${numbers.slice(0, 3)}.${numbers.slice(3, 6)}.${numbers.slice(6, 9)}-${numbers.slice(9, 11)}`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name.trim()) {
+      toast({
+        title: "Nome obrigatório",
+        description: "Por favor, informe seu nome.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.phone.trim()) {
+      toast({
+        title: "Telefone obrigatório",
+        description: "Por favor, informe seu telefone.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+    setSaved(false);
+
+    try {
+      const cpfDigits = formData.cpf.replace(/\D/g, "") || null;
+      
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          name: formData.name.trim(),
+          phone: formData.phone.trim(),
+          cpf: cpfDigits,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", user?.id);
+
+      if (error) throw error;
+
+      setSaved(true);
+      toast({
+        title: "Dados salvos",
+        description: "Suas informações foram atualizadas com sucesso.",
+      });
+
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar suas informações. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
-        <Header />
-        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-          <LoadingSpinner size="lg" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
 
+  const userInitials = formData.name
+    ? formData.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)
+    : user?.email?.[0]?.toUpperCase() || "U";
+
+  const avatarUrl = user?.user_metadata?.avatar_url;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-accent/5 to-accent/10">
-      <Header />
-      <main className="container mx-auto px-4 py-8 max-w-3xl">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/profile')}
-          className="mb-6"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar
-        </Button>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
+        <div className="flex items-center gap-3 p-4 max-w-3xl mx-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(-1)}
+            className="shrink-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold">Dados da Conta</h1>
+        </div>
+      </header>
 
-        <Card className="shadow-xl border-2 border-primary/10">
-          <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl md:text-3xl font-bold">Dados da Conta</CardTitle>
-            <CardDescription>
-              Gerencie suas informações pessoais
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-base font-semibold flex items-center gap-2">
-                  <span>Nome Completo</span>
-                  <span className="text-primary">*</span>
-                </Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="João Silva"
-                  className="h-12 text-base border-2 focus:border-primary transition-all"
-                  required
-                />
+      <main className="p-4 pb-8 max-w-3xl mx-auto space-y-6">
+        {/* Profile Card */}
+        <Card className="p-6">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              <AvatarImage src={avatarUrl} alt={formData.name} />
+              <AvatarFallback className="bg-primary/10 text-primary text-lg font-medium">
+                {userInitials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-semibold text-lg truncate">
+                {formData.name || "Complete seu perfil"}
+              </h2>
+              <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                <Mail className="h-4 w-4 shrink-0" />
+                <span className="truncate">{user?.email}</span>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cpf" className="text-base font-semibold flex items-center gap-2">
-                  <span>CPF</span>
-                  <span className="text-primary">*</span>
-                </Label>
-                <Input
-                  id="cpf"
-                  type="text"
-                  value={formData.cpf}
-                  onChange={(e) => setFormData(prev => ({ ...prev, cpf: formatCPF(e.target.value) }))}
-                  placeholder="123.456.789-01"
-                  maxLength={14}
-                  className="h-12 text-base border-2 focus:border-primary transition-all"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-base font-semibold flex items-center gap-2">
-                  <span>Telefone</span>
-                  <span className="text-primary">*</span>
-                </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  placeholder="(31) 98765-4321"
-                  className="h-12 text-base border-2 focus:border-primary transition-all"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cep" className="text-base font-semibold flex items-center gap-2">
-                  <span>CEP</span>
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="cep"
-                    type="text"
-                    value={formData.cep}
-                    onChange={(e) => {
-                      const formatted = e.target.value.replace(/\D/g, '').slice(0, 8);
-                      setFormData(prev => ({ ...prev, cep: formatted }));
-                    }}
-                    onBlur={handleCEPSearch}
-                    placeholder="00000-000"
-                    maxLength={9}
-                    className="flex-1 h-12 text-base border-2 focus:border-primary transition-all"
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleCEPSearch}
-                    disabled={cepLoading || formData.cep.length !== 8}
-                    variant="outline"
-                    size="icon"
-                    className="h-12 w-12"
-                  >
-                    {cepLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="street" className="text-base font-semibold flex items-center gap-2">
-                  <span>Rua</span>
-                  <span className="text-primary">*</span>
-                </Label>
-                <Input
-                  id="street"
-                  type="text"
-                  value={formData.street}
-                  onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
-                  placeholder="Nome da Rua"
-                  className="h-12 text-base border-2 focus:border-primary transition-all"
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="number" className="text-base font-semibold flex items-center gap-2">
-                    <span>Número</span>
-                    <span className="text-primary">*</span>
-                  </Label>
-                  <Input
-                    id="number"
-                    type="text"
-                    value={formData.number}
-                    onChange={(e) => setFormData(prev => ({ ...prev, number: e.target.value }))}
-                    placeholder="123"
-                    className="h-12 text-base border-2 focus:border-primary transition-all"
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="complement" className="text-base font-semibold">
-                    Complemento
-                  </Label>
-                  <Input
-                    id="complement"
-                    type="text"
-                    value={formData.complement}
-                    onChange={(e) => setFormData(prev => ({ ...prev, complement: e.target.value }))}
-                    placeholder="Apto 101"
-                    className="h-12 text-base border-2 focus:border-primary transition-all"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="neighborhood" className="text-base font-semibold flex items-center gap-2">
-                  <span>Bairro</span>
-                  <span className="text-primary">*</span>
-                </Label>
-                <Input
-                  id="neighborhood"
-                  type="text"
-                  value={formData.neighborhood}
-                  onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
-                  placeholder="Nome do Bairro"
-                  className="h-12 text-base border-2 focus:border-primary transition-all"
-                  required
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div className="col-span-2 sm:col-span-2 space-y-2">
-                  <Label htmlFor="city" className="text-base font-semibold">
-                    Cidade
-                  </Label>
-                  <Input
-                    id="city"
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                    placeholder="Cidade"
-                    className="h-12 text-base border-2 focus:border-primary transition-all"
-                    readOnly
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="state" className="text-base font-semibold">
-                    UF
-                  </Label>
-                  <Input
-                    id="state"
-                    type="text"
-                    value={formData.state}
-                    onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
-                    placeholder="MG"
-                    maxLength={2}
-                    className="h-12 text-base border-2 focus:border-primary transition-all uppercase"
-                    readOnly
-                  />
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full h-12 text-base font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Salvando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-5 w-5" />
-                    Salvar Alterações
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
+              {user?.app_metadata?.provider === "google" && (
+                <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs rounded-full">
+                  <Check className="h-3 w-3" />
+                  Google conectado
+                </span>
+              )}
+            </div>
+          </div>
         </Card>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Card className="p-5 space-y-5">
+            <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+              Informações Pessoais
+            </h3>
+            
+            {/* Nome */}
+            <div className="space-y-2">
+              <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium">
+                <User className="h-4 w-4 text-muted-foreground" />
+                Nome completo
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Seu nome completo"
+                className="h-12 text-base"
+              />
+            </div>
+
+            {/* Telefone */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                Telefone
+              </Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: formatPhone(e.target.value) })}
+                placeholder="(00) 00000-0000"
+                className="h-12 text-base"
+                maxLength={15}
+              />
+            </div>
+
+            <Separator />
+
+            {/* CPF - Optional */}
+            <div className="space-y-2">
+              <Label htmlFor="cpf" className="flex items-center gap-2 text-sm font-medium">
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+                CPF
+                <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+              </Label>
+              <Input
+                id="cpf"
+                value={formData.cpf}
+                onChange={(e) => setFormData({ ...formData, cpf: formatCPF(e.target.value) })}
+                placeholder="000.000.000-00"
+                className="h-12 text-base"
+                maxLength={14}
+              />
+              <p className="text-xs text-muted-foreground">
+                Necessário apenas para emissão de nota fiscal
+              </p>
+            </div>
+          </Card>
+
+          {/* Addresses Link */}
+          <Card 
+            className="p-5 cursor-pointer hover:bg-accent/50 transition-colors"
+            onClick={() => navigate("/addresses")}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <MapPin className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-medium">Meus Endereços</h3>
+                  <p className="text-sm text-muted-foreground">Gerencie seus endereços de entrega</p>
+                </div>
+              </div>
+              <ArrowLeft className="h-5 w-5 text-muted-foreground rotate-180" />
+            </div>
+          </Card>
+
+          {/* Save Button */}
+          <Button
+            type="submit"
+            className="w-full h-12 text-base font-medium"
+            disabled={saving}
+          >
+            {saving ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Salvando...
+              </>
+            ) : saved ? (
+              <>
+                <Check className="h-5 w-5 mr-2" />
+                Salvo!
+              </>
+            ) : (
+              "Salvar alterações"
+            )}
+          </Button>
+        </form>
       </main>
     </div>
   );

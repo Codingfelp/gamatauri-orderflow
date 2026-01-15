@@ -1,183 +1,232 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4';
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-webhook-secret',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-api-key, x-webhook-secret",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 interface WebhookPayload {
-  event: 'created' | 'updated' | 'deleted';
+  event: "created" | "updated" | "deleted";
   product: {
     id?: string;
     name: string;
-    price: number;
-    category?: string;
+    price?: number;
     description?: string;
+    category?: string;
     image_url?: string;
-    active: boolean;
+    available?: boolean;
+    active?: boolean;
   };
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('Product webhook called');
-
-    // Verify webhook secret authentication
-    const webhookSecret = req.headers.get('x-webhook-secret');
-    const expectedSecret = Deno.env.get('WEBHOOK_SECRET');
+    // Accept both x-webhook-secret and x-api-key headers for flexibility
+    const webhookSecretHeader = req.headers.get("x-webhook-secret");
+    const apiKeyHeader = req.headers.get("x-api-key");
+    const url = new URL(req.url);
+    const queryKey = url.searchParams.get("key");
     
-    if (!webhookSecret || webhookSecret !== expectedSecret) {
-      console.error('Unauthorized webhook call - invalid secret');
+    const providedSecret = webhookSecretHeader || apiKeyHeader || queryKey;
+    const expectedSecret = Deno.env.get("WEBHOOK_SECRET");
+
+    // Debug logging
+    console.log("[product-webhook] Auth check:", {
+      hasWebhookSecretHeader: !!webhookSecretHeader,
+      hasApiKeyHeader: !!apiKeyHeader,
+      hasQueryKey: !!queryKey,
+      hasEnvSecret: !!expectedSecret,
+      providedLength: providedSecret?.length || 0,
+      expectedLength: expectedSecret?.length || 0,
+    });
+
+    if (!expectedSecret) {
+      console.error("[product-webhook] WEBHOOK_SECRET not configured");
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Server configuration error: WEBHOOK_SECRET not set" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log('Webhook authenticated successfully');
+    if (!providedSecret || providedSecret !== expectedSecret) {
+      console.error("[product-webhook] Invalid secret - authentication failed");
+      return new Response(
+        JSON.stringify({ 
+          error: "Unauthorized",
+          hint: "Provide valid key via x-webhook-secret header, x-api-key header, or ?key= query param"
+        }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // Parse request body
+    console.log("[product-webhook] Authentication successful");
+
     const payload: WebhookPayload = await req.json();
-    const { event, product } = payload;
+    console.log("[product-webhook] Received payload:", JSON.stringify(payload));
 
-    if (!event || !product || !product.name) {
+    // Validate payload
+    if (!payload.event || !payload.product || !payload.product.name) {
       return new Response(
-        JSON.stringify({ error: 'Invalid payload: missing event or product data' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Invalid payload: event and product.name are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`Processing ${event} event for product: ${product.name}`);
-
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    let result;
+    // Normalize available field (accept both 'available' and 'active')
+    const isAvailable = payload.product.available ?? payload.product.active ?? true;
 
-    switch (event) {
-      case 'created': {
-        // Insert or update if product already exists (upsert by name)
-        console.log(`Creating/updating product: ${product.name}`);
-        
-        const { data: existing } = await supabase
-          .from('products')
-          .select('id')
-          .eq('name', product.name)
-          .maybeSingle();
+    switch (payload.event) {
+      case "created": {
+        // Check if product already exists by name
+        const { data: existingProduct } = await supabase
+          .from("products")
+          .select("id")
+          .eq("name", payload.product.name)
+          .single();
 
-        if (existing) {
+        if (existingProduct) {
           // Update existing product
-          const { error } = await supabase
-            .from('products')
+          const { data, error } = await supabase
+            .from("products")
             .update({
-              description: product.description,
-              price: product.price,
-              category: product.category,
-              image_url: product.image_url,
-              available: product.active,
+              price: payload.product.price,
+              description: payload.product.description,
+              category: payload.product.category,
+              image_url: payload.product.image_url,
+              available: isAvailable,
+              deleted_at: null,
             })
-            .eq('id', existing.id);
+            .eq("id", existingProduct.id)
+            .select()
+            .single();
 
-          if (error) throw error;
-          result = { action: 'updated', product_name: product.name };
-        } else {
-          // Insert new product
-          const { error } = await supabase
-            .from('products')
-            .insert({
-              name: product.name,
-              description: product.description,
-              price: product.price,
-              category: product.category,
-              image_url: product.image_url,
-              available: product.active,
-            });
+          if (error) {
+            console.error("[product-webhook] Error updating existing product:", error);
+            throw error;
+          }
 
-          if (error) throw error;
-          result = { action: 'created', product_name: product.name };
+          console.log("[product-webhook] Product updated (was existing):", data);
+          return new Response(
+            JSON.stringify({ success: true, action: "updated", product: data }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
         }
-        break;
-      }
 
-      case 'updated': {
-        // Update existing product by name
-        console.log(`Updating product: ${product.name}`);
-        
-        const { error } = await supabase
-          .from('products')
-          .update({
-            description: product.description,
-            price: product.price,
-            category: product.category,
-            image_url: product.image_url,
-            available: product.active,
+        // Create new product
+        const { data, error } = await supabase
+          .from("products")
+          .insert({
+            name: payload.product.name,
+            price: payload.product.price || 0,
+            description: payload.product.description,
+            category: payload.product.category,
+            image_url: payload.product.image_url,
+            available: isAvailable,
           })
-          .eq('name', product.name);
+          .select()
+          .single();
 
-        if (error) throw error;
-        result = { action: 'updated', product_name: product.name };
-        break;
+        if (error) {
+          console.error("[product-webhook] Error creating product:", error);
+          throw error;
+        }
+
+        console.log("[product-webhook] Product created:", data);
+        return new Response(
+          JSON.stringify({ success: true, action: "created", product: data }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
 
-      case 'deleted': {
-        // Soft delete: mark as unavailable and set deleted_at timestamp
-        console.log(`Soft deleting product: ${product.name}`);
-        
-        const { error } = await supabase
-          .from('products')
+      case "updated": {
+        const { data: existingProduct } = await supabase
+          .from("products")
+          .select("id")
+          .eq("name", payload.product.name)
+          .single();
+
+        if (!existingProduct) {
+          return new Response(
+            JSON.stringify({ error: "Product not found" }),
+            { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const updateData: Record<string, unknown> = {};
+        if (payload.product.price !== undefined) updateData.price = payload.product.price;
+        if (payload.product.description !== undefined) updateData.description = payload.product.description;
+        if (payload.product.category !== undefined) updateData.category = payload.product.category;
+        if (payload.product.image_url !== undefined) updateData.image_url = payload.product.image_url;
+        if (payload.product.available !== undefined || payload.product.active !== undefined) {
+          updateData.available = isAvailable;
+        }
+
+        const { data, error } = await supabase
+          .from("products")
+          .update(updateData)
+          .eq("id", existingProduct.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error("[product-webhook] Error updating product:", error);
+          throw error;
+        }
+
+        console.log("[product-webhook] Product updated:", data);
+        return new Response(
+          JSON.stringify({ success: true, action: "updated", product: data }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      case "deleted": {
+        // Soft delete: mark as unavailable
+        const { data, error } = await supabase
+          .from("products")
           .update({ 
-            available: false,
-            deleted_at: new Date().toISOString(),
+            available: false, 
+            deleted_at: new Date().toISOString() 
           })
-          .eq('name', product.name);
+          .eq("name", payload.product.name)
+          .select()
+          .single();
 
-        if (error) throw error;
-        result = { action: 'deleted', product_name: product.name };
-        break;
+        if (error) {
+          console.error("[product-webhook] Error deleting product:", error);
+          throw error;
+        }
+
+        console.log("[product-webhook] Product soft-deleted:", data);
+        return new Response(
+          JSON.stringify({ success: true, action: "deleted", product: data }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
 
       default:
         return new Response(
-          JSON.stringify({ error: `Invalid event type: ${event}` }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: "Invalid event. Use: created, updated, or deleted" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
     }
-
-    console.log(`Successfully processed ${event} event for ${product.name}`);
-
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    console.error("[product-webhook] Error:", errorMessage);
     return new Response(
-      JSON.stringify({
-        success: true,
-        ...result,
-        timestamp: new Date().toISOString(),
-      }),
-      { 
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
-
-  } catch (error) {
-    console.error('Error in product webhook:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    
-    return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: errorMessage 
-      }),
-      { 
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      JSON.stringify({ error: errorMessage }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
