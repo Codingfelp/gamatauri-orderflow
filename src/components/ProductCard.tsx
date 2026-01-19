@@ -90,21 +90,23 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
            </div>
          )}
 
-         {/* Edit mode color pickers */}
-         {isEditMode && (
-           <div className="absolute top-1 right-1 z-20 flex gap-1">
-             <ColorPicker
-               currentColor={customColors?.card_bg_color || '#ffffff'}
-               onChange={(color) => updateColor(product.name, product.category, 'card_bg_color', color)}
-               label="BG"
-             />
-             <ColorPicker
-               currentColor={customColors?.card_text_color || '#000000'}
-               onChange={(color) => updateColor(product.name, product.category, 'card_text_color', color)}
-               label="TXT"
-             />
-           </div>
-         )}
+          {/* Edit mode color button - bottom of card */}
+          {isEditMode && (
+            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20">
+              <div className="flex gap-1 bg-black/80 backdrop-blur-sm rounded-full px-2 py-1 shadow-lg">
+                <ColorPicker
+                  currentColor={customColors?.card_bg_color || '#ffffff'}
+                  onChange={(color) => updateColor(product.name, product.category, 'card_bg_color', color)}
+                  label="Fundo"
+                />
+                <ColorPicker
+                  currentColor={customColors?.card_text_color || '#000000'}
+                  onChange={(color) => updateColor(product.name, product.category, 'card_text_color', color)}
+                  label="Texto"
+                />
+              </div>
+            </div>
+          )}
 
         {/* Área da imagem com fundo colorido na parte inferior */}
         <div className="relative h-[75px] sm:h-[85px] mx-2 mt-2">

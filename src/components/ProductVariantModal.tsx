@@ -401,6 +401,24 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
             </div>
           </div>
         </div>
+        
+        {/* Edit mode color picker - floating at bottom */}
+        {isEditMode && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50">
+            <div className="flex gap-2 bg-black/90 backdrop-blur-md rounded-full px-4 py-2 shadow-xl border border-white/20">
+              <ColorPicker
+                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#ffffff'}
+                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_bg_color', color)}
+                label="Fundo Modal"
+              />
+              <ColorPicker
+                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#000000'}
+                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_text_color', color)}
+                label="Texto Modal"
+              />
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
