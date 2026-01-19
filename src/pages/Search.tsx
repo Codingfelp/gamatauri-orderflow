@@ -182,6 +182,9 @@ const Search = () => {
   const matchingCategory = getMatchingCategory(searchTerm);
 
   const filteredProducts = products.filter((product) => {
+    // Filter out products with zero or negative prices
+    if (product.price <= 0) return false;
+    
     // If search matches a category, show all products from that category
     if (matchingCategory) {
       return categoryMatchesFilter(product.category || "", matchingCategory);

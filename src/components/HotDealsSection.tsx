@@ -291,9 +291,10 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
   const isAfterPromo = now > promoEnd;
 
   // Get products with promotions (mostra promo ativa OU agendada)
+  // Also filter out products with zero or negative prices
   const allPromotions = promotions.filter((p) => (p.is_active ?? true));
   const promotionalProducts = products.filter((p) =>
-    allPromotions.some((promo) => promo.product_id === p.id)
+    p.price > 0 && allPromotions.some((promo) => promo.product_id === p.id)
   );
 
   // Não renderizar após encerrar a janela (16/01-18/01)
