@@ -185,6 +185,8 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'em_rota': 'in_route',
     'em rota': 'in_route',
     'emrota': 'in_route',
+    'em_rota_entrega': 'in_route',
+    'em rota entrega': 'in_route',
     'saiu_entrega': 'in_route',
     'saiu entrega': 'in_route',
     'saiu para entrega': 'in_route',
