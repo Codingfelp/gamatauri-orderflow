@@ -24,3 +24,6 @@ verify_jwt = false
 
 [functions.sync-promotions]
 verify_jwt = false
+
+[functions.customer-api]
+verify_jwt = false
