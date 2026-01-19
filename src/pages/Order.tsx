@@ -14,7 +14,7 @@ import { UserAddressDisplay } from "@/components/UserAddressDisplay";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Package, Mic, MicOff } from "lucide-react";
+import { Search, Package, Mic, MicOff, Star } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { fetchProducts, type Product } from "@/services/productsService";
 import { categoryMatchesFilter, normalizeCategory, CATEGORY_MAPPING } from "@/utils/categoryMapping";
@@ -23,6 +23,7 @@ import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 import { RecommendedSection } from "@/components/RecommendedSection";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { HotDealsSection } from "@/components/HotDealsSection";
+import { supabase } from "@/integrations/supabase/client";
 
 
 
@@ -64,6 +65,7 @@ const Order = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [favoriteProductIds, setFavoriteProductIds] = useState<string[]>([]);
 
   // Wizard-curated product IDs (when active, shows ONLY these products)
   const [wizardProductIds, setWizardProductIds] = useState<string[] | null>(null);
@@ -85,6 +87,32 @@ const Order = () => {
   useEffect(() => {
     loadProducts();
   }, []);
+
+  // Carregar produtos favoritados do usuário
+  useEffect(() => {
+    const loadFavorites = async () => {
+      if (!user) {
+        setFavoriteProductIds([]);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('favorite_products')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (!error && data?.favorite_products) {
+          setFavoriteProductIds(data.favorite_products);
+        }
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      }
+    };
+    
+    loadFavorites();
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -278,7 +306,11 @@ const Order = () => {
     setWizardMetaById(null);
   };
 
-  const groupedProducts = filteredProducts.reduce((acc, product) => {
+  // Separar produtos favoritados
+  const favoriteProducts = filteredProducts.filter(p => favoriteProductIds.includes(p.id));
+  const nonFavoriteProducts = filteredProducts.filter(p => !favoriteProductIds.includes(p.id));
+
+  const groupedProducts = nonFavoriteProducts.reduce((acc, product) => {
     const category = normalizeCategory(product.category);
     if (!acc[category]) {
       acc[category] = [];
@@ -399,9 +431,28 @@ const Order = () => {
           </div>
         )}
 
+        {/* SEÇÃO PRODUTOS FAVORITOS */}
+        {favoriteProducts.length > 0 && !selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (
+          <div className="mb-8 px-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+              <h2 className="text-xl font-bold text-foreground">Selecionados para você</h2>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {favoriteProducts.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={addToCart}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 5. PRODUTOS */}
         <div ref={productsRef} className="scroll-mt-20">
-        {Object.entries(groupedProducts).length === 0 ? (
+        {Object.entries(groupedProducts).length === 0 && favoriteProducts.length === 0 ? (
           <EmptyState
             icon={Package}
             title="Nenhum produto encontrado"
