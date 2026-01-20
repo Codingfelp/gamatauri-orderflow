@@ -140,7 +140,7 @@ export const ColorPicker = ({ currentColor, onChange, label }: ColorPickerProps)
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute z-50 top-full left-0 mt-2 p-4 bg-popover border border-border rounded-xl shadow-2xl min-w-[280px]"
+            className="absolute z-[9999] bottom-full left-1/2 -translate-x-1/2 mb-2 p-4 bg-popover border border-border rounded-xl shadow-2xl min-w-[280px]"
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-foreground">Seletor de Cor</span>
