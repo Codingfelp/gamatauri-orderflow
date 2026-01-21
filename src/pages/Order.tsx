@@ -431,21 +431,34 @@ const Order = () => {
           </div>
         )}
 
-        {/* SEÇÃO PRODUTOS FAVORITOS */}
+        {/* SEÇÃO PRODUTOS FAVORITOS - Design Premium */}
         {favoriteProducts.length > 0 && !selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (
           <div className="mb-8 px-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-              <h2 className="text-xl font-bold text-foreground">Selecionados para você</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {favoriteProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onAddToCart={addToCart}
-                />
-              ))}
+            <div className="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 dark:from-amber-950/30 dark:via-yellow-950/30 dark:to-orange-950/30 rounded-2xl p-4 border border-amber-200/50 dark:border-amber-800/30 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl shadow-lg">
+                  <Star className="h-5 w-5 text-white fill-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Selecionados para você</h2>
+                  <p className="text-xs text-muted-foreground">Produtos escolhidos especialmente para o seu perfil</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                {favoriteProducts.map((product) => (
+                  <div key={product.id} className="relative">
+                    <div className="absolute -top-1 -right-1 z-10">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-amber-500 shadow-md">
+                        <Star className="h-3 w-3 text-white fill-white" />
+                      </span>
+                    </div>
+                    <ProductCard
+                      product={product}
+                      onAddToCart={addToCart}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
