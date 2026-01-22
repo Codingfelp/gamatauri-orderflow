@@ -23,20 +23,9 @@ interface HotDealsSectionProps {
   onAddToCart: (product: Product) => void;
 }
 
-// Promotion dates configuration (fixo em 16/01 a 18/01; se já passou no ano atual, agenda para o próximo)
-const buildPromoWindow = (reference: Date) => {
-  const year = reference.getFullYear();
-  const start = new Date(year, 0, 16, 0, 0, 0);
-  const end = new Date(year, 0, 18, 23, 59, 59);
-
-  if (reference.getTime() > end.getTime()) {
-    return {
-      start: new Date(year + 1, 0, 16, 0, 0, 0),
-      end: new Date(year + 1, 0, 18, 23, 59, 59),
-    };
-  }
-
-  return { start, end };
+// Helper para formatar datas
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 };
 
 // Countdown timer component
@@ -244,7 +233,7 @@ const HotDealCard = memo(({
 HotDealCard.displayName = "HotDealCard";
 
 export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps) => {
-  const { getActivePromotions, promotions, loading } = usePromotions();
+  const { promotions, loading } = usePromotions();
   const [now, setNow] = useState(new Date());
   
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -282,31 +271,37 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
     return () => clearInterval(interval);
   }, []);
 
-  // Promo window (16/01 a 18/01)
-  const { start: promoStart, end: promoEnd } = buildPromoWindow(now);
+  // Filtrar APENAS promoções que estão ativas AGORA (dentro do período start_date a end_date)
+  const activePromotions = promotions.filter((p) => {
+    if (!(p.is_active ?? true)) return false;
+    const start = new Date(p.start_date);
+    const end = new Date(p.end_date);
+    return now >= start && now <= end;
+  });
 
-  // Check if promotion period is active
-  const isPromoActive = now >= promoStart && now <= promoEnd;
-  const isBeforePromo = now < promoStart;
-  const isAfterPromo = now > promoEnd;
-
-  // Get products with promotions (mostra promo ativa OU agendada)
-  // Also filter out products with zero or negative prices
-  const allPromotions = promotions.filter((p) => (p.is_active ?? true));
+  // Produtos que têm promoção ativa
   const promotionalProducts = products.filter((p) =>
-    p.price > 0 && allPromotions.some((promo) => promo.product_id === p.id)
+    p.price > 0 && activePromotions.some((promo) => promo.product_id === p.id)
   );
 
-  // Não renderizar após encerrar a janela (16/01-18/01)
-  if (loading || isAfterPromo) {
+  // Não renderizar se carregando ou sem promoções ativas
+  if (loading || activePromotions.length === 0) {
     return null;
   }
 
-  const hasDeals = promotionalProducts.length > 0;
+  // Encontrar a promoção que termina mais tarde (para o countdown principal)
+  const latestEndDate = activePromotions.reduce((latest, promo) => {
+    const end = new Date(promo.end_date);
+    return end > latest ? end : latest;
+  }, new Date(activePromotions[0].end_date));
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-  };
+  // Encontrar a promoção que começou primeiro
+  const earliestStartDate = activePromotions.reduce((earliest, promo) => {
+    const start = new Date(promo.start_date);
+    return start < earliest ? start : earliest;
+  }, new Date(activePromotions[0].start_date));
+
+  const hasDeals = promotionalProducts.length > 0;
 
   return (
     <section className="py-4 px-4">
@@ -325,35 +320,21 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
             </h2>
             <p className="text-[10px] text-muted-foreground flex items-center gap-1">
               <CalendarClock className="w-3 h-3" />
-              {formatDate(promoStart)} até {formatDate(promoEnd)}
+              Até {formatDate(latestEndDate)}
             </p>
           </div>
         </div>
 
         {/* Main countdown */}
         <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-full shadow-lg">
-           <CountdownTimer startDate={promoStart} endDate={promoEnd} />
+           <CountdownTimer startDate={earliestStartDate} endDate={latestEndDate} />
         </div>
       </div>
 
-      {/* Status message */}
-      <div className={`border rounded-lg p-2 mb-3 ${
-        isPromoActive 
-          ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800/50" 
-          : "bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800/50"
-      }`}>
-        <p className={`text-[10px] text-center font-medium ${
-          isPromoActive 
-            ? "text-green-700 dark:text-green-300" 
-            : "text-orange-700 dark:text-orange-300"
-        }`}>
-          {isPromoActive ? (
-            <>🔥 Promoção ativa! Aproveite os preços especiais</>
-          ) : isBeforePromo ? (
-            <>⏳ Promoção começa em {formatDate(promoStart)}. Preços promocionais serão liberados na data.</>
-          ) : (
-            <>⚠️ Promoção encerrada. Preços normais aplicados.</>
-          )}
+      {/* Status message - promoção ativa */}
+      <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-lg p-2 mb-3">
+        <p className="text-[10px] text-center font-medium text-green-700 dark:text-green-300">
+          🔥 Promoção ativa! Aproveite os preços especiais
         </p>
       </div>
 
@@ -364,7 +345,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
              <div className="overflow-hidden" ref={emblaRef}>
                <div className="flex gap-3">
                  {promotionalProducts.map((product) => {
-                   const promotion = allPromotions.find((p) => p.product_id === product.id);
+                   const promotion = activePromotions.find((p) => p.product_id === product.id);
                    if (!promotion) return null;
 
                    return (
@@ -373,7 +354,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
                        product={product}
                        promotion={promotion}
                        onAddToCart={onAddToCart}
-                       isActive={isPromoActive}
+                       isActive={true}
                      />
                    );
                  })}
@@ -393,7 +374,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
          ) : (
            <div className="border border-border/50 rounded-xl p-3 bg-card">
              <p className="text-xs text-muted-foreground text-center">
-               Nenhuma promoção recebida ainda — aguardando sincronização do sistema externo.
+               Nenhuma promoção ativa no momento.
              </p>
            </div>
          )}
