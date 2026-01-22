@@ -15,6 +15,9 @@ interface ShippingResponse {
   duration_text: string;
 }
 
+// Limite máximo de raio de entrega em KM
+const MAX_DELIVERY_RADIUS_KM = 5;
+
 serve(async (req) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
@@ -115,6 +118,22 @@ serve(async (req) => {
     const distanceInMeters = element.distance.value; // em metros
     const distanceInKm = distanceInMeters / 1000; // converter para KM
     const durationText = element.duration.text;
+
+    console.log('📏 Distância calculada:', distanceInKm.toFixed(2), 'km');
+
+    // Verificar se está dentro do raio de entrega
+    if (distanceInKm > MAX_DELIVERY_RADIUS_KM) {
+      console.log('❌ Fora do raio de entrega:', distanceInKm, 'km (máximo:', MAX_DELIVERY_RADIUS_KM, 'km)');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Fora da área de atendimento',
+          message: `Infelizmente não entregamos além de ${MAX_DELIVERY_RADIUS_KM}km. Sua localização está a ${distanceInKm.toFixed(1)}km da nossa loja.`,
+          out_of_range: true,
+          distance_km: Math.round(distanceInKm * 100) / 100
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Regra de negócio: R$ 3,00 por KM, mínimo R$ 3,00
     const PRICE_PER_KM = 3.00;

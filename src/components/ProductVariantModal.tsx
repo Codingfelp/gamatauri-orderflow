@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, X, Share2, Flame, Clock } from "lucide-react";
+import { Check, X, Share2, Flame, Clock, Pencil } from "lucide-react";
 import { shareProductWhatsApp } from "@/utils/shareUtils";
 import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePromotions } from "@/hooks/usePromotions";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
 import { ColorPicker } from "@/components/ColorPicker";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,8 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   const { toast } = useToast();
   const { user } = useAuth();
   const { getPromotionForProduct, isPromotionActive } = usePromotions();
-  const { isEditMode, getProductColors, updateColor } = useColorEditor();
+  const { isEditMode, getProductColors, updateColor, saveColors } = useColorEditor();
+  const [showColorEditor, setShowColorEditor] = useState(false);
   
   // Carrossel mobile
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'start' });
@@ -84,50 +86,71 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
     onClose();
   };
   
+  // Obter cores customizadas do produto
+  const customColors = getProductColors(selectedVariant.name, baseProduct.category);
+  const modalBgColor = customColors?.modal_bg_color;
+  const modalTextColor = customColors?.modal_text_color;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-background">
-        {/* MOBILE: Carrossel + Thumbnails + Info */}
-        <div className="flex flex-col md:hidden w-full max-w-full h-full max-h-[90vh] overflow-x-hidden">
-          <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full bg-black/30 hover:bg-black/50 transition-colors z-50">
-            <X className="w-5 h-5 text-white" />
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        {/* MOBILE: Design moderno e simplificado */}
+        <DialogContent className="md:hidden w-[90vw] max-w-[360px] p-0 gap-0 overflow-hidden bg-background rounded-2xl border-0 shadow-2xl">
+          {/* Close button */}
+          <button 
+            onClick={onClose} 
+            className="absolute top-3 right-3 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-50"
+          >
+            <X className="w-4 h-4 text-white" />
           </button>
+
+          {/* Edit mode button */}
+          {isEditMode && (
+            <button
+              onClick={() => setShowColorEditor(true)}
+              className="absolute top-3 left-3 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-50"
+            >
+              <Pencil className="w-4 h-4 text-white" />
+            </button>
+          )}
           
-          {/* Carrossel de imagens no topo */}
-          <div className="flex-[0_0_35vh] max-h-[35vh] overflow-hidden relative" ref={emblaRef}>
-            <div className="flex h-full">
-              {variants.map((variant) => {
-                const productBg = getProductColor(variant.name, variant.flavor, baseProduct.category);
-                const bgStyle = productBg.type === 'image'
+          {/* Imagem principal com background dinâmico */}
+          <div 
+            className="relative h-[200px] flex items-center justify-center overflow-hidden"
+            style={modalBgColor ? { backgroundColor: modalBgColor } : undefined}
+          >
+            {(() => {
+              const productBg = getProductColor(selectedVariant.name, selectedVariant.flavor, baseProduct.category);
+              const bgStyle = !modalBgColor ? (
+                productBg.type === 'image'
                   ? { backgroundImage: `url(${productBg.value})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-                  : { background: productBg.value };
-                
-                return (
-                  <div
-                    key={variant.id}
-                    className="flex-[0_0_100%] flex items-center justify-center relative"
-                    style={bgStyle}
-                  >
-                    {variant.image_url ? (
-                      <img
-                        src={variant.image_url}
-                        alt={variant.flavor}
-                        loading="lazy"
-                        decoding="async"
-                        className="max-w-[70%] max-h-[70%] object-contain"
-                      />
-                    ) : (
-                      <div className="w-32 h-32 rounded-full bg-muted opacity-40" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  : { background: productBg.value }
+              ) : {};
+              
+              return (
+                <div className="absolute inset-0" style={bgStyle}>
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
+                </div>
+              );
+            })()}
+            
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={selectedVariant.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+                src={selectedVariant.image_url || ''}
+                alt={selectedVariant.name}
+                className="relative z-10 max-w-[60%] max-h-[160px] object-contain drop-shadow-lg"
+              />
+            </AnimatePresence>
           </div>
-          
-          {/* Thumbnails scrolláveis */}
-        <div className="flex-[0_0_100px] w-full overflow-x-auto px-3 py-2 bg-background border-t border-b border-border snap-x snap-mandatory scrollbar-hide">
-          <div className="flex gap-2 pb-1 min-w-max">
+
+          {/* Thumbnails horizontais */}
+          {variants.length > 1 && (
+            <div className="flex gap-2 px-4 py-3 overflow-x-auto bg-muted/30 scrollbar-hide">
               {variants.map((variant, index) => (
                 <button
                   key={variant.id}
@@ -135,12 +158,13 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                     setSelectedVariant(variant);
                     emblaApi?.scrollTo(index);
                   }}
-                className={cn(
-                  "flex-shrink-0 w-16 h-16 min-w-[64px] rounded-lg border-2 overflow-hidden transition-all bg-white snap-start",
-                  selectedVariant.id === variant.id
-                    ? "border-primary ring-2 ring-primary scale-105"
-                    : "border-border hover:border-primary/50"
-                )}
+                  className={cn(
+                    "flex-shrink-0 w-12 h-12 rounded-xl border-2 overflow-hidden transition-all bg-white",
+                    selectedVariant.id === variant.id
+                      ? "border-primary ring-2 ring-primary/30 scale-105"
+                      : "border-transparent hover:border-primary/30",
+                    !variant.available && "opacity-40"
+                  )}
                 >
                   {variant.image_url ? (
                     <img
@@ -149,101 +173,97 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                       className="w-full h-full object-contain p-1"
                     />
                   ) : (
-                    <div className="w-full h-full bg-muted/30" />
+                    <div className="w-full h-full bg-muted/50" />
                   )}
                 </button>
               ))}
             </div>
-          </div>
+          )}
           
-          {/* Info e botão */}
-          <div className="flex-1 overflow-y-auto min-h-0 px-4 py-4 space-y-4">
+          {/* Informações do produto */}
+          <div className="px-4 py-4 space-y-3" style={modalTextColor ? { color: modalTextColor } : undefined}>
+            {/* Nome do produto selecionado (PRINCIPAL) */}
             <div>
-              <h2 className="text-2xl font-bold text-foreground mb-1">
-                {baseProduct.brand} {baseProduct.size}
+              <h2 className="text-lg font-bold leading-tight">
+                {selectedVariant.name}
               </h2>
-              <p className="text-xl font-semibold text-foreground mb-2">{selectedVariant.name}</p>
-              {selectedVariant.size && selectedVariant.size !== baseProduct.size && (
-                <p className="text-sm text-muted-foreground">{selectedVariant.size}</p>
+              {selectedVariant.size && (
+                <p className="text-sm text-muted-foreground mt-0.5">{selectedVariant.size}</p>
               )}
             </div>
 
+            {/* Preço e promoção */}
             {(() => {
               const promo = getPromotionForProduct(selectedVariant.id);
               const promoActive = promo ? isPromotionActive(promo) : false;
               const displayPrice = promoActive && promo ? promo.promotional_price : selectedVariant.price;
-              const showOriginal = promoActive && promo;
-              const start = promo ? new Date(promo.start_date) : null;
-              const end = promo ? new Date(promo.end_date) : null;
-              const startFmt = start?.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
-              const endFmt = end?.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+              const endFmt = promo ? new Date(promo.end_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : null;
 
               return user ? (
-                <div className="space-y-3">
-                  {promo && (
-                    <div className="flex items-center gap-1 text-[11px] text-orange-600 font-medium">
-                      <Flame className="w-3.5 h-3.5" />
-                      <span>
-                        {promoActive ? (endFmt ? `Promo até ${endFmt}` : "Promo ativa") : startFmt ? `Começa ${startFmt}` : "Promo agendada"}
-                      </span>
+                <div className="space-y-2">
+                  {promo && promoActive && (
+                    <div className="inline-flex items-center gap-1 text-[11px] font-medium bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full">
+                      <Flame className="w-3 h-3" />
+                      <span>Promo até {endFmt}</span>
                     </div>
                   )}
 
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-foreground">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-bold">
                       R$ {displayPrice.toFixed(2)}
                     </span>
-                    {showOriginal && (
+                    {promoActive && promo && (
                       <span className="text-sm text-muted-foreground line-through">
-                        R$ {promo!.original_price.toFixed(2)}
+                        R$ {promo.original_price.toFixed(2)}
                       </span>
                     )}
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button
-                      onClick={() => handleVariantClick(selectedVariant)}
-                      disabled={!selectedVariant.available || (!!promo && !promoActive)}
-                      className="flex-1 h-12 text-base font-semibold"
-                    >
-                      {selectedVariant.available
-                        ? promo && !promoActive
-                          ? "Aguarde a promoção"
-                          : "Adicionar ao Carrinho"
-                        : "Esgotado"}
-                    </Button>
-
-                    <Button
-                      onClick={() =>
-                        shareProductWhatsApp({
-                          name: selectedVariant.name,
-                          price: displayPrice,
-                          category: baseProduct.category,
-                        })
-                      }
-                      variant="outline"
-                      size="icon"
-                      className="h-12 w-12 flex-shrink-0"
-                      aria-label="Compartilhar no WhatsApp"
-                    >
-                      <Share2 className="h-5 w-5" />
-                    </Button>
-                  </div>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">Faça login para ver preços e adicionar ao carrinho</p>
-                  <Button onClick={() => (window.location.href = "/auth")} className="w-full h-12 text-base font-semibold">
-                    Entrar
-                  </Button>
-                </div>
+                <p className="text-sm text-muted-foreground">Faça login para ver preços</p>
               );
             })()}
+
+            {/* Botão de adicionar */}
+            {user ? (
+              <div className="flex gap-2 pt-2">
+                <Button
+                  onClick={() => handleVariantClick(selectedVariant)}
+                  disabled={!selectedVariant.available}
+                  className="flex-1 h-11 text-base font-semibold rounded-xl"
+                >
+                  {selectedVariant.available ? "Adicionar ao Carrinho" : "Esgotado"}
+                </Button>
+
+                <Button
+                  onClick={() =>
+                    shareProductWhatsApp({
+                      name: selectedVariant.name,
+                      price: selectedVariant.price,
+                      category: baseProduct.category,
+                    })
+                  }
+                  variant="outline"
+                  size="icon"
+                  className="h-11 w-11 rounded-xl flex-shrink-0"
+                  aria-label="Compartilhar no WhatsApp"
+                >
+                  <Share2 className="h-5 w-5" />
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                onClick={() => (window.location.href = "/auth")} 
+                className="w-full h-11 text-base font-semibold rounded-xl"
+              >
+                Entrar para comprar
+              </Button>
+            )}
           </div>
-        </div>
+        </DialogContent>
         
         {/* DESKTOP: Layout original */}
-        <div className="hidden md:grid md:grid-cols-[35%_65%] h-full max-h-[85vh]">
+        <DialogContent className="hidden md:grid md:grid-cols-[35%_65%] max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-background">
           <div className="flex items-center justify-center p-8 md:p-12 relative md:min-h-[493px] md:max-h-[493px]">
             <AnimatePresence mode="wait">
               <motion.div
@@ -400,11 +420,10 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
               <div className="sticky bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background via-background to-transparent pointer-events-none z-10" />
             </div>
           </div>
-        </div>
         
-        {/* Edit mode color picker - floating at bottom */}
+        {/* Edit mode color picker - floating at bottom (DESKTOP ONLY) */}
         {isEditMode && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 hidden md:block">
             <div className="flex gap-2 bg-black/90 backdrop-blur-md rounded-full px-4 py-2 shadow-xl border border-white/20">
               <ColorPicker
                 currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#ffffff'}
@@ -419,7 +438,43 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
             </div>
           </div>
         )}
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* Color Editor Sheet for Mobile */}
+      <Sheet open={showColorEditor} onOpenChange={setShowColorEditor}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle>Editar Cores do Produto</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Cor de Fundo</span>
+              <ColorPicker
+                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#ffffff'}
+                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_bg_color', color)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Cor do Texto</span>
+              <ColorPicker
+                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#000000'}
+                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_text_color', color)}
+              />
+            </div>
+            <Button 
+              onClick={async () => {
+                await saveColors();
+                setShowColorEditor(false);
+                toast({ title: "Cores salvas!" });
+              }} 
+              className="w-full"
+            >
+              Salvar Cores
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };

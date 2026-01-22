@@ -50,6 +50,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponError, setCouponError] = useState('');
   const [addressValid, setAddressValid] = useState(true);
+  const [isOutOfRange, setIsOutOfRange] = useState(false);
+  const [outOfRangeDistance, setOutOfRangeDistance] = useState<number | null>(null);
   
   // Carregar endereço primário automaticamente ao abrir carrinho
   useEffect(() => {
@@ -108,6 +110,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
 
   const calculateAndSaveShipping = async (address: Address) => {
     setLoadingShipping(true);
+    setIsOutOfRange(false);
+    setOutOfRangeDistance(null);
     const fullAddress = `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}`;
     
     try {
@@ -115,9 +119,23 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         body: { destination: fullAddress }
       });
 
+      // Verificar se está fora do raio de atendimento
+      if (data?.out_of_range) {
+        setIsOutOfRange(true);
+        setOutOfRangeDistance(data.distance_km);
+        setShippingFee(0);
+        toast({
+          variant: "destructive",
+          title: "Fora da área de atendimento",
+          description: data.message || `Sua localização está a ${data.distance_km?.toFixed(1)}km. Entregamos até 5km.`,
+        });
+        return;
+      }
+
       if (error) throw error;
 
       if (data?.shipping_fee) {
+        setIsOutOfRange(false);
         // Salvar frete calculado no endereço
         await supabase
           .from('user_addresses')
@@ -134,11 +152,22 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       }
     } catch (error: any) {
       console.error('Erro ao calcular frete:', error);
-      toast({
-        variant: "destructive",
-        title: "Erro ao calcular frete",
-        description: error.message || 'Tente novamente',
-      });
+      
+      // Verificar se o erro é de fora da área
+      if (error?.message?.includes('out_of_range') || error?.message?.includes('Fora da área')) {
+        setIsOutOfRange(true);
+        toast({
+          variant: "destructive",
+          title: "Fora da área de atendimento",
+          description: "Infelizmente não entregamos nessa região. Máximo 5km.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Erro ao calcular frete",
+          description: error.message || 'Tente novamente',
+        });
+      }
     } finally {
       setLoadingShipping(false);
     }
@@ -247,7 +276,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + finalShippingFee;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const canCheckout = items.length > 0 && shippingFee > 0 && addressValid && selectedAddress !== null;
+  const canCheckout = items.length > 0 && shippingFee > 0 && addressValid && selectedAddress !== null && !isOutOfRange;
 
   return (
     <>
@@ -354,6 +383,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                 <div className="flex items-center gap-2 shrink-0">
                   {loadingShipping ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : isOutOfRange ? (
+                    <span className="text-xs text-destructive font-medium">Fora do raio</span>
                   ) : shippingFee > 0 ? (
                     <span className="text-sm font-semibold text-primary">R$ {shippingFee.toFixed(2)}</span>
                   ) : selectedAddress && !addressValid ? (
@@ -362,6 +393,20 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                   <ChevronDown className="h-4 w-4 text-muted-foreground" />
                 </div>
               </button>
+
+              {/* Mensagem fora da área de atendimento */}
+              {isOutOfRange && (
+                <div className="mx-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                  <p className="text-sm text-destructive font-medium">
+                    📍 Fora da área de entrega
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {outOfRangeDistance 
+                      ? `Sua localização está a ${outOfRangeDistance.toFixed(1)}km. Entregamos apenas até 5km da nossa loja.`
+                      : 'Infelizmente não entregamos nessa região. Nosso raio de entrega é de 5km.'}
+                  </p>
+                </div>
+              )}
 
               {/* CUPOM COLAPSÁVEL */}
               <Collapsible>
@@ -463,9 +508,9 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                       couponDiscount
                     );
                   }}
-                  title={!canCheckout ? "Complete o endereço e aguarde o cálculo do frete" : ""}
+                  title={!canCheckout ? (isOutOfRange ? "Endereço fora da área de entrega" : "Complete o endereço e aguarde o cálculo do frete") : ""}
                 >
-                  {!addressValid ? "Complete seu endereço" : "Finalizar Pedido"}
+                  {isOutOfRange ? "Fora da área de entrega" : !addressValid ? "Complete seu endereço" : "Finalizar Pedido"}
                 </Button>
               </div>
             </div>

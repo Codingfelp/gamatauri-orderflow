@@ -61,6 +61,26 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
 
     setLoading(true);
     try {
+      // Verificar se o telefone já está em uso por outro usuário
+      const { data: existingPhone, error: phoneError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('phone', formData.phone.trim())
+        .neq('user_id', userId)
+        .maybeSingle();
+
+      if (phoneError) throw phoneError;
+
+      if (existingPhone) {
+        toast({
+          title: "Telefone já cadastrado",
+          description: "Este telefone já está vinculado a outra conta.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -69,7 +89,18 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
         })
         .eq('user_id', userId);
 
-      if (error) throw error;
+      if (error) {
+        // Verificar se é erro de email duplicado
+        if (error.message?.includes('profiles_email_unique') || error.code === '23505') {
+          toast({
+            title: "Email já cadastrado",
+            description: "Este email já está vinculado a outra conta.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Perfil completado!",
