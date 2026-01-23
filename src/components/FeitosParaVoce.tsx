@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { ChevronRight, Plus, Check, Sparkles } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +24,47 @@ const EMOTIONAL_BADGES = [
 
 // Badge de promoção
 const PROMO_BADGE = { text: "Em promoção", emoji: "🔥" };
+
+// Key para armazenar última interação com produtos
+const LAST_INTERACTION_KEY = 'gamatauri-product-interactions';
+
+interface ProductInteraction {
+  productId: string;
+  lastBought?: number;
+  lastViewed?: number;
+  buyCount?: number;
+}
+
+// Salvar interação do produto
+const saveProductInteraction = (productId: string, type: 'bought' | 'viewed') => {
+  try {
+    const stored = localStorage.getItem(LAST_INTERACTION_KEY);
+    const interactions: Record<string, ProductInteraction> = stored ? JSON.parse(stored) : {};
+    
+    const current = interactions[productId] || { productId };
+    if (type === 'bought') {
+      current.lastBought = Date.now();
+      current.buyCount = (current.buyCount || 0) + 1;
+    } else {
+      current.lastViewed = Date.now();
+    }
+    
+    interactions[productId] = current;
+    localStorage.setItem(LAST_INTERACTION_KEY, JSON.stringify(interactions));
+  } catch (e) {
+    console.error('Error saving interaction:', e);
+  }
+};
+
+// Carregar interações
+const getProductInteractions = (): Record<string, ProductInteraction> => {
+  try {
+    const stored = localStorage.getItem(LAST_INTERACTION_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+};
 
 export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps) => {
   const { user } = useAuth();
@@ -104,10 +145,11 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
     setBadgeMap(newBadgeMap);
   }, [favoriteProductIds]);
 
-  // Handler de adicionar com animação
+  // Handler de adicionar com animação e salvar interação
   const handleAddToCart = useCallback((product: Product) => {
     setAddedProducts(prev => new Set(prev).add(product.id));
     onAddToCart(product);
+    saveProductInteraction(product.id, 'bought');
     
     // Reset animation after 1.5s
     setTimeout(() => {
@@ -119,10 +161,23 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
     }, 1500);
   }, [onAddToCart]);
 
-  // Filtrar produtos favoritos
-  const favoriteProducts = allProducts.filter(p => 
-    favoriteProductIds.includes(p.id) && p.available
-  );
+  // Filtrar e ordenar produtos favoritos por interação recente
+  const favoriteProducts = useMemo(() => {
+    const interactions = getProductInteractions();
+    
+    return allProducts
+      .filter(p => favoriteProductIds.includes(p.id) && p.available)
+      .sort((a, b) => {
+        const intA = interactions[a.id];
+        const intB = interactions[b.id];
+        
+        // Priorizar por última compra, depois por última visualização
+        const scoreA = (intA?.lastBought || 0) * 2 + (intA?.lastViewed || 0) + (intA?.buyCount || 0) * 1000;
+        const scoreB = (intB?.lastBought || 0) * 2 + (intB?.lastViewed || 0) + (intB?.buyCount || 0) * 1000;
+        
+        return scoreB - scoreA;
+      });
+  }, [allProducts, favoriteProductIds]);
 
   // Loading state
   if (loading) {
@@ -141,26 +196,9 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
     );
   }
 
-  // Estado vazio - design emocional
+  // Não mostrar se não houver favoritos
   if (!user || favoriteProducts.length === 0) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 mx-4"
-      >
-        <div className="bg-gradient-to-br from-muted/30 via-muted/20 to-transparent rounded-3xl p-8 border border-border/30">
-          <div className="flex flex-col items-center text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4">
-              <Sparkles className="w-7 h-7 text-primary/60" />
-            </div>
-            <p className="text-muted-foreground text-sm max-w-[280px] leading-relaxed">
-              Quando você favoritar algo, a gente guarda aqui pra você 💙
-            </p>
-          </div>
-        </div>
-      </motion.div>
-    );
+    return null;
   }
 
   return (

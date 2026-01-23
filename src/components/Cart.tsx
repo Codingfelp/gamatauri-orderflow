@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronDown, Tag, Gift } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronDown, Tag, Gift, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { AddressSelectorModal } from "./AddressSelectorModal";
 import { isStructuredAddressComplete } from "@/utils/addressValidator";
 import { useBundles } from "@/hooks/useBundles";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CartItem {
   id: string;
@@ -55,16 +56,103 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const [isOutOfRange, setIsOutOfRange] = useState(false);
   const [outOfRangeDistance, setOutOfRangeDistance] = useState<number | null>(null);
   
+  // Estado para favoritar itens do carrinho
+  const [showFavoritePrompt, setShowFavoritePrompt] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [existingFavorites, setExistingFavorites] = useState<string[]>([]);
+  const [hasShownPrompt, setHasShownPrompt] = useState(false);
+  
   // Calcular descontos de bundle
   const bundleDiscounts = calculateBundleDiscounts(items);
   const totalBundleDiscount = getTotalBundleDiscount(items);
   
-  // Carregar endereço primário automaticamente ao abrir carrinho
+  // Carregar endereço primário e favoritos automaticamente ao abrir carrinho
   useEffect(() => {
     if (user) {
       loadPrimaryAddress();
+      loadExistingFavorites();
     }
   }, [user]);
+
+  // Mostrar prompt de favoritar quando houver itens não favoritados
+  useEffect(() => {
+    if (user && items.length > 0 && !hasShownPrompt) {
+      const unfavoritedItems = items.filter(item => !existingFavorites.includes(item.id));
+      if (unfavoritedItems.length > 0) {
+        // Mostrar prompt após 2 segundos de visualização do carrinho
+        const timer = setTimeout(() => {
+          setShowFavoritePrompt(true);
+          setHasShownPrompt(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [user, items, existingFavorites, hasShownPrompt]);
+
+  const loadExistingFavorites = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('favorite_products')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (!error && data?.favorite_products) {
+        setExistingFavorites(data.favorite_products);
+      }
+    } catch (error) {
+      console.error('Error loading favorites:', error);
+    }
+  };
+
+  const handleFavoriteItems = async () => {
+    if (!user) return;
+    
+    setFavoriteLoading(true);
+    try {
+      // Pegar apenas itens que ainda não são favoritos
+      const newFavorites = items
+        .map(item => item.id)
+        .filter(id => !existingFavorites.includes(id));
+      
+      if (newFavorites.length === 0) {
+        toast({
+          title: "Todos já favoritados! 💙",
+          description: "Esses itens já estão nos seus favoritos",
+        });
+        setShowFavoritePrompt(false);
+        return;
+      }
+
+      const updatedFavorites = [...existingFavorites, ...newFavorites];
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update({ favorite_products: updatedFavorites })
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      setExistingFavorites(updatedFavorites);
+      setShowFavoritePrompt(false);
+      
+      toast({
+        title: "Favoritados! 💙",
+        description: `${newFavorites.length} ${newFavorites.length === 1 ? 'produto adicionado' : 'produtos adicionados'} aos seus favoritos`,
+      });
+    } catch (error) {
+      console.error('Error favoriting items:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao favoritar",
+        description: "Tente novamente",
+      });
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   const loadPrimaryAddress = async () => {
     if (!user) return;
@@ -370,6 +458,57 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                     </div>
                   ))}
                 </div>
+                
+                {/* Prompt para favoritar itens */}
+                <AnimatePresence>
+                  {showFavoritePrompt && user && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-4"
+                    >
+                      <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl p-4 border border-primary/20">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-primary/10 rounded-full shrink-0">
+                            <Heart className="w-4 h-4 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">
+                              Gostaria de favoritar esses itens?
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Assim fica mais fácil comprar de novo 💙
+                            </p>
+                            <div className="flex gap-2 mt-3">
+                              <Button
+                                size="sm"
+                                onClick={handleFavoriteItems}
+                                disabled={favoriteLoading}
+                                className="h-8 text-xs"
+                              >
+                                {favoriteLoading ? (
+                                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                ) : (
+                                  <Heart className="w-3 h-3 mr-1" />
+                                )}
+                                Favoritar
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setShowFavoritePrompt(false)}
+                                className="h-8 text-xs text-muted-foreground"
+                              >
+                                Agora não
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </ScrollArea>
               
               {/* ENDEREÇO COMPACTO */}
