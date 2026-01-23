@@ -222,6 +222,48 @@ export type Database = {
           },
         ]
       }
+      product_bundles: {
+        Row: {
+          bundle_price: number
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean
+          name: string
+          product_ids: string[]
+          quantity_required: number
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          bundle_price: number
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          product_ids: string[]
+          quantity_required?: number
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bundle_price?: number
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          product_ids?: string[]
+          quantity_required?: number
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_custom_colors: {
         Row: {
           card_bg_color: string | null
