@@ -53,29 +53,14 @@ export const RecommendedSection = ({ allProducts, onAddToCart, hideForNewUsers =
     };
   }, [emblaApi]);
 
-  if (loading) {
-    return (
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-3 px-1">
-          <div className="h-4 w-4 bg-primary/10 rounded animate-pulse" />
-          <div className="h-4 w-28 bg-primary/10 rounded animate-pulse" />
-        </div>
-        <div className="flex gap-3 overflow-hidden">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="w-[100px] h-[140px] bg-muted/30 rounded-xl animate-pulse flex-shrink-0" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   const totalOrders = recommendations?.metadata?.total_orders || 0;
 
-  // Usuário sem histórico real de pedidos = não mostrar nada
-  const isNewUser = !hasRecommendations || totalOrders === 0;
-  
-  if (isNewUser) {
-    // Nunca mostrar produtos aleatórios - seção só aparece com histórico real
+  // Usuário DEVE ter pedidos reais para mostrar recomendações
+  // Verificação tripla: hasRecommendations + totalOrders > 0 + não está carregando
+  const hasRealHistory = !loading && hasRecommendations && totalOrders > 0;
+
+  // Não mostrar skeleton nem fallback - só mostrar quando houver histórico real
+  if (!hasRealHistory) {
     return null;
   }
 
