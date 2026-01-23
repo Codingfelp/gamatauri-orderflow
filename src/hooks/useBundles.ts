@@ -38,18 +38,25 @@ export const useBundles = () => {
   useEffect(() => {
     const loadBundles = async () => {
       try {
-        const now = new Date().toISOString();
-        
+        // NOTE: Não usar filtros de data dentro de `.or(...)` com ISO string,
+        // pois pode quebrar o parser de filtros (caracteres como ':'), resultando em 0 bundles.
+        // Carregamos os bundles ativos e filtramos por data no client.
+        const now = new Date();
+
         const { data, error } = await supabase
           .from('product_bundles')
           .select('*')
-          .eq('is_active', true)
-          .or(`start_date.is.null,start_date.lte.${now}`)
-          .or(`end_date.is.null,end_date.gte.${now}`);
+          .eq('is_active', true);
         
         if (error) throw error;
+
+        const activeByDate = (data || []).filter((b) => {
+          const startOk = !b.start_date || new Date(b.start_date) <= now;
+          const endOk = !b.end_date || new Date(b.end_date) >= now;
+          return startOk && endOk;
+        });
         
-        setBundles(data || []);
+        setBundles(activeByDate);
       } catch (error) {
         console.error('[useBundles] Error loading bundles:', error);
       } finally {
