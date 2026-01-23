@@ -38,23 +38,28 @@ export const useBundles = () => {
   useEffect(() => {
     const loadBundles = async () => {
       try {
-        // NOTE: Não usar filtros de data dentro de `.or(...)` com ISO string,
-        // pois pode quebrar o parser de filtros (caracteres como ':'), resultando em 0 bundles.
-        // Carregamos os bundles ativos e filtramos por data no client.
-        const now = new Date();
-
+        // Buscar TODOS os bundles ativos sem filtros de data no Supabase
+        // (fazemos o filtro de datas no client para evitar problemas de parsing)
         const { data, error } = await supabase
           .from('product_bundles')
           .select('*')
           .eq('is_active', true);
         
-        if (error) throw error;
+        if (error) {
+          console.error('[useBundles] Query error:', error);
+          throw error;
+        }
 
+        const now = new Date();
+
+        // Filtrar por data no client
         const activeByDate = (data || []).filter((b) => {
           const startOk = !b.start_date || new Date(b.start_date) <= now;
           const endOk = !b.end_date || new Date(b.end_date) >= now;
           return startOk && endOk;
         });
+        
+        console.log('[useBundles] Bundles carregados:', activeByDate.length, activeByDate.map(b => ({ id: b.id, name: b.name, product_ids: b.product_ids })));
         
         setBundles(activeByDate);
       } catch (error) {
@@ -71,11 +76,17 @@ export const useBundles = () => {
   const calculateBundleDiscounts = useCallback((cartItems: CartItem[]): BundleDiscount[] => {
     const discounts: BundleDiscount[] = [];
 
+    console.log('[useBundles] Calculando descontos para', cartItems.length, 'itens. Bundles disponíveis:', bundles.length);
+    console.log('[useBundles] IDs do carrinho:', cartItems.map(i => i.id));
+
     for (const bundle of bundles) {
       // Encontrar itens do carrinho que pertencem a este bundle
+      // IMPORTANTE: item.id é o product_id, que deve corresponder aos IDs no bundle.product_ids
       const eligibleItems = cartItems.filter(item => 
         bundle.product_ids.includes(item.id)
       );
+
+      console.log(`[useBundles] Bundle "${bundle.name}": ${eligibleItems.length} itens elegíveis de ${bundle.product_ids.length} produtos`);
 
       if (eligibleItems.length === 0) continue;
 

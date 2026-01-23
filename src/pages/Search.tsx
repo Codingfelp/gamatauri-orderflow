@@ -10,6 +10,7 @@ import { fetchProducts, type Product } from "@/services/productsService";
 import { ProductCard } from "@/components/ProductCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { categoryMatchesFilter } from "@/utils/categoryMapping";
+import { isGenericCategorySearch, getGenericCategory, DESTILADO_SUBCATEGORY_LIST } from "@/utils/searchHelpers";
 import { useToast } from "@/hooks/use-toast";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import cervejasImg from "@/assets/categories/cervejas.jpg";
@@ -150,57 +151,6 @@ const Search = () => {
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Check if search matches a category keyword or subcategory (for destilados)
-  const getMatchingCategory = (search: string): string | null => {
-    if (!search.trim()) return null;
-    const searchLower = search.toLowerCase().trim();
-    
-    // Subcategorias específicas de destilados (prioridade sobre "destilados" genérico)
-    const subcategoryMap: Record<string, string[]> = {
-      "Vodka": ["vodka", "absolut", "smirnoff", "grey goose", "ciroc"],
-      "Whisky": ["whisky", "whiskey", "johnnie", "jack daniels", "chivas", "red label", "black label", "buchanans"],
-      "Gin": ["gin", "tanqueray", "bombay", "beefeater", "gordons"],
-      "Cachaca": ["cachaca", "cachaça", "51", "velho barreiro", "ypioca"],
-      "Rum": ["rum", "bacardi", "montilla"],
-      "Tequila": ["tequila", "jose cuervo"],
-      "Licor": ["licor", "amarula", "baileys", "jagermeister"],
-      "Conhaque": ["conhaque", "dreher"],
-    };
-    
-    // Verificar subcategorias primeiro (retorna a categoria exata do banco)
-    for (const [dbCategory, keywords] of Object.entries(subcategoryMap)) {
-      if (keywords.some(kw => searchLower.includes(kw) || kw.includes(searchLower))) {
-        return dbCategory; // Retorna a categoria exata do banco de dados
-      }
-    }
-    
-    // Mapa geral de categorias
-    const keywordMap: Record<string, string[]> = {
-      "Águas": ["agua", "águas", "water", "mineral", "crystal", "minalba", "pureza"],
-      "Sucos": ["suco", "sucos", "tial", "gatorade", "isoton", "del valle"],
-      "Cervejas": ["cerveja", "cervejas", "beer", "brahma", "skol", "heineken", "budweiser"],
-      "Destilados": ["destilado", "destilados"], // Só quando buscar "destilados" genérico
-      "Vinhos": ["vinho", "vinhos", "wine", "tinto", "branco", "rose"],
-      "Refrigerantes": ["refrigerante", "coca", "pepsi", "fanta", "guarana", "energetico", "red bull"],
-      "Drinks": ["drink", "drinks", "beats", "ice", "smirnoff ice"],
-      "Chocolates": ["chocolate", "chocolates", "bis", "oreo", "kitkat"],
-      "Snacks": ["snack", "snacks", "batata", "salgadinho", "doritos", "lays", "ruffles"],
-      "Doces": ["doce", "doces", "bala", "chiclete", "mentos"],
-      "Tabacaria": ["cigarro", "cigarros", "seda", "isqueiro", "tabaco"],
-      "Gelos": ["gelo", "gelos"],
-      "Copão": ["copao", "copão", "combo"],
-    };
-    
-    for (const [category, keywords] of Object.entries(keywordMap)) {
-      if (keywords.some(kw => searchLower.includes(kw) || kw.includes(searchLower))) {
-        return category;
-      }
-    }
-    return null;
-  };
-
-  const matchingCategory = getMatchingCategory(searchTerm);
-
   const filteredProducts = products.filter((product) => {
     // Filter out products with zero or negative prices
     if (product.price <= 0) return false;
@@ -208,8 +158,7 @@ const Search = () => {
     // When a specific category is selected (chip clicked), use category filter
     if (selectedCategory) {
       // Se for subcategoria de destilados, buscar por categoria exata
-      const destSubcats = ["Vodka", "Whisky", "Gin", "Cachaca", "Rum", "Tequila", "Licor", "Conhaque"];
-      if (destSubcats.includes(selectedCategory)) {
+      if (DESTILADO_SUBCATEGORY_LIST.includes(selectedCategory)) {
         return product.category?.toLowerCase() === selectedCategory.toLowerCase();
       }
       return categoryMatchesFilter(product.category || "", selectedCategory);
@@ -217,21 +166,27 @@ const Search = () => {
     
     // Se tem texto de busca
     if (searchTerm.trim()) {
-      // Primeiro: buscar produtos por nome/descrição exata
-      const matchesName = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const searchLower = searchTerm.toLowerCase().trim();
       
-      // Se o texto corresponde exatamente a uma categoria conhecida, filtrar por categoria
-      // Mas apenas se NÃO houver match por nome (priorizar nome)
-      if (!matchesName && matchingCategory) {
-        const destSubcats = ["Vodka", "Whisky", "Gin", "Cachaca", "Rum", "Tequila", "Licor", "Conhaque"];
-        if (destSubcats.includes(matchingCategory)) {
-          return product.category?.toLowerCase() === matchingCategory.toLowerCase();
+      // Primeiro: buscar produtos por nome/descrição
+      const matchesText = product.name.toLowerCase().includes(searchLower) ||
+                          product.description?.toLowerCase().includes(searchLower);
+      
+      // Verificar se é busca GENÉRICA de categoria (ex: "cervejas", "vodka", "snacks")
+      if (isGenericCategorySearch(searchTerm)) {
+        const genericCategory = getGenericCategory(searchTerm);
+        if (genericCategory) {
+          // Subcategoria de destilados → filtro exato por product.category
+          if (DESTILADO_SUBCATEGORY_LIST.includes(genericCategory)) {
+            return product.category?.toLowerCase() === genericCategory.toLowerCase();
+          }
+          // Categoria genérica → usa categoryMatchesFilter
+          return categoryMatchesFilter(product.category || "", genericCategory);
         }
-        return categoryMatchesFilter(product.category || "", matchingCategory);
       }
       
-      return matchesName;
+      // Busca específica de produto (marca) → filtrar por texto
+      return matchesText;
     }
     
     return true;

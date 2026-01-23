@@ -23,7 +23,7 @@ interface CartProps {
   items: CartItem[];
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemove: (id: string) => void;
-  onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number) => void;
+  onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number, bundleDiscount?: number) => void;
 }
 
 interface Address {
@@ -530,7 +530,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                       finalShippingFee,
                       deliveryAddress,
                       appliedCoupon?.coupon_id || null,
-                      couponDiscount
+                      couponDiscount,
+                      totalBundleDiscount
                     );
                   }}
                   title={!canCheckout ? (isOutOfRange ? "Endereço fora da área de entrega" : "Complete o endereço e aguarde o cálculo do frete") : ""}

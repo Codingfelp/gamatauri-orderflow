@@ -4,6 +4,8 @@ import Autoplay from "embla-carousel-autoplay";
 import beatsPraiaBanner from "@/assets/promotions/beats-praia-banner.png";
 import conchaYToroBanner from "@/assets/promotions/concha-y-toro-banner.png";
 import destiladosBanner from "@/assets/promotions/destilados-banner.png";
+import macaVerdeDesktop from "@/assets/promotions/maca-verde-desktop.png";
+import macaVerdeMobile from "@/assets/promotions/maca-verde-mobile.png";
 
 const promotions = [
   {
@@ -20,6 +22,13 @@ const promotions = [
     id: 3,
     image: destiladosBanner,
     alt: "Os melhores destilados - Somente na Gamatauri",
+  },
+  {
+    id: 4,
+    desktopImage: macaVerdeDesktop,
+    mobileImage: macaVerdeMobile,
+    alt: "Baly Maçã Verde - Energético refrescante",
+    responsive: true,
   },
 ];
 
@@ -54,11 +63,29 @@ export const PromotionsCarousel = () => {
               className="min-w-0 shrink-0 grow-0 basis-full"
             >
               <div className="rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                <img
-                  src={promo.image}
-                  alt={promo.alt}
-                  className="w-full h-36 md:h-[160px] object-cover"
-                />
+                {promo.responsive ? (
+                  <picture>
+                    <source 
+                      media="(min-width: 768px)" 
+                      srcSet={promo.desktopImage} 
+                    />
+                    <source 
+                      media="(max-width: 767px)" 
+                      srcSet={promo.mobileImage} 
+                    />
+                    <img
+                      src={promo.mobileImage}
+                      alt={promo.alt}
+                      className="w-full h-36 md:h-[160px] object-cover"
+                    />
+                  </picture>
+                ) : (
+                  <img
+                    src={promo.image}
+                    alt={promo.alt}
+                    className="w-full h-36 md:h-[160px] object-cover"
+                  />
+                )}
               </div>
             </div>
           ))}
