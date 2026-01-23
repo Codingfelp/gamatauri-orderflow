@@ -71,33 +71,26 @@ export const RecommendedSection = ({ allProducts, onAddToCart, hideForNewUsers =
 
   const totalOrders = recommendations?.metadata?.total_orders || 0;
 
-  // Consolidar produtos recomendados ou usar populares como fallback
-  let allRecommended: Product[] = [];
-  let title = "Recomendado para você";
+  // Usuário sem histórico real de pedidos = não mostrar nada
   const isNewUser = !hasRecommendations || totalOrders === 0;
   
-  if (hasRecommendations && totalOrders > 0) {
-    // Usuário com histórico - recomendações personalizadas
-    allRecommended = [
-      ...getTopRecurrentProducts(allProducts),
-      ...getSimilarProducts(allProducts),
-    ].slice(0, 10);
-  } else {
-    // Novo usuário - produtos populares
-    // Se hideForNewUsers está ativo, não mostrar seção para novos usuários
-    if (hideForNewUsers) {
-      return null;
-    }
-    title = "Produtos em destaque";
-    allRecommended = allProducts
-      .filter(p => p.available)
-      .slice(0, 10);
+  if (isNewUser) {
+    // Nunca mostrar produtos aleatórios - seção só aparece com histórico real
+    return null;
   }
 
-  // Não mostrar se não houver produtos
+  // Consolidar produtos recomendados baseados em histórico real
+  const allRecommended = [
+    ...getTopRecurrentProducts(allProducts),
+    ...getSimilarProducts(allProducts),
+  ].slice(0, 10);
+
+  // Não mostrar se não houver produtos recomendados
   if (allRecommended.length === 0) {
     return null;
   }
+
+  const title = "Recomendado para você";
 
   return (
     <motion.div
