@@ -98,9 +98,13 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
         {/* MOBILE: Design moderno e simplificado */}
-        <DialogContent className="md:hidden w-[90vw] max-w-[360px] p-0 gap-0 overflow-hidden bg-background rounded-2xl border-0 shadow-2xl">
+        <DialogContent 
+          className="md:hidden w-[90vw] max-w-[360px] p-0 gap-0 overflow-hidden bg-background rounded-2xl border-0 shadow-2xl [&>button:last-child]:hidden"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           {/* Close button */}
           <button 
             onClick={onClose} 

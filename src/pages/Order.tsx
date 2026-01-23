@@ -18,6 +18,7 @@ import { Search, Package, Mic, MicOff, Star } from "lucide-react";
 import { useVoiceSearch } from "@/hooks/useVoiceSearch";
 import { fetchProducts, type Product } from "@/services/productsService";
 import { categoryMatchesFilter, normalizeCategory, CATEGORY_MAPPING } from "@/utils/categoryMapping";
+import { isGenericCategorySearch, getGenericCategory, DESTILADO_SUBCATEGORY_LIST } from "@/utils/searchHelpers";
 import { CategoryProductRow } from "@/components/CategoryProductRow";
 import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 import { RecommendedSection } from "@/components/RecommendedSection";
@@ -211,7 +212,8 @@ const Order = () => {
     shippingFee: number = 0, 
     deliveryAddress: string = '', 
     couponId: string | null = null,
-    discountAmount: number = 0
+    discountAmount: number = 0,
+    bundleDiscount: number = 0
   ) => {
     if (!user) {
       navigate('/auth', { state: { from: '/checkout', cart } });
@@ -223,47 +225,11 @@ const Order = () => {
         shippingFee, 
         deliveryAddress,
         couponId,
-        discountAmount
+        discountAmount,
+        bundleDiscount
       } 
     });
   };
-
-  // Check if search matches a category name or keyword
-  const searchMatchesCategory = searchQuery.trim() 
-    ? (() => {
-        const searchLower = searchQuery.toLowerCase().trim();
-        // Direct category match
-        const directMatch = Object.keys(CATEGORY_MAPPING).find(cat => 
-          cat.toLowerCase().includes(searchLower) ||
-          searchLower.includes(cat.toLowerCase())
-        );
-        if (directMatch) return directMatch;
-        
-        // Check category keywords from categoryMapping
-        const keywordMap: Record<string, string[]> = {
-          "Águas": ["agua", "águas", "water", "mineral", "crystal", "minalba"],
-          "Sucos": ["suco", "sucos", "tial", "gatorade", "isoton", "del valle"],
-          "Cervejas": ["cerveja", "cervejas", "beer", "brahma", "skol", "heineken", "budweiser"],
-          "Destilados": ["whisky", "vodka", "cachaça", "rum", "tequila", "gin", "destilado"],
-          "Vinhos": ["vinho", "vinhos", "wine", "tinto", "branco", "rose"],
-          "Refrigerantes": ["refrigerante", "coca", "pepsi", "fanta", "guarana", "energetico", "red bull"],
-          "Drinks": ["drink", "drinks", "beats", "ice", "smirnoff"],
-          "Chocolates": ["chocolate", "chocolates", "bis", "oreo", "kitkat"],
-          "Snacks": ["snack", "snacks", "batata", "salgadinho", "doritos", "lays", "ruffles"],
-          "Doces": ["doce", "doces", "bala", "chiclete", "mentos"],
-          "Tabacaria": ["cigarro", "cigarros", "seda", "isqueiro", "tabaco"],
-          "Gelos": ["gelo", "gelos", "ice"],
-          "Copão": ["copao", "copão", "combo"],
-        };
-        
-        for (const [category, keywords] of Object.entries(keywordMap)) {
-          if (keywords.some(kw => searchLower.includes(kw) || kw.includes(searchLower))) {
-            return category;
-          }
-        }
-        return null;
-      })()
-    : null;
 
   const filteredProducts = products.filter((product) => {
     // Filter out products with zero or negative price
@@ -287,8 +253,16 @@ const Order = () => {
       }
     }
     
-    // Filtrar por categoria se selecionada
+    // Filtrar por categoria se selecionada (chip clicado)
     if (selectedCategory) {
+      // Se for subcategoria de destilados, buscar por categoria exata
+      if (DESTILADO_SUBCATEGORY_LIST.includes(selectedCategory)) {
+        const matchesCategory = product.category?.toLowerCase() === selectedCategory.toLowerCase();
+        const matchesSearch = !searchQuery.trim() || 
+          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesSearch && matchesCategory && matchesBrand;
+      }
       const matchesCategory = categoryMatchesFilter(product.category || "", selectedCategory);
       const matchesSearch = !searchQuery.trim() || 
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -298,16 +272,27 @@ const Order = () => {
     
     // Se tem busca por texto
     if (searchQuery.trim()) {
-      // Primeiro: buscar por nome/descrição exata
-      const matchesName = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      const searchLower = searchQuery.toLowerCase().trim();
       
-      // Apenas se não houver match por nome, tentar por categoria
-      if (!matchesName && searchMatchesCategory) {
-        return categoryMatchesFilter(product.category || "", searchMatchesCategory) && matchesBrand;
+      // Primeiro: buscar por nome/descrição
+      const matchesText = product.name.toLowerCase().includes(searchLower) ||
+                          product.description?.toLowerCase().includes(searchLower);
+      
+      // Verificar se é busca GENÉRICA de categoria (ex: "cervejas", "vodka", "snacks")
+      if (isGenericCategorySearch(searchQuery)) {
+        const genericCategory = getGenericCategory(searchQuery);
+        if (genericCategory) {
+          // Subcategoria de destilados → filtro exato por product.category
+          if (DESTILADO_SUBCATEGORY_LIST.includes(genericCategory)) {
+            return product.category?.toLowerCase() === genericCategory.toLowerCase() && matchesBrand;
+          }
+          // Categoria genérica → usa categoryMatchesFilter
+          return categoryMatchesFilter(product.category || "", genericCategory) && matchesBrand;
+        }
       }
       
-      return matchesName && matchesBrand;
+      // Busca específica de produto (marca) → filtrar por texto
+      return matchesText && matchesBrand;
     }
     
     return matchesBrand;
