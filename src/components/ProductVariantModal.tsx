@@ -499,7 +499,6 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
                 }
               }} 
               className="w-full h-12 text-base font-semibold"
-              disabled={!getProductColors(selectedVariant.name, baseProduct.category)}
             >
               💾 Salvar Cores
             </Button>
