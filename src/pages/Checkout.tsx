@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { isAddressValidForCheckout } from "@/utils/addressValidator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useBundles } from "@/hooks/useBundles";
 
 type CartItem = OrderItem;
 
@@ -35,6 +36,7 @@ const Checkout = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { setActiveOrder } = useActiveOrder();
+  const { getTotalBundleDiscount } = useBundles();
   
   // Filtrar itens com quantidade <= 0 ao carregar
   const rawCart = (location.state?.cart as CartItem[]) || (() => {
@@ -51,6 +53,7 @@ const Checkout = () => {
   const preFilledAddress = location.state?.deliveryAddress || '';
   const couponId = location.state?.couponId || null;
   const discountAmount = location.state?.discountAmount || 0;
+  const bundleDiscount = getTotalBundleDiscount(cart);
 
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -140,7 +143,7 @@ const Checkout = () => {
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   // Se for retirada, não cobra frete
   const effectiveShippingFee = formData.delivery_type === 'pickup' ? 0 : shippingFee;
-  const total = subtotal + effectiveShippingFee;
+  const total = subtotal - bundleDiscount + effectiveShippingFee;
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const setProcessingLock = (phone: string) => {
@@ -231,6 +234,7 @@ const Checkout = () => {
         payment_timing: formData.payment_timing,
         total: total,
         delivery_fee: effectiveShippingFee,
+        bundle_discount: bundleDiscount,
         notes: formData.notes || undefined,
         change_for: formData.payment_method === 'dinheiro' ? formData.change_for : undefined,
         user_id: user?.id,

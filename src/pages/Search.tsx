@@ -205,25 +205,36 @@ const Search = () => {
     // Filter out products with zero or negative prices
     if (product.price <= 0) return false;
     
-    // If search matches a specific subcategory (like "Vodka"), match exactly
-    if (matchingCategory) {
+    // When a specific category is selected (chip clicked), use category filter
+    if (selectedCategory) {
       // Se for subcategoria de destilados, buscar por categoria exata
       const destSubcats = ["Vodka", "Whisky", "Gin", "Cachaca", "Rum", "Tequila", "Licor", "Conhaque"];
-      if (destSubcats.includes(matchingCategory)) {
-        return product.category?.toLowerCase() === matchingCategory.toLowerCase();
+      if (destSubcats.includes(selectedCategory)) {
+        return product.category?.toLowerCase() === selectedCategory.toLowerCase();
       }
-      // Para categorias gerais, usar o mapeamento
-      return categoryMatchesFilter(product.category || "", matchingCategory);
+      return categoryMatchesFilter(product.category || "", selectedCategory);
     }
     
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    // Se tem texto de busca
+    if (searchTerm.trim()) {
+      // Primeiro: buscar produtos por nome/descrição exata
+      const matchesName = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (selectedCategory) {
-      return matchesSearch && categoryMatchesFilter(product.category || "", selectedCategory);
+      
+      // Se o texto corresponde exatamente a uma categoria conhecida, filtrar por categoria
+      // Mas apenas se NÃO houver match por nome (priorizar nome)
+      if (!matchesName && matchingCategory) {
+        const destSubcats = ["Vodka", "Whisky", "Gin", "Cachaca", "Rum", "Tequila", "Licor", "Conhaque"];
+        if (destSubcats.includes(matchingCategory)) {
+          return product.category?.toLowerCase() === matchingCategory.toLowerCase();
+        }
+        return categoryMatchesFilter(product.category || "", matchingCategory);
+      }
+      
+      return matchesName;
     }
     
-    return matchesSearch;
+    return true;
   });
 
   const showProducts = searchTerm.length > 0 || selectedCategory !== null;

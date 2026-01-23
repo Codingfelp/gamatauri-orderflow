@@ -11,8 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { usePromotions } from "@/hooks/usePromotions";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
-import { ColorPicker } from "@/components/ColorPicker";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ColorEditorModal } from "@/components/ColorEditorModal";
 import useEmblaCarousel from "embla-carousel-react";
 import { cn } from "@/lib/utils";
 
@@ -31,8 +30,9 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   const { toast } = useToast();
   const { user } = useAuth();
   const { getPromotionForProduct, isPromotionActive } = usePromotions();
-  const { isEditMode, getProductColors, updateColor, saveColors } = useColorEditor();
+  const { isEditMode, getProductColors, updateColor } = useColorEditor();
   const [showColorEditor, setShowColorEditor] = useState(false);
+  const [liveModalBgColor, setLiveModalBgColor] = useState<string | null>(null);
   
   // Carrossel mobile
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false, align: 'start' });
@@ -88,8 +88,13 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
   
   // Obter cores customizadas do produto
   const customColors = getProductColors(selectedVariant.name, baseProduct.category);
-  const modalBgColor = customColors?.modal_bg_color;
+  const modalBgColor = liveModalBgColor || customColors?.modal_bg_color;
   const modalTextColor = customColors?.modal_text_color;
+  
+  // Resetar liveModalBgColor quando mudar de variante
+  useEffect(() => {
+    setLiveModalBgColor(null);
+  }, [selectedVariant.id]);
 
   return (
     <>
@@ -103,22 +108,22 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
           >
             <X className="w-4 h-4 text-white" />
           </button>
-
-          {/* Edit mode button */}
-          {isEditMode && (
-            <button
-              onClick={() => setShowColorEditor(true)}
-              className="absolute top-3 left-3 p-2 rounded-full bg-black/20 hover:bg-black/40 transition-colors z-50"
-            >
-              <Pencil className="w-4 h-4 text-white" />
-            </button>
-          )}
           
-          {/* Imagem principal com background dinâmico */}
+          {/* Imagem principal com background dinâmico + botão de editar no fundo colorido */}
           <div 
             className="relative h-[200px] flex items-center justify-center overflow-hidden"
             style={modalBgColor ? { backgroundColor: modalBgColor } : undefined}
           >
+            {/* Edit button no fundo colorido (apenas admin) */}
+            {isEditMode && (
+              <button
+                onClick={() => setShowColorEditor(true)}
+                className="absolute top-3 left-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-colors z-50"
+                title="Editar cor de fundo"
+              >
+                <Pencil className="w-4 h-4 text-foreground" />
+              </button>
+            )}
             {(() => {
               const productBg = getProductColor(selectedVariant.name, selectedVariant.flavor, baseProduct.category);
               const bgStyle = !modalBgColor ? (
@@ -421,90 +426,27 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
             </div>
           </div>
         
-        {/* Edit mode color picker - floating at bottom (DESKTOP ONLY) */}
+        {/* Edit mode - botão de lápis flutuante no desktop também */}
         {isEditMode && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 hidden md:block">
-            <div className="flex gap-2 bg-black/90 backdrop-blur-md rounded-full px-4 py-2 shadow-xl border border-white/20">
-              <ColorPicker
-                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#ffffff'}
-                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_bg_color', color)}
-                label="Fundo Modal"
-              />
-              <ColorPicker
-                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#000000'}
-                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_text_color', color)}
-                label="Texto Modal"
-              />
-            </div>
-          </div>
+          <button
+            onClick={() => setShowColorEditor(true)}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 hidden md:flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-xl hover:opacity-90 transition-opacity"
+          >
+            <Pencil className="w-4 h-4" />
+            <span className="text-sm font-medium">Editar Cor de Fundo</span>
+          </button>
         )}
         </DialogContent>
       </Dialog>
 
-      {/* Color Editor Sheet for Mobile */}
-      <Sheet open={showColorEditor} onOpenChange={setShowColorEditor}>
-        <SheetContent side="bottom" className="rounded-t-2xl z-[100]">
-          <SheetHeader>
-            <SheetTitle>Editar Cores - {selectedVariant.name}</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-6 py-6">
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-foreground">Cor de Fundo do Modal</label>
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-12 h-12 rounded-lg border-2 border-border shadow-inner"
-                  style={{ backgroundColor: getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#f5f5f5' }}
-                />
-                <ColorPicker
-                  currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#f5f5f5'}
-                  onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_bg_color', color)}
-                  label="Alterar"
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <label className="text-sm font-medium text-foreground">Cor do Texto</label>
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-12 h-12 rounded-lg border-2 border-border shadow-inner flex items-center justify-center"
-                  style={{ backgroundColor: getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#1a1a1a' }}
-                >
-                  <span className="text-white text-xs font-bold drop-shadow">Aa</span>
-                </div>
-                <ColorPicker
-                  currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#1a1a1a'}
-                  onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_text_color', color)}
-                  label="Alterar"
-                />
-              </div>
-            </div>
-            
-            <Button 
-              onClick={async () => {
-                try {
-                  await saveColors();
-                  toast({ 
-                    title: "✅ Cores salvas!",
-                    description: `Cores do produto "${selectedVariant.name}" foram atualizadas.`
-                  });
-                  setShowColorEditor(false);
-                } catch (error) {
-                  console.error('Erro ao salvar cores:', error);
-                  toast({ 
-                    title: "❌ Erro ao salvar",
-                    description: "Tente novamente.",
-                    variant: "destructive"
-                  });
-                }
-              }} 
-              className="w-full h-12 text-base font-semibold"
-            >
-              💾 Salvar Cores
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Color Editor Modal - Único modal para mobile e desktop */}
+      <ColorEditorModal
+        isOpen={showColorEditor}
+        onClose={() => setShowColorEditor(false)}
+        productName={selectedVariant.name}
+        category={baseProduct.category}
+        onColorChange={(color) => setLiveModalBgColor(color)}
+      />
     </>
   );
 };
