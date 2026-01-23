@@ -34,6 +34,21 @@ interface CartItem {
   quantity: number;
 }
 
+// Produtos “ruído” que não devem aparecer na home como itens navegáveis
+const HIDDEN_HOME_PRODUCT_NAME_KEYWORDS = [
+  "absolut 1l",
+  "baralho copag",
+  "chac chac chardonnay",
+  "chac chac malbec",
+  "promoção itaipava",
+  "promoção petra",
+];
+
+const shouldHideFromHome = (product: Product) => {
+  const name = (product.name || "").toLowerCase().trim();
+  return HIDDEN_HOME_PRODUCT_NAME_KEYWORDS.some((kw) => name.includes(kw));
+};
+
 // Hook for persisting cart to localStorage
 const usePersistedCart = (key: string, initialValue: CartItem[]) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -110,7 +125,9 @@ const Order = () => {
     try {
       setLoading(true);
       const productsData = await fetchProducts();
-      setProducts(productsData);
+      // Remove produtos “aleatórios” (itens de marketing/miscelânea) da home
+      const filteredForHome = productsData.filter((p) => !shouldHideFromHome(p));
+      setProducts(filteredForHome);
       
       if (productsData.length === 0) {
         toast({
@@ -404,15 +421,22 @@ const Order = () => {
           />
         ) : (
           <>
-            {Object.entries(groupedProducts).map(([category, categoryProducts]) => (
-              <CategoryProductRow
-                key={category}
-                category={category}
-                products={categoryProducts}
-                onAddToCart={addToCart}
-                wizardMetaById={wizardMetaById}
-              />
-            ))}
+            {Object.entries(groupedProducts)
+              // Evita “carrossel de aleatórios” na home (categoria residual do catálogo)
+              .filter(([category]) => {
+                const isHomeBrowsing = !selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds;
+                if (!isHomeBrowsing) return true;
+                return category.toLowerCase() !== "outros";
+              })
+              .map(([category, categoryProducts]) => (
+                <CategoryProductRow
+                  key={category}
+                  category={category}
+                  products={categoryProducts}
+                  onAddToCart={addToCart}
+                  wizardMetaById={wizardMetaById}
+                />
+              ))}
           </>
         )}
         </div>
