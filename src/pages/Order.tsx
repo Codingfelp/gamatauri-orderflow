@@ -21,11 +21,9 @@ import { categoryMatchesFilter, normalizeCategory, CATEGORY_MAPPING } from "@/ut
 import { isGenericCategorySearch, getGenericCategory, DESTILADO_SUBCATEGORY_LIST } from "@/utils/searchHelpers";
 import { CategoryProductRow } from "@/components/CategoryProductRow";
 import { useCartAbandonment } from "@/hooks/useCartAbandonment";
-import { RecommendedSection } from "@/components/RecommendedSection";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { HotDealsSection } from "@/components/HotDealsSection";
 import { FeitosParaVoce } from "@/components/FeitosParaVoce";
-import { supabase } from "@/integrations/supabase/client";
 
 
 
@@ -385,17 +383,6 @@ const Order = () => {
                 Limpar
               </button>
             </div>
-          </div>
-        )}
-
-        {/* 5. RECOMENDAÇÕES PERSONALIZADAS - Apenas para usuários com histórico */}
-        {!selectedCategory && !selectedBrand && !searchQuery && !wizardProductIds && (
-          <div className="px-4">
-            <RecommendedSection 
-              allProducts={products}
-              onAddToCart={addToCart}
-              hideForNewUsers={true}
-            />
           </div>
         )}
 
