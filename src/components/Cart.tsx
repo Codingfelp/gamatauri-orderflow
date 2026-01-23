@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronDown, Tag } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronDown, Tag, Gift } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +10,7 @@ import { Input } from "./ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { AddressSelectorModal } from "./AddressSelectorModal";
 import { isStructuredAddressComplete } from "@/utils/addressValidator";
+import { useBundles } from "@/hooks/useBundles";
 
 interface CartItem {
   id: string;
@@ -40,6 +41,7 @@ interface Address {
 export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { calculateBundleDiscounts, getTotalBundleDiscount, getItemsRemainingForBundle } = useBundles();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [shippingFee, setShippingFee] = useState<number>(0);
   const [loadingShipping, setLoadingShipping] = useState(false);
@@ -52,6 +54,10 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const [addressValid, setAddressValid] = useState(true);
   const [isOutOfRange, setIsOutOfRange] = useState(false);
   const [outOfRangeDistance, setOutOfRangeDistance] = useState<number | null>(null);
+  
+  // Calcular descontos de bundle
+  const bundleDiscounts = calculateBundleDiscounts(items);
+  const totalBundleDiscount = getTotalBundleDiscount(items);
   
   // Carregar endereço primário automaticamente ao abrir carrinho
   useEffect(() => {
@@ -273,7 +279,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   };
   
   const finalShippingFee = Math.max(0, shippingFee - couponDiscount);
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0) + finalShippingFee;
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = subtotal - totalBundleDiscount + finalShippingFee;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const canCheckout = items.length > 0 && shippingFee > 0 && addressValid && selectedAddress !== null && !isOutOfRange;
@@ -471,8 +478,26 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
               <div className="border-t pt-3 pb-4 space-y-1 px-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>R$ {items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}</span>
+                  <span>R$ {subtotal.toFixed(2)}</span>
                 </div>
+                
+                {/* Descontos de Bundle */}
+                {bundleDiscounts.length > 0 && (
+                  <div className="space-y-1">
+                    {bundleDiscounts.map((bundle) => (
+                      <div key={bundle.bundleId} className="flex justify-between text-sm">
+                        <span className="text-emerald-600 flex items-center gap-1">
+                          <Gift className="h-3 w-3" />
+                          {bundle.bundleName}
+                        </span>
+                        <span className="text-emerald-600 font-medium">
+                          - R$ {bundle.discount.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
                 {shippingFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Entrega</span>
