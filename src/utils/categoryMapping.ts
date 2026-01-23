@@ -88,10 +88,10 @@ export function categoryMatchesFilter(productCategory: string, filterCategory: s
   const mappedCategories = CATEGORY_MAPPING[filterCategory];
   if (!mappedCategories) return productCategory === filterCategory;
   
-  // Para Águas, também verificar se o nome do produto contém "Pureza"
+  // Para Águas, verificar contra as categorias possíveis no banco de dados
   if (filterCategory === "Águas") {
-    const aguaKeywords = ["agua", "água", "water", "mineral", "pureza", "crystal", "minalba", "lindoya", "bonafont"];
-    return aguaKeywords.some(kw => productCategory?.toLowerCase().includes(kw));
+    const aguaDbCategories = ["agua", "água", "water", "mineral"];
+    return aguaDbCategories.some(kw => productCategory?.toLowerCase() === kw);
   }
   
   return mappedCategories.some(cat => 

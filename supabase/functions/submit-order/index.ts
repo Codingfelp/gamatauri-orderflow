@@ -37,6 +37,7 @@ const OrderSchema = z.object({
   items: z.array(OrderItemSchema).min(1).max(50),
   notes: z.string().max(1000).trim().optional().nullable(),
   delivery_fee: z.number().nonnegative().max(1000),
+  bundle_discount: z.number().nonnegative().max(9999).default(0),
   change_for: z.string().max(50).optional().nullable(),
   idempotency_key: z.string().max(200).optional().nullable(),
   user_id: z.string().uuid().optional().nullable(),
@@ -208,7 +209,8 @@ serve(async (req) => {
       sum + (item.price * item.quantity), 0
     );
     const deliveryFee = orderData.delivery_fee || 0;
-    const totalPrice = itemsTotal + deliveryFee;
+    const bundleDiscount = orderData.bundle_discount || 0;
+    const totalPrice = itemsTotal - bundleDiscount + deliveryFee;
 
     const { data: localOrder, error: localOrderError } = await supabaseAdmin
       .from('orders')

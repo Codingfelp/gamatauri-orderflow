@@ -276,14 +276,7 @@ const Order = () => {
       return wizardProductIds.includes(product.id);
     }
     
-    // If search matches a category, filter by that category
-    if (searchMatchesCategory) {
-      return categoryMatchesFilter(product.category || "", searchMatchesCategory);
-    }
-    
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    // Filtrar por marca se selecionada
     let matchesBrand = !selectedBrand;
     if (selectedBrand) {
       const brand = brands.find(b => b.searchTerm === selectedBrand);
@@ -294,10 +287,30 @@ const Order = () => {
       }
     }
     
-    if (!selectedCategory) return matchesSearch && matchesBrand;
+    // Filtrar por categoria se selecionada
+    if (selectedCategory) {
+      const matchesCategory = categoryMatchesFilter(product.category || "", selectedCategory);
+      const matchesSearch = !searchQuery.trim() || 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch && matchesCategory && matchesBrand;
+    }
     
-    const matchesCategory = categoryMatchesFilter(product.category || "", selectedCategory);
-    return matchesSearch && matchesCategory && matchesBrand;
+    // Se tem busca por texto
+    if (searchQuery.trim()) {
+      // Primeiro: buscar por nome/descrição exata
+      const matchesName = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Apenas se não houver match por nome, tentar por categoria
+      if (!matchesName && searchMatchesCategory) {
+        return categoryMatchesFilter(product.category || "", searchMatchesCategory) && matchesBrand;
+      }
+      
+      return matchesName && matchesBrand;
+    }
+    
+    return matchesBrand;
   });
 
   // Clear wizard selection

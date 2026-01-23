@@ -16,6 +16,7 @@ export interface OrderPayload {
   payment_timing?: string;
   total: number;
   delivery_fee?: number;
+  bundle_discount?: number;
   notes?: string;
   change_for?: string;
   card_holder?: string;
@@ -112,6 +113,7 @@ export async function submitOrder(orderData: OrderPayload): Promise<OrderRespons
     payment_timing: orderData.payment_timing,
     total: orderData.total,
     delivery_fee: orderData.delivery_fee || 0,
+    bundle_discount: orderData.bundle_discount || 0,
     notes: orderData.notes?.trim(),
     change_for: orderData.change_for,
     idempotency_key: idempotencyKey,
