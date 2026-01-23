@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePromotions } from "@/hooks/usePromotions";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
 import { ColorEditorModal } from "@/components/ColorEditorModal";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Mobile subcomponents
 import {
@@ -41,6 +42,9 @@ export const ProductVariantModal = ({
   const { isEditMode, getProductColors } = useColorEditor();
   const [showColorEditor, setShowColorEditor] = useState(false);
   const [liveModalBgColor, setLiveModalBgColor] = useState<string | null>(null);
+  const isMobile = useIsMobile();
+  const isMobileViewport =
+    isMobile || (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches);
 
   // Custom colors
   const customColors = getProductColors(selectedVariant.name, baseProduct.category);
@@ -81,44 +85,48 @@ export const ProductVariantModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-        {/* MOBILE: Modular design */}
-        <DialogContent
-          className="md:hidden w-[90vw] max-w-[360px] p-0 gap-0 overflow-hidden bg-background rounded-2xl border-0 shadow-2xl [&>button:last-child]:hidden"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onInteractOutside={(e) => e.preventDefault()}
-          onEscapeKeyDown={(e) => e.preventDefault()}
-        >
-          <MobileCloseButton onClose={onClose} />
+        {isMobileViewport ? (
+          /* MOBILE: Modular design */
+          <DialogContent
+            className="md:hidden w-[90vw] max-w-[360px] p-0 gap-0 overflow-hidden bg-background rounded-2xl border-0 shadow-2xl [&>button:last-child]:hidden"
+            // Important: block event bubbling to avoid click-through behind the modal
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+            // Keep only X / outside to close (no ESC)
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
+            <MobileCloseButton onClose={onClose} />
 
-          <MobileMediaCarousel
-            variants={variants}
-            selectedVariant={selectedVariant}
-            onVariantChange={setSelectedVariant}
-            modalBgColor={modalBgColor}
-            category={baseProduct.category}
-            isEditMode={isEditMode}
-            onEditClick={() => setShowColorEditor(true)}
-          />
+            <MobileMediaCarousel
+              variants={variants}
+              selectedVariant={selectedVariant}
+              onVariantChange={setSelectedVariant}
+              modalBgColor={modalBgColor}
+              category={baseProduct.category}
+              isEditMode={isEditMode}
+              onEditClick={() => setShowColorEditor(true)}
+            />
 
-          <MobileThumbnails
-            variants={variants}
-            selectedVariant={selectedVariant}
-            onSelect={(variant) => setSelectedVariant(variant)}
-          />
+            <MobileThumbnails
+              variants={variants}
+              selectedVariant={selectedVariant}
+              onSelect={(variant) => setSelectedVariant(variant)}
+            />
 
-          <MobilePricingCTA
-            variant={selectedVariant}
-            category={baseProduct.category}
-            user={user}
-            promotion={promo}
-            isPromotionActive={promoActive}
-            onAddToCart={handleAddToCart}
-            textColor={modalTextColor}
-          />
-        </DialogContent>
-
-        {/* DESKTOP: Original layout */}
-        <DialogContent className="hidden md:grid md:grid-cols-[35%_65%] max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-background">
+            <MobilePricingCTA
+              variant={selectedVariant}
+              category={baseProduct.category}
+              user={user}
+              promotion={promo}
+              isPromotionActive={promoActive}
+              onAddToCart={handleAddToCart}
+              textColor={modalTextColor}
+            />
+          </DialogContent>
+        ) : (
+          /* DESKTOP: Original layout */
+          <DialogContent className="hidden md:grid md:grid-cols-[35%_65%] max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden bg-background">
           <div className="flex items-center justify-center p-8 md:p-12 relative md:min-h-[493px] md:max-h-[493px]">
             <AnimatePresence mode="wait">
               <motion.div
@@ -279,7 +287,8 @@ export const ProductVariantModal = ({
               <span className="text-sm font-medium">Editar Cor de Fundo</span>
             </button>
           )}
-        </DialogContent>
+          </DialogContent>
+        )}
       </Dialog>
 
       {/* Color Editor Modal */}
