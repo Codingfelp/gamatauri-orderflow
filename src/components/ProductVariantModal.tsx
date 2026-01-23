@@ -46,22 +46,23 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
     }
   }, [selectedVariant, emblaApi, variants]);
   
-  // Atualizar selectedVariant quando carrossel muda
+  // Atualizar selectedVariant quando o carrossel muda (swipe)
   useEffect(() => {
     if (!emblaApi) return;
-    
+
     const onSelect = () => {
       const index = emblaApi.selectedScrollSnap();
-      if (variants[index] && variants[index].id !== selectedVariant.id) {
-        setSelectedVariant(variants[index]);
-      }
+      const next = variants[index];
+      if (!next) return;
+
+      setSelectedVariant((prev) => (prev?.id === next.id ? prev : next));
     };
-    
+
     emblaApi.on('select', onSelect);
     return () => {
       emblaApi.off('select', onSelect);
     };
-  }, [emblaApi, variants, selectedVariant]);
+  }, [emblaApi, variants]);
   
   const handleVariantClick = (variant: typeof variants[0]) => {
     if (!variant.available) return;
@@ -102,8 +103,6 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
         {/* MOBILE: Design moderno e simplificado */}
         <DialogContent 
           className="md:hidden w-[90vw] max-w-[360px] p-0 gap-0 overflow-hidden bg-background rounded-2xl border-0 shadow-2xl [&>button:last-child]:hidden pointer-events-auto"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
           {/* Close button */}
@@ -144,18 +143,25 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
               );
             })()}
             
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={selectedVariant.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2 }}
-                src={selectedVariant.image_url || ''}
-                alt={selectedVariant.name}
-                className="relative z-10 max-w-[60%] max-h-[160px] object-contain drop-shadow-lg"
-              />
-            </AnimatePresence>
+            {/* Swipe entre variantes (Embla) */}
+            <div ref={emblaRef} className="relative z-10 w-full h-full overflow-hidden touch-pan-y">
+              <div className="flex h-full">
+                {variants.map((variant) => (
+                  <div
+                    key={variant.id}
+                    className="flex-[0_0_100%] min-w-0 h-full flex items-center justify-center"
+                    aria-hidden={variant.id !== selectedVariant.id}
+                  >
+                    <img
+                      src={variant.image_url || ''}
+                      alt={variant.name}
+                      draggable={false}
+                      className="max-w-[60%] max-h-[160px] object-contain drop-shadow-lg select-none"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Thumbnails horizontais */}
