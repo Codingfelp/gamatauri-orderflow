@@ -336,12 +336,21 @@ const Addresses = () => {
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2">
-                <Label>Cidade</Label>
-                <Input value={formData.city} disabled />
+                <Label>Cidade *</Label>
+                <Input
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  placeholder="Belo Horizonte"
+                />
               </div>
               <div>
-                <Label>UF</Label>
-                <Input value={formData.state} disabled />
+                <Label>UF *</Label>
+                <Input
+                  value={formData.state}
+                  onChange={(e) => setFormData({ ...formData, state: e.target.value.toUpperCase().slice(0, 2) })}
+                  placeholder="MG"
+                  maxLength={2}
+                />
               </div>
             </div>
             <Button onClick={handleSaveAddress} className="w-full">
