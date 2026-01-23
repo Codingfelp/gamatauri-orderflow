@@ -131,19 +131,42 @@ export const ColorEditorProvider: React.FC<{ children: React.ReactNode }> = ({ c
     
     try {
       for (const [key, colors] of pendingChanges.entries()) {
-        const { error } = await supabase
+        // First check if exists
+        const { data: existing } = await supabase
           .from('product_custom_colors')
-          .upsert({
-            product_name: colors.product_name,
-            category: colors.category || null,
-            card_bg_color: colors.card_bg_color || null,
-            card_text_color: colors.card_text_color || null,
-            modal_bg_color: colors.modal_bg_color || null,
-            modal_text_color: colors.modal_text_color || null,
-            updated_at: new Date().toISOString(),
-          }, {
-            onConflict: 'product_name,category'
-          });
+          .select('id')
+          .eq('product_name', colors.product_name)
+          .eq('category', colors.category || '')
+          .maybeSingle();
+        
+        let error;
+        if (existing) {
+          // Update existing record
+          const result = await supabase
+            .from('product_custom_colors')
+            .update({
+              card_bg_color: colors.card_bg_color || null,
+              card_text_color: colors.card_text_color || null,
+              modal_bg_color: colors.modal_bg_color || null,
+              modal_text_color: colors.modal_text_color || null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', existing.id);
+          error = result.error;
+        } else {
+          // Insert new record
+          const result = await supabase
+            .from('product_custom_colors')
+            .insert({
+              product_name: colors.product_name,
+              category: colors.category || null,
+              card_bg_color: colors.card_bg_color || null,
+              card_text_color: colors.card_text_color || null,
+              modal_bg_color: colors.modal_bg_color || null,
+              modal_text_color: colors.modal_text_color || null,
+            });
+          error = result.error;
+        }
 
         if (error) {
           console.error('[ColorEditor] Error saving color:', error);
