@@ -443,34 +443,65 @@ export const ProductVariantModal = ({ isOpen, onClose, productGroup, onAddToCart
 
       {/* Color Editor Sheet for Mobile */}
       <Sheet open={showColorEditor} onOpenChange={setShowColorEditor}>
-        <SheetContent side="bottom" className="rounded-t-2xl">
+        <SheetContent side="bottom" className="rounded-t-2xl z-[100]">
           <SheetHeader>
-            <SheetTitle>Editar Cores do Produto</SheetTitle>
+            <SheetTitle>Editar Cores - {selectedVariant.name}</SheetTitle>
           </SheetHeader>
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Cor de Fundo</span>
-              <ColorPicker
-                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#ffffff'}
-                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_bg_color', color)}
-              />
+          <div className="space-y-6 py-6">
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground">Cor de Fundo do Modal</label>
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-12 h-12 rounded-lg border-2 border-border shadow-inner"
+                  style={{ backgroundColor: getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#f5f5f5' }}
+                />
+                <ColorPicker
+                  currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_bg_color || '#f5f5f5'}
+                  onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_bg_color', color)}
+                  label="Alterar"
+                />
+              </div>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Cor do Texto</span>
-              <ColorPicker
-                currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#000000'}
-                onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_text_color', color)}
-              />
+            
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-foreground">Cor do Texto</label>
+              <div className="flex items-center gap-3">
+                <div 
+                  className="w-12 h-12 rounded-lg border-2 border-border shadow-inner flex items-center justify-center"
+                  style={{ backgroundColor: getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#1a1a1a' }}
+                >
+                  <span className="text-white text-xs font-bold drop-shadow">Aa</span>
+                </div>
+                <ColorPicker
+                  currentColor={getProductColors(selectedVariant.name, baseProduct.category)?.modal_text_color || '#1a1a1a'}
+                  onChange={(color) => updateColor(selectedVariant.name, baseProduct.category, 'modal_text_color', color)}
+                  label="Alterar"
+                />
+              </div>
             </div>
+            
             <Button 
               onClick={async () => {
-                await saveColors();
-                setShowColorEditor(false);
-                toast({ title: "Cores salvas!" });
+                try {
+                  await saveColors();
+                  toast({ 
+                    title: "✅ Cores salvas!",
+                    description: `Cores do produto "${selectedVariant.name}" foram atualizadas.`
+                  });
+                  setShowColorEditor(false);
+                } catch (error) {
+                  console.error('Erro ao salvar cores:', error);
+                  toast({ 
+                    title: "❌ Erro ao salvar",
+                    description: "Tente novamente.",
+                    variant: "destructive"
+                  });
+                }
               }} 
-              className="w-full"
+              className="w-full h-12 text-base font-semibold"
+              disabled={!getProductColors(selectedVariant.name, baseProduct.category)}
             >
-              Salvar Cores
+              💾 Salvar Cores
             </Button>
           </div>
         </SheetContent>

@@ -6,7 +6,7 @@
 export const CATEGORY_KEYWORDS: Record<string, string[]> = {
   // Águas (PRIORIDADE - verificar primeiro)
   "Águas": [
-    "crystal", "acquissima", "minalba", "lindoya", "pureza vital", 
+    "crystal", "acquissima", "minalba", "lindoya", "pureza vital", "pureza",
     "bonafont", "agua", "água", "water", "mineral"
   ],
 
