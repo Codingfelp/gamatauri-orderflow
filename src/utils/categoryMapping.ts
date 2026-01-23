@@ -1,7 +1,7 @@
 // Mapeia o valor do botão de categoria para as categorias reais da API
 export const CATEGORY_MAPPING: Record<string, string[]> = {
   "Águas": [
-    "Agua", "Água", "Water", "Mineral"
+    "Agua", "Água", "Water", "Mineral", "Pureza", "Crystal", "Minalba", "Lindoya", "Bonafont"
   ],
   "Refrigerantes": [
     "Refrigerante", "Coca-Cola", "Pepsi", "Guaraná", "Fanta", "Sprite"
@@ -32,7 +32,7 @@ export const CATEGORY_MAPPING: Record<string, string[]> = {
   ],
   "Destilados": [
     "Vodka", "Whisky", "Whiskey", "Gin", "Rum", 
-    "Cachaça", "Tequila", "Licor", "Conhaque", "Pisco"
+    "Cachaça", "Cachaca", "Tequila", "Licor", "Conhaque", "Pisco"
   ],
   "Vinhos": [
     "Vinho", "Wine", "Espumante", "Champagne"
@@ -61,6 +61,18 @@ export const CATEGORY_MAPPING: Record<string, string[]> = {
   "Gelos": [
     "Gelo", "Ice", "Gela"
   ],
+};
+
+// Mapeamento granular para busca específica de subcategorias de destilados
+export const SEARCH_SUBCATEGORY_MAPPING: Record<string, string[]> = {
+  "Vodka": ["vodka", "absolut", "smirnoff", "grey goose", "ciroc"],
+  "Whisky": ["whisky", "whiskey", "johnnie", "jack daniels", "chivas", "old parr", "buchanans", "jim beam", "red label", "black label"],
+  "Gin": ["gin", "tanqueray", "bombay", "beefeater", "gordons"],
+  "Cachaça": ["cachaca", "cachaça", "51", "velho barreiro", "ypioca", "seleta"],
+  "Rum": ["rum", "bacardi", "montilla", "havana"],
+  "Tequila": ["tequila", "jose cuervo", "don julio"],
+  "Licor": ["licor", "amarula", "baileys", "jagermeister", "cointreau"],
+  "Conhaque": ["conhaque", "dreher"],
 };
 
 // Verifica se uma categoria de produto pertence a uma categoria do carousel

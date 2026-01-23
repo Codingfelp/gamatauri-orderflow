@@ -150,24 +150,44 @@ const Search = () => {
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Check if search matches a category keyword
+  // Check if search matches a category keyword or subcategory (for destilados)
   const getMatchingCategory = (search: string): string | null => {
     if (!search.trim()) return null;
     const searchLower = search.toLowerCase().trim();
     
+    // Subcategorias específicas de destilados (prioridade sobre "destilados" genérico)
+    const subcategoryMap: Record<string, string[]> = {
+      "Vodka": ["vodka", "absolut", "smirnoff", "grey goose", "ciroc"],
+      "Whisky": ["whisky", "whiskey", "johnnie", "jack daniels", "chivas", "red label", "black label", "buchanans"],
+      "Gin": ["gin", "tanqueray", "bombay", "beefeater", "gordons"],
+      "Cachaca": ["cachaca", "cachaça", "51", "velho barreiro", "ypioca"],
+      "Rum": ["rum", "bacardi", "montilla"],
+      "Tequila": ["tequila", "jose cuervo"],
+      "Licor": ["licor", "amarula", "baileys", "jagermeister"],
+      "Conhaque": ["conhaque", "dreher"],
+    };
+    
+    // Verificar subcategorias primeiro (retorna a categoria exata do banco)
+    for (const [dbCategory, keywords] of Object.entries(subcategoryMap)) {
+      if (keywords.some(kw => searchLower.includes(kw) || kw.includes(searchLower))) {
+        return dbCategory; // Retorna a categoria exata do banco de dados
+      }
+    }
+    
+    // Mapa geral de categorias
     const keywordMap: Record<string, string[]> = {
-      "Águas": ["agua", "águas", "water", "mineral", "crystal", "minalba"],
+      "Águas": ["agua", "águas", "water", "mineral", "crystal", "minalba", "pureza"],
       "Sucos": ["suco", "sucos", "tial", "gatorade", "isoton", "del valle"],
       "Cervejas": ["cerveja", "cervejas", "beer", "brahma", "skol", "heineken", "budweiser"],
-      "Destilados": ["whisky", "vodka", "cachaça", "rum", "tequila", "gin", "destilado"],
+      "Destilados": ["destilado", "destilados"], // Só quando buscar "destilados" genérico
       "Vinhos": ["vinho", "vinhos", "wine", "tinto", "branco", "rose"],
       "Refrigerantes": ["refrigerante", "coca", "pepsi", "fanta", "guarana", "energetico", "red bull"],
-      "Drinks": ["drink", "drinks", "beats", "ice", "smirnoff"],
+      "Drinks": ["drink", "drinks", "beats", "ice", "smirnoff ice"],
       "Chocolates": ["chocolate", "chocolates", "bis", "oreo", "kitkat"],
       "Snacks": ["snack", "snacks", "batata", "salgadinho", "doritos", "lays", "ruffles"],
       "Doces": ["doce", "doces", "bala", "chiclete", "mentos"],
       "Tabacaria": ["cigarro", "cigarros", "seda", "isqueiro", "tabaco"],
-      "Gelos": ["gelo", "gelos", "ice"],
+      "Gelos": ["gelo", "gelos"],
       "Copão": ["copao", "copão", "combo"],
     };
     
@@ -185,8 +205,14 @@ const Search = () => {
     // Filter out products with zero or negative prices
     if (product.price <= 0) return false;
     
-    // If search matches a category, show all products from that category
+    // If search matches a specific subcategory (like "Vodka"), match exactly
     if (matchingCategory) {
+      // Se for subcategoria de destilados, buscar por categoria exata
+      const destSubcats = ["Vodka", "Whisky", "Gin", "Cachaca", "Rum", "Tequila", "Licor", "Conhaque"];
+      if (destSubcats.includes(matchingCategory)) {
+        return product.category?.toLowerCase() === matchingCategory.toLowerCase();
+      }
+      // Para categorias gerais, usar o mapeamento
       return categoryMatchesFilter(product.category || "", matchingCategory);
     }
     
