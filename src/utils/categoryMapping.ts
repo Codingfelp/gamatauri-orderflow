@@ -79,8 +79,20 @@ export const SEARCH_SUBCATEGORY_MAPPING: Record<string, string[]> = {
 export function categoryMatchesFilter(productCategory: string, filterCategory: string): boolean {
   if (!filterCategory) return true;
   
+  // Se for subcategoria de destilados, comparar diretamente
+  const destSubcats = ["Vodka", "Whisky", "Gin", "Cachaca", "Rum", "Tequila", "Licor", "Conhaque"];
+  if (destSubcats.includes(filterCategory)) {
+    return productCategory?.toLowerCase() === filterCategory.toLowerCase();
+  }
+  
   const mappedCategories = CATEGORY_MAPPING[filterCategory];
   if (!mappedCategories) return productCategory === filterCategory;
+  
+  // Para Águas, também verificar se o nome do produto contém "Pureza"
+  if (filterCategory === "Águas") {
+    const aguaKeywords = ["agua", "água", "water", "mineral", "pureza", "crystal", "minalba", "lindoya", "bonafont"];
+    return aguaKeywords.some(kw => productCategory?.toLowerCase().includes(kw));
+  }
   
   return mappedCategories.some(cat => 
     productCategory?.toLowerCase().includes(cat.toLowerCase())
