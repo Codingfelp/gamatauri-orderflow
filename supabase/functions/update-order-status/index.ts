@@ -223,13 +223,31 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'reembolsado': 'cancelled',
   }
 
-  const internalStatus = statusMap[statusLower] || 'preparing'
-  
-  if (!statusMap[statusLower]) {
-    console.warn('[update-order-status] Unknown status received:', externalStatus, '- defaulting to preparing')
-  } else {
+  // 1) Exact match mapping
+  if (statusMap[statusLower]) {
+    const internalStatus = statusMap[statusLower]
     console.log('[update-order-status] Status mapped successfully:', statusLower, '->', internalStatus)
+    return internalStatus
   }
-  
-  return internalStatus
+
+  // 2) Resilient mapping (new integrations sometimes send phased statuses like "em_rota_fase_2",
+  // "entregue_confirmado", etc). We classify by keywords.
+  const s = statusLower
+
+  // Cancelled/refunded
+  if (/(cancel|cancelad|cancell|refund|reembols)/.test(s)) return 'cancelled'
+
+  // Delivered/finished
+  if (/(entreg|deliver|completed|finaliz|finish|done|conclu)/.test(s)) return 'delivered'
+
+  // In route / dispatched
+  if (/(rota|route|em_rota|saiu|out_for_delivery|dispatch|despach|enviad|shipp|on_the_way|a_caminho)/.test(s)) {
+    return 'in_route'
+  }
+
+  // Preparing / received / accepted
+  if (/(prepar|prep|separa|process|receb|accept|aceit|confirm)/.test(s)) return 'preparing'
+
+  console.warn('[update-order-status] Unknown status received:', externalStatus, '- defaulting to preparing')
+  return 'preparing'
 }
