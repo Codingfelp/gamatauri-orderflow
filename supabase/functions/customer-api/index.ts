@@ -48,8 +48,65 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const pathParts = url.pathname.split('/').filter(Boolean);
     
-    // Extract customer ID if provided (e.g., /customer-api/123)
-    const customerId = pathParts.length > 1 ? pathParts[pathParts.length - 1] : null;
+    // Extract path segments (e.g., /customer-api/123/addresses)
+    const customerId = pathParts.length > 1 ? pathParts[1] : null;
+    const subResource = pathParts.length > 2 ? pathParts[2] : null;
+
+    // Check for dedicated addresses endpoint: GET /customer-api/{user_id}/addresses
+    if (req.method === 'GET' && customerId && customerId !== 'customer-api' && subResource === 'addresses') {
+      console.log(`[customer-api] Fetching addresses for customer: ${customerId}`);
+      
+      // Find customer first to get user_id
+      let userId = customerId;
+      
+      // If not a UUID, find the user_id
+      if (!customerId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        let findQuery = supabase.from('profiles').select('user_id');
+        
+        if (customerId.includes('@')) {
+          findQuery = findQuery.eq('email', customerId);
+        } else {
+          const normalizedPhone = customerId.replace(/\D/g, '');
+          findQuery = findQuery.ilike('phone', `%${normalizedPhone}%`);
+        }
+        
+        const { data: customer, error } = await findQuery.single();
+        
+        if (error || !customer) {
+          return new Response(
+            JSON.stringify({ error: 'Customer not found' }),
+            { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
+        userId = customer.user_id;
+      }
+      
+      // Fetch all addresses for this customer
+      const { data: addresses, error } = await supabase
+        .from('user_addresses')
+        .select('id, street, number, complement, neighborhood, city, state, is_primary, distance_km, shipping_fee, created_at, updated_at')
+        .eq('user_id', userId)
+        .order('is_primary', { ascending: false });
+      
+      if (error) {
+        console.error('[customer-api] Error fetching addresses:', error);
+        return new Response(
+          JSON.stringify({ error: 'Failed to fetch addresses', details: error.message }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true,
+          user_id: userId,
+          addresses: addresses || [],
+          total: addresses?.length || 0
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // GET - List all customers or get specific customer
     if (req.method === 'GET') {
