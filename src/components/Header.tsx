@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, LogOut, Package, Bell, Settings as SettingsIcon, Palette } from "lucide-react";
+import { User, LogOut, Package, Bell, Settings as SettingsIcon, Palette, CloudRain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,6 +12,7 @@ import { AddressIncompleteAlert } from "@/components/AddressIncompleteAlert";
 import { isStructuredAddressComplete } from "@/utils/addressValidator";
 import { supabase } from "@/integrations/supabase/client";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
+import { useStoreStatus } from "@/contexts/StoreStatusContext";
 import logo from "@/assets/gamatauri-logo.png";
 
 interface Address {
@@ -29,6 +30,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { canEdit, isEditMode, toggleEditMode } = useColorEditor();
+  const { storeSettings } = useStoreStatus();
   const [userAddress, setUserAddress] = useState<string>("");
   const [showAddressSelector, setShowAddressSelector] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
@@ -123,6 +125,16 @@ export const Header = () => {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-card shadow-md backdrop-blur-sm bg-card/95">
+        {/* Rain Mode Banner */}
+        {storeSettings.isRaining && (
+          <div className="bg-primary/10 border-b border-primary/20 py-1.5 px-4">
+            <div className="container mx-auto flex items-center justify-center gap-2 text-xs text-primary">
+              <CloudRain className="h-3.5 w-3.5" />
+              <span className="font-medium">Modo chuva ativo</span>
+              <span className="text-primary/70">• Taxa de entrega elevada</span>
+            </div>
+          </div>
+        )}
         <div className="container mx-auto px-4">
           <div className="flex h-20 items-center justify-between relative">
             {/* LOGO À ESQUERDA (apenas desktop) */}
