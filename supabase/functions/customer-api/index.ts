@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
           query = query.ilike('phone', `%${normalizedPhone}%`);
         }
         
-        const { data, error } = await query.single();
+        const { data: customer, error } = await query.single();
         
         if (error) {
           console.error('[customer-api] Error fetching customer:', error);
@@ -81,18 +81,33 @@ Deno.serve(async (req) => {
             { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+
+        // Fetch addresses for this customer
+        const { data: addresses } = await supabase
+          .from('user_addresses')
+          .select('id, street, number, complement, neighborhood, city, state, is_primary, distance_km, shipping_fee, created_at, updated_at')
+          .eq('user_id', customer.user_id)
+          .order('is_primary', { ascending: false });
         
         return new Response(
-          JSON.stringify({ success: true, customer: data }),
+          JSON.stringify({ 
+            success: true, 
+            customer: {
+              ...customer,
+              addresses: addresses || []
+            }
+          }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       } else {
         // List all customers with optional filters
         console.log('[customer-api] Listing all customers');
         
-        const limit = parseInt(url.searchParams.get('limit') || '100');
+        // Increased default limit to 1000 to fetch all customers
+        const limit = parseInt(url.searchParams.get('limit') || '1000');
         const offset = parseInt(url.searchParams.get('offset') || '0');
         const search = url.searchParams.get('search');
+        const includeAddresses = url.searchParams.get('include_addresses') !== 'false'; // Default true
         
         let query = supabase
           .from('profiles')
@@ -104,7 +119,7 @@ Deno.serve(async (req) => {
           query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
         }
         
-        const { data, error, count } = await query;
+        const { data: customers, error, count } = await query;
         
         if (error) {
           console.error('[customer-api] Error listing customers:', error);
@@ -113,14 +128,46 @@ Deno.serve(async (req) => {
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           );
         }
+
+        let enrichedCustomers = customers || [];
+
+        // Fetch addresses for all customers if requested
+        if (includeAddresses && customers && customers.length > 0) {
+          const userIds = customers.map(c => c.user_id);
+          
+          const { data: allAddresses } = await supabase
+            .from('user_addresses')
+            .select('id, user_id, street, number, complement, neighborhood, city, state, is_primary, distance_km, shipping_fee, created_at, updated_at')
+            .in('user_id', userIds)
+            .order('is_primary', { ascending: false });
+
+          // Map addresses to each customer
+          const addressMap = new Map<string, any[]>();
+          (allAddresses || []).forEach(addr => {
+            const existing = addressMap.get(addr.user_id) || [];
+            existing.push(addr);
+            addressMap.set(addr.user_id, existing);
+          });
+
+          enrichedCustomers = customers.map(customer => ({
+            ...customer,
+            addresses: addressMap.get(customer.user_id) || []
+          }));
+        }
+
+        const totalCount = count || 0;
+        const hasMore = offset + limit < totalCount;
         
         return new Response(
           JSON.stringify({ 
             success: true, 
-            customers: data, 
-            total: count,
+            customers: enrichedCustomers, 
+            total: totalCount,
             limit,
-            offset 
+            offset,
+            has_more: hasMore,
+            total_pages: Math.ceil(totalCount / limit),
+            current_page: Math.floor(offset / limit) + 1
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

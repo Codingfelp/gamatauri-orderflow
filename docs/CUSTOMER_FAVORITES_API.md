@@ -1,9 +1,9 @@
-# API de Produtos Favoritos - Documentação
+# API de Clientes - Documentação
 
 ## Endpoint
 
 ```
-POST https://lsxukelagellagzvjyuy.supabase.co/functions/v1/customer-api
+https://lsxukelagellagzvjyuy.supabase.co/functions/v1/customer-api
 ```
 
 ## Autenticação
@@ -18,7 +18,85 @@ Use **um** dos métodos abaixo:
 
 ---
 
-## Ações Disponíveis
+## GET - Listar Clientes
+
+### Listar todos os clientes com endereços
+
+```bash
+curl -X GET "https://lsxukelagellagzvjyuy.supabase.co/functions/v1/customer-api" \
+  -H "x-api-key: SUA_CHAVE_SECRETA"
+```
+
+**Parâmetros de Query (opcionais):**
+
+| Parâmetro | Default | Descrição |
+|-----------|---------|-----------|
+| `limit` | 1000 | Número máximo de clientes por página |
+| `offset` | 0 | Pular N registros (para paginação) |
+| `search` | - | Busca por nome, email ou telefone |
+| `include_addresses` | true | Incluir array de endereços estruturados |
+
+**Resposta de sucesso:**
+```json
+{
+  "success": true,
+  "customers": [
+    {
+      "id": "...",
+      "user_id": "123e4567-e89b-12d3-a456-426614174000",
+      "name": "João Silva",
+      "email": "joao@email.com",
+      "phone": "(31) 99999-9999",
+      "cpf": "123.456.789-00",
+      "address": "Rua X, 123, Bairro Y",
+      "shipping_fee": 5.00,
+      "favorite_products": ["uuid-1", "uuid-2"],
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-15T00:00:00Z",
+      "addresses": [
+        {
+          "id": "...",
+          "street": "Rua X",
+          "number": "123",
+          "complement": "Apto 101",
+          "neighborhood": "Bairro Y",
+          "city": "Belo Horizonte",
+          "state": "MG",
+          "is_primary": true,
+          "distance_km": 2.5,
+          "shipping_fee": 5.00
+        }
+      ]
+    }
+  ],
+  "total": 116,
+  "limit": 1000,
+  "offset": 0,
+  "has_more": false,
+  "total_pages": 1,
+  "current_page": 1
+}
+```
+
+### Buscar cliente específico
+
+```bash
+# Por email
+curl -X GET "https://lsxukelagellagzvjyuy.supabase.co/functions/v1/customer-api/cliente@email.com" \
+  -H "x-api-key: SUA_CHAVE_SECRETA"
+
+# Por user_id (UUID)
+curl -X GET "https://lsxukelagellagzvjyuy.supabase.co/functions/v1/customer-api/123e4567-e89b-12d3-a456-426614174000" \
+  -H "x-api-key: SUA_CHAVE_SECRETA"
+
+# Por telefone
+curl -X GET "https://lsxukelagellagzvjyuy.supabase.co/functions/v1/customer-api/31999999999" \
+  -H "x-api-key: SUA_CHAVE_SECRETA"
+```
+
+---
+
+## Ações de Favoritos (POST)
 
 ### 1. **Adicionar produtos aos favoritos** (`add`)
 
