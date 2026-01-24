@@ -102,14 +102,14 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
               )}
             </div>
             {/* Imagem centralizada, "vazando" para cima do fundo colorido */}
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center p-1">
               {displayImage ? (
                 <img
                   src={displayImage}
                   alt={`${baseProduct.brand} ${baseProduct.size || ""}`}
                   loading="lazy"
                   decoding="async"
-                  className="max-w-[85%] max-h-[85px] sm:max-h-[95px] object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
