@@ -15,6 +15,9 @@ interface ShippingResponse {
   shipping_fee: number;
   duration_text: string;
   is_raining?: boolean;
+  out_of_range?: boolean;
+  max_radius_km?: number;
+  message?: string;
 }
 
 interface StoreSettings {
@@ -172,20 +175,9 @@ serve(async (req) => {
     console.log('📏 Distância calculada:', distanceInKm.toFixed(2), 'km');
     console.log('📏 Raio máximo configurado:', settings.max_delivery_radius_km, 'km');
 
-    // Verificar se está dentro do raio de entrega (usando valor dinâmico)
-    if (distanceInKm > settings.max_delivery_radius_km) {
-      console.log('❌ Fora do raio de entrega:', distanceInKm, 'km (máximo:', settings.max_delivery_radius_km, 'km)');
-      return new Response(
-        JSON.stringify({ 
-          error: 'Fora da área de atendimento',
-          message: `Infelizmente não entregamos além de ${settings.max_delivery_radius_km}km. Sua localização está a ${distanceInKm.toFixed(1)}km da nossa loja.`,
-          out_of_range: true,
-          distance_km: Math.round(distanceInKm * 100) / 100,
-          max_radius_km: settings.max_delivery_radius_km
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Regra de negócio: fora do raio NÃO deve abortar o cálculo.
+    // A função sempre retorna distância + estimativa de frete, e sinaliza out_of_range.
+    const isOutOfRange = distanceInKm > settings.max_delivery_radius_km;
 
     // Calcular frete usando valores dinâmicos
     const pricePerKm = settings.is_raining ? settings.rain_fee_per_km : settings.fee_per_km;
@@ -203,6 +195,13 @@ serve(async (req) => {
       shipping_fee: shippingFee, // Valor inteiro (arredondado pra cima)
       duration_text: durationText,
       is_raining: settings.is_raining,
+      max_radius_km: settings.max_delivery_radius_km,
+      ...(isOutOfRange
+        ? {
+            out_of_range: true,
+            message: `Sua localização está a ${distanceInKm.toFixed(1)}km. Entregamos até ${settings.max_delivery_radius_km}km.`,
+          }
+        : {}),
     };
 
     return new Response(
