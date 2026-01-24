@@ -12,7 +12,10 @@ function validateApiKey(req: Request): boolean {
   const headerApiKey = req.headers.get('x-api-key');
   const headerWebhook = req.headers.get('x-webhook-secret');
   const queryKey = url.searchParams.get('key');
+  
+  // Aceita WEBHOOK_SECRET ou EXTERNAL_SYSTEM_WEBHOOK_SECRET
   const webhookSecret = Deno.env.get('WEBHOOK_SECRET');
+  const externalWebhookSecret = Deno.env.get('EXTERNAL_SYSTEM_WEBHOOK_SECRET');
   
   // Debug logs (sem expor valores reais)
   console.log('[customer-api] Auth check:', {
@@ -20,14 +23,11 @@ function validateApiKey(req: Request): boolean {
     hasHeaderWebhook: !!headerWebhook,
     hasQueryKey: !!queryKey,
     hasWebhookSecret: !!webhookSecret,
-    headerApiKeyLength: headerApiKey?.length || 0,
-    headerWebhookLength: headerWebhook?.length || 0,
-    queryKeyLength: queryKey?.length || 0,
-    webhookSecretLength: webhookSecret?.length || 0
+    hasExternalWebhookSecret: !!externalWebhookSecret
   });
   
-  if (!webhookSecret) {
-    console.error('[customer-api] WEBHOOK_SECRET not configured');
+  if (!webhookSecret && !externalWebhookSecret) {
+    console.error('[customer-api] No webhook secret configured (WEBHOOK_SECRET or EXTERNAL_SYSTEM_WEBHOOK_SECRET)');
     return false;
   }
   
@@ -38,15 +38,11 @@ function validateApiKey(req: Request): boolean {
     return false;
   }
   
-  const isValid = providedKey === webhookSecret;
+  // Valida contra qualquer um dos secrets configurados
+  const isValid = providedKey === webhookSecret || providedKey === externalWebhookSecret;
   
   if (!isValid) {
-    console.error('[customer-api] API key mismatch - debug info:', {
-      providedLength: providedKey.length,
-      expectedLength: webhookSecret.length,
-      firstCharMatch: providedKey[0] === webhookSecret[0],
-      lastCharMatch: providedKey.slice(-1) === webhookSecret.slice(-1)
-    });
+    console.error('[customer-api] API key mismatch');
   } else {
     console.log('[customer-api] API key validated successfully');
   }
