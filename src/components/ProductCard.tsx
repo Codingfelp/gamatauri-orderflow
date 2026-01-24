@@ -122,7 +122,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
             )}
           </div>
           {/* Imagem centralizada, "vazando" para cima do fundo colorido */}
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center p-1">
             {product.image_url &&
             product.image_url !== "SIM" &&
             !product.image_url.startsWith("data:image") &&
@@ -132,7 +132,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className="max-w-[85%] max-h-[85px] sm:max-h-[95px] object-contain transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
