@@ -7,10 +7,31 @@ interface StoreStatus {
   closedReason: string | null;
 }
 
+interface StoreSettings {
+  isRaining: boolean;
+  openingTime: string;
+  closingTime: string;
+  maxDeliveryRadiusKm: number;
+  minDeliveryFee: number;
+  feePerKm: number;
+  rainFeePerKm: number;
+}
+
 interface StoreStatusContextType {
   storeStatus: StoreStatus;
+  storeSettings: StoreSettings;
   isLoading: boolean;
 }
+
+const defaultSettings: StoreSettings = {
+  isRaining: false,
+  openingTime: "10:00:00",
+  closingTime: "23:00:00",
+  maxDeliveryRadiusKm: 5,
+  minDeliveryFee: 3,
+  feePerKm: 3,
+  rainFeePerKm: 5,
+};
 
 const StoreStatusContext = createContext<StoreStatusContextType | undefined>(undefined);
 
@@ -20,9 +41,10 @@ export const StoreStatusProvider = ({ children }: { children: ReactNode }) => {
     closedMessage: "Estamos temporariamente fechados",
     closedReason: null,
   });
+  const [storeSettings, setStoreSettings] = useState<StoreSettings>(defaultSettings);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch initial store status
+  // Fetch initial store status and settings
   useEffect(() => {
     const fetchStoreStatus = async () => {
       try {
@@ -42,6 +64,17 @@ export const StoreStatusProvider = ({ children }: { children: ReactNode }) => {
             isOpen: data.is_open,
             closedMessage: data.closed_message || "Estamos temporariamente fechados",
             closedReason: data.closed_reason,
+          });
+
+          // Mapear campos do banco para interface (com fallback para defaults)
+          setStoreSettings({
+            isRaining: (data as any).is_raining ?? defaultSettings.isRaining,
+            openingTime: (data as any).opening_time ?? defaultSettings.openingTime,
+            closingTime: (data as any).closing_time ?? defaultSettings.closingTime,
+            maxDeliveryRadiusKm: (data as any).max_delivery_radius_km ?? defaultSettings.maxDeliveryRadiusKm,
+            minDeliveryFee: (data as any).min_delivery_fee ?? defaultSettings.minDeliveryFee,
+            feePerKm: (data as any).fee_per_km ?? defaultSettings.feePerKm,
+            rainFeePerKm: (data as any).rain_fee_per_km ?? defaultSettings.rainFeePerKm,
           });
         }
       } catch (error) {
@@ -67,16 +100,22 @@ export const StoreStatusProvider = ({ children }: { children: ReactNode }) => {
         },
         (payload) => {
           console.log("Store status updated via Realtime:", payload);
-          const newData = payload.new as {
-            is_open: boolean;
-            closed_message: string;
-            closed_reason: string | null;
-          };
+          const newData = payload.new as any;
 
           setStoreStatus({
             isOpen: newData.is_open,
             closedMessage: newData.closed_message || "Estamos temporariamente fechados",
             closedReason: newData.closed_reason,
+          });
+
+          setStoreSettings({
+            isRaining: newData.is_raining ?? defaultSettings.isRaining,
+            openingTime: newData.opening_time ?? defaultSettings.openingTime,
+            closingTime: newData.closing_time ?? defaultSettings.closingTime,
+            maxDeliveryRadiusKm: newData.max_delivery_radius_km ?? defaultSettings.maxDeliveryRadiusKm,
+            minDeliveryFee: newData.min_delivery_fee ?? defaultSettings.minDeliveryFee,
+            feePerKm: newData.fee_per_km ?? defaultSettings.feePerKm,
+            rainFeePerKm: newData.rain_fee_per_km ?? defaultSettings.rainFeePerKm,
           });
         }
       )
@@ -88,7 +127,7 @@ export const StoreStatusProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <StoreStatusContext.Provider value={{ storeStatus, isLoading }}>
+    <StoreStatusContext.Provider value={{ storeStatus, storeSettings, isLoading }}>
       {children}
     </StoreStatusContext.Provider>
   );
@@ -100,4 +139,10 @@ export const useStoreStatus = () => {
     throw new Error("useStoreStatus must be used within StoreStatusProvider");
   }
   return context;
+};
+
+// Hook separado para acessar apenas as configurações
+export const useStoreSettings = () => {
+  const { storeSettings, isLoading } = useStoreStatus();
+  return { storeSettings, isLoading };
 };

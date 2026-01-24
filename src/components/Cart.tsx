@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronDown, Tag, Gift, Heart } from "lucide-react";
+import { Minus, Plus, ShoppingCart, Trash2, Loader2, MapPin, ChevronDown, Tag, Gift, Heart, Store } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ import { AddressSelectorModal } from "./AddressSelectorModal";
 import { isStructuredAddressComplete } from "@/utils/addressValidator";
 import { useBundles } from "@/hooks/useBundles";
 import { motion, AnimatePresence } from "framer-motion";
+import { useStoreSettings } from "@/contexts/StoreStatusContext";
 
 interface CartItem {
   id: string;
@@ -24,7 +25,7 @@ interface CartProps {
   items: CartItem[];
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemove: (id: string) => void;
-  onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number, bundleDiscount?: number) => void;
+  onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number, bundleDiscount?: number, deliveryType?: 'delivery' | 'pickup') => void;
 }
 
 interface Address {
@@ -55,6 +56,11 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   const [addressValid, setAddressValid] = useState(true);
   const [isOutOfRange, setIsOutOfRange] = useState(false);
   const [outOfRangeDistance, setOutOfRangeDistance] = useState<number | null>(null);
+  const [maxRadiusKm, setMaxRadiusKm] = useState<number>(5);
+  const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
+  
+  // Hook para configurações dinâmicas da loja
+  const { storeSettings } = useStoreSettings();
   
   // Estado para favoritar itens do carrinho
   const [showFavoritePrompt, setShowFavoritePrompt] = useState(false);
@@ -218,11 +224,11 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       if (data?.out_of_range) {
         setIsOutOfRange(true);
         setOutOfRangeDistance(data.distance_km);
+        if (data.max_radius_km) setMaxRadiusKm(data.max_radius_km);
         setShippingFee(0);
         toast({
-          variant: "destructive",
-          title: "Fora da área de atendimento",
-          description: data.message || `Sua localização está a ${data.distance_km?.toFixed(1)}km. Entregamos até 5km.`,
+          title: "Fora da área de entrega",
+          description: `Você pode optar por retirar na loja!`,
         });
         return;
       }
@@ -250,11 +256,11 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         if (errorBody?.out_of_range) {
           setIsOutOfRange(true);
           setOutOfRangeDistance(errorBody.distance_km);
+          if (errorBody.max_radius_km) setMaxRadiusKm(errorBody.max_radius_km);
           setShippingFee(0);
           toast({
-            variant: "destructive",
-            title: "Fora da área de atendimento",
-            description: errorBody.message || `Sua localização está a ${errorBody.distance_km?.toFixed(1)}km. Entregamos até 5km.`,
+            title: "Fora da área de entrega",
+            description: `Você pode optar por retirar na loja!`,
           });
           return;
         }
@@ -265,9 +271,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
           setIsOutOfRange(true);
           setShippingFee(0);
           toast({
-            variant: "destructive",
-            title: "Fora da área de atendimento",
-            description: "Infelizmente não entregamos nessa região. Entregamos até 5km da loja.",
+            title: "Fora da área de entrega",
+            description: `Você pode optar por retirar na loja!`,
           });
           return;
         }
@@ -300,9 +305,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         setIsOutOfRange(true);
         setShippingFee(0);
         toast({
-          variant: "destructive",
-          title: "Fora da área de atendimento",
-          description: "Infelizmente não entregamos nessa região. Entregamos até 5km da loja.",
+          title: "Fora da área de entrega",
+          description: `Você pode optar por retirar na loja!`,
         });
       } else {
         toast({
@@ -415,12 +419,18 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     }
   };
   
-  const finalShippingFee = Math.max(0, shippingFee - couponDiscount);
+  // Se for retirada, não cobra frete
+  const effectiveShippingFee = deliveryType === 'pickup' ? 0 : shippingFee;
+  const finalShippingFee = Math.max(0, effectiveShippingFee - couponDiscount);
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const total = subtotal - totalBundleDiscount + finalShippingFee;
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const canCheckout = items.length > 0 && shippingFee > 0 && addressValid && selectedAddress !== null && !isOutOfRange;
+  // Permitir checkout para retirada mesmo se fora do raio
+  const canCheckout = items.length > 0 && (
+    (deliveryType === 'pickup') || 
+    (deliveryType === 'delivery' && shippingFee > 0 && addressValid && selectedAddress !== null && !isOutOfRange)
+  );
 
   return (
     <>
@@ -589,17 +599,59 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                 </div>
               </button>
 
-              {/* Mensagem fora da área de atendimento */}
-              {isOutOfRange && (
-                <div className="mx-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                  <p className="text-sm text-destructive font-medium">
-                    📍 Fora da área de entrega
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {outOfRangeDistance 
-                      ? `Sua localização está a ${outOfRangeDistance.toFixed(1)}km. Entregamos apenas até 5km da nossa loja.`
-                      : 'Infelizmente não entregamos nessa região. Nosso raio de entrega é de 5km.'}
-                  </p>
+              {/* Mensagem fora da área de atendimento com opção de retirada */}
+              {isOutOfRange && deliveryType === 'delivery' && (
+                <div className="mx-4 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                        Fora da área de entrega
+                      </p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                        {outOfRangeDistance 
+                          ? `Sua localização está a ${outOfRangeDistance.toFixed(1)}km. Entregamos até ${storeSettings.maxDeliveryRadiusKm}km.`
+                          : `Nosso raio de entrega é de ${storeSettings.maxDeliveryRadiusKm}km.`}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-3 h-9 bg-background border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+                        onClick={() => setDeliveryType('pickup')}
+                      >
+                        <Store className="w-4 h-4 mr-2" />
+                        Retirar na loja
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Modo retirada na loja selecionado */}
+              {deliveryType === 'pickup' && (
+                <div className="mx-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <Store className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">
+                        Retirada na loja
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        R. Aiuruoca, 192 - Fernão Dias, Belo Horizonte
+                      </p>
+                      <p className="text-xs text-primary font-medium mt-2">
+                        Frete grátis!
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="mt-2 h-7 text-xs text-muted-foreground p-0"
+                        onClick={() => setDeliveryType('delivery')}
+                      >
+                        Voltar para entrega
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -686,19 +738,28 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                   </div>
                 )}
                 
-                {shippingFee > 0 && (
+                {deliveryType === 'delivery' && effectiveShippingFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Entrega</span>
                     <div className="text-right">
                       {couponDiscount > 0 && (
                         <div className="text-xs line-through text-muted-foreground">
-                          R$ {shippingFee.toFixed(2)}
+                          R$ {effectiveShippingFee.toFixed(2)}
                         </div>
                       )}
                       <span className="text-primary font-medium">
                         R$ {finalShippingFee.toFixed(2)}
                       </span>
                     </div>
+                  </div>
+                )}
+                {deliveryType === 'pickup' && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Store className="h-3 w-3" />
+                      Retirada na loja
+                    </span>
+                    <span className="text-primary font-medium">Grátis</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold pt-2 border-t mt-2">
@@ -710,21 +771,31 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                   className="w-full mt-3"
                   disabled={!canCheckout}
                   onClick={() => {
-                    if (!selectedAddress) return;
-                    const deliveryAddress = `${selectedAddress.street}, ${selectedAddress.number}${
-                      selectedAddress.complement ? ', ' + selectedAddress.complement : ''
-                    }, ${selectedAddress.neighborhood}, ${selectedAddress.city} - ${selectedAddress.state}`;
+                    const deliveryAddress = deliveryType === 'pickup' 
+                      ? 'Retirada na loja - R. Aiuruoca, 192 - Fernão Dias, BH'
+                      : selectedAddress 
+                        ? `${selectedAddress.street}, ${selectedAddress.number}${
+                            selectedAddress.complement ? ', ' + selectedAddress.complement : ''
+                          }, ${selectedAddress.neighborhood}, ${selectedAddress.city} - ${selectedAddress.state}`
+                        : '';
                     onCheckout(
                       finalShippingFee,
                       deliveryAddress,
                       appliedCoupon?.coupon_id || null,
                       couponDiscount,
-                      totalBundleDiscount
+                      totalBundleDiscount,
+                      deliveryType
                     );
                   }}
-                  title={!canCheckout ? (isOutOfRange ? "Endereço fora da área de entrega" : "Complete o endereço e aguarde o cálculo do frete") : ""}
+                  title={!canCheckout ? (deliveryType === 'delivery' && isOutOfRange ? "Escolha retirar na loja ou altere o endereço" : "Complete o endereço e aguarde o cálculo do frete") : ""}
                 >
-                  {isOutOfRange ? "Fora da área de entrega" : !addressValid ? "Complete seu endereço" : "Finalizar Pedido"}
+                  {deliveryType === 'pickup' 
+                    ? "Finalizar - Retirar na Loja" 
+                    : isOutOfRange && deliveryType === 'delivery'
+                      ? "Escolha retirar na loja"
+                      : !addressValid 
+                        ? "Complete seu endereço" 
+                        : "Finalizar Pedido"}
                 </Button>
               </div>
             </div>
