@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { getProductColor } from "@/utils/productVariants";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback } from "react";
+import fireBagIllustration from "@/assets/promotions/fire-bag-illustration.png";
 
 interface Product {
   id: string;
@@ -75,7 +76,7 @@ const CountdownTimer = memo(({ endDate, startDate }: { endDate: Date; startDate:
 
   return (
     <div className="flex flex-col items-end gap-0.5">
-      <span className="text-[9px] text-orange-200 font-medium">
+      <span className="text-[9px] text-red-200 font-medium">
         {isStarted ? "Termina em" : "Começa em"}
       </span>
       <div className="flex items-center gap-1 text-xs font-mono font-bold">
@@ -93,17 +94,19 @@ const CountdownTimer = memo(({ endDate, startDate }: { endDate: Date; startDate:
 
 CountdownTimer.displayName = "CountdownTimer";
 
-// Hot Deal Product Card
+// Hot Deal Product Card with stagger animation
 const HotDealCard = memo(({ 
   product, 
   promotion, 
   onAddToCart,
-  isActive 
+  isActive,
+  index
 }: { 
   product: Product; 
   promotion: ProductPromotion;
   onAddToCart: (product: Product) => void;
   isActive: boolean;
+  index: number;
 }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -131,16 +134,21 @@ const HotDealCard = memo(({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.03, y: -4 }}
-      whileTap={{ scale: 0.97 }}
-      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      whileHover={{ scale: 1.05, y: -6 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 400, 
+        damping: 25,
+        delay: index * 0.08
+      }}
       className={`flex-shrink-0 w-[140px] sm:w-[155px] cursor-pointer ${isOutOfStock || !isActive ? "opacity-60" : ""}`}
     >
-      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-orange-100">
-        {/* Discount badge - orange */}
-        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-red-200">
+        {/* Discount badge - red */}
+        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-0.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
           <span>-{discountPercent}%</span>
         </div>
 
@@ -185,9 +193,9 @@ const HotDealCard = memo(({
         <div className="p-2 pt-1.5 space-y-1.5">
           {user ? (
             <>
-              {/* Promotional price - prominent orange */}
+              {/* Promotional price - prominent red */}
               <div className="space-y-0">
-                <span className="text-sm font-bold text-orange-600">
+                <span className="text-sm font-bold text-red-600">
                   R$ {promotion.promotional_price.toFixed(2).replace('.', ',')}
                 </span>
                 <p className="text-[10px] text-muted-foreground line-through">
@@ -200,14 +208,14 @@ const HotDealCard = memo(({
                 {product.name}
               </p>
 
-              {/* Add button - compact orange */}
+              {/* Add button - compact red */}
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || !isActive}
                 className={`w-full py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
                   isOutOfStock || !isActive
                     ? "bg-muted text-muted-foreground cursor-not-allowed"
-                    : "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 hover:shadow-md active:scale-95"
+                    : "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-md active:scale-95"
                 }`}
               >
                 Adicionar
@@ -216,7 +224,7 @@ const HotDealCard = memo(({
           ) : (
             <button
               onClick={() => navigate("/auth")}
-              className="w-full py-1.5 text-xs text-orange-600 font-medium hover:underline text-center"
+              className="w-full py-1.5 text-xs text-red-600 font-medium hover:underline text-center"
             >
               Entrar para ver preço
             </button>
@@ -302,11 +310,21 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
 
   return (
     <section className="py-3">
-      {/* Hot background container - more compact */}
-      <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-xl mx-3 p-3 shadow-lg relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-20 h-20 bg-red-700/30 rounded-full blur-xl" />
+      {/* Hot background container - vibrant gradient */}
+      <div className="bg-gradient-to-br from-red-500 via-red-600 to-orange-600 rounded-xl mx-3 p-3 shadow-lg relative overflow-hidden">
+        {/* Fire illustration - desktop: right side, mobile: top-left behind cards */}
+        <img 
+          src={fireBagIllustration} 
+          alt="" 
+          aria-hidden="true"
+          className="absolute z-0 opacity-40 md:opacity-50 pointer-events-none
+            w-[180px] h-auto top-0 left-0 -translate-x-4 -translate-y-2
+            md:w-[280px] md:h-auto md:right-0 md:left-auto md:top-1/2 md:-translate-y-1/2 md:translate-x-8"
+        />
+        
+        {/* Decorative blur elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-red-800/40 rounded-full blur-2xl" />
         
         {/* Header - more compact */}
         <div className="flex items-center justify-between mb-3 relative z-10">
@@ -318,7 +336,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-1">
-                🔥 Pegando Fogo
+                Pegando Fogo
               </h2>
               <p className="text-[10px] sm:text-xs text-white/80">
                 Ofertas por tempo limitado
@@ -327,7 +345,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
           </div>
 
           {/* Countdown - compact */}
-          <div className="bg-black/20 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg">
+          <div className="bg-black/30 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg">
             <CountdownTimer startDate={earliestStartDate} endDate={latestEndDate} />
           </div>
         </div>
@@ -338,7 +356,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
             <>
               <div className="overflow-hidden -mx-1" ref={emblaRef}>
                 <div className="flex gap-3 px-1">
-                  {promotionalProducts.map((product) => {
+                  {promotionalProducts.map((product, index) => {
                     const promotion = activePromotions.find((p) => p.product_id === product.id);
                     if (!promotion) return null;
 
@@ -349,6 +367,7 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
                         promotion={promotion}
                         onAddToCart={onAddToCart}
                         isActive={true}
+                        index={index}
                       />
                     );
                   })}
