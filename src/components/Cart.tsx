@@ -687,22 +687,23 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
 
               {/* Mensagem fora da área de atendimento com opção de retirada */}
               {isOutOfRange && deliveryType === 'delivery' && (
-                <div className="mx-4 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <div className="mx-4 p-4 bg-muted/50 border border-border rounded-xl">
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="p-2 bg-muted rounded-full shrink-0">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                    </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
-                        Fora da área de entrega
+                      <p className="text-sm font-medium text-foreground">
+                        Endereço fora da área de entrega
                       </p>
-                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {outOfRangeDistance 
-                          ? `Sua localização está a ${outOfRangeDistance.toFixed(1)}km. Entregamos até ${storeSettings.maxDeliveryRadiusKm}km.`
-                          : `Nosso raio de entrega é de ${storeSettings.maxDeliveryRadiusKm}km.`}
+                          ? `Distância: ${outOfRangeDistance.toFixed(1)}km (máx. ${storeSettings.maxDeliveryRadiusKm}km)`
+                          : `Raio máximo: ${storeSettings.maxDeliveryRadiusKm}km`}
                       </p>
                       <Button
                         size="sm"
-                        variant="outline"
-                        className="mt-3 h-9 bg-background border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+                        className="mt-3 h-9"
                         onClick={() => setDeliveryType('pickup')}
                       >
                         <Store className="w-4 h-4 mr-2" />
@@ -715,27 +716,31 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
 
               {/* Modo retirada na loja selecionado */}
               {deliveryType === 'pickup' && (
-                <div className="mx-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-                  <div className="flex items-start gap-3">
-                    <Store className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">
-                        Retirada na loja
+                <div className="mx-4 p-4 bg-muted/50 border border-border rounded-xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-full shrink-0">
+                        <Store className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          Retirada na loja
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          R. Aiuruoca, 192 - Fernão Dias
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-primary">
+                        Grátis
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        R. Aiuruoca, 192 - Fernão Dias, Belo Horizonte
-                      </p>
-                      <p className="text-xs text-primary font-medium mt-2">
-                        Frete grátis!
-                      </p>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="mt-2 h-7 text-xs text-muted-foreground p-0"
+                      <button
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-0.5"
                         onClick={() => setDeliveryType('delivery')}
                       >
-                        Voltar para entrega
-                      </Button>
+                        Alterar
+                      </button>
                     </div>
                   </div>
                 </div>
