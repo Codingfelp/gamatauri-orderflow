@@ -54,6 +54,7 @@ const Checkout = () => {
   const couponId = location.state?.couponId || null;
   const discountAmount = location.state?.discountAmount || 0;
   const bundleDiscount = getTotalBundleDiscount(cart);
+  const preFilledDeliveryType = (location.state?.deliveryType as 'delivery' | 'pickup') || 'delivery';
 
   const [loading, setLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -72,7 +73,7 @@ const Checkout = () => {
     payment_timing: "entrega",
     notes: "",
     change_for: "",
-    delivery_type: "delivery" as 'delivery' | 'pickup', // NEW
+    delivery_type: preFilledDeliveryType,
   });
 
   // Verificar lock de processamento ao carregar

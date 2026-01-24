@@ -445,22 +445,43 @@ export type Database = {
         Row: {
           closed_message: string | null
           closed_reason: string | null
+          closing_time: string
+          fee_per_km: number
           id: string
           is_open: boolean
+          is_raining: boolean
+          max_delivery_radius_km: number
+          min_delivery_fee: number
+          opening_time: string
+          rain_fee_per_km: number
           updated_at: string
         }
         Insert: {
           closed_message?: string | null
           closed_reason?: string | null
+          closing_time?: string
+          fee_per_km?: number
           id?: string
           is_open?: boolean
+          is_raining?: boolean
+          max_delivery_radius_km?: number
+          min_delivery_fee?: number
+          opening_time?: string
+          rain_fee_per_km?: number
           updated_at?: string
         }
         Update: {
           closed_message?: string | null
           closed_reason?: string | null
+          closing_time?: string
+          fee_per_km?: number
           id?: string
           is_open?: boolean
+          is_raining?: boolean
+          max_delivery_radius_km?: number
+          min_delivery_fee?: number
+          opening_time?: string
+          rain_fee_per_km?: number
           updated_at?: string
         }
         Relationships: []

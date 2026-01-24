@@ -27,3 +27,6 @@ verify_jwt = false
 
 [functions.customer-api]
 verify_jwt = false
+
+[functions.rain-status]
+verify_jwt = false
