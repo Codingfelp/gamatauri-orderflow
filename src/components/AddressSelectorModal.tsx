@@ -85,12 +85,10 @@ export const AddressSelectorModal = ({
         .update({ address: fullAddress })
         .eq("user_id", user!.id);
 
-      onSelectAddress(address);
+      // Atualizar estado local e notificar (sem reload!)
+      onSelectAddress({ ...address, is_primary: true });
       onOpenChange(false);
       toast.success("Endereço atualizado");
-      
-      // Reload da página para atualizar o endereço exibido
-      window.location.reload();
     } catch (error) {
       console.error("Erro ao selecionar endereço:", error);
       toast.error("Erro ao selecionar endereço");

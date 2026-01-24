@@ -189,16 +189,18 @@ serve(async (req) => {
 
     // Calcular frete usando valores dinâmicos
     const pricePerKm = settings.is_raining ? settings.rain_fee_per_km : settings.fee_per_km;
-    const shippingFee = Math.max(settings.min_delivery_fee, distanceInKm * pricePerKm);
+    const rawShippingFee = Math.max(settings.min_delivery_fee, distanceInKm * pricePerKm);
+    // Arredondar frete SEMPRE para cima (sem centavos quebrados)
+    const shippingFee = Math.ceil(rawShippingFee);
 
     console.log('✅ Distância calculada:', distanceInKm, 'km');
     console.log('✅ Está chovendo:', settings.is_raining);
     console.log('✅ Valor por KM:', pricePerKm);
-    console.log('✅ Frete calculado:', shippingFee);
+    console.log('✅ Frete bruto:', rawShippingFee, '→ arredondado:', shippingFee);
 
     const result: ShippingResponse = {
       distance_km: Math.round(distanceInKm * 100) / 100, // 2 casas decimais
-      shipping_fee: Math.round(shippingFee * 100) / 100, // 2 casas decimais
+      shipping_fee: shippingFee, // Valor inteiro (arredondado pra cima)
       duration_text: durationText,
       is_raining: settings.is_raining,
     };

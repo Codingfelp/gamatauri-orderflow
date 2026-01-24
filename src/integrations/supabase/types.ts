@@ -491,6 +491,7 @@ export type Database = {
           city: string
           complement: string | null
           created_at: string
+          distance_km: number | null
           id: string
           is_primary: boolean
           neighborhood: string
@@ -505,6 +506,7 @@ export type Database = {
           city: string
           complement?: string | null
           created_at?: string
+          distance_km?: number | null
           id?: string
           is_primary?: boolean
           neighborhood: string
@@ -519,6 +521,7 @@ export type Database = {
           city?: string
           complement?: string | null
           created_at?: string
+          distance_km?: number | null
           id?: string
           is_primary?: boolean
           neighborhood?: string

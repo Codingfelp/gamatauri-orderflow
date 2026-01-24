@@ -215,77 +215,106 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     const fullAddress = `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}`;
     
     try {
-      const { data, error } = await supabase.functions.invoke('calculate-shipping', {
+      const response = await supabase.functions.invoke('calculate-shipping', {
         body: { destination: fullAddress }
       });
 
-      // A Edge Function retorna erro 400 para out_of_range, então pode vir em 'error' ou 'data'
-      // Verificar primeiro se há dados de out_of_range na resposta
-      if (data?.out_of_range) {
+      // Extrair data e error
+      const { data, error } = response;
+
+      // Função auxiliar para processar resposta de "fora do raio"
+      const handleOutOfRange = (distance?: number, maxRadius?: number) => {
         setIsOutOfRange(true);
-        setOutOfRangeDistance(data.distance_km);
-        if (data.max_radius_km) setMaxRadiusKm(data.max_radius_km);
+        if (distance) setOutOfRangeDistance(distance);
+        if (maxRadius) setMaxRadiusKm(maxRadius);
         setShippingFee(0);
         toast({
           title: "Fora da área de entrega",
-          description: `Você pode optar por retirar na loja!`,
+          description: `Você está a ${distance ? distance.toFixed(1) + 'km' : 'além do raio'}. Opte por retirar na loja!`,
         });
+      };
+
+      // Caso 1: Sucesso com out_of_range no data (edge function retornou 200 mas com flag)
+      if (data?.out_of_range) {
+        handleOutOfRange(data.distance_km, data.max_radius_km);
         return;
       }
 
-      // Se houver erro, verificar se é erro de fora do raio
+      // Caso 2: Erro da Edge Function (status 400)
       if (error) {
-        // Tentar parsear o corpo do erro (pode conter JSON com out_of_range)
+        console.log('🔍 Erro da Edge Function:', error);
+        
+        // Tentar várias formas de extrair o body JSON do erro
         let errorBody: any = null;
+        
+        // Método 1: error.context?.body (formato padrão Supabase)
         try {
-          // O error.context pode conter a resposta da Edge Function
           if (error.context?.body) {
-            errorBody = JSON.parse(error.context.body);
-          } else if (typeof error.message === 'string' && error.message.includes('{')) {
-            // Tentar extrair JSON da mensagem de erro
+            const bodyStr = typeof error.context.body === 'string' 
+              ? error.context.body 
+              : JSON.stringify(error.context.body);
+            errorBody = JSON.parse(bodyStr);
+          }
+        } catch (e) { /* ignore */ }
+        
+        // Método 2: Tentar parsear a mensagem de erro diretamente
+        if (!errorBody && typeof error.message === 'string') {
+          try {
+            // A mensagem pode ser JSON puro ou conter JSON embutido
             const jsonMatch = error.message.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               errorBody = JSON.parse(jsonMatch[0]);
             }
-          }
-        } catch (e) {
-          // Ignorar erros de parsing
+          } catch (e) { /* ignore */ }
         }
 
-        // Verificar se o erro contém informação de fora do raio
+        // Método 3: Verificar se error.context é o próprio body
+        if (!errorBody && error.context && typeof error.context === 'object') {
+          errorBody = error.context;
+        }
+
+        console.log('🔍 Error body parseado:', errorBody);
+
+        // Verificar se é erro de fora do raio
         if (errorBody?.out_of_range) {
-          setIsOutOfRange(true);
-          setOutOfRangeDistance(errorBody.distance_km);
-          if (errorBody.max_radius_km) setMaxRadiusKm(errorBody.max_radius_km);
-          setShippingFee(0);
-          toast({
-            title: "Fora da área de entrega",
-            description: `Você pode optar por retirar na loja!`,
-          });
+          handleOutOfRange(errorBody.distance_km, errorBody.max_radius_km);
           return;
         }
 
-        // Verificar texto do erro para detectar fora da área
-        const errorMessage = error.message?.toLowerCase() || '';
-        if (errorMessage.includes('fora') || errorMessage.includes('out_of_range') || errorMessage.includes('área de atendimento')) {
-          setIsOutOfRange(true);
-          setShippingFee(0);
-          toast({
-            title: "Fora da área de entrega",
-            description: `Você pode optar por retirar na loja!`,
-          });
+        // Fallback: verificar texto do erro
+        const errorMessage = (error.message || '').toLowerCase();
+        const bodyMessage = JSON.stringify(errorBody || {}).toLowerCase();
+        if (
+          errorMessage.includes('fora') || 
+          errorMessage.includes('out_of_range') || 
+          bodyMessage.includes('out_of_range') ||
+          bodyMessage.includes('fora da área')
+        ) {
+          handleOutOfRange();
           return;
         }
 
-        throw error;
+        // Erro genérico - mas NÃO fazer throw para evitar crash
+        console.error('Erro ao calcular frete:', error);
+        toast({
+          variant: "destructive",
+          title: "Erro ao calcular frete",
+          description: errorBody?.message || error.message || 'Tente novamente',
+        });
+        return;
       }
 
-      if (data?.shipping_fee) {
+      // Caso 3: Sucesso - salvar frete e distância no banco
+      if (data?.shipping_fee !== undefined) {
         setIsOutOfRange(false);
-        // Salvar frete calculado no endereço
+        
+        // Salvar frete E distância calculada no endereço
         await supabase
           .from('user_addresses')
-          .update({ shipping_fee: data.shipping_fee })
+          .update({ 
+            shipping_fee: data.shipping_fee,
+            distance_km: data.distance_km || null
+          })
           .eq('id', address.id);
         
         setShippingFee(data.shipping_fee);
@@ -293,15 +322,15 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         
         toast({
           title: "Frete calculado!",
-          description: `R$ ${data.shipping_fee.toFixed(2)}`,
+          description: `R$ ${data.shipping_fee.toFixed(2)} (${data.distance_km?.toFixed(1) || '?'}km)`,
         });
       }
     } catch (error: any) {
-      console.error('Erro ao calcular frete:', error);
+      console.error('Erro inesperado ao calcular frete:', error);
       
-      // Verificar se o erro contém informação de fora do raio
+      // Verificar se o erro contém informação de fora do raio (último recurso)
       const errorStr = JSON.stringify(error).toLowerCase();
-      if (errorStr.includes('out_of_range') || errorStr.includes('fora') || errorStr.includes('área de atendimento')) {
+      if (errorStr.includes('out_of_range') || errorStr.includes('fora')) {
         setIsOutOfRange(true);
         setShippingFee(0);
         toast({
@@ -312,7 +341,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         toast({
           variant: "destructive",
           title: "Erro ao calcular frete",
-          description: error.message || 'Tente novamente',
+          description: 'Verifique seu endereço e tente novamente',
         });
       }
     } finally {
