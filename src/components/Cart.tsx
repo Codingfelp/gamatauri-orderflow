@@ -38,6 +38,7 @@ interface Address {
   state: string;
   is_primary: boolean;
   shipping_fee: number | null;
+  distance_km?: number | null;
 }
 
 export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProps) => {
@@ -79,6 +80,28 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       loadExistingFavorites();
     }
   }, [user]);
+
+  // Reavaliar "fora do raio" quando o raio da loja mudar (Realtime) ou quando trocar o endereço
+  useEffect(() => {
+    if (!selectedAddress) return;
+    if (!addressValid) return;
+
+    const distanceKm = selectedAddress.distance_km;
+    if (typeof distanceKm !== 'number') return;
+
+    const isOut = distanceKm > storeSettings.maxDeliveryRadiusKm;
+    setIsOutOfRange(isOut);
+
+    if (isOut) {
+      setOutOfRangeDistance(distanceKm);
+      setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
+      if (deliveryType === 'delivery') setShippingFee(0);
+    } else {
+      setOutOfRangeDistance(null);
+      setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
+      if (selectedAddress.shipping_fee !== null) setShippingFee(selectedAddress.shipping_fee);
+    }
+  }, [storeSettings.maxDeliveryRadiusKm, selectedAddress, addressValid, deliveryType]);
 
   // Mostrar prompt de favoritar quando houver itens não favoritados
   useEffect(() => {
@@ -195,6 +218,18 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
           // Não retornar aqui - permitir que o usuário veja o endereço e possa corrigir
         }
         
+        // Se já temos distância salva, conseguimos decidir "fora do raio" sem chamar o backend
+        if (validation.complete && typeof (address as any).distance_km === 'number') {
+          const distanceKm = Number((address as any).distance_km);
+          if (!Number.isNaN(distanceKm) && distanceKm > storeSettings.maxDeliveryRadiusKm) {
+            setIsOutOfRange(true);
+            setOutOfRangeDistance(distanceKm);
+            setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
+            setShippingFee(0);
+            return;
+          }
+        }
+
         // Calcular frete mesmo se endereço incompleto (mas não permitir checkout)
         if (address.shipping_fee !== null && validation.complete) {
           setShippingFee(address.shipping_fee);
@@ -236,6 +271,19 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
 
       // Caso 1: Sucesso com out_of_range no data (edge function retornou 200 mas com flag)
       if (data?.out_of_range) {
+        // Persistir distância/frete para auditoria e para que o app consiga mostrar o aviso sem recalcular
+        try {
+          await supabase
+            .from('user_addresses')
+            .update({
+              shipping_fee: data.shipping_fee ?? null,
+              distance_km: data.distance_km ?? null,
+            })
+            .eq('id', address.id);
+        } catch (e) {
+          console.warn('Não foi possível salvar distância/frete (fora do raio):', e);
+        }
+
         handleOutOfRange(data.distance_km, data.max_radius_km);
         return;
       }
@@ -369,6 +417,15 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         variant: "destructive",
       });
       setShippingFee(0); // Resetar frete
+      return;
+    }
+
+    // Se já temos distância salva, usamos isso para decidir "fora do raio" imediatamente
+    if (typeof address.distance_km === 'number' && address.distance_km > storeSettings.maxDeliveryRadiusKm) {
+      setIsOutOfRange(true);
+      setOutOfRangeDistance(address.distance_km);
+      setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
+      setShippingFee(0);
       return;
     }
     
