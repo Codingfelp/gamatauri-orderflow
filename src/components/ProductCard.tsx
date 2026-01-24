@@ -78,7 +78,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
         isOutOfStock ? "opacity-50" : "hover:-translate-y-1"
       }`}
     >
-      {/* Card chip-style com animação hover */}
+      {/* Card chip-style com animação hover - formato mais retangular vertical */}
        <div className={`bg-white rounded-2xl border shadow-md hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden relative ${
          hasPromo ? "border-orange-200" : "border-border/20"
        }`}>
@@ -108,11 +108,11 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
             </div>
           )}
 
-        {/* Área da imagem com fundo colorido na parte inferior */}
-        <div className="relative h-[100px] sm:h-[110px] mx-2 mt-2">
+        {/* Área da imagem com fundo colorido na parte inferior - aumentada para formato vertical */}
+        <div className="relative h-[115px] sm:h-[130px] mx-2 mt-2">
           {/* Fundo colorido posicionado na metade inferior */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-[55px] sm:h-[60px] rounded-xl"
+            className="absolute bottom-0 left-0 right-0 h-[60px] sm:h-[68px] rounded-xl"
             style={backgroundStyle}
           >
             {isOutOfStock && (
@@ -132,7 +132,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className="max-w-[90%] max-h-[95px] sm:max-h-[105px] object-contain transition-transform duration-300 group-hover:scale-105"
+                className="max-w-[90%] max-h-[110px] sm:max-h-[125px] object-contain transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
