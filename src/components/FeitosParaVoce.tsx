@@ -247,10 +247,10 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
                         duration: 0.3,
                         delay: index * 0.05,
                       }}
-                      className="flex-shrink-0 w-[160px]"
+                      className="flex-shrink-0 w-[130px] sm:w-[140px]"
                     >
-                      {/* Card elegante */}
-                      <div className="relative bg-card rounded-2xl border border-border/40 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 overflow-hidden group">
+                      {/* Card elegante - mais compacto */}
+                      <div className="relative bg-card rounded-xl border border-border/40 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
                         {/* Badge elegante e pequeno */}
                         {badge && (
                           <div className="absolute top-2.5 left-2.5 z-10">
@@ -265,8 +265,8 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
                           </div>
                         )}
 
-                        {/* Imagem limpa */}
-                        <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-3 relative overflow-hidden">
+                        {/* Imagem limpa - mais compacta */}
+                        <div className="aspect-[4/3] bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-2 relative overflow-hidden">
                           <img
                             src={product.image_url || '/placeholder.svg'}
                             alt={product.name}
@@ -275,38 +275,38 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
                           />
                         </div>
 
-                        {/* Conteúdo */}
-                        <div className="p-3 pt-2">
+                        {/* Conteúdo - mais compacto */}
+                        <div className="p-2">
                           {/* Nome - max 2 linhas */}
-                          <h3 className="text-[13px] font-medium text-foreground/90 leading-tight line-clamp-2 min-h-[36px]">
+                          <h3 className="text-[11px] font-medium text-foreground/90 leading-tight line-clamp-2 min-h-[28px]">
                             {product.name}
                           </h3>
 
                           {/* Rodapé: Preço + Botão */}
-                          <div className="flex items-center justify-between mt-2">
+                          <div className="flex items-center justify-between mt-1.5">
                             <div className="flex flex-col">
                               {hasPromo ? (
                                 <>
-                                  <span className="text-[11px] text-muted-foreground line-through">
+                                  <span className="text-[9px] text-muted-foreground line-through">
                                     R$ {promo.original_price.toFixed(2).replace('.', ',')}
                                   </span>
-                                  <span className="text-base font-bold text-red-600">
+                                  <span className="text-sm font-bold text-red-600">
                                     R$ {promo.promotional_price.toFixed(2).replace('.', ',')}
                                   </span>
                                 </>
                               ) : (
-                                <span className="text-base font-bold text-foreground/90">
+                                <span className="text-sm font-bold text-foreground/90">
                                   R$ {product.price.toFixed(2).replace('.', ',')}
                                 </span>
                               )}
                             </div>
 
-                            {/* Botão flutuante convite */}
+                            {/* Botão flutuante convite - menor */}
                             <motion.button
                               whileTap={{ scale: 0.9 }}
                               onClick={() => handleAddToCart(product)}
                               disabled={isAdded}
-                              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm ${
+                              className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm ${
                                 isAdded
                                   ? 'bg-green-500 text-white'
                                   : 'bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground'
@@ -320,7 +320,7 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
                                     animate={{ scale: 1, rotate: 0 }}
                                     exit={{ scale: 0 }}
                                   >
-                                    <Check className="w-4 h-4" />
+                                    <Check className="w-3.5 h-3.5" />
                                   </motion.div>
                                 ) : (
                                   <motion.div
@@ -329,7 +329,7 @@ export const FeitosParaVoce = ({ allProducts, onAddToCart }: FeitosParaVoceProps
                                     animate={{ scale: 1 }}
                                     exit={{ scale: 0 }}
                                   >
-                                    <Plus className="w-4 h-4" />
+                                    <Plus className="w-3.5 h-3.5" />
                                   </motion.div>
                                 )}
                               </AnimatePresence>

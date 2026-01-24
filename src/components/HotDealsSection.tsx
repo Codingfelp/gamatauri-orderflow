@@ -135,91 +135,78 @@ const HotDealCard = memo(({
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`flex-shrink-0 w-[140px] sm:w-[160px] ${isOutOfStock || !isActive ? "opacity-60" : ""}`}
+      className={`flex-shrink-0 w-[170px] sm:w-[190px] ${isOutOfStock || !isActive ? "opacity-60" : ""}`}
     >
-      <div className="bg-white rounded-2xl border-2 border-orange-200 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden relative">
-        {/* Fire badge */}
-        <div className="absolute top-1 right-1 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse">
-          <Flame className="w-2.5 h-2.5" />
+      <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden relative">
+        {/* Fire badge - discount */}
+        <div className="absolute top-2 left-2 z-10 flex items-center gap-0.5 bg-green-600 text-white text-[11px] font-bold px-2 py-1 rounded-md">
           <span>-{discountPercent}%</span>
         </div>
 
-        {/* Image area */}
-        <div className="relative h-[80px] sm:h-[90px] mx-2 mt-2">
-          <div
-            className="absolute bottom-0 left-0 right-0 h-[45px] sm:h-[50px] rounded-xl"
-            style={backgroundStyle}
-          >
-            {(isOutOfStock || !isActive) && (
-              <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-xl">
-                <span className="text-[8px] font-bold text-white bg-destructive px-1.5 py-0.5 rounded">
-                  {isOutOfStock ? "Esgotado" : "Aguarde"}
-                </span>
-              </div>
-            )}
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            {product.image_url &&
-            product.image_url !== "SIM" &&
-            !product.image_url.startsWith("data:image") &&
-            product.image_url.length > 10 ? (
-              <img
-                src={product.image_url}
-                alt={product.name}
-                loading="lazy"
-                decoding="async"
-                className="max-w-[90%] max-h-[75px] sm:max-h-[85px] object-contain transition-transform duration-300 hover:scale-105"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            ) : (
-              <Package className="w-8 h-8 text-muted-foreground/40" />
-            )}
-          </div>
+        {/* Image area - taller for larger cards */}
+        <div className="relative h-[140px] sm:h-[160px] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-3">
+          {(isOutOfStock || !isActive) && (
+            <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
+              <span className="text-sm font-bold text-white bg-destructive px-3 py-1.5 rounded-lg">
+                {isOutOfStock ? "Esgotado" : "Aguarde"}
+              </span>
+            </div>
+          )}
+          {product.image_url &&
+          product.image_url !== "SIM" &&
+          !product.image_url.startsWith("data:image") &&
+          product.image_url.length > 10 ? (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              loading="lazy"
+              decoding="async"
+              className="max-w-[90%] max-h-[130px] sm:max-h-[150px] object-contain transition-transform duration-300 hover:scale-105"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <Package className="w-12 h-12 text-muted-foreground/40" />
+          )}
         </div>
 
         {/* Info */}
-        <div className="p-2 pt-1 space-y-1">
-          <p className="text-[10px] sm:text-[11px] font-medium text-foreground line-clamp-2 leading-tight min-h-[26px]">
-            {product.name}
-          </p>
-
-          {/* End date badge */}
-          <div className="flex items-center gap-1 text-[9px] text-orange-600 font-medium">
-            <Clock className="w-2.5 h-2.5" />
-            <span>Até {formattedEndDate}</span>
-          </div>
-
+        <div className="p-3 space-y-2">
           {user ? (
-            <div className="space-y-0.5">
-              {/* Promotional price */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-foreground">
-                  R$ {promotion.promotional_price.toFixed(2)}
+            <>
+              {/* Promotional price - prominent */}
+              <div className="space-y-0.5">
+                <span className="text-lg font-bold text-green-600">
+                  R$ {promotion.promotional_price.toFixed(2).replace('.', ',')}
                 </span>
-                <button
-                  onClick={handleAddToCart}
-                  disabled={isOutOfStock || !isActive}
-                  className={`h-7 w-7 rounded-lg flex items-center justify-center transition-colors ${
-                    isOutOfStock || !isActive
-                      ? "bg-muted text-muted-foreground cursor-not-allowed"
-                      : "bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600"
-                  }`}
-                  aria-label="Adicionar ao carrinho"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
+                <p className="text-xs text-muted-foreground line-through">
+                  R$ {promotion.original_price.toFixed(2).replace('.', ',')}
+                </p>
               </div>
-              {/* Original price - crossed out */}
-              <p className="text-[10px] text-muted-foreground line-through text-center">
-                R$ {promotion.original_price.toFixed(2)}
+
+              {/* Product name */}
+              <p className="text-xs font-medium text-foreground line-clamp-2 leading-snug min-h-[32px]">
+                {product.name}
               </p>
-            </div>
+
+              {/* Add button - full width */}
+              <button
+                onClick={handleAddToCart}
+                disabled={isOutOfStock || !isActive}
+                className={`w-full py-2 rounded-lg font-semibold text-sm transition-colors ${
+                  isOutOfStock || !isActive
+                    ? "bg-muted text-muted-foreground cursor-not-allowed"
+                    : "bg-green-100 text-green-700 hover:bg-green-200"
+                }`}
+              >
+                Adicionar
+              </button>
+            </>
           ) : (
             <button
               onClick={() => navigate("/auth")}
-              className="w-full text-[9px] text-orange-600 font-medium hover:underline text-center"
+              className="w-full py-2 text-sm text-green-600 font-medium hover:underline text-center"
             >
               Entrar para ver preço
             </button>
@@ -304,81 +291,79 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
   const hasDeals = promotionalProducts.length > 0;
 
   return (
-    <section className="py-4 px-4">
-      {/* Header with fire theme */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
-            <Flame className="w-6 h-6 text-red-500 absolute inset-0 animate-ping opacity-30" />
+    <section className="py-4">
+      {/* Hot background container */}
+      <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-2xl mx-3 p-4 shadow-xl relative overflow-hidden">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-red-700/30 rounded-full blur-xl" />
+        
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4 relative z-10">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <Flame className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white flex items-center gap-1">
+                Ofertas Relâmpago
+              </h2>
+              <p className="text-xs text-white/80 flex items-center gap-1">
+                Estas ofertas expiram em
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-foreground flex items-center gap-1">
-              Pegando Fogo
-              <Flame className="w-4 h-4 text-orange-500" />
-              <Flame className="w-4 h-4 text-red-500 -ml-2" />
-            </h2>
-            <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <CalendarClock className="w-3 h-3" />
-              Até {formatDate(latestEndDate)}
-            </p>
+
+          {/* Countdown */}
+          <div className="bg-black/20 backdrop-blur-sm text-white px-3 py-2 rounded-xl">
+            <CountdownTimer startDate={earliestStartDate} endDate={latestEndDate} />
           </div>
         </div>
 
-        {/* Main countdown */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1.5 rounded-full shadow-lg">
-           <CountdownTimer startDate={earliestStartDate} endDate={latestEndDate} />
+        {/* Promotional products carousel */}
+        <div className="relative z-10">
+          {hasDeals ? (
+            <>
+              <div className="overflow-hidden -mx-1" ref={emblaRef}>
+                <div className="flex gap-3 px-1">
+                  {promotionalProducts.map((product) => {
+                    const promotion = activePromotions.find((p) => p.product_id === product.id);
+                    if (!promotion) return null;
+
+                    return (
+                      <HotDealCard
+                        key={product.id}
+                        product={product}
+                        promotion={promotion}
+                        onAddToCart={onAddToCart}
+                        isActive={true}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Scroll button */}
+              {canScrollNext && (
+                <button
+                  onClick={scrollNext}
+                  className="absolute -right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-all z-10"
+                >
+                  <ChevronRight className="h-4 w-4 text-foreground" />
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+              <p className="text-sm text-white/90 text-center">
+                Nenhuma promoção ativa no momento.
+              </p>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Status message - promoção ativa */}
-      <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800/50 rounded-lg p-2 mb-3">
-        <p className="text-[10px] text-center font-medium text-green-700 dark:text-green-300">
-          🔥 Promoção ativa! Aproveite os preços especiais
-        </p>
-      </div>
-
-       {/* Promotional products carousel */}
-       <div className="relative">
-         {hasDeals ? (
-           <>
-             <div className="overflow-hidden" ref={emblaRef}>
-               <div className="flex gap-3">
-                 {promotionalProducts.map((product) => {
-                   const promotion = activePromotions.find((p) => p.product_id === product.id);
-                   if (!promotion) return null;
-
-                   return (
-                     <HotDealCard
-                       key={product.id}
-                       product={product}
-                       promotion={promotion}
-                       onAddToCart={onAddToCart}
-                       isActive={true}
-                     />
-                   );
-                 })}
-               </div>
-             </div>
-
-             {/* Scroll button */}
-             {canScrollNext && (
-               <button
-                 onClick={scrollNext}
-                 className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all z-10"
-               >
-                 <ChevronRight className="h-4 w-4 text-foreground" />
-               </button>
-             )}
-           </>
-         ) : (
-           <div className="border border-border/50 rounded-xl p-3 bg-card">
-             <p className="text-xs text-muted-foreground text-center">
-               Nenhuma promoção ativa no momento.
-             </p>
-           </div>
-         )}
-       </div>
 
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
