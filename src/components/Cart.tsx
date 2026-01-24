@@ -213,7 +213,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         body: { destination: fullAddress }
       });
 
-      // Verificar se está fora do raio de atendimento
+      // A Edge Function retorna erro 400 para out_of_range, então pode vir em 'error' ou 'data'
+      // Verificar primeiro se há dados de out_of_range na resposta
       if (data?.out_of_range) {
         setIsOutOfRange(true);
         setOutOfRangeDistance(data.distance_km);
@@ -226,7 +227,53 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         return;
       }
 
-      if (error) throw error;
+      // Se houver erro, verificar se é erro de fora do raio
+      if (error) {
+        // Tentar parsear o corpo do erro (pode conter JSON com out_of_range)
+        let errorBody: any = null;
+        try {
+          // O error.context pode conter a resposta da Edge Function
+          if (error.context?.body) {
+            errorBody = JSON.parse(error.context.body);
+          } else if (typeof error.message === 'string' && error.message.includes('{')) {
+            // Tentar extrair JSON da mensagem de erro
+            const jsonMatch = error.message.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              errorBody = JSON.parse(jsonMatch[0]);
+            }
+          }
+        } catch (e) {
+          // Ignorar erros de parsing
+        }
+
+        // Verificar se o erro contém informação de fora do raio
+        if (errorBody?.out_of_range) {
+          setIsOutOfRange(true);
+          setOutOfRangeDistance(errorBody.distance_km);
+          setShippingFee(0);
+          toast({
+            variant: "destructive",
+            title: "Fora da área de atendimento",
+            description: errorBody.message || `Sua localização está a ${errorBody.distance_km?.toFixed(1)}km. Entregamos até 5km.`,
+          });
+          return;
+        }
+
+        // Verificar texto do erro para detectar fora da área
+        const errorMessage = error.message?.toLowerCase() || '';
+        if (errorMessage.includes('fora') || errorMessage.includes('out_of_range') || errorMessage.includes('área de atendimento')) {
+          setIsOutOfRange(true);
+          setShippingFee(0);
+          toast({
+            variant: "destructive",
+            title: "Fora da área de atendimento",
+            description: "Infelizmente não entregamos nessa região. Entregamos até 5km da loja.",
+          });
+          return;
+        }
+
+        throw error;
+      }
 
       if (data?.shipping_fee) {
         setIsOutOfRange(false);
@@ -247,13 +294,15 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
     } catch (error: any) {
       console.error('Erro ao calcular frete:', error);
       
-      // Verificar se o erro é de fora da área
-      if (error?.message?.includes('out_of_range') || error?.message?.includes('Fora da área')) {
+      // Verificar se o erro contém informação de fora do raio
+      const errorStr = JSON.stringify(error).toLowerCase();
+      if (errorStr.includes('out_of_range') || errorStr.includes('fora') || errorStr.includes('área de atendimento')) {
         setIsOutOfRange(true);
+        setShippingFee(0);
         toast({
           variant: "destructive",
           title: "Fora da área de atendimento",
-          description: "Infelizmente não entregamos nessa região. Máximo 5km.",
+          description: "Infelizmente não entregamos nessa região. Entregamos até 5km da loja.",
         });
       } else {
         toast({
