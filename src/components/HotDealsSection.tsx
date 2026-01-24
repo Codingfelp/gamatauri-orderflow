@@ -76,7 +76,7 @@ const CountdownTimer = memo(({ endDate, startDate }: { endDate: Date; startDate:
 
   return (
     <div className="flex flex-col items-end gap-0.5">
-      <span className="text-[9px] text-red-200 font-medium">
+      <span className="text-[9px] text-primary-foreground/80 font-medium">
         {isStarted ? "Termina em" : "Começa em"}
       </span>
       <div className="flex items-center gap-1 text-xs font-mono font-bold">
@@ -146,9 +146,9 @@ const HotDealCard = memo(({
       }}
       className={`flex-shrink-0 w-[140px] sm:w-[155px] cursor-pointer ${isOutOfStock || !isActive ? "opacity-60" : ""}`}
     >
-      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-red-200">
+      <div className="bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-primary/20">
         {/* Discount badge - red */}
-        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-0.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-0.5 bg-gradient-to-r from-primary to-destructive text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
           <span>-{discountPercent}%</span>
         </div>
 
@@ -160,8 +160,8 @@ const HotDealCard = memo(({
             style={backgroundStyle}
           >
             {(isOutOfStock || !isActive) && (
-              <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-lg">
-                <span className="text-[9px] font-bold text-white bg-destructive px-2 py-0.5 rounded">
+              <div className="absolute inset-0 bg-foreground/50 z-10 flex items-center justify-center rounded-lg">
+                <span className="text-[9px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">
                   {isOutOfStock ? "Esgotado" : "Aguarde"}
                 </span>
               </div>
@@ -195,7 +195,7 @@ const HotDealCard = memo(({
             <>
               {/* Promotional price - prominent red */}
               <div className="space-y-0">
-                <span className="text-sm font-bold text-red-600">
+                <span className="text-sm font-bold text-destructive">
                   R$ {promotion.promotional_price.toFixed(2).replace('.', ',')}
                 </span>
                 <p className="text-[10px] text-muted-foreground line-through">
@@ -215,7 +215,7 @@ const HotDealCard = memo(({
                 className={`w-full py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
                   isOutOfStock || !isActive
                     ? "bg-muted text-muted-foreground cursor-not-allowed"
-                    : "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-md active:scale-95"
+                    : "bg-gradient-to-r from-primary to-destructive text-primary-foreground hover:shadow-md active:scale-95"
                 }`}
               >
                 Adicionar
@@ -224,7 +224,7 @@ const HotDealCard = memo(({
           ) : (
             <button
               onClick={() => navigate("/auth")}
-              className="w-full py-1.5 text-xs text-red-600 font-medium hover:underline text-center"
+              className="w-full py-1.5 text-xs text-primary font-medium hover:underline text-center"
             >
               Entrar para ver preço
             </button>
@@ -311,41 +311,41 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
   return (
     <section className="py-3">
       {/* Hot background container - vibrant gradient */}
-      <div className="bg-gradient-to-br from-red-500 via-red-600 to-orange-600 rounded-xl mx-3 p-3 shadow-lg relative overflow-hidden">
-        {/* Fire illustration - desktop: right side, mobile: top-left behind cards */}
-        <img 
-          src={fireBagIllustration} 
-          alt="" 
+      <div className="bg-gradient-to-br from-primary via-destructive to-warning rounded-xl mx-3 p-3 shadow-lg relative overflow-hidden">
+        {/* Fire illustration - mobile: below timer (right), desktop: big on right */}
+        <img
+          src={fireBagIllustration}
+          alt=""
           aria-hidden="true"
-          className="absolute z-0 opacity-40 md:opacity-50 pointer-events-none
-            w-[180px] h-auto top-0 left-0 -translate-x-4 -translate-y-2
-            md:w-[280px] md:h-auto md:right-0 md:left-auto md:top-1/2 md:-translate-y-1/2 md:translate-x-8"
+          className="absolute z-0 opacity-45 md:opacity-55 pointer-events-none select-none
+            w-[260px] h-auto right-0 top-12 translate-x-10
+            md:w-[420px] md:h-auto md:top-1/2 md:-translate-y-1/2 md:translate-x-12"
         />
         
         {/* Decorative blur elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-red-800/40 rounded-full blur-2xl" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-warning/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-foreground/10 rounded-full blur-2xl" />
         
         {/* Header - more compact */}
         <div className="flex items-center justify-between mb-3 relative z-10">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                <Flame className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 bg-primary-foreground/15 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <Flame className="w-5 h-5 text-primary-foreground" />
               </div>
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-1">
+              <h2 className="text-base sm:text-lg font-bold text-primary-foreground flex items-center gap-1">
                 Pegando Fogo
               </h2>
-              <p className="text-[10px] sm:text-xs text-white/80">
+              <p className="text-[10px] sm:text-xs text-primary-foreground/80">
                 Ofertas por tempo limitado
               </p>
             </div>
           </div>
 
           {/* Countdown - compact */}
-          <div className="bg-black/30 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg">
+          <div className="bg-foreground/20 backdrop-blur-sm text-primary-foreground px-2 py-1.5 rounded-lg">
             <CountdownTimer startDate={earliestStartDate} endDate={latestEndDate} />
           </div>
         </div>
@@ -378,15 +378,15 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
               {canScrollNext && (
                 <button
                   onClick={scrollNext}
-                  className="absolute -right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-gray-50 transition-all z-10"
+                  className="absolute -right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-card shadow-lg rounded-full flex items-center justify-center hover:bg-muted transition-all z-10"
                 >
                   <ChevronRight className="h-4 w-4 text-foreground" />
                 </button>
               )}
             </>
           ) : (
-            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-              <p className="text-sm text-white/90 text-center">
+            <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl p-4">
+              <p className="text-sm text-primary-foreground/90 text-center">
                 Nenhuma promoção ativa no momento.
               </p>
             </div>
