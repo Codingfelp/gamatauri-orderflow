@@ -9,17 +9,49 @@ const corsHeaders = {
 // Validate API key from headers or query params
 function validateApiKey(req: Request): boolean {
   const url = new URL(req.url);
-  const headerKey = req.headers.get('x-api-key') || req.headers.get('x-webhook-secret');
+  const headerApiKey = req.headers.get('x-api-key');
+  const headerWebhook = req.headers.get('x-webhook-secret');
   const queryKey = url.searchParams.get('key');
   const webhookSecret = Deno.env.get('WEBHOOK_SECRET');
+  
+  // Debug logs (sem expor valores reais)
+  console.log('[customer-api] Auth check:', {
+    hasHeaderApiKey: !!headerApiKey,
+    hasHeaderWebhook: !!headerWebhook,
+    hasQueryKey: !!queryKey,
+    hasWebhookSecret: !!webhookSecret,
+    headerApiKeyLength: headerApiKey?.length || 0,
+    headerWebhookLength: headerWebhook?.length || 0,
+    queryKeyLength: queryKey?.length || 0,
+    webhookSecretLength: webhookSecret?.length || 0
+  });
   
   if (!webhookSecret) {
     console.error('[customer-api] WEBHOOK_SECRET not configured');
     return false;
   }
   
-  const providedKey = headerKey || queryKey;
-  return providedKey === webhookSecret;
+  const providedKey = headerApiKey || headerWebhook || queryKey;
+  
+  if (!providedKey) {
+    console.error('[customer-api] No API key provided in request');
+    return false;
+  }
+  
+  const isValid = providedKey === webhookSecret;
+  
+  if (!isValid) {
+    console.error('[customer-api] API key mismatch - debug info:', {
+      providedLength: providedKey.length,
+      expectedLength: webhookSecret.length,
+      firstCharMatch: providedKey[0] === webhookSecret[0],
+      lastCharMatch: providedKey.slice(-1) === webhookSecret.slice(-1)
+    });
+  } else {
+    console.log('[customer-api] API key validated successfully');
+  }
+  
+  return isValid;
 }
 
 Deno.serve(async (req) => {
