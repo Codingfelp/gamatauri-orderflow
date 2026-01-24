@@ -108,11 +108,11 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
             </div>
           )}
 
-        {/* Área da imagem com fundo colorido na parte inferior - formato retangular vertical maior */}
-        <div className="relative h-[160px] sm:h-[180px] mx-2 mt-2">
+        {/* Área da imagem com fundo colorido na parte inferior */}
+        <div className="relative h-[90px] sm:h-[100px] mx-2 mt-2">
           {/* Fundo colorido posicionado na metade inferior */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-[85px] sm:h-[95px] rounded-xl"
+            className="absolute bottom-0 left-0 right-0 h-[45px] sm:h-[50px] rounded-xl"
             style={backgroundStyle}
           >
             {isOutOfStock && (
@@ -132,7 +132,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className="max-w-[90%] max-h-[155px] sm:max-h-[175px] object-contain transition-transform duration-300 group-hover:scale-105"
+                className="max-w-[85%] max-h-[85px] sm:max-h-[95px] object-contain transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
