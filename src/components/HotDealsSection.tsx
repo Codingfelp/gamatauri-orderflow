@@ -133,71 +133,81 @@ const HotDealCard = memo(({
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={`flex-shrink-0 w-[170px] sm:w-[190px] ${isOutOfStock || !isActive ? "opacity-60" : ""}`}
+      whileHover={{ scale: 1.03, y: -4 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className={`flex-shrink-0 w-[140px] sm:w-[155px] cursor-pointer ${isOutOfStock || !isActive ? "opacity-60" : ""}`}
     >
-      <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden relative">
-        {/* Fire badge - discount */}
-        <div className="absolute top-2 left-2 z-10 flex items-center gap-0.5 bg-green-600 text-white text-[11px] font-bold px-2 py-1 rounded-md">
+      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden relative border border-orange-100">
+        {/* Discount badge - orange */}
+        <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-0.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
           <span>-{discountPercent}%</span>
         </div>
 
-        {/* Image area - taller for larger cards */}
-        <div className="relative h-[140px] sm:h-[160px] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-3">
-          {(isOutOfStock || !isActive) && (
-            <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center">
-              <span className="text-sm font-bold text-white bg-destructive px-3 py-1.5 rounded-lg">
-                {isOutOfStock ? "Esgotado" : "Aguarde"}
-              </span>
-            </div>
-          )}
-          {product.image_url &&
-          product.image_url !== "SIM" &&
-          !product.image_url.startsWith("data:image") &&
-          product.image_url.length > 10 ? (
-            <img
-              src={product.image_url}
-              alt={product.name}
-              loading="lazy"
-              decoding="async"
-              className="max-w-[90%] max-h-[130px] sm:max-h-[150px] object-contain transition-transform duration-300 hover:scale-105"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
-            />
-          ) : (
-            <Package className="w-12 h-12 text-muted-foreground/40" />
-          )}
+        {/* Image area with colored background on bottom half */}
+        <div className="relative h-[100px] sm:h-[110px] mx-2 mt-2">
+          {/* Colored background - bottom half */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-[50px] sm:h-[55px] rounded-lg"
+            style={backgroundStyle}
+          >
+            {(isOutOfStock || !isActive) && (
+              <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-lg">
+                <span className="text-[9px] font-bold text-white bg-destructive px-2 py-0.5 rounded">
+                  {isOutOfStock ? "Esgotado" : "Aguarde"}
+                </span>
+              </div>
+            )}
+          </div>
+          {/* Product image centered, overflowing above */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            {product.image_url &&
+            product.image_url !== "SIM" &&
+            !product.image_url.startsWith("data:image") &&
+            product.image_url.length > 10 ? (
+              <img
+                src={product.image_url}
+                alt={product.name}
+                loading="lazy"
+                decoding="async"
+                className="max-w-[85%] max-h-[95px] sm:max-h-[105px] object-contain transition-transform duration-300 group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <Package className="w-8 h-8 text-muted-foreground/40" />
+            )}
+          </div>
         </div>
 
         {/* Info */}
-        <div className="p-3 space-y-2">
+        <div className="p-2 pt-1.5 space-y-1.5">
           {user ? (
             <>
-              {/* Promotional price - prominent */}
-              <div className="space-y-0.5">
-                <span className="text-lg font-bold text-green-600">
+              {/* Promotional price - prominent orange */}
+              <div className="space-y-0">
+                <span className="text-sm font-bold text-orange-600">
                   R$ {promotion.promotional_price.toFixed(2).replace('.', ',')}
                 </span>
-                <p className="text-xs text-muted-foreground line-through">
+                <p className="text-[10px] text-muted-foreground line-through">
                   R$ {promotion.original_price.toFixed(2).replace('.', ',')}
                 </p>
               </div>
 
               {/* Product name */}
-              <p className="text-xs font-medium text-foreground line-clamp-2 leading-snug min-h-[32px]">
+              <p className="text-[10px] font-medium text-foreground line-clamp-2 leading-snug min-h-[26px]">
                 {product.name}
               </p>
 
-              {/* Add button - full width */}
+              {/* Add button - compact orange */}
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock || !isActive}
-                className={`w-full py-2 rounded-lg font-semibold text-sm transition-colors ${
+                className={`w-full py-1.5 rounded-lg font-semibold text-xs transition-all duration-200 ${
                   isOutOfStock || !isActive
                     ? "bg-muted text-muted-foreground cursor-not-allowed"
-                    : "bg-green-100 text-green-700 hover:bg-green-200"
+                    : "bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 hover:shadow-md active:scale-95"
                 }`}
               >
                 Adicionar
@@ -206,7 +216,7 @@ const HotDealCard = memo(({
           ) : (
             <button
               onClick={() => navigate("/auth")}
-              className="w-full py-2 text-sm text-green-600 font-medium hover:underline text-center"
+              className="w-full py-1.5 text-xs text-orange-600 font-medium hover:underline text-center"
             >
               Entrar para ver preço
             </button>
@@ -291,33 +301,33 @@ export const HotDealsSection = ({ products, onAddToCart }: HotDealsSectionProps)
   const hasDeals = promotionalProducts.length > 0;
 
   return (
-    <section className="py-4">
-      {/* Hot background container */}
-      <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-2xl mx-3 p-4 shadow-xl relative overflow-hidden">
+    <section className="py-3">
+      {/* Hot background container - more compact */}
+      <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 rounded-xl mx-3 p-3 shadow-lg relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-red-700/30 rounded-full blur-xl" />
+        <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl" />
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-red-700/30 rounded-full blur-xl" />
         
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 relative z-10">
+        {/* Header - more compact */}
+        <div className="flex items-center justify-between mb-3 relative z-10">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                <Flame className="w-6 h-6 text-white" />
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <Flame className="w-5 h-5 text-white" />
               </div>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-1">
-                Ofertas Relâmpago
+              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-1">
+                🔥 Pegando Fogo
               </h2>
-              <p className="text-xs text-white/80 flex items-center gap-1">
-                Estas ofertas expiram em
+              <p className="text-[10px] sm:text-xs text-white/80">
+                Ofertas por tempo limitado
               </p>
             </div>
           </div>
 
-          {/* Countdown */}
-          <div className="bg-black/20 backdrop-blur-sm text-white px-3 py-2 rounded-xl">
+          {/* Countdown - compact */}
+          <div className="bg-black/20 backdrop-blur-sm text-white px-2 py-1.5 rounded-lg">
             <CountdownTimer startDate={earliestStartDate} endDate={latestEndDate} />
           </div>
         </div>
