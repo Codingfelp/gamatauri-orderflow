@@ -13,17 +13,29 @@ serve(async (req) => {
   }
 
   try {
-    // Validate API key
-    const apiKey = req.headers.get("x-api-key");
-    const expectedApiKey = Deno.env.get("WEBHOOK_SECRET");
+    // Validate API key - accept both WEBHOOK_SECRET and EXTERNAL_SYSTEM_WEBHOOK_SECRET
+    const apiKey = req.headers.get("x-api-key")?.trim();
+    const webhookSecret = Deno.env.get("WEBHOOK_SECRET")?.trim();
+    const externalSecret = Deno.env.get("EXTERNAL_SYSTEM_WEBHOOK_SECRET")?.trim();
 
-    if (!apiKey || apiKey !== expectedApiKey) {
-      console.error("Invalid or missing API key");
+    const isValidKey = apiKey && (apiKey === webhookSecret || apiKey === externalSecret);
+
+    if (!isValidKey) {
+      console.error("❌ Invalid or missing API key");
+      console.error("📊 Debug info:", {
+        received_key_length: apiKey?.length || 0,
+        webhook_secret_length: webhookSecret?.length || 0,
+        external_secret_length: externalSecret?.length || 0,
+        matches_webhook: apiKey === webhookSecret,
+        matches_external: apiKey === externalSecret,
+      });
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("✅ API key validated successfully");
 
     const { is_open, message, reason } = await req.json();
 
