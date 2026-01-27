@@ -20,13 +20,16 @@ Deno.serve(async (req) => {
     const url = new URL(req.url)
     const apiKeyFromHeader = req.headers.get('x-api-key') || req.headers.get('x-webhook-secret')
     const apiKeyFromQuery = url.searchParams.get('key')
-    const providedKey = apiKeyFromHeader || apiKeyFromQuery
-    const expectedKey = Deno.env.get('WEBHOOK_SECRET')
+    const providedKey = (apiKeyFromHeader || apiKeyFromQuery)?.trim()
+    const webhookSecret = Deno.env.get('WEBHOOK_SECRET')?.trim()
+    const externalSecret = Deno.env.get('EXTERNAL_SYSTEM_WEBHOOK_SECRET')?.trim()
     
     console.log(`[${timestamp}] Auth check - key present: ${!!providedKey}, source: ${apiKeyFromHeader ? 'header' : apiKeyFromQuery ? 'query' : 'none'}`)
     
-    // If WEBHOOK_SECRET is configured, validate it
-    if (expectedKey && providedKey !== expectedKey) {
+    // Validate API key - accept both WEBHOOK_SECRET and EXTERNAL_SYSTEM_WEBHOOK_SECRET
+    const isValidKey = providedKey && (providedKey === webhookSecret || providedKey === externalSecret)
+    
+    if (!isValidKey) {
       console.error(`[${timestamp}] UNAUTHORIZED - invalid API key`)
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
@@ -161,7 +164,7 @@ function mapExternalStatusToInternal(externalStatus: string): string {
   
   // Map various external statuses to internal ones
   const statusMap: Record<string, string> = {
-    // Preparing statuses
+    // Preparing statuses - includes "received" and "accepted" from external system
     'preparing': 'preparing',
     'preparando': 'preparing',
     'em_preparacao': 'preparing',
@@ -177,11 +180,15 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'confirmado': 'preparing',
     'processing': 'preparing',
     'processando': 'preparing',
+    'separacao': 'preparing',
+    'separando': 'preparing',
     
-    // In route statuses - CRITICAL for "Em Rota" display
+    // In route statuses - CRITICAL: includes "delivering" from external system
     'in_route': 'in_route',
     'in route': 'in_route',
     'inroute': 'in_route',
+    'delivering': 'in_route',  // External system sends this
+    'entregando': 'in_route',
     'em_rota': 'in_route',
     'em rota': 'in_route',
     'emrota': 'in_route',
@@ -201,6 +208,8 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'on the way': 'in_route',
     'a_caminho': 'in_route',
     'a caminho': 'in_route',
+    'pronto': 'in_route',
+    'ready': 'in_route',
     
     // Delivered statuses
     'delivered': 'delivered',
@@ -212,6 +221,7 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'finalizado': 'delivered',
     'finished': 'delivered',
     'done': 'delivered',
+    'concluido': 'delivered',
     
     // Cancelled statuses
     'cancelled': 'cancelled',
@@ -241,7 +251,7 @@ function mapExternalStatusToInternal(externalStatus: string): string {
   if (/(entreg|deliver|completed|finaliz|finish|done|conclu)/.test(s)) return 'delivered'
 
   // In route / dispatched
-  if (/(rota|route|em_rota|saiu|out_for_delivery|dispatch|despach|enviad|shipp|on_the_way|a_caminho)/.test(s)) {
+  if (/(rota|route|em_rota|saiu|out_for_delivery|dispatch|despach|enviad|shipp|on_the_way|a_caminho|deliver[^e]|entregand)/.test(s)) {
     return 'in_route'
   }
 
