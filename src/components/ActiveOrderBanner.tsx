@@ -23,7 +23,7 @@ export const ActiveOrderBanner = () => {
 
       const minutes = Math.floor(diff / 60000);
       const hours = Math.floor(minutes / 60);
-      
+
       if (hours > 0) {
         setElapsedTime(`${hours}h ${minutes % 60}min`);
       } else {
@@ -46,26 +46,26 @@ export const ActiveOrderBanner = () => {
 
   const markAsDelivered = async () => {
     if (!activeOrder) return;
-    
+
     try {
       const { error } = await supabase
-        .from('orders')
-        .update({ 
-          order_status: 'delivered',
-          updated_at: new Date().toISOString()
+        .from("orders")
+        .update({
+          order_status: "delivered",
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', activeOrder.orderId);
+        .eq("id", activeOrder.orderId);
 
       if (error) throw error;
-      
-      toast.success('Pedido marcado como entregue! 🎉');
+
+      toast.success("Pedido entregue!");
       setShowDetails(false);
-      
+
       // Clear immediately after successful update - don't wait for realtime
       clearActiveOrder();
     } catch (error) {
-      console.error('Error marking as delivered:', error);
-      toast.error('Erro ao marcar pedido como entregue');
+      console.error("Error marking as delivered:", error);
+      toast.error("Erro ao marcar pedido como entregue");
     }
   };
 
@@ -89,11 +89,13 @@ export const ActiveOrderBanner = () => {
   const statusInfo = getStatusInfo();
   const StatusIcon = statusInfo.icon;
 
-  const bannerBgColor = activeOrder.status === 'cancelled' ? 'bg-destructive/90' : 'bg-primary/90';
+  const bannerBgColor = activeOrder.status === "cancelled" ? "bg-destructive/90" : "bg-primary/90";
 
   return (
     <>
-      <div className={`sticky top-16 z-50 w-full ${bannerBgColor} backdrop-blur-sm shadow-lg transition-all duration-500 ${isTransitioning ? 'scale-[1.02]' : 'scale-100'}`}>
+      <div
+        className={`sticky top-16 z-50 w-full ${bannerBgColor} backdrop-blur-sm shadow-lg transition-all duration-500 ${isTransitioning ? "scale-[1.02]" : "scale-100"}`}
+      >
         <div className="container mx-auto px-3 py-2">
           {/* Mobile: Two lines layout */}
           <div className="flex flex-col gap-2 sm:hidden">
@@ -101,23 +103,21 @@ export const ActiveOrderBanner = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse flex-shrink-0" />
-                <span className="text-white font-bold text-sm">
-                  #{activeOrder.orderNumber}
-                </span>
+                <span className="text-white font-bold text-sm">#{activeOrder.orderNumber}</span>
               </div>
               <div className="flex items-center gap-1 text-white/90">
                 <Clock className="w-3 h-3" />
                 <span className="text-xs font-medium">{elapsedTime}</span>
               </div>
             </div>
-            
+
             {/* Line 2: Status + Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-white/90">
                 <StatusIcon className="w-4 h-4" />
                 <span className="text-sm font-medium">{statusInfo.label}</span>
               </div>
-              
+
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -128,7 +128,7 @@ export const ActiveOrderBanner = () => {
                   Detalhes
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
-                
+
                 <Button
                   variant="ghost"
                   size="icon"
@@ -151,7 +151,7 @@ export const ActiveOrderBanner = () => {
                   Pedido #{activeOrder.orderNumber}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-2 text-white/90">
                 <Clock className="w-4 h-4" />
                 <span className="text-sm font-medium">{elapsedTime}</span>
@@ -173,7 +173,7 @@ export const ActiveOrderBanner = () => {
                 Ver Detalhes
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
-              
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -193,13 +193,13 @@ export const ActiveOrderBanner = () => {
           <DialogHeader>
             <DialogTitle>Detalhes do Pedido</DialogTitle>
           </DialogHeader>
-          <OrderTimeline 
-            orderNumber={activeOrder.orderNumber} 
-            orderId={activeOrder.orderId} 
-            createdAt={activeOrder.createdAt} 
+          <OrderTimeline
+            orderNumber={activeOrder.orderNumber}
+            orderId={activeOrder.orderId}
+            createdAt={activeOrder.createdAt}
           />
-          
-          {activeOrder.status !== 'delivered' && activeOrder.status !== 'cancelled' && (
+
+          {activeOrder.status !== "delivered" && activeOrder.status !== "cancelled" && (
             <div className="flex justify-center gap-4 mt-6 pt-6 border-t">
               <Button
                 onClick={markAsDelivered}
