@@ -398,6 +398,12 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
   };
 
   const handleAddressSelect = async (address: Address) => {
+    // Resetar estados antes de processar novo endereço
+    setIsOutOfRange(false);
+    setOutOfRangeDistance(null);
+    setDeliveryType('delivery'); // Reset para entrega padrão ao trocar endereço
+    setShippingFee(0);
+    
     setSelectedAddress(address);
     
     // Validar endereço usando estrutura direta
@@ -416,25 +422,12 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
         description: validation.reason || "Complete seu endereço",
         variant: "destructive",
       });
-      setShippingFee(0); // Resetar frete
       return;
     }
 
-    // Se já temos distância salva, usamos isso para decidir "fora do raio" imediatamente
-    if (typeof address.distance_km === 'number' && address.distance_km > storeSettings.maxDeliveryRadiusKm) {
-      setIsOutOfRange(true);
-      setOutOfRangeDistance(address.distance_km);
-      setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
-      setShippingFee(0);
-      return;
-    }
-    
-    // Se já tem frete, usar. Senão, calcular
-    if (address.shipping_fee !== null) {
-      setShippingFee(address.shipping_fee);
-    } else {
-      await calculateAndSaveShipping(address);
-    }
+    // SEMPRE recalcular o frete ao trocar de endereço para garantir dados atualizados
+    // Isso usa as configurações mais recentes do storeSettings (via realtime)
+    await calculateAndSaveShipping(address);
   };
 
   const applyCoupon = async () => {
@@ -735,12 +728,15 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                       <p className="text-sm font-semibold text-primary">
                         Grátis
                       </p>
-                      <button
-                        className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-0.5"
-                        onClick={() => setDeliveryType('delivery')}
-                      >
-                        Alterar
-                      </button>
+                      {/* Só mostrar opção de alterar se o endereço está dentro do raio */}
+                      {!isOutOfRange && (
+                        <button
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors mt-0.5"
+                          onClick={() => setDeliveryType('delivery')}
+                        >
+                          Alterar para entrega
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

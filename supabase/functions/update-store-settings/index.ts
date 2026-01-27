@@ -18,17 +18,29 @@ serve(async (req) => {
   }
 
   try {
-    // Validar API key
-    const apiKey = req.headers.get("x-api-key");
-    const expectedKey = Deno.env.get("WEBHOOK_SECRET");
+    // Validar API key - aceita WEBHOOK_SECRET ou EXTERNAL_SYSTEM_WEBHOOK_SECRET
+    const apiKey = req.headers.get("x-api-key")?.trim();
+    const webhookSecret = Deno.env.get("WEBHOOK_SECRET")?.trim();
+    const externalSecret = Deno.env.get("EXTERNAL_SYSTEM_WEBHOOK_SECRET")?.trim();
 
-    if (!apiKey || apiKey !== expectedKey) {
+    const isValidKey = apiKey && (apiKey === webhookSecret || apiKey === externalSecret);
+
+    if (!isValidKey) {
       console.error("❌ API key inválida ou ausente");
+      console.error("📊 Debug info:", {
+        received_key_length: apiKey?.length || 0,
+        webhook_secret_length: webhookSecret?.length || 0,
+        external_secret_length: externalSecret?.length || 0,
+        matches_webhook: apiKey === webhookSecret,
+        matches_external: apiKey === externalSecret,
+      });
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    console.log("✅ API key validated successfully");
 
     // Apenas POST é permitido
     if (req.method !== "POST") {
