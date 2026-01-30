@@ -153,7 +153,7 @@ export const AddressSelectorModal = ({
                         <div>
                           <p className="text-xs text-muted-foreground">Frete</p>
                           <p className="font-bold text-primary">
-                            R$ {address.shipping_fee.toFixed(2)}
+                            R$ {Math.ceil(address.shipping_fee)}
                           </p>
                         </div>
                       ) : (

@@ -379,7 +379,7 @@ const Checkout = () => {
                     <span className="text-sm font-medium">Entrega</span>
                     {shippingFee > 0 && (
                       <span className={`text-xs ${formData.delivery_type === 'delivery' ? 'text-primary' : 'text-muted-foreground'}`}>
-                        + R$ {shippingFee.toFixed(2)}
+                        + R$ {Math.ceil(shippingFee)}
                       </span>
                     )}
                   </Label>
@@ -661,7 +661,7 @@ const Checkout = () => {
                 ) : effectiveShippingFee > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Frete</span>
-                    <span className="text-primary font-medium">R$ {effectiveShippingFee.toFixed(2)}</span>
+                    <span className="text-primary font-medium">R$ {Math.ceil(effectiveShippingFee)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-lg pt-2 border-t">
@@ -704,7 +704,7 @@ const Checkout = () => {
             {formData.delivery_type === 'pickup' ? (
               <span className="text-xs text-green-600 ml-2">• Retirada grátis</span>
             ) : effectiveShippingFee > 0 && (
-              <span className="text-xs text-muted-foreground ml-2">+ Frete R$ {effectiveShippingFee.toFixed(2)}</span>
+              <span className="text-xs text-muted-foreground ml-2">+ Frete R$ {Math.ceil(effectiveShippingFee)}</span>
             )}
           </div>
           <span className="text-xl font-bold text-primary">R$ {total.toFixed(2)}</span>
