@@ -356,21 +356,24 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
       if (data?.shipping_fee !== undefined) {
         setIsOutOfRange(false);
         
+        // Garantir que o frete seja sempre inteiro (arredondado para cima)
+        const roundedShippingFee = Math.ceil(data.shipping_fee);
+        
         // Salvar frete E distância calculada no endereço
         await supabase
           .from('user_addresses')
           .update({ 
-            shipping_fee: data.shipping_fee,
+            shipping_fee: roundedShippingFee,
             distance_km: data.distance_km || null
           })
           .eq('id', address.id);
         
-        setShippingFee(data.shipping_fee);
-        setSelectedAddress({ ...address, shipping_fee: data.shipping_fee });
+        setShippingFee(roundedShippingFee);
+        setSelectedAddress({ ...address, shipping_fee: roundedShippingFee });
         
         toast({
           title: "Frete calculado!",
-          description: `R$ ${data.shipping_fee.toFixed(2)} (${data.distance_km?.toFixed(1) || '?'}km)`,
+          description: `R$ ${roundedShippingFee} (${data.distance_km?.toFixed(1) || '?'}km)`,
         });
       }
     } catch (error: any) {
@@ -670,7 +673,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                   ) : isOutOfRange ? (
                     <span className="text-xs text-destructive font-medium">Fora do raio</span>
                   ) : shippingFee > 0 ? (
-                    <span className="text-sm font-semibold text-primary">R$ {shippingFee.toFixed(2)}</span>
+                    <span className="text-sm font-semibold text-primary">R$ {Math.ceil(shippingFee)}</span>
                   ) : selectedAddress && !addressValid ? (
                     <span className="text-xs text-destructive">Incompleto</span>
                   ) : null}
@@ -831,11 +834,11 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
                     <div className="text-right">
                       {couponDiscount > 0 && (
                         <div className="text-xs line-through text-muted-foreground">
-                          R$ {effectiveShippingFee.toFixed(2)}
+                          R$ {Math.ceil(effectiveShippingFee)}
                         </div>
                       )}
                       <span className="text-primary font-medium">
-                        R$ {finalShippingFee.toFixed(2)}
+                        R$ {Math.ceil(finalShippingFee)}
                       </span>
                     </div>
                   </div>
