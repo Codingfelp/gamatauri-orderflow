@@ -24,6 +24,7 @@ import { useCartAbandonment } from "@/hooks/useCartAbandonment";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { HotDealsSection } from "@/components/HotDealsSection";
 import { FeitosParaVoce } from "@/components/FeitosParaVoce";
+import { CartFloatingBar } from "@/components/CartFloatingBar";
 
 
 
@@ -84,6 +85,8 @@ const Order = () => {
   // Wizard-curated product IDs (when active, shows ONLY these products)
   const [wizardProductIds, setWizardProductIds] = useState<string[] | null>(null);
   const [wizardMetaById, setWizardMetaById] = useState<Record<string, { reasons: string[]; docura?: string; intensidade?: string; ocasioes?: string[] }> | null>(null);
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const { toast } = useToast();
   const productsRef = useRef<HTMLDivElement>(null);
@@ -449,6 +452,13 @@ const Order = () => {
         onUpdateQuantity={updateQuantity}
         onRemove={removeFromCart}
         onCheckout={handleCheckout}
+        isOpen={isCartOpen}
+        onOpenChange={setIsCartOpen}
+      />
+      
+      <CartFloatingBar 
+        items={cart} 
+        onClick={() => setIsCartOpen(true)} 
       />
 
       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>

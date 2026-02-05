@@ -26,6 +26,8 @@ interface CartProps {
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemove: (id: string) => void;
   onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number, bundleDiscount?: number, deliveryType?: 'delivery' | 'pickup') => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface Address {
@@ -41,7 +43,7 @@ interface Address {
   distance_km?: number | null;
 }
 
-export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProps) => {
+export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, onOpenChange }: CartProps) => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { calculateBundleDiscounts, getTotalBundleDiscount, getItemsRemainingForBundle } = useBundles();
@@ -516,11 +518,12 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout }: CartProp
 
   return (
     <>
-      <Sheet>
-        <SheetTrigger asChild>
+      <Sheet open={isOpen} onOpenChange={onOpenChange}>
+        {/* Botão flutuante original apenas para desktop */}
+        <SheetTrigger asChild className="hidden md:flex">
           <Button 
             size="lg" 
-            className="fixed bottom-20 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50 md:bottom-6"
+            className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl hover:shadow-xl hover:scale-110 transition-all z-50"
           >
             <ShoppingCart className="w-7 h-7" />
             {itemCount > 0 && (

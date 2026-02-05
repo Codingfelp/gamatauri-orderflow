@@ -56,8 +56,8 @@ export const ProductVariantModal = ({
     setLiveModalBgColor(null);
   }, [selectedVariant.id]);
 
-  // Handle add to cart
-  const handleAddToCart = useCallback(() => {
+  // Handle add to cart (with quantity support for mobile)
+  const handleAddToCart = useCallback((quantity: number = 1) => {
     if (!selectedVariant.available) return;
 
     const promo = getPromotionForProduct(selectedVariant.id);
@@ -66,15 +66,18 @@ export const ProductVariantModal = ({
 
     onVariantSelected?.(selectedVariant);
 
-    onAddToCart({
-      id: selectedVariant.id,
-      name: selectedVariant.name,
-      price: finalPrice,
-      image_url: selectedVariant.image_url,
-      description: null,
-      category: baseProduct.category,
-      available: selectedVariant.available,
-    });
+    // Adicionar múltiplas vezes para respeitar a quantidade
+    for (let i = 0; i < quantity; i++) {
+      onAddToCart({
+        id: selectedVariant.id,
+        name: selectedVariant.name,
+        price: finalPrice,
+        image_url: selectedVariant.image_url,
+        description: null,
+        category: baseProduct.category,
+        available: selectedVariant.available,
+      });
+    }
     onClose();
   }, [selectedVariant, getPromotionForProduct, isPromotionActive, onVariantSelected, onAddToCart, onClose, baseProduct.category]);
 
@@ -120,7 +123,7 @@ export const ProductVariantModal = ({
               user={user}
               promotion={promo}
               isPromotionActive={promoActive}
-              onAddToCart={handleAddToCart}
+              onAddToCart={(qty) => handleAddToCart(qty)}
               textColor={modalTextColor}
             />
           </DialogContent>
