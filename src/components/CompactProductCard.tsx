@@ -47,7 +47,7 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
 
         {/* Área colorida com produto vazando */}
         <div className="relative px-2 pt-2">
-          <div className="relative h-[75px] sm:h-[90px] rounded-xl overflow-visible flex items-center justify-center" style={backgroundStyle}>
+          <div className="relative h-[90px] sm:h-[105px] rounded-xl overflow-visible flex items-center justify-center" style={backgroundStyle}>
             {isOutOfStock && (
               <div className="absolute inset-0 bg-black/50 z-10 flex items-center justify-center rounded-xl">
                 <span className="text-[8px] font-bold text-white bg-destructive px-1.5 py-0.5 rounded">Esgotado</span>

@@ -109,10 +109,10 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
           )}
 
         {/* Área da imagem com fundo colorido na parte inferior */}
-        <div className="relative h-[90px] sm:h-[100px] mx-2 mt-2">
+        <div className="relative h-[110px] sm:h-[120px] mx-2 mt-2">
           {/* Fundo colorido posicionado na metade inferior */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-[45px] sm:h-[50px] rounded-xl"
+            className="absolute bottom-0 left-0 right-0 h-[55px] sm:h-[60px] rounded-xl"
             style={backgroundStyle}
           >
             {isOutOfStock && (
