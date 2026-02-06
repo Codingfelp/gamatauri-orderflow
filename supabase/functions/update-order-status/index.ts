@@ -183,7 +183,7 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'separacao': 'preparing',
     'separando': 'preparing',
     
-    // In route statuses - CRITICAL: includes "delivering" from external system
+    // In route statuses - CRITICAL: includes "delivering", "shipped", "em_rota_entrega" from external system
     'in_route': 'in_route',
     'in route': 'in_route',
     'inroute': 'in_route',
@@ -192,8 +192,9 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'em_rota': 'in_route',
     'em rota': 'in_route',
     'emrota': 'in_route',
-    'em_rota_entrega': 'in_route',
+    'em_rota_entrega': 'in_route',  // CRITICAL: External system sends this for "shipped"
     'em rota entrega': 'in_route',
+    'em_rota_de_entrega': 'in_route',
     'saiu_entrega': 'in_route',
     'saiu entrega': 'in_route',
     'saiu para entrega': 'in_route',
@@ -203,7 +204,8 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     'dispatched': 'in_route',
     'despachado': 'in_route',
     'enviado': 'in_route',
-    'shipped': 'in_route',
+    'shipped': 'in_route',  // CRITICAL: External system internal status
+    'shipping': 'in_route',
     'on_the_way': 'in_route',
     'on the way': 'in_route',
     'a_caminho': 'in_route',
