@@ -351,8 +351,9 @@ serve(async (req) => {
       try {
         console.log(`🔄 Tentativa ${attempt}/3 de criar pedido externo...`);
         
+        const externalOrderUrl = Deno.env.get('EXTERNAL_SYSTEM_WEBHOOK_URL') || 'https://uppkjvovtvlgwfciqrbt.supabase.co/functions/v1/create-external-order';
         const response = await fetch(
-          'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/create-external-order',
+          externalOrderUrl,
           {
             method: 'POST',
             headers: {
