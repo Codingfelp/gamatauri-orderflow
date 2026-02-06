@@ -97,16 +97,19 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
   const mapDbStatusToCanonical = (dbStatus: string): OrderStatus => {
     const normalized = dbStatus?.toLowerCase()?.trim() || 'preparing';
     
+    console.log('[ActiveOrderContext] Mapping status:', { raw: dbStatus, normalized });
+    
     // Cancelled statuses
-    if (normalized === 'cancelled' || normalized === 'cancelado') return 'cancelled';
+    if (/(cancel|cancelad)/.test(normalized)) return 'cancelled';
     
     // Delivered statuses
-    if (normalized === 'delivered' || normalized === 'entregue' || normalized === 'concluido' || normalized === 'finalizado') return 'delivered';
+    if (/(deliver|entreg|conclu|finaliz|closed)/.test(normalized)) return 'delivered';
     
-    // In route statuses
-    if (normalized === 'in_route' || normalized === 'em_rota' || normalized === 'saiu_para_entrega' || 
-        normalized === 'out_for_delivery' || normalized === 'delivering' || normalized === 'pronto' ||
-        normalized === 'ready' || normalized === 'ready_for_delivery') return 'in_route';
+    // In route statuses - CRITICAL: includes 'em_rota_entrega', 'shipping', 'shipped'
+    if (/(rota|route|saiu|out_for_delivery|dispatch|delivering|pronto|ready|shipp|enviad)/.test(normalized)) {
+      console.log('[ActiveOrderContext] Status mapped to in_route:', normalized);
+      return 'in_route';
+    }
     
     // Default to preparing
     return 'preparing';
