@@ -28,7 +28,7 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
   return (
     <div className={`flex-shrink-0 w-[150px] sm:w-[165px] group transition-all duration-300 ${isOutOfStock ? "opacity-50" : "hover:-translate-y-1"}`}>
       {/* Card elegante estilo FeitosParaVoce */}
-      <div className="relative bg-card rounded-xl border border-border/40 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+      <div className="relative bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
         {hasPromo && (
           <div className="absolute top-2.5 left-2.5 z-10">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-destructive text-destructive-foreground">
@@ -39,7 +39,7 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
         )}
 
         {/* Imagem aspect-square */}
-        <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-3 relative overflow-hidden">
+        <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-6 relative overflow-hidden">
           {isOutOfStock && (
             <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
               <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
