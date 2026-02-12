@@ -76,14 +76,14 @@ export const PromotionsCarousel = () => {
                     <img
                       src={promo.mobileImage}
                       alt={promo.alt}
-                      className="w-full h-36 md:h-[220px] object-cover"
+                    className="w-full h-36 md:h-[300px] object-cover"
                     />
                   </picture>
                 ) : (
                   <img
                     src={promo.image}
                     alt={promo.alt}
-                    className="w-full h-36 md:h-[220px] object-cover"
+                    className="w-full h-36 md:h-[300px] object-cover"
                   />
                 )}
               </div>
