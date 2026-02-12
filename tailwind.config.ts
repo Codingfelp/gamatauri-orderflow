@@ -12,6 +12,7 @@ export default {
         "2xl": "1400px",
       },
     },
+    extend: {
       fontFamily: {
         sans: ['"Sul Sans"', 'system-ui', '-apple-system', 'sans-serif'],
       },
