@@ -51,33 +51,36 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
           </div>
         )}
 
-        {/* Imagem com cor de fundo do produto */}
-        <div
-          className="aspect-square flex items-center justify-center p-8 relative overflow-hidden"
-          style={bgStyle}
-        >
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
-            </div>
-          )}
-          {product.image_url &&
-          product.image_url !== "SIM" &&
-          !product.image_url.startsWith("data:image") &&
-          product.image_url.length > 10 ? (
-            <img
-              src={product.image_url}
-              alt={product.name}
-              loading="lazy"
-              decoding="async"
-              className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-105"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
-            />
-          ) : (
-            <Package className="w-6 h-6 text-muted-foreground/40" />
-          )}
+        {/* Imagem com cor de fundo do produto - metade superior */}
+        <div className="relative overflow-hidden">
+          <div
+            className="absolute inset-0 h-1/2"
+            style={bgStyle}
+          />
+          <div className="relative aspect-square flex items-center justify-center p-4">
+            {isOutOfStock && (
+              <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
+                <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
+              </div>
+            )}
+            {product.image_url &&
+            product.image_url !== "SIM" &&
+            !product.image_url.startsWith("data:image") &&
+            product.image_url.length > 10 ? (
+              <img
+                src={product.image_url}
+                alt={product.name}
+                loading="lazy"
+                decoding="async"
+                className="w-[70%] h-[70%] object-contain transition-transform duration-300 group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <Package className="w-6 h-6 text-muted-foreground/40" />
+            )}
+          </div>
         </div>
 
         {/* Info */}

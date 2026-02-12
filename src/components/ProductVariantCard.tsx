@@ -79,38 +79,41 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
             </div>
           )}
 
-          {/* Imagem com cor de fundo do produto */}
-          <div
-            className="aspect-square flex items-center justify-center p-8 relative overflow-hidden"
-            style={bgStyle}
-          >
-            {isOutOfStock && (
-              <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
-                <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
-              </div>
-            )}
+          {/* Imagem com cor de fundo do produto - metade superior */}
+          <div className="relative overflow-hidden">
+            <div
+              className="absolute inset-0 h-1/2"
+              style={bgStyle}
+            />
+            <div className="relative aspect-square flex items-center justify-center p-4">
+              {isOutOfStock && (
+                <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
+                </div>
+              )}
 
-            {/* Badge de variantes */}
-            {variants.length > 1 && (
-              <div className="absolute bottom-2 right-2 bg-foreground/60 text-background text-[9px] font-medium px-1.5 py-0.5 rounded-full z-20">
-                +{variants.length - 1}
-              </div>
-            )}
+              {/* Badge de variantes */}
+              {variants.length > 1 && (
+                <div className="absolute bottom-2 right-2 bg-foreground/60 text-background text-[9px] font-medium px-1.5 py-0.5 rounded-full z-20">
+                  +{variants.length - 1}
+                </div>
+              )}
 
-            {displayImage ? (
-              <img
-                src={displayImage}
-                alt={`${baseProduct.brand} ${baseProduct.size || ""}`}
-                loading="lazy"
-                decoding="async"
-                className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-105"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
-            ) : (
-              <Package className="w-8 h-8 text-muted-foreground/40" />
-            )}
+              {displayImage ? (
+                <img
+                  src={displayImage}
+                  alt={`${baseProduct.brand} ${baseProduct.size || ""}`}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-[70%] h-[70%] object-contain transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <Package className="w-8 h-8 text-muted-foreground/40" />
+              )}
+            </div>
           </div>
 
           {/* Conteúdo */}
@@ -124,9 +127,9 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
             {user ? (
               <div className="flex items-center justify-between mt-1.5">
                 <div className="flex flex-col">
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="text-[8px] text-muted-foreground">De</span>
-                    <span className="text-sm font-bold text-foreground/90">
+                  <div className="flex flex-col">
+                    <span className="text-[8px] text-muted-foreground leading-tight">De</span>
+                    <span className="text-sm font-bold text-foreground/90 leading-tight">
                       R$ {(promoMinPrice ?? priceRange.min).toFixed(2).replace('.', ',')}
                     </span>
                   </div>
