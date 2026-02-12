@@ -55,7 +55,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
       >
         {/* Card elegante estilo FeitosParaVoce */}
         <div className={`relative bg-card rounded-xl border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${
-          promoForSomeVariant ? "border-destructive/30" : "border-border/40"
+          promoForSomeVariant ? "border-destructive/30" : "border-border"
         }`}>
           {/* Promo badge */}
           {promoForSomeVariant && (
@@ -68,7 +68,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
           )}
 
           {/* Imagem aspect-square */}
-          <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-3 relative overflow-hidden">
+          <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-6 relative overflow-hidden">
             {isOutOfStock && (
               <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
                 <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
