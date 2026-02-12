@@ -358,7 +358,7 @@ const Checkout = () => {
                   <MapPin className="mr-2 h-4 w-4 md:h-5 md:w-5 text-primary" />
                   Como você quer receber?
                 </h2>
-                <RadioGroup
+               <RadioGroup
                   value={formData.delivery_type}
                   onValueChange={(value: 'delivery' | 'pickup') => setFormData({ ...formData, delivery_type: value })}
                   className="grid grid-cols-2 gap-3"
@@ -369,16 +369,16 @@ const Checkout = () => {
                     className={`
                       flex flex-col items-center gap-2 p-4 rounded-xl cursor-pointer border-2 transition-all
                       ${formData.delivery_type === 'delivery' 
-                        ? 'bg-primary/10 border-primary shadow-md' 
-                        : 'bg-accent/30 border-transparent hover:border-primary/40'}
+                        ? 'border-foreground bg-accent/50 shadow-sm' 
+                        : 'border-border hover:border-foreground/40'}
                       ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="delivery" id="delivery" className="sr-only" />
-                    <MapPin className={`w-6 h-6 ${formData.delivery_type === 'delivery' ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <MapPin className={`w-5 h-5 ${formData.delivery_type === 'delivery' ? 'text-foreground' : 'text-muted-foreground'}`} />
                     <span className="text-sm font-medium">Entrega</span>
                     {shippingFee > 0 && (
-                      <span className={`text-xs ${formData.delivery_type === 'delivery' ? 'text-primary' : 'text-muted-foreground'}`}>
+                      <span className="text-xs text-muted-foreground">
                         + R$ {Math.ceil(shippingFee)}
                       </span>
                     )}
@@ -389,34 +389,34 @@ const Checkout = () => {
                     className={`
                       flex flex-col items-center gap-2 p-4 rounded-xl cursor-pointer border-2 transition-all
                       ${formData.delivery_type === 'pickup' 
-                        ? 'bg-green-500/10 border-green-500 shadow-md' 
-                        : 'bg-accent/30 border-transparent hover:border-green-500/40'}
+                        ? 'border-foreground bg-accent/50 shadow-sm' 
+                        : 'border-border hover:border-foreground/40'}
                       ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="pickup" id="pickup" className="sr-only" />
-                    <Store className={`w-6 h-6 ${formData.delivery_type === 'pickup' ? 'text-green-600' : 'text-muted-foreground'}`} />
+                    <Store className={`w-5 h-5 ${formData.delivery_type === 'pickup' ? 'text-foreground' : 'text-muted-foreground'}`} />
                     <span className="text-sm font-medium">Retirada</span>
-                    <span className={`text-xs ${formData.delivery_type === 'pickup' ? 'text-green-600' : 'text-muted-foreground'}`}>
+                    <span className="text-xs text-muted-foreground">
                       Grátis
                     </span>
                   </Label>
                 </RadioGroup>
                 
                 {formData.delivery_type === 'pickup' && (
-                  <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                    <p className="text-xs text-green-700 dark:text-green-400 font-medium">
+                  <div className="mt-3 p-3 bg-accent/40 border border-border rounded-lg">
+                    <p className="text-xs text-foreground font-medium">
                       Retire na loja: R. Aiuruoca, 192 - Loja 5 - Fernão Dias
                     </p>
                     <a 
                       href="https://www.google.com/maps/search/?api=1&query=R.+Aiuruoca,+192+-+Loja+5+-+Fernão+Dias"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-green-600 dark:text-green-500 mt-1 hover:underline inline-flex items-center gap-1"
+                      className="text-xs text-muted-foreground mt-1 hover:underline inline-flex items-center gap-1"
                     >
                       📍 Ver no Google Maps
                     </a>
-                    <p className="text-xs text-green-600 dark:text-green-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Avisaremos quando seu pedido estiver pronto!
                     </p>
                   </div>
@@ -490,7 +490,7 @@ const Checkout = () => {
                 </div>
               </Card>
 
-              {/* Card Pagamento - Grid 2x2 no mobile */}
+              {/* Card Pagamento - Limpo e moderno */}
               <Card className="p-4 md:p-6 shadow-md">
                 <h2 className="text-base md:text-xl font-bold mb-3 md:mb-4">Forma de Pagamento</h2>
                 <RadioGroup
@@ -506,13 +506,13 @@ const Checkout = () => {
                       flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 
                       p-3 md:p-4 rounded-xl cursor-pointer border-2 transition-all
                       ${formData.payment_method === 'pix' 
-                        ? 'bg-[hsl(var(--pix))]/10 border-[hsl(var(--pix))] shadow-md' 
-                        : 'bg-accent/30 border-transparent hover:border-[hsl(var(--pix))]/40'}
+                        ? 'border-foreground bg-accent/50 shadow-sm' 
+                        : 'border-border hover:border-foreground/40'}
                       ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="pix" id="pix" className="sr-only md:not-sr-only" />
-                    <Smartphone className={`w-6 h-6 ${formData.payment_method === 'pix' ? 'text-[hsl(var(--pix))]' : 'text-muted-foreground'}`} />
+                    <Smartphone className={`w-5 h-5 ${formData.payment_method === 'pix' ? 'text-foreground' : 'text-muted-foreground'}`} />
                     <span className="text-xs md:text-base font-medium text-center md:text-left">PIX</span>
                   </Label>
 
@@ -523,13 +523,13 @@ const Checkout = () => {
                       flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 
                       p-3 md:p-4 rounded-xl cursor-pointer border-2 transition-all
                       ${formData.payment_method === 'cartao' 
-                        ? 'bg-[hsl(var(--card-payment))]/10 border-[hsl(var(--card-payment))] shadow-md' 
-                        : 'bg-accent/30 border-transparent hover:border-[hsl(var(--card-payment))]/40'}
+                        ? 'border-foreground bg-accent/50 shadow-sm' 
+                        : 'border-border hover:border-foreground/40'}
                       ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="cartao" id="cartao" className="sr-only md:not-sr-only" />
-                    <CreditCard className={`w-6 h-6 ${formData.payment_method === 'cartao' ? 'text-[hsl(var(--card-payment))]' : 'text-muted-foreground'}`} />
+                    <CreditCard className={`w-5 h-5 ${formData.payment_method === 'cartao' ? 'text-foreground' : 'text-muted-foreground'}`} />
                     <span className="text-xs md:text-base font-medium text-center md:text-left">Cartão</span>
                   </Label>
 
@@ -540,20 +540,20 @@ const Checkout = () => {
                       flex flex-col md:flex-row items-center md:items-center gap-1 md:gap-3 
                       p-3 md:p-4 rounded-xl cursor-pointer border-2 transition-all
                       ${formData.payment_method === 'dinheiro' 
-                        ? 'bg-[hsl(var(--cash))]/10 border-[hsl(var(--cash))] shadow-md' 
-                        : 'bg-accent/30 border-transparent hover:border-[hsl(var(--cash))]/40'}
+                        ? 'border-foreground bg-accent/50 shadow-sm' 
+                        : 'border-border hover:border-foreground/40'}
                       ${loading ? 'opacity-50 pointer-events-none' : ''}
                     `}
                   >
                     <RadioGroupItem value="dinheiro" id="dinheiro" className="sr-only md:not-sr-only" />
-                    <Banknote className={`w-6 h-6 ${formData.payment_method === 'dinheiro' ? 'text-[hsl(var(--cash))]' : 'text-muted-foreground'}`} />
+                    <Banknote className={`w-5 h-5 ${formData.payment_method === 'dinheiro' ? 'text-foreground' : 'text-muted-foreground'}`} />
                     <span className="text-xs md:text-base font-medium text-center md:text-left">Dinheiro</span>
                   </Label>
                 </RadioGroup>
 
                 {/* Troco - apenas se dinheiro */}
                 {formData.payment_method === 'dinheiro' && (
-                  <div className="mt-4 p-3 border rounded-xl bg-[hsl(var(--cash))]/5">
+                  <div className="mt-4 p-3 border rounded-xl bg-accent/30">
                     <Label htmlFor="change_for" className="text-sm font-medium">Troco para:</Label>
                     <div className="relative mt-1.5">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">R$</span>
@@ -635,14 +635,17 @@ const Checkout = () => {
               <h2 className="text-lg font-bold mb-4">Resumo do Pedido</h2>
               <div className="space-y-2 mb-4 max-h-[200px] overflow-y-auto">
                 {cart.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center py-2 text-sm">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary/20 text-primary font-bold text-xs shrink-0">
-                        {item.quantity}
-                      </span>
-                      <span className="truncate">{item.name}</span>
+                  <div key={item.id} className="flex items-center gap-3 py-2 border-b border-border/50">
+                    {(item as any).image_url && (
+                      <div className="w-10 h-10 rounded-lg bg-muted/30 flex-shrink-0 overflow-hidden">
+                        <img src={(item as any).image_url} alt={item.name} className="w-full h-full object-contain" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm truncate block">{item.name}</span>
+                      <span className="text-xs text-muted-foreground">×{item.quantity}</span>
                     </div>
-                    <span className="font-medium text-primary ml-2">
+                    <span className="font-medium text-sm ml-2">
                       R$ {(item.price * item.quantity).toFixed(2)}
                     </span>
                   </div>
@@ -747,14 +750,17 @@ const Checkout = () => {
           <ScrollArea className="h-[calc(100%-120px)] pr-4 mt-4">
             <div className="space-y-3">
               {cart.map((item) => (
-                <div key={item.id} className="flex justify-between items-center py-3 border-b">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-primary/20 text-primary font-bold text-sm shrink-0">
-                      {item.quantity}
-                    </span>
-                    <span className="truncate text-sm font-medium">{item.name}</span>
+                <div key={item.id} className="flex items-center gap-3 py-3 border-b border-border/50">
+                  {(item as any).image_url && (
+                    <div className="w-12 h-12 rounded-lg bg-muted/30 flex-shrink-0 overflow-hidden">
+                      <img src={(item as any).image_url} alt={item.name} className="w-full h-full object-contain" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium block truncate">{item.name}</span>
+                    <span className="text-xs text-muted-foreground">×{item.quantity}</span>
                   </div>
-                  <span className="font-bold text-primary ml-2">
+                  <span className="font-bold ml-2">
                     R$ {(item.price * item.quantity).toFixed(2)}
                   </span>
                 </div>

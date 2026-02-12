@@ -187,7 +187,7 @@ export const ProductVariantModal = ({
             </DialogHeader>
 
             <div className="relative flex-1 min-h-0">
-              <div className="sticky top-0 left-0 right-0 h-6 bg-gradient-to-b from-background via-background to-transparent pointer-events-none z-10" />
+              <div className="sticky top-0 left-0 right-0 h-6 bg-background pointer-events-none z-10" />
 
               <div className="absolute inset-0 overflow-y-auto p-4 md:p-6 space-y-2 scrollbar-hide pt-2">
                 {variants.map((variant) => {
@@ -276,7 +276,7 @@ export const ProductVariantModal = ({
                 })}
               </div>
 
-              <div className="sticky bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background via-background to-transparent pointer-events-none z-10" />
+              <div className="sticky bottom-0 left-0 right-0 h-6 bg-background pointer-events-none z-10" />
             </div>
           </div>
 

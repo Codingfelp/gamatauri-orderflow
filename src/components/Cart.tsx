@@ -19,6 +19,7 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  image_url?: string | null;
 }
 
 interface CartProps {
@@ -556,7 +557,13 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
               <ScrollArea className="flex-1 -mx-6 px-6 my-4">
                 <div className="space-y-0">
                   {items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between py-3 border-b">
+                    <div key={item.id} className="flex items-center gap-3 py-3 border-b">
+                      {/* Product image */}
+                      {(item as any).image_url && (
+                        <div className="w-11 h-11 rounded-lg bg-muted/30 flex-shrink-0 overflow-hidden">
+                          <img src={(item as any).image_url} alt={item.name} className="w-full h-full object-contain" />
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{item.name}</p>
                         <p className="text-primary font-bold text-sm">
@@ -610,44 +617,35 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-4"
+                      className="mt-3"
                     >
-                      <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl p-4 border border-primary/20">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-full shrink-0">
-                            <Heart className="w-4 h-4 text-primary" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground">
-                              Gostaria de favoritar esses itens?
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              Assim fica mais fácil comprar de novo 💙
-                            </p>
-                            <div className="flex gap-2 mt-3">
-                              <Button
-                                size="sm"
-                                onClick={handleFavoriteItems}
-                                disabled={favoriteLoading}
-                                className="h-8 text-xs"
-                              >
-                                {favoriteLoading ? (
-                                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                ) : (
-                                  <Heart className="w-3 h-3 mr-1" />
-                                )}
-                                Favoritar
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => setShowFavoritePrompt(false)}
-                                className="h-8 text-xs text-muted-foreground"
-                              >
-                                Agora não
-                              </Button>
-                            </div>
-                          </div>
+                      <div className="flex items-center justify-between py-2 px-1">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Heart className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground">Favoritar esses itens?</span>
+                        </div>
+                        <div className="flex gap-1.5 shrink-0">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={handleFavoriteItems}
+                            disabled={favoriteLoading}
+                            className="h-7 text-xs px-2"
+                          >
+                            {favoriteLoading ? (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            ) : (
+                              "Sim"
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setShowFavoritePrompt(false)}
+                            className="h-7 text-xs px-2 text-muted-foreground"
+                          >
+                            Não
+                          </Button>
                         </div>
                       </div>
                     </motion.div>
