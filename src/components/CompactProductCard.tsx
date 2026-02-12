@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Package, Flame, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePromotions } from "@/hooks/usePromotions";
+import { getProductColor } from "@/utils/productVariants";
 import type { Product } from "@/services/productsService";
 
 interface CompactProductCardProps {
@@ -25,10 +26,22 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
     ? new Date(promotion!.end_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
     : null;
 
+  // Get product background color for top half
+  const productBg = getProductColor(product.name, product.name, product.category || undefined);
+  const bgStyle: React.CSSProperties = {};
+  if (productBg.type === "image") {
+    bgStyle.backgroundImage = `url(${productBg.value})`;
+    bgStyle.backgroundSize = "cover";
+    bgStyle.backgroundPosition = "center";
+  } else if (productBg.type === "gradient") {
+    bgStyle.background = productBg.value;
+  } else {
+    bgStyle.backgroundColor = productBg.value;
+  }
+
   return (
     <div className={`flex-shrink-0 w-[150px] sm:w-[165px] group transition-all duration-300 ${isOutOfStock ? "opacity-50" : "hover:-translate-y-1"}`}>
-      {/* Card elegante estilo FeitosParaVoce */}
-      <div className="relative bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+      <div className="relative bg-card rounded-xl border border-foreground/20 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
         {hasPromo && (
           <div className="absolute top-2.5 left-2.5 z-10">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-destructive text-destructive-foreground">
@@ -38,8 +51,11 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
           </div>
         )}
 
-        {/* Imagem aspect-square */}
-        <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Imagem com cor de fundo do produto */}
+        <div
+          className="aspect-square flex items-center justify-center p-8 relative overflow-hidden"
+          style={bgStyle}
+        >
           {isOutOfStock && (
             <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
               <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
@@ -54,7 +70,7 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
               alt={product.name}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+              className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}

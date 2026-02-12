@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProductVariantModal } from "./ProductVariantModal";
-import { ProductGroup, ProductVariant } from "@/utils/productVariants";
+import { ProductGroup, ProductVariant, getProductColor } from "@/utils/productVariants";
 import { Product } from "@/services/productsService";
 import { useAuth } from "@/hooks/useAuth";
 import { Plus, Package, Flame } from "lucide-react";
@@ -45,6 +45,19 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
 
   const originalMinForDisplay = promoForSomeVariant && promoIsActive ? priceRange.min : null;
 
+  // Get product background color for top half
+  const productBg = getProductColor(initialVariant.name, initialVariant.flavor, baseProduct.category);
+  const bgStyle: React.CSSProperties = {};
+  if (productBg.type === "image") {
+    bgStyle.backgroundImage = `url(${productBg.value})`;
+    bgStyle.backgroundSize = "cover";
+    bgStyle.backgroundPosition = "center";
+  } else if (productBg.type === "gradient") {
+    bgStyle.background = productBg.value;
+  } else {
+    bgStyle.backgroundColor = productBg.value;
+  }
+
   return (
     <>
       <div
@@ -53,9 +66,8 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
         }`}
         onClick={() => setIsModalOpen(true)}
       >
-        {/* Card elegante estilo FeitosParaVoce */}
-        <div className={`relative bg-card rounded-xl border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${
-          promoForSomeVariant ? "border-destructive/30" : "border-border"
+        <div className={`relative bg-card rounded-xl border border-foreground/20 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${
+          promoForSomeVariant ? "border-destructive/30" : ""
         }`}>
           {/* Promo badge */}
           {promoForSomeVariant && (
@@ -67,8 +79,11 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
             </div>
           )}
 
-          {/* Imagem aspect-square */}
-          <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-6 relative overflow-hidden">
+          {/* Imagem com cor de fundo do produto */}
+          <div
+            className="aspect-square flex items-center justify-center p-8 relative overflow-hidden"
+            style={bgStyle}
+          >
             {isOutOfStock && (
               <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
                 <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
@@ -88,7 +103,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                 alt={`${baseProduct.brand} ${baseProduct.size || ""}`}
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
