@@ -176,6 +176,7 @@ const Order = () => {
         name: product.name,
         price: product.price,
         quantity: 1,
+        image_url: product.image_url,
       }];
     });
   };
