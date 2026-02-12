@@ -79,13 +79,13 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
             </div>
           )}
 
-          {/* Imagem com cor de fundo do produto - metade superior */}
+          {/* Imagem com cor de fundo do produto - metade inferior */}
           <div className="relative overflow-hidden">
             <div
-              className="absolute inset-0 h-1/2"
+              className="absolute inset-x-0 bottom-0 h-1/2 rounded-t-2xl"
               style={bgStyle}
             />
-            <div className="relative aspect-square flex items-center justify-center p-4">
+            <div className="relative aspect-square flex items-end justify-center px-3 pt-2 pb-3">
               {isOutOfStock && (
                 <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
                   <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
@@ -105,7 +105,7 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
                   alt={`${baseProduct.brand} ${baseProduct.size || ""}`}
                   loading="lazy"
                   decoding="async"
-                  className="w-[70%] h-[70%] object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="w-[85%] h-[85%] object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
