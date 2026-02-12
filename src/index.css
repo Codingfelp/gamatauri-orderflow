@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -28,7 +29,7 @@ All colors MUST be HSL.
     --input: 0 0% 89.8%;
     --ring: 0 84% 50%;
     --radius: 0.75rem;
-    
+
     /* Payment Method Colors */
     --pix: 158 64% 52%;
     --pix-foreground: 0 0% 100%;
@@ -36,7 +37,7 @@ All colors MUST be HSL.
     --card-payment-foreground: 0 0% 100%;
     --cash: 142 70% 35%;
     --cash-foreground: 0 0% 100%;
-    
+
     /* Status Colors */
     --success: 158 64% 52%;
     --success-foreground: 0 0% 100%;
@@ -44,19 +45,19 @@ All colors MUST be HSL.
     --info-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    
+
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(0 84% 50%), hsl(0 84% 60%));
     --gradient-success: linear-gradient(135deg, hsl(158 64% 52%), hsl(158 64% 62%));
     --gradient-info: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
-    
+
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     --shadow-glow: 0 0 40px rgba(220, 38, 38, 0.2);
-    
+
     --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -69,6 +70,7 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   }
 
   .dark {
@@ -91,7 +93,7 @@ All colors MUST be HSL.
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 0 84% 50%;
-    
+
     /* Payment Method Colors - Dark Mode */
     --pix: 158 64% 52%;
     --pix-foreground: 0 0% 100%;
@@ -99,7 +101,7 @@ All colors MUST be HSL.
     --card-payment-foreground: 0 0% 100%;
     --cash: 142 70% 35%;
     --cash-foreground: 0 0% 100%;
-    
+
     /* Status Colors - Dark Mode */
     --success: 158 64% 52%;
     --success-foreground: 0 0% 100%;
@@ -107,13 +109,13 @@ All colors MUST be HSL.
     --info-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    
+
     /* Gradients - Dark Mode */
     --gradient-primary: linear-gradient(135deg, hsl(0 84% 50%), hsl(0 84% 60%));
     --gradient-success: linear-gradient(135deg, hsl(158 64% 52%), hsl(158 64% 62%));
     --gradient-info: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 8%), hsl(0 0% 10%));
-    
+
     --shadow-glow: 0 0 40px rgba(220, 38, 38, 0.3);
 
     --sidebar-background: 240 5.9% 10%;
@@ -124,6 +126,7 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   }
 }
 
@@ -142,22 +145,22 @@ All colors MUST be HSL.
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   .hover-card-shadow {
     @apply transition-all duration-300 ease-out;
     @apply hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1;
     @apply active:scale-95 active:shadow-md;
   }
-  
+
   .hover-brand-shadow {
     @apply transition-all duration-300 ease-out;
     @apply hover:shadow-xl hover:shadow-primary/20 hover:scale-105;
@@ -170,7 +173,7 @@ All colors MUST be HSL.
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
-  
+
   .mb-safe {
     margin-bottom: env(safe-area-inset-bottom);
   }
