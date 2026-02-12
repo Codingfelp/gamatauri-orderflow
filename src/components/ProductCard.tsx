@@ -5,6 +5,7 @@ import { Plus, Package, Clock, Flame } from "lucide-react";
 import { usePromotions } from "@/hooks/usePromotions";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
 import { ColorPicker } from "@/components/ColorPicker";
+import { getProductColor } from "@/utils/productVariants";
 
 interface Product {
   id: string;
@@ -52,15 +53,29 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
     onAddToCart(productToAdd);
   };
 
+  // Get product background color for top half
+  const productBg = getProductColor(product.name, product.name, product.category || undefined);
+  const bgStyle: React.CSSProperties = {};
+  if (customColors?.card_bg_color) {
+    bgStyle.backgroundColor = customColors.card_bg_color;
+  } else if (productBg.type === "image") {
+    bgStyle.backgroundImage = `url(${productBg.value})`;
+    bgStyle.backgroundSize = "cover";
+    bgStyle.backgroundPosition = "center";
+  } else if (productBg.type === "gradient") {
+    bgStyle.background = productBg.value;
+  } else {
+    bgStyle.backgroundColor = productBg.value;
+  }
+
   return (
     <div
       className={`flex-shrink-0 w-full group transition-all duration-300 ${
         isOutOfStock ? "opacity-50" : "hover:-translate-y-1"
       }`}
     >
-      {/* Card elegante estilo FeitosParaVoce */}
-      <div className={`relative bg-card rounded-xl border shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${
-        hasPromo ? "border-destructive/30" : "border-border"
+      <div className={`relative bg-card rounded-xl border border-foreground/20 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden ${
+        hasPromo ? "border-destructive/30" : ""
       }`}>
         {/* Promo badge */}
         {hasPromo && (
@@ -90,8 +105,11 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
           </div>
         )}
 
-        {/* Imagem limpa - aspect-square */}
-        <div className="aspect-square bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center p-6 relative overflow-hidden">
+        {/* Imagem com cor de fundo do produto */}
+        <div
+          className="aspect-square flex items-center justify-center p-8 relative overflow-hidden"
+          style={bgStyle}
+        >
           {isOutOfStock && (
             <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
               <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
@@ -106,7 +124,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
               alt={product.name}
               loading="lazy"
               decoding="async"
-              className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+              className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
