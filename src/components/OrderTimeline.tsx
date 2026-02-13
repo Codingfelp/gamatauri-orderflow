@@ -73,22 +73,23 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
   const mapDbStatusToUI = (dbStatus: string): OrderStatus => {
     console.log('[OrderTimeline] Mapping status:', dbStatus, 'for deliveryType:', deliveryType);
     
-    // For pickup orders - different flow
+    // For pickup orders - Recebido -> Preparando -> Entregue (no "em rota")
     if (deliveryType === 'pickup') {
       switch (dbStatus) {
         case 'preparing':
         case 'separacao':
         case 'preparando':
         case 'accepted':
-          return 'accepted'; // Pedido Aceito
+        case 'aceito':
+          return 'preparing';
         case 'in_route':
         case 'saiu_entrega':
         case 'rota':
         case 'em_rota':
-          return 'accepted'; // Pickup doesn't have "em rota", keep as accepted
+          return 'preparing'; // Pickup doesn't have "em rota", keep as preparing
         case 'delivered':
         case 'entregue':
-          return 'delivered'; // Pedido Entregue
+          return 'delivered';
         case 'cancelled':
         case 'cancelado':
           return 'cancelled';
@@ -96,7 +97,7 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
         case 'pending':
         case 'confirmado':
         default:
-          return 'received'; // Pedido Recebido
+          return 'received';
       }
     }
     
@@ -191,11 +192,11 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
     { key: "delivered", label: "Entregue", icon: CheckCircle, subtitle: "Concluído" },
   ];
 
-  // PICKUP: Only 3 phases - Recebido, Aceito, Entregue
+  // PICKUP: Only 3 phases - Recebido, Preparando, Entregue (sem "Em rota")
   const pickupStatuses: { key: OrderStatus; label: string; icon: any; subtitle: string }[] = [
-    { key: "received", label: "Pedido Recebido", icon: Package, subtitle: "Aguardando confirmação" },
-    { key: "accepted", label: "Pedido Aceito", icon: ThumbsUp, subtitle: "Em preparação" },
-    { key: "delivered", label: "Pedido Entregue", icon: Store, subtitle: "Retirada confirmada" },
+    { key: "received", label: "Recebido", icon: Package, subtitle: "Aguardando confirmação" },
+    { key: "preparing", label: "Preparando", icon: Clock, subtitle: "~10 minutos" },
+    { key: "delivered", label: "Entregue", icon: Store, subtitle: "Retirada confirmada" },
   ];
 
   const statuses = deliveryType === 'pickup' ? pickupStatuses : deliveryStatuses;
@@ -413,8 +414,8 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
                 {currentStatus === "received" && (
                   <p className="text-foreground font-medium">Seu pedido foi recebido! Aguarde confirmação. ✨</p>
                 )}
-                {currentStatus === "accepted" && (
-                  <p className="text-foreground font-medium">Pedido aceito! Estamos preparando para retirada. 🧑‍🍳</p>
+                {currentStatus === "preparing" && (
+                  <p className="text-foreground font-medium">Estamos preparando seu pedido para retirada! 🧑‍🍳</p>
                 )}
                 {currentStatus === "delivered" && (
                   <p className="text-foreground font-medium">Retirada confirmada! Obrigado! 🎉</p>
