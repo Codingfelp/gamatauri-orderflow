@@ -9,7 +9,7 @@ import { CheckCircle, XCircle, AlertTriangle, Store, ArrowLeft, MapPin, FileText
 import { motion } from "framer-motion";
 import { OrderReceiptModal } from "@/components/OrderReceiptModal";
 
-type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
+type OrderStatus = "received" | "preparing" | "in_route" | "delivered" | "cancelled";
 
 const Success = () => {
   const location = useLocation();
@@ -17,30 +17,19 @@ const Success = () => {
   const { setActiveOrder, cancelledOrderDetails, clearCancelledOrder } = useActiveOrder();
   const orderNumber = location.state?.orderNumber;
   const orderId = location.state?.orderId;
-  const [orderStatus, setOrderStatus] = useState<string>('preparing');
+  const [orderStatus, setOrderStatus] = useState<string>('received');
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
   const [isCancelled, setIsCancelled] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
   const [showReceipt, setShowReceipt] = useState(false);
 
   const mapDbStatusToContextStatus = (dbStatus: string): OrderStatus => {
-    switch (dbStatus) {
-      case 'preparing':
-      case 'separacao':
-      case 'accepted':
-        return 'preparing';
-      case 'in_route':
-      case 'em_rota':
-        return 'in_route';
-      case 'delivered':
-      case 'entregue':
-        return 'delivered';
-      case 'cancelled':
-      case 'cancelado':
-        return 'cancelled';
-      default:
-        return 'preparing';
-    }
+    const normalized = dbStatus?.toLowerCase()?.trim() || 'received';
+    if (/(cancel|cancelad)/.test(normalized)) return 'cancelled';
+    if (/(deliver|entreg|conclu|finaliz)/.test(normalized)) return 'delivered';
+    if (/(rota|route|saiu|dispatch|delivering|shipp|enviad)/.test(normalized)) return 'in_route';
+    if (/(prepar|aceito|accepted|separando)/.test(normalized)) return 'preparing';
+    return 'received';
   };
 
   useEffect(() => {

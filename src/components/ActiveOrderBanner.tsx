@@ -73,6 +73,8 @@ export const ActiveOrderBanner = () => {
 
   const getStatusInfo = () => {
     switch (activeOrder.status) {
+      case "received":
+        return { label: "Pedido Recebido", icon: Clock, color: "text-white" };
       case "preparing":
         return { label: "Preparando Pedido", icon: Package, color: "text-white" };
       case "in_route":
