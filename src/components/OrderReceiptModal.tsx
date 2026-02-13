@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2, X } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 interface OrderReceiptModalProps {
   isOpen: boolean;
@@ -193,12 +195,34 @@ export const OrderReceiptModal = ({ isOpen, onClose, orderId, orderNumber }: Ord
     fetchOrder();
   }, [isOpen, orderId, orderNumber]);
 
-  const handleDownload = () => {
-    const iframe = iframeRef.current;
-    if (!iframe?.contentWindow) return;
+  const [downloading, setDownloading] = useState(false);
 
-    // Open print dialog which allows saving as PDF
-    iframe.contentWindow.print();
+  const handleDownload = async () => {
+    const iframe = iframeRef.current;
+    if (!iframe?.contentDocument?.body) return;
+
+    setDownloading(true);
+    try {
+      const body = iframe.contentDocument.body;
+      const canvas = await html2canvas(body, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        width: body.scrollWidth,
+        height: body.scrollHeight,
+      });
+
+      const imgWidth = 80; // mm (thermal receipt width)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdf = new jsPDF({ unit: "mm", format: [imgWidth, imgHeight + 4] });
+      const imgData = canvas.toDataURL("image/png");
+      pdf.addImage(imgData, "PNG", 0, 2, imgWidth, imgHeight);
+      pdf.save(`comprovante-${orderNumber}.pdf`);
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   return (
@@ -231,10 +255,11 @@ export const OrderReceiptModal = ({ isOpen, onClose, orderId, orderNumber }: Ord
             <div className="p-4 border-t bg-card">
               <Button
                 onClick={handleDownload}
+                disabled={downloading}
                 className="w-full h-12 text-base font-semibold gap-2"
               >
-                <Download className="w-5 h-5" />
-                Baixar Comprovante (PDF)
+                {downloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                {downloading ? "Gerando PDF..." : "Baixar Comprovante (PDF)"}
               </Button>
             </div>
           </>
