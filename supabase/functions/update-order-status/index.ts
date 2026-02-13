@@ -164,23 +164,27 @@ function mapExternalStatusToInternal(externalStatus: string): string {
   
   // Map various external statuses to internal ones
   const statusMap: Record<string, string> = {
-    // Preparing statuses - includes "received" and "accepted" from external system
+    // Received statuses (initial, before acceptance)
+    'received': 'received',
+    'recebido': 'received',
+    'pedido_recebido': 'received',
+    'pending': 'received',
+    'pendente': 'received',
+    'separacao': 'received',
+    'confirmado': 'received',
+    
+    // Preparing statuses - only after external system accepts
     'preparing': 'preparing',
     'preparando': 'preparing',
     'em_preparacao': 'preparing',
     'em preparação': 'preparing',
     'em preparacao': 'preparing',
-    'received': 'preparing',
-    'recebido': 'preparing',
-    'pedido_recebido': 'preparing',
     'accepted': 'preparing',
     'aceito': 'preparing',
     'pedido_aceito': 'preparing',
     'confirmed': 'preparing',
-    'confirmado': 'preparing',
     'processing': 'preparing',
     'processando': 'preparing',
-    'separacao': 'preparing',
     'separando': 'preparing',
     
     // In route statuses - CRITICAL: includes "delivering", "shipped", "em_rota_entrega" from external system
@@ -257,8 +261,11 @@ function mapExternalStatusToInternal(externalStatus: string): string {
     return 'in_route'
   }
 
-  // Preparing / received / accepted
-  if (/(prepar|prep|separa|process|receb|accept|aceit|confirm)/.test(s)) return 'preparing'
+  // Preparing / accepted
+  if (/(prepar|prep|separa[^c]|process|accept|aceit)/.test(s)) return 'preparing'
+
+  // Received / pending / confirmed
+  if (/(receb|confirm|pending|pendente)/.test(s)) return 'received'
 
   console.warn('[update-order-status] Unknown status received:', externalStatus, '- defaulting to preparing')
   return 'preparing'

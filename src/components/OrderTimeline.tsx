@@ -103,8 +103,9 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
     // Standard delivery flow
     switch (dbStatus) {
       case 'preparing':
-      case 'separacao':
       case 'preparando':
+      case 'accepted':
+      case 'aceito':
         return 'preparing';
       case 'in_route':
       case 'saiu_entrega':
@@ -117,7 +118,9 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
       case 'cancelled':
       case 'cancelado':
         return 'cancelled';
+      case 'separacao':
       case 'received':
+      case 'recebido':
       case 'pending':
       case 'confirmado':
       default:

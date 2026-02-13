@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
+type OrderStatus = "received" | "preparing" | "in_route" | "delivered" | "cancelled";
 
 interface OrderItem {
   product_name: string;
@@ -95,7 +95,7 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
 
   // Map database status to canonical status
   const mapDbStatusToCanonical = (dbStatus: string): OrderStatus => {
-    const normalized = dbStatus?.toLowerCase()?.trim() || 'preparing';
+    const normalized = dbStatus?.toLowerCase()?.trim() || 'received';
     
     console.log('[ActiveOrderContext] Mapping status:', { raw: dbStatus, normalized });
     
@@ -105,14 +105,16 @@ export const ActiveOrderProvider = ({ children }: { children: ReactNode }) => {
     // Delivered statuses
     if (/(deliver|entreg|conclu|finaliz|closed)/.test(normalized)) return 'delivered';
     
-    // In route statuses - CRITICAL: includes 'em_rota_entrega', 'shipping', 'shipped'
+    // In route statuses
     if (/(rota|route|saiu|out_for_delivery|dispatch|delivering|pronto|ready|shipp|enviad)/.test(normalized)) {
-      console.log('[ActiveOrderContext] Status mapped to in_route:', normalized);
       return 'in_route';
     }
     
-    // Default to preparing
-    return 'preparing';
+    // Preparing statuses - only when explicitly accepted/preparing
+    if (/(prepar|aceito|accepted|separando)/.test(normalized)) return 'preparing';
+    
+    // Default to received (initial state before external system accepts)
+    return 'received';
   };
 
   // Subscribe to realtime updates for the active order
