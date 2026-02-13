@@ -5,8 +5,9 @@ import { OrderTimeline } from "@/components/OrderTimeline";
 import { useActiveOrder } from "@/contexts/ActiveOrderContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, AlertTriangle, Store, ArrowLeft, MapPin } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Store, ArrowLeft, MapPin, FileText } from "lucide-react";
 import { motion } from "framer-motion";
+import { OrderReceiptModal } from "@/components/OrderReceiptModal";
 
 type OrderStatus = "preparing" | "in_route" | "delivered" | "cancelled";
 
@@ -20,6 +21,7 @@ const Success = () => {
   const [createdAt, setCreatedAt] = useState<string>(new Date().toISOString());
   const [isCancelled, setIsCancelled] = useState(false);
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
+  const [showReceipt, setShowReceipt] = useState(false);
 
   const mapDbStatusToContextStatus = (dbStatus: string): OrderStatus => {
     switch (dbStatus) {
@@ -345,6 +347,19 @@ const Success = () => {
             </Button>
           )}
           
+          {/* Botão baixar comprovante */}
+          {orderId && (
+            <Button
+              onClick={() => setShowReceipt(true)}
+              size="lg"
+              variant="outline"
+              className="w-full h-14 text-base font-semibold gap-2 border-primary text-primary hover:bg-primary/5"
+            >
+              <FileText className="w-5 h-5" />
+              Baixar Comprovante
+            </Button>
+          )}
+
           <Button
             onClick={() => navigate('/')}
             size="lg"
@@ -355,6 +370,16 @@ const Success = () => {
             Fazer Novo Pedido
           </Button>
         </motion.div>
+
+        {/* Receipt Modal */}
+        {orderId && (
+          <OrderReceiptModal
+            isOpen={showReceipt}
+            onClose={() => setShowReceipt(false)}
+            orderId={orderId}
+            orderNumber={orderNumber || ''}
+          />
+        )}
       </div>
     </div>
   );
