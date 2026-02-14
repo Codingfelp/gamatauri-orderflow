@@ -29,13 +29,19 @@ serve(async (req) => {
     console.log('Sync products webhook called');
 
     // Verify webhook secret authentication
-    const webhookSecret = req.headers.get('x-webhook-secret');
+    const webhookSecret = req.headers.get('x-webhook-secret') || req.headers.get('x-api-key');
     const expectedSecret = Deno.env.get('WEBHOOK_SECRET');
+    const externalSecret = Deno.env.get('EXTERNAL_SYSTEM_WEBHOOK_SECRET');
     
-    if (!webhookSecret || webhookSecret !== expectedSecret) {
+    const isAuthorized = webhookSecret && (
+      webhookSecret === expectedSecret || 
+      webhookSecret === externalSecret
+    );
+    
+    if (!isAuthorized) {
       console.error('Unauthorized webhook call - invalid secret');
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Unauthorized', hint: 'Provide valid key via x-webhook-secret or x-api-key header' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
