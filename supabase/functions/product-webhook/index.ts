@@ -28,7 +28,7 @@ serve(async (req) => {
   }
 
   try {
-    // Accept both x-webhook-secret and x-api-key headers for flexibility
+    // Accept x-webhook-secret, x-api-key headers, or query param
     const webhookSecretHeader = req.headers.get("x-webhook-secret");
     const apiKeyHeader = req.headers.get("x-api-key");
     const url = new URL(req.url);
@@ -36,26 +36,21 @@ serve(async (req) => {
     
     const providedSecret = webhookSecretHeader || apiKeyHeader || queryKey;
     const expectedSecret = Deno.env.get("WEBHOOK_SECRET");
+    const externalSecret = Deno.env.get("EXTERNAL_SYSTEM_WEBHOOK_SECRET");
 
-    // Debug logging
+    const isAuthorized = providedSecret && (
+      providedSecret === expectedSecret || 
+      providedSecret === externalSecret
+    );
+
     console.log("[product-webhook] Auth check:", {
       hasWebhookSecretHeader: !!webhookSecretHeader,
       hasApiKeyHeader: !!apiKeyHeader,
       hasQueryKey: !!queryKey,
-      hasEnvSecret: !!expectedSecret,
       providedLength: providedSecret?.length || 0,
-      expectedLength: expectedSecret?.length || 0,
     });
 
-    if (!expectedSecret) {
-      console.error("[product-webhook] WEBHOOK_SECRET not configured");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error: WEBHOOK_SECRET not set" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!providedSecret || providedSecret !== expectedSecret) {
+    if (!isAuthorized) {
       console.error("[product-webhook] Invalid secret - authentication failed");
       return new Response(
         JSON.stringify({ 

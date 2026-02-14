@@ -55,23 +55,40 @@ serve(async (req) => {
   try {
     const productsApiKey = Deno.env.get('PRODUCTS_API_KEY');
     
-    const response = await fetch(
-      'https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api?limit=1000',
-      {
-        method: 'GET',
-        headers: {
-          'X-API-KEY': productsApiKey || '',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    // Fetch ALL products (paginate if needed)
+    let allProducts: any[] = [];
+    let page = 1;
+    let hasMore = true;
+    
+    while (hasMore) {
+      const response = await fetch(
+        `https://uylhfhbedjfhupvkrfrf.supabase.co/functions/v1/products-api?limit=1000&page=${page}`,
+        {
+          method: 'GET',
+          headers: {
+            'X-API-KEY': productsApiKey || '',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    if (!response.ok) {
-      throw new Error(`External API returned ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`External API returned ${response.status}`);
+      }
+
+      const result = await response.json();
+      const products = result.data || [];
+      allProducts = allProducts.concat(products);
+      
+      // If we got less than limit, no more pages
+      if (products.length < 1000) {
+        hasMore = false;
+      } else {
+        page++;
+      }
     }
 
-    const result = await response.json();
-    const externalProducts = result.data || [];
+    console.log(`Fetched ${allProducts.length} products from external API`);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -79,10 +96,11 @@ serve(async (req) => {
 
     let inserted = 0;
     let updated = 0;
+    let deleted = 0;
     let imagesAdded = 0;
     let errors = 0;
 
-    for (const product of externalProducts) {
+    for (const product of allProducts) {
       try {
         const { data: existing } = await supabase
           .from('products')
@@ -90,28 +108,27 @@ serve(async (req) => {
           .eq('name', product.name)
           .maybeSingle();
 
-        if (existing) {
-          let cleanImageUrl = product.image_url;
-          if (cleanImageUrl && (
-            cleanImageUrl === 'SIM' || 
-            cleanImageUrl.startsWith('data:image') ||
-            cleanImageUrl.length < 10
-          )) {
-            cleanImageUrl = null;
-          }
+        let cleanImageUrl = product.image_url;
+        if (cleanImageUrl && (
+          cleanImageUrl === 'SIM' || 
+          cleanImageUrl.startsWith('data:image') ||
+          cleanImageUrl.length < 10
+        )) {
+          cleanImageUrl = null;
+        }
 
+        if (existing) {
           const updateData: any = {
             description: product.description,
             price: product.price,
             category: product.category,
-            available: product.available,
+            available: product.available !== false,
+            deleted_at: product.available === false ? new Date().toISOString() : null,
           };
 
-          if (cleanImageUrl && !existing.image_url) {
+          if (cleanImageUrl) {
             updateData.image_url = cleanImageUrl;
-            imagesAdded++;
-          } else if (cleanImageUrl) {
-            updateData.image_url = cleanImageUrl;
+            if (!existing.image_url) imagesAdded++;
           }
 
           const { error: updateError } = await supabase
@@ -119,24 +136,10 @@ serve(async (req) => {
             .update(updateData)
             .eq('id', existing.id);
 
-          if (updateError) {
-            errors++;
-          } else {
-            updated++;
-          }
+          if (updateError) errors++;
+          else updated++;
         } else {
-          let cleanImageUrl = product.image_url;
-          if (cleanImageUrl && (
-            cleanImageUrl === 'SIM' || 
-            cleanImageUrl.startsWith('data:image') ||
-            cleanImageUrl.length < 10
-          )) {
-            cleanImageUrl = null;
-          }
-
-          if (cleanImageUrl) {
-            imagesAdded++;
-          }
+          if (cleanImageUrl) imagesAdded++;
 
           const { error: insertError } = await supabase
             .from('products')
@@ -146,17 +149,35 @@ serve(async (req) => {
               price: product.price,
               category: product.category,
               image_url: cleanImageUrl,
-              available: product.available,
+              available: product.available !== false,
             });
 
-          if (insertError) {
-            errors++;
-          } else {
-            inserted++;
-          }
+          if (insertError) errors++;
+          else inserted++;
         }
       } catch (error) {
         errors++;
+      }
+    }
+
+    // Soft-delete products not in external API
+    const { data: localProducts } = await supabase
+      .from('products')
+      .select('name')
+      .eq('available', true);
+
+    if (localProducts) {
+      const externalNames = new Set(allProducts.map((p: any) => p.name));
+      const toDelete = localProducts.filter(p => !externalNames.has(p.name));
+      
+      if (toDelete.length > 0) {
+        console.log(`Marking ${toDelete.length} products as deleted`);
+        const { error: delError } = await supabase
+          .from('products')
+          .update({ available: false, deleted_at: new Date().toISOString() })
+          .in('name', toDelete.map(p => p.name));
+        
+        if (!delError) deleted = toDelete.length;
       }
     }
 
@@ -172,9 +193,10 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         stats: {
-          total_external: externalProducts.length,
+          total_external: allProducts.length,
           inserted,
           updated,
+          deleted,
           images_added: imagesAdded,
           errors,
           current_with_images: withImages,
