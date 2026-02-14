@@ -105,13 +105,25 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
     }
   }, [storeSettings.maxDeliveryRadiusKm, selectedAddress, addressValid, deliveryType]);
 
-  // Recalcular frete quando is_raining ou taxas por km mudarem (via Realtime)
+  // Recalcular frete LOCALMENTE quando is_raining ou taxas mudarem (via Realtime)
+  // Não chama API — usa distance_km já salvo no endereço
   useEffect(() => {
     if (!selectedAddress || !addressValid) return;
     if (isOutOfRange) return;
     
-    // Recalcular frete com os valores atualizados do storeSettings
-    calculateAndSaveShipping(selectedAddress);
+    const distanceKm = selectedAddress.distance_km;
+    if (typeof distanceKm !== 'number' || Number.isNaN(distanceKm)) return;
+    
+    // Calcular frete localmente com as configurações atuais
+    const fee = calculateFeeLocally(distanceKm);
+    setShippingFee(fee);
+    
+    // Atualizar no banco
+    supabase
+      .from('user_addresses')
+      .update({ shipping_fee: fee })
+      .eq('id', selectedAddress.id)
+      .then(() => console.log('💰 Frete recalculado localmente:', fee, 'chuva:', storeSettings.isRaining));
   }, [storeSettings.isRaining, storeSettings.feePerKm, storeSettings.rainFeePerKm, storeSettings.minDeliveryFee]);
 
   // Mostrar prompt de favoritar quando houver itens não favoritados
@@ -229,21 +241,25 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
           // Não retornar aqui - permitir que o usuário veja o endereço e possa corrigir
         }
         
-        // Se já temos distância salva, conseguimos decidir "fora do raio" sem chamar o backend
+        // Se já temos distância salva, decidir fora do raio e calcular frete localmente
         if (validation.complete && typeof (address as any).distance_km === 'number') {
           const distanceKm = Number((address as any).distance_km);
-          if (!Number.isNaN(distanceKm) && distanceKm > storeSettings.maxDeliveryRadiusKm) {
-            setIsOutOfRange(true);
-            setOutOfRangeDistance(distanceKm);
-            setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
-            setShippingFee(0);
+          if (!Number.isNaN(distanceKm)) {
+            if (distanceKm > storeSettings.maxDeliveryRadiusKm) {
+              setIsOutOfRange(true);
+              setOutOfRangeDistance(distanceKm);
+              setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
+              setShippingFee(0);
+              return;
+            }
+            // Calcular frete localmente (sem chamar API)
+            await calculateAndSaveShipping(address);
             return;
           }
         }
 
-        // Calcular frete mesmo se endereço incompleto (mas não permitir checkout)
+        // Sem distância salva — chamar API para obter distância
         if (validation.complete) {
-          // Sempre calcular frete para usar valores atualizados (chuva, taxas, etc.)
           await calculateAndSaveShipping(address);
         }
       }
@@ -252,7 +268,52 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
     }
   };
 
+  // Calcula o frete localmente a partir da distância e das configurações atuais
+  const calculateFeeLocally = (distanceKm: number): number => {
+    const pricePerKm = storeSettings.isRaining ? storeSettings.rainFeePerKm : storeSettings.feePerKm;
+    const raw = Math.max(storeSettings.minDeliveryFee, distanceKm * pricePerKm);
+    return Math.ceil(raw);
+  };
+
   const calculateAndSaveShipping = async (address: Address) => {
+    // Se já temos a distância salva, calcular localmente (sem chamar API)
+    if (typeof address.distance_km === 'number' && !Number.isNaN(address.distance_km)) {
+      const distanceKm = address.distance_km;
+      console.log('📏 Usando distância salva:', distanceKm, 'km | chuva:', storeSettings.isRaining);
+
+      // Verificar raio
+      if (distanceKm > storeSettings.maxDeliveryRadiusKm) {
+        setIsOutOfRange(true);
+        setOutOfRangeDistance(distanceKm);
+        setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
+        setShippingFee(0);
+        toast({
+          title: "Fora da área de entrega",
+          description: `Você está a ${distanceKm.toFixed(1)}km. Opte por retirar na loja!`,
+        });
+        return;
+      }
+
+      const fee = calculateFeeLocally(distanceKm);
+      setShippingFee(fee);
+      setIsOutOfRange(false);
+      setOutOfRangeDistance(null);
+      setSelectedAddress({ ...address, shipping_fee: fee, distance_km: distanceKm });
+
+      // Persistir o frete atualizado no banco
+      await supabase
+        .from('user_addresses')
+        .update({ shipping_fee: fee })
+        .eq('id', address.id);
+
+      toast({
+        title: "Frete calculado!",
+        description: `R$ ${fee} (${distanceKm.toFixed(1)}km)${storeSettings.isRaining ? ' 🌧️' : ''}`,
+      });
+      return;
+    }
+
+    // Sem distância salva — chamar API para obter distância
     setLoadingShipping(true);
     setIsOutOfRange(false);
     setOutOfRangeDistance(null);
@@ -263,10 +324,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
         body: { destination: fullAddress }
       });
 
-      // Extrair data e error
       const { data, error } = response;
 
-      // Função auxiliar para processar resposta de "fora do raio"
       const handleOutOfRange = (distance?: number, maxRadius?: number) => {
         setIsOutOfRange(true);
         if (distance) setOutOfRangeDistance(distance);
@@ -278,131 +337,81 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
         });
       };
 
-      // Caso 1: Sucesso com out_of_range no data (edge function retornou 200 mas com flag)
       if (data?.out_of_range) {
-        // Persistir distância/frete para auditoria e para que o app consiga mostrar o aviso sem recalcular
+        // Salvar distância mesmo fora do raio para não precisar chamar API de novo
+        const distanceKm = data.distance_km ?? null;
         try {
           await supabase
             .from('user_addresses')
-            .update({
-              shipping_fee: data.shipping_fee ?? null,
-              distance_km: data.distance_km ?? null,
-            })
+            .update({ distance_km: distanceKm, shipping_fee: null })
             .eq('id', address.id);
+          if (distanceKm !== null) {
+            setSelectedAddress({ ...address, distance_km: distanceKm, shipping_fee: null });
+          }
         } catch (e) {
-          console.warn('Não foi possível salvar distância/frete (fora do raio):', e);
+          console.warn('Não foi possível salvar distância (fora do raio):', e);
         }
-
         handleOutOfRange(data.distance_km, data.max_radius_km);
         return;
       }
 
-      // Caso 2: Erro da Edge Function (status 400)
       if (error) {
         console.log('🔍 Erro da Edge Function:', error);
-        
-        // Tentar várias formas de extrair o body JSON do erro
         let errorBody: any = null;
-        
-        // Método 1: error.context?.body (formato padrão Supabase)
         try {
           if (error.context?.body) {
-            const bodyStr = typeof error.context.body === 'string' 
-              ? error.context.body 
-              : JSON.stringify(error.context.body);
+            const bodyStr = typeof error.context.body === 'string' ? error.context.body : JSON.stringify(error.context.body);
             errorBody = JSON.parse(bodyStr);
           }
         } catch (e) { /* ignore */ }
-        
-        // Método 2: Tentar parsear a mensagem de erro diretamente
         if (!errorBody && typeof error.message === 'string') {
           try {
-            // A mensagem pode ser JSON puro ou conter JSON embutido
             const jsonMatch = error.message.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              errorBody = JSON.parse(jsonMatch[0]);
-            }
+            if (jsonMatch) errorBody = JSON.parse(jsonMatch[0]);
           } catch (e) { /* ignore */ }
         }
+        if (!errorBody && error.context && typeof error.context === 'object') errorBody = error.context;
 
-        // Método 3: Verificar se error.context é o próprio body
-        if (!errorBody && error.context && typeof error.context === 'object') {
-          errorBody = error.context;
-        }
+        if (errorBody?.out_of_range) { handleOutOfRange(errorBody.distance_km, errorBody.max_radius_km); return; }
 
-        console.log('🔍 Error body parseado:', errorBody);
-
-        // Verificar se é erro de fora do raio
-        if (errorBody?.out_of_range) {
-          handleOutOfRange(errorBody.distance_km, errorBody.max_radius_km);
-          return;
-        }
-
-        // Fallback: verificar texto do erro
         const errorMessage = (error.message || '').toLowerCase();
         const bodyMessage = JSON.stringify(errorBody || {}).toLowerCase();
-        if (
-          errorMessage.includes('fora') || 
-          errorMessage.includes('out_of_range') || 
-          bodyMessage.includes('out_of_range') ||
-          bodyMessage.includes('fora da área')
-        ) {
-          handleOutOfRange();
-          return;
+        if (errorMessage.includes('fora') || errorMessage.includes('out_of_range') || bodyMessage.includes('out_of_range') || bodyMessage.includes('fora da área')) {
+          handleOutOfRange(); return;
         }
 
-        // Erro genérico - mas NÃO fazer throw para evitar crash
         console.error('Erro ao calcular frete:', error);
-        toast({
-          variant: "destructive",
-          title: "Erro ao calcular frete",
-          description: errorBody?.message || error.message || 'Tente novamente',
-        });
+        toast({ variant: "destructive", title: "Erro ao calcular frete", description: errorBody?.message || error.message || 'Tente novamente' });
         return;
       }
 
-      // Caso 3: Sucesso - salvar frete e distância no banco
-      if (data?.shipping_fee !== undefined) {
+      // Sucesso — salvar distância e calcular frete localmente
+      if (data?.distance_km !== undefined) {
+        const distanceKm = data.distance_km;
+        const fee = calculateFeeLocally(distanceKm);
+        
         setIsOutOfRange(false);
-        
-        // Garantir que o frete seja sempre inteiro (arredondado para cima)
-        const roundedShippingFee = Math.ceil(data.shipping_fee);
-        
-        // Salvar frete E distância calculada no endereço
+        setShippingFee(fee);
+        setSelectedAddress({ ...address, shipping_fee: fee, distance_km: distanceKm });
+
         await supabase
           .from('user_addresses')
-          .update({ 
-            shipping_fee: roundedShippingFee,
-            distance_km: data.distance_km || null
-          })
+          .update({ shipping_fee: fee, distance_km: distanceKm })
           .eq('id', address.id);
-        
-        setShippingFee(roundedShippingFee);
-        setSelectedAddress({ ...address, shipping_fee: roundedShippingFee });
-        
+
         toast({
           title: "Frete calculado!",
-          description: `R$ ${roundedShippingFee} (${data.distance_km?.toFixed(1) || '?'}km)`,
+          description: `R$ ${fee} (${distanceKm.toFixed(1)}km)${storeSettings.isRaining ? ' 🌧️' : ''}`,
         });
       }
     } catch (error: any) {
       console.error('Erro inesperado ao calcular frete:', error);
-      
-      // Verificar se o erro contém informação de fora do raio (último recurso)
       const errorStr = JSON.stringify(error).toLowerCase();
       if (errorStr.includes('out_of_range') || errorStr.includes('fora')) {
-        setIsOutOfRange(true);
-        setShippingFee(0);
-        toast({
-          title: "Fora da área de entrega",
-          description: `Você pode optar por retirar na loja!`,
-        });
+        setIsOutOfRange(true); setShippingFee(0);
+        toast({ title: "Fora da área de entrega", description: `Você pode optar por retirar na loja!` });
       } else {
-        toast({
-          variant: "destructive",
-          title: "Erro ao calcular frete",
-          description: 'Verifique seu endereço e tente novamente',
-        });
+        toast({ variant: "destructive", title: "Erro ao calcular frete", description: 'Verifique seu endereço e tente novamente' });
       }
     } finally {
       setLoadingShipping(false);
