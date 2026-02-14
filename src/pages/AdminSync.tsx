@@ -16,7 +16,7 @@ export default function AdminSync() {
       
       console.log('Calling admin-sync function...');
       
-      const { data, error } = await supabase.functions.invoke('admin-sync', {
+      const { data, error } = await supabase.functions.invoke('product-sync?mode=bulk', {
         method: 'POST',
       });
 
