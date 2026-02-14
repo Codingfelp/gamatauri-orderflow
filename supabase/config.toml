@@ -10,7 +10,7 @@ verify_jwt = false
 [functions.fetch-products]
 verify_jwt = false
 
-[functions.product-webhook]
+[functions.product-sync]
 verify_jwt = false
 
 [functions.store-status]
