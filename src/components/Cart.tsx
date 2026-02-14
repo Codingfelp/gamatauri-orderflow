@@ -102,9 +102,17 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
     } else {
       setOutOfRangeDistance(null);
       setMaxRadiusKm(storeSettings.maxDeliveryRadiusKm);
-      if (selectedAddress.shipping_fee !== null) setShippingFee(selectedAddress.shipping_fee);
     }
   }, [storeSettings.maxDeliveryRadiusKm, selectedAddress, addressValid, deliveryType]);
+
+  // Recalcular frete quando is_raining ou taxas por km mudarem (via Realtime)
+  useEffect(() => {
+    if (!selectedAddress || !addressValid) return;
+    if (isOutOfRange) return;
+    
+    // Recalcular frete com os valores atualizados do storeSettings
+    calculateAndSaveShipping(selectedAddress);
+  }, [storeSettings.isRaining, storeSettings.feePerKm, storeSettings.rainFeePerKm, storeSettings.minDeliveryFee]);
 
   // Mostrar prompt de favoritar quando houver itens não favoritados
   useEffect(() => {
@@ -234,10 +242,8 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
         }
 
         // Calcular frete mesmo se endereço incompleto (mas não permitir checkout)
-        if (address.shipping_fee !== null && validation.complete) {
-          setShippingFee(address.shipping_fee);
-        } else if (validation.complete) {
-          // Calcular frete automaticamente apenas se endereço válido
+        if (validation.complete) {
+          // Sempre calcular frete para usar valores atualizados (chuva, taxas, etc.)
           await calculateAndSaveShipping(address);
         }
       }
