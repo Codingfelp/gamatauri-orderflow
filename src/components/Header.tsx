@@ -135,16 +135,7 @@ export const Header = () => {
             </div>
           </div>
         )}
-        <div className="container mx-auto px-4">
-          <div className="flex h-20 items-center justify-between relative">
-            {/* LOGO À ESQUERDA (apenas desktop) */}
-            <div className="hidden md:flex items-center cursor-pointer flex-shrink-0" onClick={() => navigate('/')}>
-              <img 
-                src={logo} 
-                alt="Gamatauri - Distribuidora de Bebidas" 
-                className="h-8 w-auto object-contain hover:opacity-80 transition-opacity"
-              />
-            </div>
+
 
             {/* ESPAÇO VAZIO MOBILE */}
             <div className="flex-1 md:hidden" />
