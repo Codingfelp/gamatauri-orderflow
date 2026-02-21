@@ -136,6 +136,12 @@ export const Header = () => {
           </div>
         )}
 
+        <div className="container mx-auto px-4">
+          <div className="relative flex h-14 md:h-16 items-center justify-between">
+            {/* LOGO - SEMPRE À ESQUERDA */}
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+              <img src={logo} alt="Gamatauri" className="h-8 md:h-10" />
+            </div>
 
             {/* ESPAÇO VAZIO MOBILE */}
             <div className="flex-1 md:hidden" />
