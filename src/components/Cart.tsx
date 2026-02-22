@@ -880,9 +880,7 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
                     const deliveryAddress = deliveryType === 'pickup' 
                       ? 'Retirada na loja - R. Aiuruoca, 192 - Fernão Dias, BH'
                       : selectedAddress 
-                        ? `${selectedAddress.street}, ${selectedAddress.number}${
-                            selectedAddress.complement ? ', ' + selectedAddress.complement : ''
-                          }, ${selectedAddress.neighborhood}, ${selectedAddress.city} - ${selectedAddress.state}`
+                        ? `${selectedAddress.street}, ${selectedAddress.number}, ${selectedAddress.neighborhood}, ${selectedAddress.city} - ${selectedAddress.state}`
                         : '';
                     onCheckout(
                       finalShippingFee,
