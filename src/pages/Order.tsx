@@ -207,7 +207,8 @@ const Order = () => {
     couponId: string | null = null,
     discountAmount: number = 0,
     bundleDiscount: number = 0,
-    deliveryType: 'delivery' | 'pickup' = 'delivery'
+    deliveryType: 'delivery' | 'pickup' = 'delivery',
+    addressComplement: string = ''
   ) => {
     if (!user) {
       navigate('/auth', { state: { from: '/checkout', cart } });
@@ -221,7 +222,8 @@ const Order = () => {
         couponId,
         discountAmount,
         bundleDiscount,
-        deliveryType
+        deliveryType,
+        addressComplement
       } 
     });
   };
