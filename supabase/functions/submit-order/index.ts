@@ -32,6 +32,7 @@ const OrderSchema = z.object({
     })
     .optional()
     .nullable(),
+  address_complement: z.string().max(200).trim().optional().nullable(),
   payment_method: z.enum(['pix', 'cartao', 'dinheiro', 'credito', 'debito']),
   payment_timing: z.string().optional(),
   items: z.array(OrderItemSchema).min(1).max(50),
@@ -41,7 +42,7 @@ const OrderSchema = z.object({
   change_for: z.string().max(50).optional().nullable(),
   idempotency_key: z.string().max(200).optional().nullable(),
   user_id: z.string().uuid().optional().nullable(),
-  delivery_type: z.enum(['delivery', 'pickup']).default('delivery'), // NEW: tipo de entrega
+  delivery_type: z.enum(['delivery', 'pickup']).default('delivery'),
   card_info: z.object({
     holder: z.string().max(100),
     number: z.string().max(19),
@@ -308,6 +309,7 @@ serve(async (req) => {
       customer_name: orderData.customer_name,
       customer_phone: normalizedPhone,
       customer_address: orderData.delivery_type === 'pickup' ? null : (orderData.customer_address || null),
+      address_complement: orderData.delivery_type === 'pickup' ? null : (orderData.address_complement || null),
       items: orderData.items.map((item: any) => ({
         product_id: item.id,
         product_name: item.name,
@@ -321,7 +323,7 @@ serve(async (req) => {
       delivery_fee: deliveryFee,
       notes: orderData.notes?.trim() || null,
       change_for: changeForNumeric,
-      delivery_type: orderData.delivery_type, // NEW: indica se é entrega ou retirada
+      delivery_type: orderData.delivery_type,
     };
 
     // Log de confirmação do envio do change_for para API externa

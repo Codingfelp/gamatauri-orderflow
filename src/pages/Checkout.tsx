@@ -51,6 +51,7 @@ const Checkout = () => {
 
   const shippingFee = location.state?.shippingFee || 0;
   const preFilledAddress = location.state?.deliveryAddress || '';
+  const preFilledComplement = location.state?.addressComplement || '';
   const couponId = location.state?.couponId || null;
   const discountAmount = location.state?.discountAmount || 0;
   const bundleDiscount = getTotalBundleDiscount(cart);
@@ -230,6 +231,7 @@ const Checkout = () => {
         customer_name: formData.customer_name || userProfile?.name || formData.customer_email || formData.customer_phone,
         customer_phone: formData.customer_phone,
         customer_address: formData.delivery_type === 'pickup' ? null : (formData.customer_address?.trim() || null),
+        address_complement: formData.delivery_type === 'pickup' ? null : (preFilledComplement?.trim() || null),
         items: cart,
         payment_method: formData.payment_method,
         payment_timing: formData.payment_timing,

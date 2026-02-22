@@ -26,7 +26,7 @@ interface CartProps {
   items: CartItem[];
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemove: (id: string) => void;
-  onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number, bundleDiscount?: number, deliveryType?: 'delivery' | 'pickup') => void;
+  onCheckout: (shippingFee: number, deliveryAddress: string, couponId: string | null, discountAmount: number, bundleDiscount?: number, deliveryType?: 'delivery' | 'pickup', addressComplement?: string) => void;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
@@ -882,13 +882,15 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
                       : selectedAddress 
                         ? `${selectedAddress.street}, ${selectedAddress.number}, ${selectedAddress.neighborhood}, ${selectedAddress.city} - ${selectedAddress.state}`
                         : '';
+                    const complement = deliveryType === 'pickup' ? '' : (selectedAddress?.complement || '');
                     onCheckout(
                       finalShippingFee,
                       deliveryAddress,
                       appliedCoupon?.coupon_id || null,
                       couponDiscount,
                       totalBundleDiscount,
-                      deliveryType
+                      deliveryType,
+                      complement
                     );
                   }}
                   title={!canCheckout ? (deliveryType === 'delivery' && isOutOfRange ? "Escolha retirar na loja ou altere o endereço" : "Complete o endereço e aguarde o cálculo do frete") : ""}
