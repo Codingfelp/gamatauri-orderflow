@@ -13,7 +13,7 @@ import { isStructuredAddressComplete } from "@/utils/addressValidator";
 import { supabase } from "@/integrations/supabase/client";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
 import { useStoreStatus } from "@/contexts/StoreStatusContext";
-import logo from "@/assets/gamatauri-logo.png";
+
 
 interface Address {
   id: string;
@@ -138,9 +138,9 @@ export const Header = () => {
 
         <div className="container mx-auto px-4">
           <div className="relative flex h-14 md:h-16 items-center justify-between">
-            {/* LOGO - SEMPRE À ESQUERDA */}
+            {/* ESPAÇO ESQUERDO */}
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <img src={logo} alt="Gamatauri" className="h-8 md:h-10" />
+              <span className="font-bold text-lg text-foreground">Gamatauri</span>
             </div>
 
             {/* ESPAÇO VAZIO MOBILE */}
