@@ -139,9 +139,7 @@ export const Header = () => {
         <div className="container mx-auto px-4">
           <div className="relative flex h-14 md:h-16 items-center justify-between">
             {/* ESPAÇO ESQUERDO */}
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-              <span className="font-bold text-lg text-foreground">Gamatauri</span>
-            </div>
+            <div className="w-8 md:w-10" />
 
             {/* ESPAÇO VAZIO MOBILE */}
             <div className="flex-1 md:hidden" />
