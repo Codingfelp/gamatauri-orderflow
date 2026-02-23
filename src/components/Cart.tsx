@@ -114,16 +114,19 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
     const distanceKm = selectedAddress.distance_km;
     if (typeof distanceKm !== 'number' || Number.isNaN(distanceKm)) return;
     
-    // Calcular frete localmente com as configurações atuais
     const fee = calculateFeeLocally(distanceKm);
+    
+    // Só atualiza se o valor realmente mudou
+    if (fee === shippingFee) return;
+    
     setShippingFee(fee);
     
-    // Atualizar no banco
+    // Atualizar no banco apenas quando mudou
     supabase
       .from('user_addresses')
       .update({ shipping_fee: fee })
       .eq('id', selectedAddress.id)
-      .then(() => console.log('💰 Frete recalculado localmente:', fee, 'chuva:', storeSettings.isRaining));
+      .then(() => console.log('💰 Frete recalculado (Realtime):', fee, 'chuva:', storeSettings.isRaining));
   }, [storeSettings.isRaining, storeSettings.feePerKm, storeSettings.rainFeePerKm, storeSettings.minDeliveryFee]);
 
   // Mostrar prompt de favoritar quando houver itens não favoritados
@@ -279,7 +282,6 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
     // Se já temos a distância salva, calcular localmente (sem chamar API)
     if (typeof address.distance_km === 'number' && !Number.isNaN(address.distance_km)) {
       const distanceKm = address.distance_km;
-      console.log('📏 Usando distância salva:', distanceKm, 'km | chuva:', storeSettings.isRaining);
 
       // Verificar raio
       if (distanceKm > storeSettings.maxDeliveryRadiusKm) {
@@ -300,16 +302,14 @@ export const Cart = ({ items, onUpdateQuantity, onRemove, onCheckout, isOpen, on
       setOutOfRangeDistance(null);
       setSelectedAddress({ ...address, shipping_fee: fee, distance_km: distanceKm });
 
-      // Persistir o frete atualizado no banco
-      await supabase
-        .from('user_addresses')
-        .update({ shipping_fee: fee })
-        .eq('id', address.id);
-
-      toast({
-        title: "Frete calculado!",
-        description: `R$ ${fee} (${distanceKm.toFixed(1)}km)${storeSettings.isRaining ? ' 🌧️' : ''}`,
-      });
+      // Só persiste no banco se o valor mudou
+      if (address.shipping_fee !== fee) {
+        console.log('📏 Frete atualizado localmente:', fee, '(anterior:', address.shipping_fee, ') | chuva:', storeSettings.isRaining);
+        await supabase
+          .from('user_addresses')
+          .update({ shipping_fee: fee })
+          .eq('id', address.id);
+      }
       return;
     }
 
