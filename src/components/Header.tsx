@@ -150,7 +150,7 @@ export const Header = () => {
                 onClick={() => setShowAddressSelector(true)}
                 className="flex items-center cursor-pointer hover:bg-accent/50 px-2 md:px-4 py-2 rounded-lg transition-colors md:absolute md:left-1/2 md:-translate-x-1/2"
               >
-                <div className="text-left md:text-center">
+              <div className="text-center">
                   <p className="text-[10px] md:text-xs text-muted-foreground">Entregar em</p>
                   <p className="font-semibold text-xs md:text-sm">
                     {userAddress || "Selecione o endereço"}
