@@ -345,19 +345,31 @@ serve(async (req) => {
     // Single product webhook
     const payload = await req.json();
 
+    // Normalize payload: support both {event, product: {...}} and flat {name, price, ...}
+    function normalizePayload(item: any): { event: string; product: Record<string, unknown> } {
+      if (item.product && item.event) {
+        return item; // already in expected format
+      }
+      // Flat format: treat as upsert
+      const event = item.event || "updated";
+      const product = item.product || item;
+      return { event, product };
+    }
+
     // Support batch array
     if (Array.isArray(payload)) {
       console.log(`[product-sync] Batch of ${payload.length} products`);
       const results = [];
       for (const item of payload) {
         try {
-          const res = await handleSingleProduct(item, supabase);
+          const normalized = normalizePayload(item);
+          const res = await handleSingleProduct(normalized, supabase);
           const body = await res.json();
           results.push(body);
         } catch (e: unknown) {
           results.push({
             error: e instanceof Error ? e.message : "Unknown error",
-            product: item?.product?.name,
+            product: item?.product?.name || item?.name,
           });
         }
       }
@@ -365,7 +377,9 @@ serve(async (req) => {
     }
 
     console.log("[product-sync] Single product webhook");
-    return await handleSingleProduct(payload, supabase);
+    const normalized = normalizePayload(payload);
+    console.log(`[product-sync] Normalized: event=${normalized.event}, product=${normalized.product?.name}`);
+    return await handleSingleProduct(normalized, supabase);
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Internal server error";
     console.error("[product-sync] Error:", msg);
