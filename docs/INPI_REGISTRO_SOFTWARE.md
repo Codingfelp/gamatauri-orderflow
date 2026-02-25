@@ -6,7 +6,7 @@
 
 ### IDENTIFICAÇÃO DO SISTEMA
 
-**Título do Programa:** Gamatauri Delivery — Sistema de Gestão e Aplicativo de Delivery  
+**Título do Programa:** Zup Deliver — Sistema de Gestão e Aplicativo de Delivery  
 **Data de Consolidação:** Fevereiro de 2026  
 **Copyright © 2026 — Todos os direitos reservados**
 
@@ -16,7 +16,7 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Título** | Gamatauri Delivery — Sistema de Gestão e Aplicativo de Delivery |
+| **Título** | Zup Deliver — Sistema de Gestão e Aplicativo de Delivery |
 | **Linguagens** | TypeScript, JavaScript, SQL |
 | **Campo de Aplicação** | Sistema de comércio eletrônico e intermediação de pedidos para delivery de alimentos e bebidas, com cálculo dinâmico de frete, gerenciamento de status em tempo real, sistema de recomendações inteligentes e controle de estoque |
 | **Tipo de Programa** | Aplicativo / Sistema de Gestão |
@@ -767,7 +767,7 @@ export const useCartAbandonment = (cart: CartItem[], userId?: string) => {
 
 ### DECLARAÇÃO DE AUTORIA
 
-Declaro que o código-fonte apresentado neste documento é de autoria própria, desenvolvido como parte do sistema **Gamatauri Delivery**. Bibliotecas e frameworks de terceiros (React, Supabase, Zod, Tailwind CSS) são utilizados como ferramentas e NÃO fazem parte do código autoral registrado.
+Declaro, sob as penas da lei, que o código-fonte apresentado neste documento é de minha autoria exclusiva, desenvolvido por iniciativa própria como parte do sistema **Zup Deliver**. O desenvolvimento foi realizado de forma independente, sem vínculo empregatício ou contratual com qualquer empresa, e sem cessão parcial ou total de direitos patrimoniais ou morais a terceiros. Bibliotecas e frameworks de terceiros (React, Supabase, Zod, Tailwind CSS) são utilizados como ferramentas e NÃO fazem parte do código autoral registrado.
 
 **Data:** ___/___/2026  
 **Nome completo:** ___________________________  
@@ -789,4 +789,4 @@ Guarde o resultado em local seguro junto com a data de geração.
 
 ---
 
-*FIM DO DOCUMENTO — © 2026 Gamatauri Delivery*
+*FIM DO DOCUMENTO — © 2026 Zup Deliver*
