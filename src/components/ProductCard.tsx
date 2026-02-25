@@ -40,6 +40,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
   const promoIsActive = promotion ? isPromotionActive(promotion) : false;
 
   const customColors = getProductColors(product.name, product.category);
+  const cardBackgroundColor = customColors?.card_bg_color || customColors?.modal_bg_color;
 
   const displayPrice = promoIsActive && promotion ? promotion.promotional_price : product.price;
   const endDate = hasPromo ? new Date(promotion!.end_date) : null;
@@ -56,8 +57,8 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
   // Get product background color for top half
   const productBg = getProductColor(product.name, product.name, product.category || undefined);
   const bgStyle: React.CSSProperties = {};
-  if (customColors?.card_bg_color) {
-    bgStyle.backgroundColor = customColors.card_bg_color;
+  if (cardBackgroundColor) {
+    bgStyle.backgroundColor = cardBackgroundColor;
   } else if (productBg.type === "image") {
     bgStyle.backgroundImage = `url(${productBg.value})`;
     bgStyle.backgroundSize = "cover";
