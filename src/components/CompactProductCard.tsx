@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Package, Flame, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePromotions } from "@/hooks/usePromotions";
+import { useColorEditor } from "@/contexts/ColorEditorContext";
 import { getProductColor } from "@/utils/productVariants";
 import type { Product } from "@/services/productsService";
 
@@ -15,6 +16,7 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getPromotionForProduct, isPromotionActive } = usePromotions();
+  const { getProductColors } = useColorEditor();
   const isOutOfStock = !product.available;
 
   const promotion = getPromotionForProduct(product.id);
@@ -26,10 +28,14 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
     ? new Date(promotion!.end_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
     : null;
 
+  const customColors = getProductColors(product.name, product.category);
+
   // Get product background color for top half
   const productBg = getProductColor(product.name, product.name, product.category || undefined);
   const bgStyle: React.CSSProperties = {};
-  if (productBg.type === "image") {
+  if (customColors?.card_bg_color) {
+    bgStyle.backgroundColor = customColors.card_bg_color;
+  } else if (productBg.type === "image") {
     bgStyle.backgroundImage = `url(${productBg.value})`;
     bgStyle.backgroundSize = "cover";
     bgStyle.backgroundPosition = "center";
