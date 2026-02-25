@@ -105,9 +105,19 @@ export const ProductVariantModal = ({
           /* MOBILE: Modular design */
           <DialogContent
             className="md:hidden w-[90vw] max-w-[360px] p-0 gap-0 overflow-hidden bg-background rounded-2xl border-0 shadow-2xl [&>button:last-child]:hidden"
-            onPointerDown={(e) => e.stopPropagation()}
-            onPointerUp={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => {
+              // Allow close button clicks through
+              if ((e.target as HTMLElement).closest('[data-close-button]')) return;
+              e.stopPropagation();
+            }}
+            onPointerUp={(e) => {
+              if ((e.target as HTMLElement).closest('[data-close-button]')) return;
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest('[data-close-button]')) return;
+              e.stopPropagation();
+            }}
             onEscapeKeyDown={(e) => e.preventDefault()}
           >
             <MobileCloseButton onClose={onClose} />
