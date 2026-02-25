@@ -29,12 +29,13 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
     : null;
 
   const customColors = getProductColors(product.name, product.category);
+  const cardBackgroundColor = customColors?.card_bg_color || customColors?.modal_bg_color;
 
   // Get product background color for top half
   const productBg = getProductColor(product.name, product.name, product.category || undefined);
   const bgStyle: React.CSSProperties = {};
-  if (customColors?.card_bg_color) {
-    bgStyle.backgroundColor = customColors.card_bg_color;
+  if (cardBackgroundColor) {
+    bgStyle.backgroundColor = cardBackgroundColor;
   } else if (productBg.type === "image") {
     bgStyle.backgroundImage = `url(${productBg.value})`;
     bgStyle.backgroundSize = "cover";
