@@ -396,7 +396,7 @@ serve(async (req) => {
   const { destination } = await req.json();
   const settings = await getStoreSettings();
 
-  const STORE_ADDRESS = 'R. Aiuruoca, 192, Fernão Dias, Belo Horizonte - MG, 31910-444';
+  const STORE_ADDRESS = process.env.STORE_ADDRESS; // Endereço configurado via variável de ambiente
   
   // Normalizar endereço
   let normalizedDestination = destination.trim();
@@ -743,7 +743,7 @@ export const useCartAbandonment = (cart: CartItem[], userId?: string) => {
 
     const handleVisibilityChange = async () => {
       if (document.hidden && cart.length > 0 && userId) {
-        localStorage.setItem('gamatauri-abandoned-cart', JSON.stringify({
+        localStorage.setItem('zup-abandoned-cart', JSON.stringify({
           items: cart, abandonedAt: new Date().toISOString()
         }));
         abandonmentTimer = setTimeout(async () => {
