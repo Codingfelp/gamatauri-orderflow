@@ -6,6 +6,7 @@ import { Product } from "@/services/productsService";
 import { useAuth } from "@/hooks/useAuth";
 import { Plus, Package, Flame } from "lucide-react";
 import { usePromotions } from "@/hooks/usePromotions";
+import { useColorEditor } from "@/contexts/ColorEditorContext";
 
 interface ProductVariantCardProps {
   productGroup: ProductGroup;
@@ -45,10 +46,15 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
 
   const originalMinForDisplay = promoForSomeVariant && promoIsActive ? priceRange.min : null;
 
+  const { getProductColors } = useColorEditor();
+  const customColors = getProductColors(initialVariant.name, baseProduct.category);
+
   // Get product background color for top half
   const productBg = getProductColor(initialVariant.name, initialVariant.flavor, baseProduct.category);
   const bgStyle: React.CSSProperties = {};
-  if (productBg.type === "image") {
+  if (customColors?.card_bg_color) {
+    bgStyle.backgroundColor = customColors.card_bg_color;
+  } else if (productBg.type === "image") {
     bgStyle.backgroundImage = `url(${productBg.value})`;
     bgStyle.backgroundSize = "cover";
     bgStyle.backgroundPosition = "center";
