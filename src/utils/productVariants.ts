@@ -77,7 +77,7 @@ const BRAND_PATTERNS: Record<string, RegExp> = {
   coqueteis: /^(Caipirinha|Mojito|Piña Colada|Margarita|Daiquiri|Batida|Cosmopolitan)\s*/i,
   cachaca: /^(51|Velho Barreiro|Ypióca|Ypioca|Sagatiba|Tatuzinho|Caninha da Roça|Pitu)\s*/i,
   carvao: /^(Carvão|Carvao|Brasa|King Grill)\s*/i,
-  aguas: /^(Crystal|Bonafont|Lindoya|H2OH|Minalba|Petrópolis|Petropolis)\s*/i,
+  aguas: /^(Crystal|Bonafont|Lindoya|H2OH|Minalba|Petrópolis|Petropolis|Acquissima|Pureza|Tonica|Tônica|Agua|Água|Indaia|Indaiá|Petra)\s*/i,
   gelo: /^(Gelo|Ice|Gelo em Cubo|Gelo Picado)\s*/i,
   gelo_puro: /^(Gelo Filtrado|Gelo em Escama|Gelo Cubo|Gelo Picado)\s*/i,
   gelo_saborizado: /^(Gelo Saborizado|Gelo com Sabor)\s*/i,
@@ -419,6 +419,15 @@ const BRAND_COLORS: Record<string, string> = {
   'paçoca': '#DEB887',
   'pacoca': '#DEB887',
   'pirulito': '#FF1493',
+  
+  // ÁGUAS
+  'acquissima': '#87CEEB',
+  'pureza': '#4FC3F7',
+  'pureza vital': '#4FC3F7',
+  'tonica': '#90EE90',
+  'tônica': '#90EE90',
+  'indaia': '#87CEEB',
+  'indaiá': '#87CEEB',
   
   // GELO
   'gelo': '#87CEEB',
