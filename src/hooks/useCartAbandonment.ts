@@ -19,7 +19,7 @@ export const useCartAbandonment = (cart: CartItem[], userId?: string) => {
         console.log('[CART] Usuário saiu com carrinho ativo:', cart.length, 'itens');
         
         // Salvar carrinho no localStorage para restaurar
-        localStorage.setItem('gamatauri-abandoned-cart', JSON.stringify({
+        localStorage.setItem('zup-abandoned-cart', JSON.stringify({
           items: cart,
           abandonedAt: new Date().toISOString()
         }));
