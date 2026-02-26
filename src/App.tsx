@@ -28,6 +28,7 @@ const AdminSync = lazy(() => import("./pages/AdminSync"));
 const Search = lazy(() => import("./pages/Search"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Addresses = lazy(() => import("./pages/Addresses"));
+const DataExport = lazy(() => import("./pages/DataExport"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +72,7 @@ const AppContent = () => {
             <Route path="/offline" element={<Offline />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/admin-sync" element={<AdminSync />} />
+            <Route path="/data-export" element={<DataExport />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
