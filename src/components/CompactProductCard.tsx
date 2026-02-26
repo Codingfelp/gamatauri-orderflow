@@ -4,6 +4,7 @@ import { Plus, Package, Flame, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { usePromotions } from "@/hooks/usePromotions";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
+import { ColorPicker } from "@/components/ColorPicker";
 import { getProductColor } from "@/utils/productVariants";
 import type { Product } from "@/services/productsService";
 
@@ -16,7 +17,7 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getPromotionForProduct, isPromotionActive } = usePromotions();
-  const { getProductColors } = useColorEditor();
+  const { isEditMode, getProductColors, updateColor } = useColorEditor();
   const isOutOfStock = !product.available;
 
   const promotion = getPromotionForProduct(product.id);
@@ -55,6 +56,24 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
               <Flame className="w-2.5 h-2.5" />
               {promoIsActive ? "PROMO" : "EM BREVE"}
             </span>
+          </div>
+        )}
+
+        {/* Edit mode color button */}
+        {isEditMode && (
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20">
+            <div className="flex gap-1 bg-foreground/80 backdrop-blur-sm rounded-full px-2 py-1 shadow-lg">
+              <ColorPicker
+                currentColor={customColors?.card_bg_color || '#ffffff'}
+                onChange={(color) => updateColor(product.name, product.category, 'card_bg_color', color)}
+                label="Fundo"
+              />
+              <ColorPicker
+                currentColor={customColors?.card_text_color || '#000000'}
+                onChange={(color) => updateColor(product.name, product.category, 'card_text_color', color)}
+                label="Texto"
+              />
+            </div>
           </div>
         )}
 

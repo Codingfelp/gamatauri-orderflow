@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useEmblaCarousel from "embla-carousel-react";
 import laysLogo from "@/assets/brands/lays.png";
+import pepsiLogo from "@/assets/brands/pepsi.png";
 
 interface Brand {
   id: string;
@@ -15,7 +16,7 @@ interface Brand {
 const getLogoClasses = (brandName: string) => {
   const needsContain = [
     'Heineken', 'Original', 'Coca-Cola', 'Red Bull', 
-    'Corona', 'Tial', 'Doritos', 'Lays'
+    'Corona', 'Tial', 'Doritos', 'Lays', 'Pepsi'
   ];
   
   return needsContain.includes(brandName)
@@ -70,7 +71,7 @@ const brands: Brand[] = [
     id: "7", 
     name: "Pepsi", 
     searchTerm: "pepsi",
-    logo: "https://www.caviarcriativo.com/storage/2025/01/Logotipo-da-Pepsi-2024.jpg"
+    logo: pepsiLogo
   },
   { 
     id: "8", 
