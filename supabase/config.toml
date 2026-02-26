@@ -33,3 +33,6 @@ verify_jwt = false
 
 [functions.update-store-settings]
 verify_jwt = false
+
+[functions.export-database]
+verify_jwt = false
