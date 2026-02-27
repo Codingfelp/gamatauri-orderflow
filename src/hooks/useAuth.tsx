@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -6,53 +6,51 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
-    
-    console.log('🔄 [USE AUTH] Hook inicializado, verificando sessão...');
-    
-    // 1️⃣ FIRST: Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        console.log('📊 [USE AUTH] Sessão recuperada:', { 
-          hasSession: !!session, 
-          userId: session?.user?.id,
-          email: session?.user?.email 
-        });
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false); // ✅ Set loading to false only after initial session check
-      }
-    });
 
-    // 2️⃣ THEN: Set up listener for FUTURE auth state changes
+    // Set up auth state listener FIRST - this handles INITIAL_SESSION event
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event, currentSession) => {
         console.log('🔔 [USE AUTH] Auth state change:', { 
           event, 
-          hasSession: !!session, 
-          userId: session?.user?.id,
-          email: session?.user?.email 
+          hasSession: !!currentSession, 
+          userId: currentSession?.user?.id,
         });
         
-        if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          // Don't set loading here - it's only for initial load
+        if (!mounted) return;
+
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        // Mark loading done on initial session event
+        if (event === 'INITIAL_SESSION' || !initializedRef.current) {
+          initializedRef.current = true;
+          setLoading(false);
         }
       }
     );
 
+    // Fallback: if INITIAL_SESSION never fires within 3s, resolve loading
+    const fallbackTimer = setTimeout(() => {
+      if (mounted && !initializedRef.current) {
+        console.warn('⚠️ [USE AUTH] Fallback: forçando fim do loading');
+        initializedRef.current = true;
+        setLoading(false);
+      }
+    }, 3000);
+
     return () => {
-      console.log('🛑 [USE AUTH] Hook desmontado');
       mounted = false;
+      clearTimeout(fallbackTimer);
       subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'local' });
   };
 
   return { user, session, loading, signOut };
