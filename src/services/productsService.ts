@@ -37,7 +37,7 @@ export async function fetchProducts(): Promise<Product[]> {
     throw new Error(data.error || 'Falha ao carregar produtos');
   }
 
-  // Filter out products with zero or negative prices
+  // Filter out products with zero or negative prices (backend already filters, but double-check)
   const validProducts = data.data.filter((product: Product) => product.price > 0);
   
   console.log(`Loaded ${validProducts.length} products (filtered from ${data.data.length}, cached: ${data.cached || false})`);

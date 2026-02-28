@@ -85,8 +85,8 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
           />
           <div className="relative aspect-square flex items-end justify-center px-3 pt-2 pb-3">
             {isOutOfStock && (
-              <div className="absolute inset-0 bg-background/60 z-10 flex items-center justify-center">
-                <span className="text-[10px] font-bold text-destructive-foreground bg-destructive px-2 py-0.5 rounded">Esgotado</span>
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <span className="text-xs font-bold text-white bg-foreground/70 px-3 py-1 rounded-full">Acabou</span>
               </div>
             )}
             {product.image_url &&
@@ -98,7 +98,7 @@ export const CompactProductCard = memo(({ product, onAddToCart }: CompactProduct
                 alt={product.name}
                 loading="lazy"
                 decoding="async"
-                className="w-[85%] h-[85%] object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md"
+                className={`w-[85%] h-[85%] object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md ${isOutOfStock ? "grayscale opacity-60" : ""}`}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
