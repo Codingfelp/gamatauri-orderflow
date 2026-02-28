@@ -26,7 +26,7 @@ serve(async (req) => {
         .from('products')
         .select('*')
         .eq('id', productId)
-        .eq('available', true)
+        .is('deleted_at', null)
         .single();
 
       if (error) {
