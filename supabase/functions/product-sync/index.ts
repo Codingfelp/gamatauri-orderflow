@@ -165,7 +165,8 @@ async function handleSingleProduct(
         if (product.category !== undefined)
           updateData.category = product.category;
         updateData.available = isAvailable;
-        updateData.deleted_at = isAvailable ? null : new Date().toISOString();
+        // Only clear deleted_at when product becomes available again; don't set it when unavailable
+        if (isAvailable) updateData.deleted_at = null;
         if (imageUrl) updateData.image_url = imageUrl;
 
         const { data, error } = await supabase
@@ -272,7 +273,8 @@ async function handleBulkSync(
           price: product.price,
           category: product.category,
           available: product.available !== false,
-          deleted_at: product.available === false ? new Date().toISOString() : null,
+          // Only clear deleted_at when available; don't set it when unavailable (product should still show as "Acabou")
+          ...(product.available !== false ? { deleted_at: null } : {}),
         };
         // Update name to latest version from external system
         if (existing.name !== product.name) updateData.name = product.name;
