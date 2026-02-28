@@ -182,7 +182,7 @@ export const ProductVariantModal = ({
               {isEditMode && (
                 <button
                   onClick={() => setShowColorEditor(true)}
-                  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-foreground text-background px-3 py-1.5 rounded-full shadow-lg hover:opacity-90 transition-opacity text-xs font-medium"
+                  className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-foreground text-background px-3 py-1.5 rounded-full shadow-lg hover:opacity-90 transition-opacity text-xs font-medium"
                 >
                   <Pencil className="w-3 h-3" />
                   Editar Cor
