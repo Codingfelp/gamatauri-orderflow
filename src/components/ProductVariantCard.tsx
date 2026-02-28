@@ -47,15 +47,16 @@ export const ProductVariantCard = ({ productGroup, onAddToCart }: ProductVariant
   const originalMinForDisplay = promoForSomeVariant && promoIsActive ? priceRange.min : null;
 
   const { getProductColors } = useColorEditor();
+  const displayVariant = selectedVariant || initialVariant;
   const customColors =
-    getProductColors(initialVariant.name, baseProduct.category) ??
+    getProductColors(displayVariant.name, baseProduct.category) ??
     variants
       .map((variant) => getProductColors(variant.name, baseProduct.category))
       .find((colors) => !!colors);
   const cardBackgroundColor = customColors?.card_bg_color || customColors?.modal_bg_color;
 
   // Get product background color for top half
-  const productBg = getProductColor(initialVariant.name, initialVariant.flavor, baseProduct.category);
+  const productBg = getProductColor(displayVariant.name, displayVariant.flavor, baseProduct.category);
   const bgStyle: React.CSSProperties = {};
   if (cardBackgroundColor) {
     bgStyle.backgroundColor = cardBackgroundColor;
