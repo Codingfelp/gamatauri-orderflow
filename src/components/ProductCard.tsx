@@ -1,10 +1,10 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus, Package, Clock, Flame } from "lucide-react";
+import { Plus, Package, Clock, Flame, Pencil } from "lucide-react";
 import { usePromotions } from "@/hooks/usePromotions";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
-import { ColorPicker } from "@/components/ColorPicker";
+import { ColorEditorModal } from "@/components/ColorEditorModal";
 import { getProductColor } from "@/utils/productVariants";
 
 interface Product {
@@ -32,7 +32,8 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
   const { user } = useAuth();
   const navigate = useNavigate();
   const { getPromotionForProduct, isPromotionActive } = usePromotions();
-  const { isEditMode, getProductColors, updateColor } = useColorEditor();
+  const { isEditMode, getProductColors } = useColorEditor();
+  const [showColorEditor, setShowColorEditor] = useState(false);
   const isOutOfStock = !product.available;
 
   const promotion = getPromotionForProduct(product.id);
@@ -70,6 +71,7 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
   }
 
   return (
+    <>
     <div
       className={`flex-shrink-0 w-full group transition-all duration-300 ${
         isOutOfStock ? "opacity-50" : "hover:-translate-y-1"
@@ -90,20 +92,13 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
 
         {/* Edit mode color button */}
         {isEditMode && (
-          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20">
-            <div className="flex gap-1 bg-foreground/80 backdrop-blur-sm rounded-full px-2 py-1 shadow-lg">
-              <ColorPicker
-                currentColor={customColors?.card_bg_color || '#ffffff'}
-                onChange={(color) => updateColor(product.name, product.category, 'card_bg_color', color)}
-                label="Fundo"
-              />
-              <ColorPicker
-                currentColor={customColors?.card_text_color || '#000000'}
-                onChange={(color) => updateColor(product.name, product.category, 'card_text_color', color)}
-                label="Texto"
-              />
-            </div>
-          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowColorEditor(true); }}
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-foreground text-background px-3 py-1.5 rounded-full shadow-lg hover:opacity-90 transition-opacity text-[10px] font-medium"
+          >
+            <Pencil className="w-3 h-3" />
+            Editar Cor
+          </button>
         )}
 
         {/* Imagem com cor de fundo do produto - metade inferior */}
@@ -211,6 +206,13 @@ export const ProductCard = memo(({ product, onAddToCart, wizardMeta }: ProductCa
         </div>
       </div>
     </div>
+    <ColorEditorModal
+      isOpen={showColorEditor}
+      onClose={() => setShowColorEditor(false)}
+      productName={product.name}
+      category={product.category}
+    />
+    </>
   );
 });
 
