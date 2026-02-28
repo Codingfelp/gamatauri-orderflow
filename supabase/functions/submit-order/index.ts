@@ -351,15 +351,22 @@ serve(async (req) => {
 
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`🔄 Tentativa ${attempt}/3 de criar pedido externo...`);
-        
         const externalOrderUrl = Deno.env.get('EXTERNAL_SYSTEM_WEBHOOK_URL') || 'https://uppkjvovtvlgwfciqrbt.supabase.co/functions/v1/create-external-order';
+        const apiKey = Deno.env.get('EXTERNAL_ORDER_API_KEY') || '';
+        
+        console.log(`🔄 Tentativa ${attempt}/3 de criar pedido externo...`, {
+          url: externalOrderUrl,
+          api_key_length: apiKey.length,
+          api_key_prefix: apiKey.substring(0, 6) + '...',
+          timestamp: new Date().toISOString()
+        });
+        
         const response = await fetch(
           externalOrderUrl,
           {
             method: 'POST',
             headers: {
-              'X-API-KEY': Deno.env.get('EXTERNAL_ORDER_API_KEY') || '',
+              'x-api-key': apiKey,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify(gamatauriPayload),
