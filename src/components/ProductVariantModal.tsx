@@ -152,7 +152,7 @@ export const ProductVariantModal = ({
           /* DESKTOP: Clean, modern layout inspired by reference */
           <DialogContent className="hidden md:grid md:grid-cols-[35%_65%] max-w-4xl max-h-[85vh] p-0 gap-0 overflow-hidden bg-background rounded-2xl border border-foreground/10 shadow-xl [&>button:last-child]:top-4 [&>button:last-child]:right-4">
             {/* Left: Product image with colored background */}
-            <div className="flex items-center justify-center relative" style={{ minHeight: "420px" }}>
+            <div className="flex items-center justify-center relative h-full" style={{ minHeight: "420px" }}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedVariant.id}
@@ -160,7 +160,7 @@ export const ProductVariantModal = ({
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="w-full h-full flex items-center justify-center rounded-l-2xl"
+                  className="absolute inset-0 flex items-center justify-center rounded-l-2xl"
                   style={desktopBgStyle}
                 >
                   {selectedVariant.image_url ? (
