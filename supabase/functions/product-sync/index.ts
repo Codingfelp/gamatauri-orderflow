@@ -345,14 +345,41 @@ serve(async (req) => {
     // Single product webhook
     const payload = await req.json();
 
-    // Normalize payload: support both {event, product: {...}} and flat {name, price, ...}
+    // Normalize payload: support multiple formats from external systems
     function normalizePayload(item: any): { event: string; product: Record<string, unknown> } {
-      if (item.product && item.event) {
-        return item; // already in expected format
+      // Map external event formats: "product.delete" → "deleted", "product.update" → "updated", etc.
+      function normalizeEvent(raw: string | undefined): string {
+        if (!raw) return "updated";
+        const mapped: Record<string, string> = {
+          "product.create": "created",
+          "product.created": "created",
+          "product.update": "updated",
+          "product.updated": "updated",
+          "product.delete": "deleted",
+          "product.deleted": "deleted",
+          "product.insert": "created",
+          "create": "created",
+          "insert": "created",
+          "update": "updated",
+          "delete": "deleted",
+          "created": "created",
+          "updated": "updated",
+          "deleted": "deleted",
+        };
+        return mapped[raw.toLowerCase()] || "updated";
       }
-      // Flat format: treat as upsert
-      const event = item.event || "updated";
-      const product = item.product || item;
+
+      const event = normalizeEvent(item.event);
+
+      // Support: {product: {...}}, {data: {...}}, or flat {name, price, ...}
+      const product = item.product || item.data || (() => {
+        // Flat format: extract product fields from top level
+        const { event: _e, timestamp: _t, ...rest } = item;
+        return rest;
+      })();
+
+      console.log(`[product-sync] normalizePayload: raw_event=${item.event}, mapped=${event}, has_product=${!!item.product}, has_data=${!!item.data}`);
+
       return { event, product };
     }
 
