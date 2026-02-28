@@ -17,6 +17,16 @@ function json(body: unknown, status = 200) {
   });
 }
 
+/** Normalize a product name for fuzzy matching: lowercase, collapse whitespace, strip accents */
+function normalizeName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // strip accents
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function cleanImageUrl(url: string | null): string | null {
   if (
     !url ||
@@ -81,6 +91,41 @@ function getServiceClient() {
   );
 }
 
+/** Find existing product by exact name first, then by normalized name */
+async function findExistingProduct(
+  supabase: ReturnType<typeof createClient>,
+  name: string
+): Promise<{ id: string; image_url: string | null; name: string } | null> {
+  // 1. Exact match
+  const { data: exact } = await supabase
+    .from("products")
+    .select("id, image_url, name")
+    .eq("name", name)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (exact) return exact;
+
+  // 2. Normalized fuzzy match: fetch all active products and compare
+  const normalized = normalizeName(name);
+  const { data: allProducts } = await supabase
+    .from("products")
+    .select("id, image_url, name")
+    .is("deleted_at", null)
+    .gt("price", 0);
+
+  if (allProducts) {
+    const match = allProducts.find(
+      (p) => normalizeName(p.name) === normalized
+    );
+    if (match) {
+      console.log(`[product-sync] Fuzzy match: "${name}" → existing "${match.name}" (id=${match.id})`);
+      return match;
+    }
+  }
+
+  return null;
+}
+
 // ── single-product webhook ───────────────────────────────────────────────
 
 async function handleSingleProduct(
@@ -106,14 +151,12 @@ async function handleSingleProduct(
   switch (event) {
     case "created":
     case "updated": {
-      const { data: existing } = await supabase
-        .from("products")
-        .select("id, image_url")
-        .eq("name", name)
-        .maybeSingle();
+      const existing = await findExistingProduct(supabase, name);
 
       if (existing) {
         const updateData: Record<string, unknown> = {};
+        // Update name to latest version from external system
+        if (existing.name !== name) updateData.name = name;
         if (product.price !== undefined) updateData.price = product.price;
         if (product.description !== undefined)
           updateData.description = cleanDescription(
@@ -155,13 +198,17 @@ async function handleSingleProduct(
     }
 
     case "deleted": {
+      const existing = await findExistingProduct(supabase, name);
+      if (!existing) {
+        return json({ success: true, action: "deleted", message: "Product not found, nothing to delete" });
+      }
       const { data, error } = await supabase
         .from("products")
         .update({
           available: false,
           deleted_at: new Date().toISOString(),
         })
-        .eq("name", name)
+        .eq("id", existing.id)
         .select()
         .single();
 
@@ -215,11 +262,7 @@ async function handleBulkSync(
 
   for (const product of allProducts) {
     try {
-      const { data: existing } = await supabase
-        .from("products")
-        .select("id, image_url")
-        .eq("name", product.name)
-        .maybeSingle();
+      const existing = await findExistingProduct(supabase, product.name);
 
       const imageUrl = cleanImageUrl(product.image_url);
 
@@ -231,6 +274,8 @@ async function handleBulkSync(
           available: product.available !== false,
           deleted_at: product.available === false ? new Date().toISOString() : null,
         };
+        // Update name to latest version from external system
+        if (existing.name !== product.name) updateData.name = product.name;
         if (imageUrl) {
           updateData.image_url = imageUrl;
           if (!existing.image_url) imagesAdded++;
