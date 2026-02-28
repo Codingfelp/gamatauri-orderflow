@@ -43,15 +43,15 @@ serve(async (req) => {
       );
     }
 
-    // Buscar todos os produtos disponíveis do banco local
+    // Buscar todos os produtos do banco local (incluindo indisponíveis com preço > 0)
     // O banco é populado pelo webhook sync-products chamado pelo sistema externo
-    console.log('Fetching all available products from local database');
+    console.log('Fetching all products from local database');
 
     const { data: products, error } = await supabase
       .from('products')
       .select('*')
-      .eq('available', true)
       .is('deleted_at', null)
+      .gt('price', 0)
       .order('name');
 
     if (error) {
