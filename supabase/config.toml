@@ -35,3 +35,6 @@ verify_jwt = false
 verify_jwt = false
 [functions.export-database]
 verify_jwt = false
+
+[functions.retry-order]
+verify_jwt = false
