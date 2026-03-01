@@ -10,11 +10,12 @@
 ```
 docs/
 ├── migration/
-│   ├── MIGRATION_GUIDE.md    ← Este arquivo
-│   └── 001_schema.sql        ← Schema completo (tabelas, RLS, functions, triggers)
+│   ├── MIGRATION_GUIDE.md          ← Este arquivo
+│   ├── 001_schema.sql              ← Schema completo (tabelas, RLS, functions, triggers)
+│   └── convert-json-to-sql.cjs    ← Script que gera 002_seed_data.sql a partir do JSON
 ├── data/
 │   └── database-export-2026-02-26.json  ← Dados exportados de todas as tabelas
-└── database-schema.md        ← Documentação de referência do schema
+└── database-schema.md              ← Documentação de referência do schema
 ```
 
 ---
@@ -41,7 +42,19 @@ docs/
 
 Use o arquivo `docs/data/database-export-2026-02-26.json` para importar os dados.
 
-### Opção A: Via Script Node.js
+### Opção A: Gerar SQL e executar (RECOMENDADO)
+
+```bash
+# Na raiz do projeto, gere o arquivo SQL a partir do JSON:
+node docs/migration/convert-json-to-sql.cjs
+
+# Isso gera: docs/migration/002_seed_data.sql
+# Cole no SQL Editor do Supabase e execute.
+```
+
+O script gera INSERTs com `ON CONFLICT (id) DO NOTHING` — é seguro rodar múltiplas vezes.
+
+### Opção B: Via Script Node.js (upsert via SDK)
 
 ```javascript
 // import-data.mjs
@@ -88,7 +101,7 @@ for (const table of importOrder) {
 }
 ```
 
-### Opção B: Via SQL Editor (tabelas menores)
+### Opção C: Via SQL Editor (tabelas menores)
 
 Para tabelas pequenas como `store_settings` e `coupons`, copie os dados do JSON e faça INSERT direto no SQL Editor.
 
