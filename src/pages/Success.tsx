@@ -75,38 +75,35 @@ const Success = () => {
     
     fetchOrderStatus();
     
-    const channel = supabase
-      .channel(`success-page-${orderId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders',
-          filter: `id=eq.${orderId}`
-        },
-        (payload: any) => {
-          const newStatus = payload.new.order_status;
-          console.log('[Success] Status update received:', newStatus);
-          setOrderStatus(newStatus);
-          
-          if (newStatus === 'cancelled' || newStatus === 'cancelado') {
-            setIsCancelled(true);
-            return;
-          }
-          
+    // Poll for status updates every 10 seconds (ActiveOrderContext handles realtime)
+    const pollStatus = async () => {
+      const { data } = await supabase
+        .from('orders')
+        .select('order_status, created_at, delivery_type')
+        .eq('id', orderId)
+        .single();
+
+      if (data) {
+        setOrderStatus(data.order_status);
+        setDeliveryType((data.delivery_type as 'delivery' | 'pickup') || 'delivery');
+        
+        if (data.order_status === 'cancelled' || data.order_status === 'cancelado') {
+          setIsCancelled(true);
+        } else {
           setActiveOrder({
             orderId,
             orderNumber: orderNumber || '',
-            status: mapDbStatusToContextStatus(newStatus),
-            createdAt: payload.new.created_at || createdAt,
+            status: mapDbStatusToContextStatus(data.order_status),
+            createdAt: data.created_at || createdAt,
           });
         }
-      )
-      .subscribe();
-    
+      }
+    };
+
+    const poll = setInterval(pollStatus, 10000);
+
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [orderId, orderNumber, setActiveOrder, createdAt]);
 
