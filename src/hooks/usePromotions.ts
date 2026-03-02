@@ -36,31 +36,11 @@ export const usePromotions = () => {
   useEffect(() => {
     fetchPromotions();
 
-    // Polling fallback (garante atualização mesmo se realtime não estiver ativo)
-    const poll = setInterval(() => {
-      fetchPromotions();
-    }, 20000);
-
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel("promotions-realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "product_promotions",
-        },
-        () => {
-          console.log("[usePromotions] Promotion changed, refetching...");
-          fetchPromotions();
-        }
-      )
-      .subscribe();
+    // Polling every 5 minutes (promotions rarely change)
+    const poll = setInterval(fetchPromotions, 5 * 60 * 1000);
 
     return () => {
       clearInterval(poll);
-      supabase.removeChannel(channel);
     };
   }, []);
 

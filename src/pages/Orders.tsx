@@ -101,32 +101,24 @@ export default function Orders() {
     fetchOrders();
   }, [user]);
 
+  // Polling every 30 seconds for order status updates
   useEffect(() => {
     if (!user) return;
 
-    const channel = supabase
-      .channel("orders-updates")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "orders",
-        },
-        (payload: any) => {
-          setOrders((prevOrders) =>
-            prevOrders.map((order) =>
-              order.id === payload.new.id
-                ? { ...order, order_status: payload.new.order_status }
-                : order
-            )
-          );
-        }
-      )
-      .subscribe();
+    const pollOrders = async () => {
+      const { data } = await supabase
+        .from("orders")
+        .select(`*, order_items (product_name, quantity, product_price, subtotal)`)
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (data) setOrders(data);
+    };
+
+    const poll = setInterval(pollOrders, 30000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [user]);
 

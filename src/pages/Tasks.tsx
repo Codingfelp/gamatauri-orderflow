@@ -34,25 +34,12 @@ const Tasks = () => {
 
   useEffect(() => {
     fetchOrders();
-    
-    // Realtime subscription
-    const channel = supabase
-      .channel('orders-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'orders'
-        },
-        () => {
-          fetchOrders();
-        }
-      )
-      .subscribe();
+
+    // Polling every 30 seconds (admin page, no need for realtime)
+    const poll = setInterval(fetchOrders, 30000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, []);
 

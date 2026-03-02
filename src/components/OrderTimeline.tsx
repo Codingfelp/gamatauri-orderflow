@@ -36,29 +36,25 @@ export const OrderTimeline = ({ orderNumber, orderId, createdAt, deliveryType = 
     fetchInitialStatus();
   }, [orderId, deliveryType]);
 
-  // Escutar mudanças em tempo real
+  // Poll for status updates every 10 seconds (ActiveOrderContext handles realtime)
   useEffect(() => {
-    const channel = supabase
-      .channel(`order-timeline-${orderId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders',
-          filter: `id=eq.${orderId}`
-        },
-        (payload: any) => {
-          console.log('[OrderTimeline] Realtime status update:', payload.new.order_status);
-          const newStatus = payload.new.order_status;
-          const uiStatus = mapDbStatusToUI(newStatus);
-          setCurrentStatus(uiStatus);
-        }
-      )
-      .subscribe();
+    const pollStatus = async () => {
+      const { data } = await supabase
+        .from('orders')
+        .select('order_status')
+        .eq('id', orderId)
+        .single();
+
+      if (data?.order_status) {
+        const uiStatus = mapDbStatusToUI(data.order_status);
+        setCurrentStatus(uiStatus);
+      }
+    };
+
+    const poll = setInterval(pollStatus, 10000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, [orderId, deliveryType]);
 

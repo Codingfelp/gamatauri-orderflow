@@ -67,20 +67,11 @@ export const ColorEditorProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
     loadColors();
 
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel('color-changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'product_custom_colors'
-      }, () => {
-        loadColors();
-      })
-      .subscribe();
+    // Polling every 5 minutes (colors rarely change)
+    const poll = setInterval(loadColors, 5 * 60 * 1000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, []);
 
