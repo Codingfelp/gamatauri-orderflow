@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/Header";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
@@ -19,6 +20,9 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [userId, setUserId] = useState("");
   const [activeTab, setActiveTab] = useState<string>("signin");
   const navigate = useNavigate();
   const location = useLocation();
@@ -26,19 +30,121 @@ export default function Auth() {
   const { signInWithGoogle } = useGoogleAuth();
   const { user, loading: authLoading } = useAuth();
 
+  // Ref to prevent multiple concurrent profile checks from multiple auth events
+  const profileCheckInProgress = useRef(false);
+  const profileCheckDone = useRef(false);
+
   const getRedirect = () => {
     const from = (location.state as any)?.from || "/";
     const cart = (location.state as any)?.cart;
     return { from, state: cart ? { cart } : undefined };
   };
 
-  // Redirect if already authenticated
+  // Monitor authentication state changes (for OAuth redirect)
   useEffect(() => {
-    if (!authLoading && user) {
-      const { from, state } = getRedirect();
-      navigate(from, { state });
+    console.log('🔄 [AUTH PAGE] useEffect triggered:', { 
+      authLoading, 
+      hasUser: !!user, 
+      userId: user?.id,
+      showProfileModal,
+      checkInProgress: profileCheckInProgress.current,
+      checkDone: profileCheckDone.current,
+    });
+    
+    // Guard: don't re-check if already checking, already done, or modal is open
+    if (!authLoading && user && !showProfileModal && !profileCheckInProgress.current && !profileCheckDone.current) {
+      console.log('🔍 [AUTH PAGE] Usuário autenticado detectado, verificando perfil...');
+      
+      profileCheckInProgress.current = true;
+      
+      checkProfileComplete(user).then(isComplete => {
+        profileCheckInProgress.current = false;
+        console.log('✅ [AUTH PAGE] Resultado verificação perfil:', isComplete);
+        if (isComplete) {
+          profileCheckDone.current = true;
+          const { from, state } = getRedirect();
+          console.log('✅ [AUTH PAGE] Perfil completo, redirecionando para:', from);
+          navigate(from, { state });
+        }
+        // If not complete, checkProfileComplete already opened the modal
+      }).catch(err => {
+        profileCheckInProgress.current = false;
+        console.error('❌ [AUTH PAGE] Erro ao verificar perfil:', err);
+      });
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, showProfileModal]);
+
+  // Reset refs when user changes (logout/login with different account)
+  useEffect(() => {
+    profileCheckDone.current = false;
+    profileCheckInProgress.current = false;
+  }, [user?.id]);
+
+  const checkProfileComplete = async (authUser: any, retryCount = 0): Promise<boolean> => {
+    try {
+      console.log('🔍 [PROFILE CHECK] Tentativa', retryCount + 1, '- Verificando perfil para:', authUser.id);
+      
+      // Initial delay to give the trigger time to create profile
+      if (retryCount === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('phone, address, name, cpf, user_id, email')
+        .eq('user_id', authUser.id)
+        .maybeSingle();
+
+      console.log('📊 [PROFILE CHECK] Resultado da query:', { profile, error, retryCount });
+
+      if (error) {
+        console.error('❌ [PROFILE CHECK] Erro ao buscar perfil:', error);
+        setUserId(authUser.id);
+        setShowProfileModal(true);
+        return false;
+      }
+
+      if (!profile) {
+        if (retryCount < 3) {
+          console.warn(`⏳ [PROFILE CHECK] Perfil não encontrado, tentando novamente... (${retryCount + 1}/3)`);
+          await new Promise(resolve => setTimeout(resolve, 500));
+          return checkProfileComplete(authUser, retryCount + 1);
+        }
+        
+        console.warn('⚠️ [PROFILE CHECK] Perfil não criado após 3 tentativas, abrindo modal');
+        setUserId(authUser.id);
+        setShowProfileModal(true);
+        return false;
+      }
+
+      console.log('📋 [PROFILE CHECK] Perfil encontrado:', profile);
+
+      // Only phone and name are required
+      const missingFields = {
+        phone: !profile.phone,
+        name: !profile.name
+      };
+
+      if (missingFields.phone || missingFields.name) {
+        console.log('⚠️ [PROFILE CHECK] Perfil incompleto - faltam campos:', missingFields);
+        setUserId(authUser.id);
+        setShowProfileModal(true);
+        return false;
+      }
+      
+      console.log('✅ [PROFILE CHECK] Perfil completo!');
+      return true;
+    } catch (error) {
+      console.error('❌ [PROFILE CHECK] Exceção inesperada:', error);
+      if (retryCount < 3) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return checkProfileComplete(authUser, retryCount + 1);
+      }
+      setUserId(authUser.id);
+      setShowProfileModal(true);
+      return false;
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -55,7 +161,7 @@ export default function Auth() {
   const handleSignUp = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -65,12 +171,19 @@ export default function Auth() {
       });
       if (error) throw error;
 
-      // Auto sign-in after signup
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) throw signInError;
+      if (data?.user && !data.session) {
+        toast({ title: "Verifique seu email!", description: "Enviamos um link de confirmação para " + email, duration: 10000 });
+        setLoading(false);
+        return;
+      }
 
-      toast({ title: "Conta criada!", description: "Bem-vindo!" });
-      // useEffect will handle redirect
+      if (data?.session && data?.user) {
+        // Auto sign-in after signup
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError) throw signInError;
+        toast({ title: "Conta criada!", description: "Bem-vindo!" });
+        // useEffect will handle profile check and redirect
+      }
     } catch (error: any) {
       let msg = error.message;
       if (error.message.includes('User already registered')) {
@@ -100,12 +213,19 @@ export default function Auth() {
         throw error;
       }
       toast({ title: "Bem-vindo!", description: "Login realizado com sucesso." });
-      // useEffect will handle redirect
+      // useEffect will handle profile check and redirect
     } catch (error: any) {
       toast({ variant: "destructive", title: "Erro ao fazer login", description: error.message });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProfileModalClose = () => {
+    setShowProfileModal(false);
+    profileCheckDone.current = true;
+    const { from, state } = getRedirect();
+    navigate(from, { state });
   };
 
   if (authLoading) {
@@ -163,7 +283,12 @@ export default function Auth() {
                 </div>
                 <div>
                   <Label htmlFor="signin-password" className="text-base font-semibold">Senha</Label>
-                  <Input id="signin-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 text-base" required />
+                  <div className="relative">
+                    <Input id="signin-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 text-base pr-12" required />
+                    <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]" disabled={loading}>
                   {loading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" />Entrando...</>) : 'Entrar'}
@@ -203,7 +328,12 @@ export default function Auth() {
                 </div>
                 <div>
                   <Label htmlFor="signup-password" className="text-base font-semibold">Senha</Label>
-                  <Input id="signup-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 text-base" required minLength={6} />
+                  <div className="relative">
+                    <Input id="signup-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 text-base pr-12" required minLength={6} />
+                    <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]" disabled={loading}>
                   {loading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" />Criando conta...</>) : 'Criar Conta'}
@@ -213,6 +343,11 @@ export default function Auth() {
           </Tabs>
         </Card>
       </div>
+      <ProfileSetupModal
+        open={showProfileModal}
+        onClose={handleProfileModalClose}
+        userId={userId}
+      />
     </div>
   );
 }
