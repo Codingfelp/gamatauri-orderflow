@@ -7,13 +7,9 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { ActiveOrderBanner } from "@/components/ActiveOrderBanner";
 import { AddressSelectorModal } from "@/components/AddressSelectorModal";
-import { ProfileIncompleteAlert } from "@/components/ProfileIncompleteAlert";
-import { AddressIncompleteAlert } from "@/components/AddressIncompleteAlert";
-import { isStructuredAddressComplete } from "@/utils/addressValidator";
 import { supabase } from "@/integrations/supabase/client";
 import { useColorEditor } from "@/contexts/ColorEditorContext";
 import { useStoreStatus } from "@/contexts/StoreStatusContext";
-
 
 interface Address {
   id: string;
@@ -33,14 +29,10 @@ export const Header = () => {
   const { storeSettings } = useStoreStatus();
   const [userAddress, setUserAddress] = useState<string>("");
   const [showAddressSelector, setShowAddressSelector] = useState(false);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
-  const [addressIncompleteReason, setAddressIncompleteReason] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       loadUserAddress();
-      checkProfileComplete();
-      checkAddressComplete();
     }
   }, [user]);
 
@@ -53,9 +45,9 @@ export const Header = () => {
         .select("*")
         .eq("user_id", user.id)
         .eq("is_primary", true)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       if (data) {
         const fullAddress = `${data.street}, ${data.number}${data.complement ? ` - ${data.complement}` : ""} - ${data.neighborhood}`;
         setUserAddress(fullAddress);
@@ -70,56 +62,9 @@ export const Header = () => {
     navigate('/');
   };
 
-  const checkProfileComplete = async () => {
-    if (!user) return;
-    
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("name, cpf, phone, address")
-        .eq("user_id", user.id)
-        .single();
-
-      if (error) throw error;
-
-      const missing: string[] = [];
-      if (!data?.name) missing.push('nome');
-      if (!(data as any)?.cpf) missing.push('CPF');
-      if (!data?.phone) missing.push('telefone');
-      if (!data?.address) missing.push('endereço');
-
-      setMissingFields(missing);
-    } catch (error) {
-      console.error("Error checking profile:", error);
-    }
-  };
-
-  const checkAddressComplete = async () => {
-    if (!user) return;
-    
-    try {
-      const { data: address } = await supabase
-        .from('user_addresses')
-        .select('street, number, neighborhood, city, state')
-        .eq('user_id', user.id)
-        .eq('is_primary', true)
-        .maybeSingle();
-      
-      const validation = isStructuredAddressComplete(address);
-      if (!validation.complete) {
-        setAddressIncompleteReason(validation.reason);
-      } else {
-        setAddressIncompleteReason(null);
-      }
-    } catch (error) {
-      console.error("Error checking address:", error);
-    }
-  };
-
   const handleAddressSelect = (address: Address) => {
     const fullAddress = `${address.street}, ${address.number}${address.complement ? ` - ${address.complement}` : ""} - ${address.neighborhood}`;
     setUserAddress(fullAddress);
-    checkAddressComplete();
   };
 
   return (
@@ -185,8 +130,7 @@ export const Header = () => {
                     aria-label="Notificações"
                   >
                     <Bell className="h-6 w-6 text-foreground" />
-                    {/* Bolinha vermelha de notificação */}
-                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-background"></span>
+                    <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-destructive rounded-full border-2 border-background"></span>
                   </button>
 
                   {/* Desktop: Avatar com Dropdown */}
@@ -232,8 +176,6 @@ export const Header = () => {
           </div>
         </div>
       </header>
-      <ProfileIncompleteAlert missingFields={missingFields} />
-      {addressIncompleteReason && <AddressIncompleteAlert reason={addressIncompleteReason} />}
       <ActiveOrderBanner />
       
       {user && (

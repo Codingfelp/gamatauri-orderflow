@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/Header";
 import { Loader2 } from "lucide-react";
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
-import { ProfileSetupModal } from "@/components/ProfileSetupModal";
 import { useAuth } from "@/hooks/useAuth";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
@@ -20,8 +19,6 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [userId, setUserId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("signin");
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,205 +26,58 @@ export default function Auth() {
   const { signInWithGoogle } = useGoogleAuth();
   const { user, loading: authLoading } = useAuth();
 
-  // Monitor authentication state changes (for OAuth redirect)
+  const getRedirect = () => {
+    const from = (location.state as any)?.from || "/";
+    const cart = (location.state as any)?.cart;
+    return { from, state: cart ? { cart } : undefined };
+  };
+
+  // Redirect if already authenticated
   useEffect(() => {
-    console.log('🔄 [AUTH PAGE] useEffect triggered:', { 
-      authLoading, 
-      hasUser: !!user, 
-      userId: user?.id,
-      userEmail: user?.email,
-      showProfileModal 
-    });
-    
-    if (!authLoading && user && !showProfileModal) {
-      console.log('🔍 [AUTH PAGE] Usuário autenticado detectado, verificando perfil...');
-      console.log('👤 [AUTH PAGE] Dados do usuário:', {
-        id: user.id,
-        email: user.email,
-        created_at: user.created_at,
-        app_metadata: user.app_metadata,
-        user_metadata: user.user_metadata
-      });
-      
-      checkProfileComplete(user).then(isComplete => {
-        console.log('✅ [AUTH PAGE] Resultado verificação perfil:', isComplete);
-        if (isComplete) {
-          const from = (location.state as any)?.from || "/";
-          const cart = (location.state as any)?.cart;
-          console.log('✅ [AUTH PAGE] Perfil completo, redirecionando para:', from);
-          navigate(from, { state: cart ? { cart } : undefined });
-        } else {
-          console.log('⚠️ [AUTH PAGE] Perfil incompleto, abrindo modal de setup');
-        }
-      }).catch(err => {
-        console.error('❌ [AUTH PAGE] Erro ao verificar perfil:', err);
-      });
-    } else if (!authLoading && !user) {
-      console.log('⚠️ [AUTH PAGE] Nenhum usuário autenticado detectado');
+    if (!authLoading && user) {
+      const { from, state } = getRedirect();
+      navigate(from, { state });
     }
   }, [user, authLoading]);
 
-  const checkProfileComplete = async (user: any, retryCount = 0): Promise<boolean> => {
-    try {
-      console.log('🔍 [PROFILE CHECK] Tentativa', retryCount + 1, '- Verificando perfil para:', user.id);
-      
-      // AUMENTAR DELAY INICIAL para dar tempo ao trigger
-      if (retryCount === 0) {
-        await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay inicial
-      }
-      
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('phone, address, name, cpf, user_id, email')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      console.log('📊 [PROFILE CHECK] Resultado da query:', { profile, error, retryCount });
-
-      if (error) {
-        console.error('❌ [PROFILE CHECK] Erro ao buscar perfil:', error);
-        setUserId(user.id);
-        setShowProfileModal(true);
-        return false;
-      }
-
-      if (!profile) {
-        // Perfil não existe - tentar novamente
-        if (retryCount < 3) { // AUMENTAR de 2 para 3 tentativas
-          console.warn(`⏳ [PROFILE CHECK] Perfil não encontrado, tentando novamente... (${retryCount + 1}/3)`);
-          await new Promise(resolve => setTimeout(resolve, 500)); // 500ms entre tentativas
-          return checkProfileComplete(user, retryCount + 1);
-        }
-        
-        console.warn('⚠️ [PROFILE CHECK] Perfil não criado após 3 tentativas, abrindo modal');
-        setUserId(user.id);
-        setShowProfileModal(true);
-        return false;
-      }
-
-      console.log('📋 [PROFILE CHECK] Perfil encontrado:', profile);
-
-      // ✅ VERIFICAÇÃO: Apenas phone é obrigatório no modal inicial
-      // CPF e address serão coletados depois, quando necessário
-      const missingFields = {
-        phone: !profile.phone,
-        name: !profile.name
-      };
-
-      if (missingFields.phone || missingFields.name) {
-        console.log('⚠️ [PROFILE CHECK] Perfil incompleto - faltam campos:', missingFields);
-        setUserId(user.id);
-        setShowProfileModal(true);
-        return false;
-      }
-      
-      console.log('✅ [PROFILE CHECK] Perfil completo!');
-      return true;
-    } catch (error) {
-      console.error('❌ [PROFILE CHECK] Exceção inesperada:', error);
-      if (retryCount < 3) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return checkProfileComplete(user, retryCount + 1);
-      }
-      // Em caso de erro persistente, abrir modal para garantir coleta de dados
-      setUserId(user.id);
-      setShowProfileModal(true);
-      return false;
-    }
-  };
-
   const handleGoogleSignIn = async () => {
-    console.log('🔵 [HANDLE GOOGLE] Botão Google clicado');
     setGoogleLoading(true);
     try {
-      console.log('🔵 [HANDLE GOOGLE] Chamando signInWithGoogle...');
       const { error } = await signInWithGoogle();
-      
-      console.log('🔵 [HANDLE GOOGLE] Retorno de signInWithGoogle:', { error });
-      
-      if (error) {
-        console.error('❌ [HANDLE GOOGLE] Erro retornado:', error);
-        throw error;
-      }
-
-      // OAuth redirects automatically, profile check happens in useEffect after redirect
-      console.log('✅ [HANDLE GOOGLE] Sem erros, aguardando redirecionamento...');
-      toast({
-        title: "Aguarde...",
-        description: "Abrindo autorização do Google",
-        duration: 3000,
-      });
+      if (error) throw error;
+      toast({ title: "Aguarde...", description: "Abrindo autorização do Google", duration: 3000 });
     } catch (error: any) {
-      console.error('❌ [HANDLE GOOGLE] Exceção capturada:', error);
-      // Determine error type and provide detailed instructions
-      const errorMessage = error.message || '';
-      let title = "Erro ao fazer login com Google";
-      let description = errorMessage;
-      
-      if (errorMessage.includes('403') || errorMessage.includes('Forbidden')) {
-        title = "⚠️ Configuração OAuth Necessária";
-        description = errorMessage;
-      } else if (errorMessage.includes('redirect_uri_mismatch')) {
-        title = "⚠️ URI de Redirecionamento Inválida";
-        description = errorMessage;
-      } else if (errorMessage.includes('invalid_client')) {
-        title = "⚠️ Credenciais OAuth Inválidas";
-        description = errorMessage;
-      }
-      
-      toast({
-        variant: "destructive",
-        title,
-        description,
-        duration: 10000,
-      });
+      toast({ variant: "destructive", title: "Erro ao fazer login com Google", description: error.message, duration: 10000 });
       setGoogleLoading(false);
     }
   };
 
   const handleSignUp = async () => {
     setLoading(true);
-
     try {
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            name: name,
-          },
+          data: { name },
         },
       });
-
       if (error) throw error;
 
-      toast({
-        title: "Conta criada!",
-        description: "Você já pode fazer login.",
-      });
-      
-      const { error: signInError, data } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      // Auto sign-in after signup
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw signInError;
-      
-      if (data?.user) {
-        const isComplete = await checkProfileComplete(data.user);
-        if (isComplete) {
-          const from = (location.state as any)?.from || "/";
-          const cart = (location.state as any)?.cart;
-          navigate(from, { state: cart ? { cart } : undefined });
-        }
-      }
+
+      toast({ title: "Conta criada!", description: "Bem-vindo!" });
+      // useEffect will handle redirect
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao criar conta",
-        description: error.message,
-      });
+      let msg = error.message;
+      if (error.message.includes('User already registered')) {
+        msg = "Este email já está cadastrado. Tente fazer login.";
+        setActiveTab("signin");
+      }
+      toast({ variant: "destructive", title: "Erro ao criar conta", description: msg });
     } finally {
       setLoading(false);
     }
@@ -235,76 +85,29 @@ export default function Auth() {
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Preencha email e senha",
-        variant: "destructive",
-      });
+      toast({ title: "Campos obrigatórios", description: "Preencha email e senha", variant: "destructive" });
       return;
     }
-
     setLoading(true);
-
     try {
-      const { error, data } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
-
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (error) {
-        console.error('❌ Erro ao fazer login:', error);
-        
-        // Verificar se é erro de credenciais inválidas
-        if (error.message.includes('Invalid login credentials') || 
-            error.message.includes('Email not confirmed')) {
-          
-          // Verificar se o email existe no sistema
-          const { data: existingUser } = await supabase
-            .from('profiles')
-            .select('email')
-            .eq('email', email.trim())
-            .maybeSingle();
-          
-          if (!existingUser) {
-            // Usuário não existe - trocar para cadastro
-            setActiveTab("signup");
-            toast({
-              title: "Usuário não encontrado",
-              description: "Você ainda não tem cadastro. Por favor, cadastre-se primeiro.",
-              variant: "default",
-            });
-            setLoading(false);
-            return;
-          }
+        if (error.message.includes('Invalid login credentials') || error.message.includes('Email not confirmed')) {
+          toast({ variant: "destructive", title: "Credenciais inválidas", description: "Email ou senha incorretos.", duration: 8000 });
+          setLoading(false);
+          return;
         }
-        
         throw error;
       }
-
-      if (data?.user) {
-        const isComplete = await checkProfileComplete(data.user);
-        if (isComplete) {
-          toast({
-            title: "Bem-vindo!",
-            description: "Login realizado com sucesso.",
-          });
-          const from = (location.state as any)?.from || "/";
-          const cart = (location.state as any)?.cart;
-          navigate(from, { state: cart ? { cart } : undefined });
-        }
-      }
+      toast({ title: "Bem-vindo!", description: "Login realizado com sucesso." });
+      // useEffect will handle redirect
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao fazer login",
-        description: error.message,
-      });
+      toast({ variant: "destructive", title: "Erro ao fazer login", description: error.message });
     } finally {
       setLoading(false);
     }
   };
 
-  // Show loading spinner while checking auth state
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-primary/5">
@@ -334,19 +137,8 @@ export default function Auth() {
 
             <TabsContent value="signin">
               <form onSubmit={(e) => { e.preventDefault(); handleSignIn(); }} className="space-y-6">
-                <Button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  variant="outline"
-                  className="w-full h-12 text-base font-semibold border-2 hover:bg-accent"
-                  disabled={googleLoading}
-                >
-                  {googleLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Entrando...
-                    </>
-                  ) : (
+                <Button type="button" onClick={handleGoogleSignIn} variant="outline" className="w-full h-12 text-base font-semibold border-2 hover:bg-accent" disabled={googleLoading}>
+                  {googleLoading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" />Entrando...</>) : (
                     <>
                       <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -360,69 +152,29 @@ export default function Auth() {
                 </Button>
                 
                 <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-card px-2 text-muted-foreground">Ou continue com email</span>
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="signin-email" className="text-base font-semibold">E-mail</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu@email.com"
-                    className="h-12 text-base"
-                    required
-                  />
+                  <Input id="signin-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" className="h-12 text-base" required />
                 </div>
                 <div>
                   <Label htmlFor="signin-password" className="text-base font-semibold">Senha</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="h-12 text-base"
-                    required
-                  />
+                  <Input id="signin-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 text-base" required />
                 </div>
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Entrando...
-                    </>
-                  ) : (
-                    'Entrar'
-                  )}
+                <Button type="submit" className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]" disabled={loading}>
+                  {loading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" />Entrando...</>) : 'Entrar'}
                 </Button>
               </form>
             </TabsContent>
 
             <TabsContent value="signup">
               <form onSubmit={(e) => { e.preventDefault(); handleSignUp(); }} className="space-y-6">
-                <Button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  variant="outline"
-                  className="w-full h-12 text-base font-semibold border-2 hover:bg-accent"
-                  disabled={googleLoading}
-                >
-                  {googleLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Criando conta...
-                    </>
-                  ) : (
+                <Button type="button" onClick={handleGoogleSignIn} variant="outline" className="w-full h-12 text-base font-semibold border-2 hover:bg-accent" disabled={googleLoading}>
+                  {googleLoading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" />Criando conta...</>) : (
                     <>
                       <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -436,79 +188,31 @@ export default function Auth() {
                 </Button>
                 
                 <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-card px-2 text-muted-foreground">Ou cadastre-se com email</span>
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="signup-name" className="text-base font-semibold">Nome Completo</Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Seu nome"
-                    className="h-12 text-base"
-                    required
-                  />
+                  <Input id="signup-name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Seu nome" className="h-12 text-base" required />
                 </div>
                 <div>
                   <Label htmlFor="signup-email" className="text-base font-semibold">E-mail</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="seu@email.com"
-                    className="h-12 text-base"
-                    required
-                  />
+                  <Input id="signup-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" className="h-12 text-base" required />
                 </div>
                 <div>
                   <Label htmlFor="signup-password" className="text-base font-semibold">Senha</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="h-12 text-base"
-                    required
-                    minLength={6}
-                  />
+                  <Input id="signup-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="h-12 text-base" required minLength={6} />
                 </div>
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Criando conta...
-                    </>
-                  ) : (
-                    'Criar Conta'
-                  )}
+                <Button type="submit" className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]" disabled={loading}>
+                  {loading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" />Criando conta...</>) : 'Criar Conta'}
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
         </Card>
       </div>
-      <ProfileSetupModal
-        open={showProfileModal}
-        onClose={() => {
-          setShowProfileModal(false);
-          const from = (location.state as any)?.from || "/";
-          const cart = (location.state as any)?.cart;
-          navigate(from, { state: cart ? { cart } : undefined });
-        }}
-        userId={userId}
-      />
     </div>
   );
 }
