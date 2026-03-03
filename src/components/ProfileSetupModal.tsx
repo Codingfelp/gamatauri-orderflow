@@ -4,21 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2, User } from "lucide-react";
+import { updateProfile } from "@/services/api/profile";
 
 interface ProfileSetupModalProps {
   open: boolean;
   onClose: () => void;
-  userId: string;
 }
 
-export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalProps) => {
+export const ProfileSetupModal = ({ open, onClose }: ProfileSetupModalProps) => {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-  });
+  const [formData, setFormData] = useState({ name: "", phone: "" });
   const { toast } = useToast();
 
   const formatPhone = (value: string) => {
@@ -30,89 +26,19 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name.trim()) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Por favor, preencha seu nome completo",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!formData.phone.trim()) {
-      toast({
-        title: "Campo obrigatório",
-        description: "Por favor, preencha seu telefone",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!formData.name.trim()) { toast({ title: "Campo obrigatório", description: "Por favor, preencha seu nome completo", variant: "destructive" }); return; }
+    if (!formData.phone.trim()) { toast({ title: "Campo obrigatório", description: "Por favor, preencha seu telefone", variant: "destructive" }); return; }
 
     const phoneDigits = formData.phone.replace(/\D/g, '');
-    if (phoneDigits.length < 10) {
-      toast({
-        title: "Telefone inválido",
-        description: "Por favor, preencha um telefone válido com DDD",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (phoneDigits.length < 10) { toast({ title: "Telefone inválido", description: "Por favor, preencha um telefone válido com DDD", variant: "destructive" }); return; }
 
     setLoading(true);
     try {
-      // Verificar se o telefone já está em uso por outro usuário
-      const { data: existingPhone, error: phoneError } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('phone', formData.phone.trim())
-        .neq('user_id', userId)
-        .maybeSingle();
-
-      if (phoneError) throw phoneError;
-
-      if (existingPhone) {
-        toast({
-          title: "Telefone já cadastrado",
-          description: "Este telefone já está vinculado a outra conta.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          name: formData.name.trim(),
-          phone: formData.phone.trim(),
-        })
-        .eq('user_id', userId);
-
-      if (error) {
-        // Verificar se é erro de email duplicado
-        if (error.message?.includes('profiles_email_unique') || error.code === '23505') {
-          toast({
-            title: "Email já cadastrado",
-            description: "Este email já está vinculado a outra conta.",
-            variant: "destructive",
-          });
-          return;
-        }
-        throw error;
-      }
-
-      toast({
-        title: "Perfil completado!",
-        description: "Seus dados foram salvos com sucesso.",
-      });
+      await updateProfile({ name: formData.name.trim(), phone: formData.phone.trim() });
+      toast({ title: "Perfil completado!", description: "Seus dados foram salvos com sucesso." });
       onClose();
     } catch (error: any) {
-      toast({
-        title: "Erro ao salvar perfil",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao salvar perfil", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -126,54 +52,19 @@ export const ProfileSetupModal = ({ open, onClose, userId }: ProfileSetupModalPr
             <User className="w-6 h-6 text-primary" />
           </div>
           <DialogTitle className="text-2xl font-bold text-center">Complete seu perfil</DialogTitle>
-          <DialogDescription className="text-center">
-            Precisamos de algumas informações básicas para continuar
-          </DialogDescription>
+          <DialogDescription className="text-center">Precisamos de algumas informações básicas para continuar</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-base font-semibold flex items-center gap-2">
-              <span>Nome Completo</span>
-              <span className="text-primary">*</span>
-            </Label>
-            <Input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="João Silva"
-              className="h-12 text-base border-2 focus:border-primary transition-all"
-              required
-            />
+            <Label htmlFor="name" className="text-base font-semibold flex items-center gap-2"><span>Nome Completo</span><span className="text-primary">*</span></Label>
+            <Input id="name" type="text" value={formData.name} onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))} placeholder="João Silva" className="h-12 text-base border-2 focus:border-primary transition-all" required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-base font-semibold flex items-center gap-2">
-              <span>Telefone</span>
-              <span className="text-primary">*</span>
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhone(e.target.value) }))}
-              placeholder="(31) 98765-4321"
-              className="h-12 text-base border-2 focus:border-primary transition-all"
-              required
-            />
+            <Label htmlFor="phone" className="text-base font-semibold flex items-center gap-2"><span>Telefone</span><span className="text-primary">*</span></Label>
+            <Input id="phone" type="tel" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: formatPhone(e.target.value) }))} placeholder="(31) 98765-4321" className="h-12 text-base border-2 focus:border-primary transition-all" required />
           </div>
-          <Button
-            type="submit"
-            className="w-full h-12 text-base font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              'Salvar e Continuar'
-            )}
+          <Button type="submit" className="w-full h-12 text-base font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300" disabled={loading}>
+            {loading ? (<><Loader2 className="mr-2 h-5 w-5 animate-spin" />Salvando...</>) : 'Salvar e Continuar'}
           </Button>
         </form>
       </DialogContent>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchPromotions as apiFetchPromotions } from "@/services/api/promotions";
 
 export interface ProductPromotion {
   id: string;
@@ -15,17 +15,22 @@ export const usePromotions = () => {
   const [promotions, setPromotions] = useState<ProductPromotion[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPromotions = async () => {
+  const loadPromotions = async () => {
     try {
-      const { data, error } = await supabase
-        .from("product_promotions")
-        .select("*")
-        .or("is_active.eq.true,is_active.is.null")
-        .order("start_date", { ascending: true });
+      const data = await apiFetchPromotions();
 
-      if (error) throw error;
+      // Map API response to ProductPromotion interface
+      const mapped: ProductPromotion[] = data.map((p) => ({
+        id: p.id,
+        product_id: p.product?.id || "",
+        promotional_price: p.promotion_price,
+        original_price: p.original_price,
+        start_date: new Date(0).toISOString(), // API only returns active promos
+        end_date: p.end_date,
+        is_active: true,
+      }));
 
-      setPromotions((data as ProductPromotion[]) || []);
+      setPromotions(mapped);
     } catch (error) {
       console.error("Error fetching promotions:", error);
     } finally {
@@ -34,54 +39,24 @@ export const usePromotions = () => {
   };
 
   useEffect(() => {
-    fetchPromotions();
-
-    // Polling every 5 minutes (promotions rarely change)
-    const poll = setInterval(fetchPromotions, 5 * 60 * 1000);
-
-    return () => {
-      clearInterval(poll);
-    };
+    loadPromotions();
+    const poll = setInterval(loadPromotions, 5 * 60 * 1000);
+    return () => clearInterval(poll);
   }, []);
 
-  // Get promotion for a specific product
-  // Regra: retorna 1 promoção relevante (ativa primeiro; senão, a próxima agendada)
   const getPromotionForProduct = (productId: string): ProductPromotion | null => {
-    const now = Date.now();
-
-    const productPromos = promotions.filter((p) => p.product_id === productId && (p.is_active ?? true));
-    if (productPromos.length === 0) return null;
-
-    const active = productPromos.find((p) => {
-      const start = new Date(p.start_date).getTime();
-      const end = new Date(p.end_date).getTime();
-      return now >= start && now <= end;
-    });
-    if (active) return active;
-
-    const upcoming = productPromos
-      .filter((p) => new Date(p.start_date).getTime() > now)
-      .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-
-    return upcoming[0] || null;
+    return promotions.find((p) => p.product_id === productId) || null;
   };
 
-  // Check if a promotion is currently active (within date range)
   const isPromotionActive = (promo: ProductPromotion): boolean => {
     const now = new Date();
-    const start = new Date(promo.start_date);
     const end = new Date(promo.end_date);
-    return (promo.is_active ?? true) && now >= start && now <= end;
+    return promo.is_active && now <= end;
   };
 
-  // Get all active promotions with products
   const getActivePromotions = (): ProductPromotion[] => {
     const now = new Date();
-    return promotions.filter((p) => {
-      const start = new Date(p.start_date);
-      const end = new Date(p.end_date);
-      return (p.is_active ?? true) && now >= start && now <= end;
-    });
+    return promotions.filter((p) => p.is_active && now <= new Date(p.end_date));
   };
 
   return {
@@ -90,6 +65,6 @@ export const usePromotions = () => {
     getPromotionForProduct,
     isPromotionActive,
     getActivePromotions,
-    refetch: fetchPromotions,
+    refetch: loadPromotions,
   };
 };

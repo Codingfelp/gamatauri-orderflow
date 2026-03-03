@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -10,17 +9,9 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Package, Clock, Truck, CheckCircle, ArrowLeft, XCircle } from "lucide-react";
 import { format, isToday, isYesterday, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { normalizePhone } from "@/utils/phoneUtils";
-import { toast } from "sonner";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import gamatauri from "@/assets/gamatauri-logo.png";
-
-interface OrderItem {
-  product_name: string;
-  quantity: number;
-  product_price: number;
-  subtotal: number;
-}
+import { fetchOrders, type OrderData, type OrderItemData } from "@/services/api/orders";
 
 interface Order {
   id: string;
@@ -31,7 +22,26 @@ interface Order {
   payment_method: string;
   order_status: string;
   customer_address: string;
-  order_items: OrderItem[];
+  order_items: { product_name: string; quantity: number; product_price: number; subtotal: number }[];
+}
+
+function mapApiOrder(o: OrderData): Order {
+  return {
+    id: o.id,
+    external_order_number: o.order_number || o.external_order_number || null,
+    created_at: o.created_at,
+    total_amount: o.total ?? o.total_amount ?? 0,
+    payment_status: o.payment_status || "paid",
+    payment_method: o.payment_method || "pix",
+    order_status: o.status || o.order_status || "preparing",
+    customer_address: o.customer_address || "",
+    order_items: (o.items || []).map((item: OrderItemData) => ({
+      product_name: item.productName || item.product_name || "",
+      quantity: item.quantity,
+      product_price: item.unitPrice || item.product_price || 0,
+      subtotal: item.totalPrice || item.subtotal || 0,
+    })),
+  };
 }
 
 export default function Orders() {
@@ -39,7 +49,6 @@ export default function Orders() {
   const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -47,105 +56,28 @@ export default function Orders() {
     }
   }, [user, authLoading, navigate]);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
-      setUserProfile(profile);
-    };
-
-    fetchUserProfile();
-  }, [user]);
-
-  useEffect(() => {
-    const fetchOrders = async () => {
-      // Fetch orders as soon as user exists - don't depend on userProfile
-      if (!user) return;
-
-      try {
-        // Fetch orders using user_id directly (RLS handles filtering)
-        const { data, error } = await supabase
-          .from("orders")
-          .select(`
-            *,
-            order_items (
-              product_name,
-              quantity,
-              product_price,
-              subtotal
-            )
-          `)
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          console.error("Error fetching orders:", error);
-          throw error;
-        }
-        
-        console.log(`[Orders] Fetched ${data?.length || 0} orders for user ${user.id}`);
-        setOrders(data || []);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, [user]);
-
-  // Polling every 30 seconds for order status updates
-  useEffect(() => {
+  const loadOrders = async () => {
     if (!user) return;
-
-    const pollOrders = async () => {
-      const { data } = await supabase
-        .from("orders")
-        .select(`*, order_items (product_name, quantity, product_price, subtotal)`)
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (data) setOrders(data);
-    };
-
-    const poll = setInterval(pollOrders, 30000);
-
-    return () => {
-      clearInterval(poll);
-    };
-  }, [user]);
-
-  const markAsDelivered = async (orderId: string) => {
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({
-          order_status: "delivered",
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", orderId);
-
-      if (error) throw error;
-
-      setOrders(
-        orders.map((order) =>
-          order.id === orderId ? { ...order, order_status: "delivered" } : order
-        )
-      );
-
-      toast.success("Pedido confirmado como entregue! 🎉");
+      const res = await fetchOrders(1, 100);
+      setOrders((res.data || []).map(mapApiOrder));
     } catch (error) {
-      console.error("Error marking as delivered:", error);
-      toast.error("Erro ao marcar pedido como entregue");
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadOrders();
+  }, [user]);
+
+  // Polling every 30 seconds
+  useEffect(() => {
+    if (!user) return;
+    const poll = setInterval(loadOrders, 30000);
+    return () => clearInterval(poll);
+  }, [user]);
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { label: string; variant: any; icon: any }> = {
@@ -176,23 +108,16 @@ export default function Orders() {
   };
 
   const filterOrdersByStatus = (status: string) => {
-    // Handle multiple status values that map to the same tab
     if (status === 'preparing') {
-      return orders.filter((order) => 
-        order.order_status === 'preparing' || order.order_status === 'separacao'
-      );
+      return orders.filter((o) => o.order_status === 'preparing' || o.order_status === 'separacao');
     }
     if (status === 'delivered') {
-      return orders.filter((order) => 
-        order.order_status === 'delivered' || order.order_status === 'entregue'
-      );
+      return orders.filter((o) => o.order_status === 'delivered' || o.order_status === 'entregue');
     }
     if (status === 'cancelled') {
-      return orders.filter((order) => 
-        order.order_status === 'cancelled' || order.order_status === 'cancelado'
-      );
+      return orders.filter((o) => o.order_status === 'cancelled' || o.order_status === 'cancelado');
     }
-    return orders.filter((order) => order.order_status === status);
+    return orders.filter((o) => o.order_status === status);
   };
 
   const groupOrdersByDate = (orders: Order[]) => {
@@ -208,14 +133,10 @@ export default function Orders() {
   const OrderCard = ({ order }: { order: Order }) => (
     <Card className="p-4 hover:shadow-md transition-shadow">
       <div className="flex gap-3">
-        {/* Logo */}
         <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
           <img src={gamatauri} alt="Gamatauri" className="h-8 w-8 object-contain" />
         </div>
-
-        {/* Content */}
         <div className="flex-1 min-w-0">
-          {/* Header */}
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1">
               <h3 className="font-bold text-base">Gamatauri Delivery</h3>
@@ -225,8 +146,6 @@ export default function Orders() {
             </div>
             {getStatusBadge(order.order_status)}
           </div>
-
-          {/* Items Preview */}
           <div className="text-sm text-muted-foreground mb-3">
             {order.order_items.slice(0, 2).map((item, idx) => (
               <span key={idx}>
@@ -238,22 +157,10 @@ export default function Orders() {
               <span className="text-xs"> +{order.order_items.length - 2} itens</span>
             )}
           </div>
-
-          {/* Footer */}
           <div className="flex items-center justify-between">
             <span className="font-bold text-lg text-primary">
               R$ {order.total_amount.toFixed(2)}
             </span>
-            {order.order_status === "in_route" && (
-              <Button
-                size="sm"
-                onClick={() => markAsDelivered(order.id)}
-                className="h-8"
-              >
-                <CheckCircle className="h-3 w-3 mr-1" />
-                Confirmar
-              </Button>
-            )}
           </div>
         </div>
       </div>
@@ -271,7 +178,6 @@ export default function Orders() {
         delivered: "Nenhum pedido entregue",
         cancelled: "Nenhum pedido cancelado",
       };
-
       return (
         <div className="text-center py-16">
           <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground/30" />
@@ -284,9 +190,7 @@ export default function Orders() {
       <div className="space-y-6">
         {Object.entries(groupedOrders).map(([dateLabel, orders]) => (
           <div key={dateLabel}>
-            <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-1">
-              {dateLabel}
-            </h3>
+            <h3 className="text-sm font-semibold text-muted-foreground mb-3 px-1">{dateLabel}</h3>
             <div className="space-y-3">
               {orders.map((order) => (
                 <OrderCard key={order.id} order={order} />
@@ -311,14 +215,10 @@ export default function Orders() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      {/* Simple Header */}
       <div className="sticky top-0 z-30 bg-background border-b">
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/")}
-              className="p-2 hover:bg-muted rounded-full transition-colors"
-            >
+            <button onClick={() => navigate("/")} className="p-2 hover:bg-muted rounded-full transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </button>
             <h1 className="text-xl font-bold">Pedidos</h1>
@@ -326,42 +226,20 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-md mx-auto px-4 py-6">
         <Tabs defaultValue="preparing" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
-            <TabsTrigger value="preparing" className="text-xs">
-              Preparando
-            </TabsTrigger>
-            <TabsTrigger value="in_route" className="text-xs">
-              A caminho
-            </TabsTrigger>
-            <TabsTrigger value="delivered" className="text-xs">
-              Entregues
-            </TabsTrigger>
-            <TabsTrigger value="cancelled" className="text-xs">
-              Cancelados
-            </TabsTrigger>
+            <TabsTrigger value="preparing" className="text-xs">Preparando</TabsTrigger>
+            <TabsTrigger value="in_route" className="text-xs">A caminho</TabsTrigger>
+            <TabsTrigger value="delivered" className="text-xs">Entregues</TabsTrigger>
+            <TabsTrigger value="cancelled" className="text-xs">Cancelados</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="preparing">
-            <OrderList status="preparing" />
-          </TabsContent>
-
-          <TabsContent value="in_route">
-            <OrderList status="in_route" />
-          </TabsContent>
-
-          <TabsContent value="delivered">
-            <OrderList status="delivered" />
-          </TabsContent>
-
-          <TabsContent value="cancelled">
-            <OrderList status="cancelled" />
-          </TabsContent>
+          <TabsContent value="preparing"><OrderList status="preparing" /></TabsContent>
+          <TabsContent value="in_route"><OrderList status="in_route" /></TabsContent>
+          <TabsContent value="delivered"><OrderList status="delivered" /></TabsContent>
+          <TabsContent value="cancelled"><OrderList status="cancelled" /></TabsContent>
         </Tabs>
       </div>
-
       <BottomNavigation />
     </div>
   );
